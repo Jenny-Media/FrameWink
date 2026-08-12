@@ -527,5 +527,14 @@ FrameWink process rather than producing a false pass. The complete iPad
 Simulator scheme then passed all 101 tests after the new Debug-only seam was
 added. The acceptance environment also launched on Simulator and wrote an
 active, nominal-thermal, idle-timer/Guided-Access heartbeat at its expected app-
-container path. A live physical heartbeat and real PhotoKit flow await an
-unlocked device and the tester-owned permission/album choices.
+container path.
+
+After the iPad was unlocked, the physical harness launched and remained live.
+The baseline screenshot showed Wall Mode Setup at `No album selected` with no
+Photos prompt and `Choose Album` as the explicit authorization trigger. The
+photo-free heartbeat reported the app active, nominal thermal state, battery at
+95% while charging, Low Power Mode off, idle-timer ownership off outside Frame
+Mode, and Guided Access off. The host heartbeat-copy destination was corrected
+from a directory to an explicit filename, and a second sample captured every
+field successfully. The real PhotoKit flow now waits only on the tester-owned
+Limited/Full authorization and test-album selection.

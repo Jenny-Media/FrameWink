@@ -160,18 +160,15 @@ prepare() {
 }
 
 copy_heartbeat() {
-    FRAMEWINK_HEARTBEAT_DESTINATION="$FRAMEWINK_SAMPLE_DIRECTORY/app-data"
-    mkdir -p "$FRAMEWINK_HEARTBEAT_DESTINATION"
     if DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device copy from \
         --device "$FRAMEWINK_DEVICE_ID" \
         --domain-type appDataContainer \
         --domain-identifier "$FRAMEWINK_BUNDLE_ID" \
         --source Library/Application\ Support/FrameWink/PhysicalAcceptance/heartbeat.json \
-        --destination "$FRAMEWINK_HEARTBEAT_DESTINATION" >/dev/null 2>&1; then
-        FRAMEWINK_HEARTBEAT_FILE=$(find "$FRAMEWINK_HEARTBEAT_DESTINATION" -name heartbeat.json -print | head -1)
-        [ -z "$FRAMEWINK_HEARTBEAT_FILE" ] || cp "$FRAMEWINK_HEARTBEAT_FILE" \
-            "$FRAMEWINK_SAMPLE_DIRECTORY/heartbeat.json"
+        --destination "$FRAMEWINK_SAMPLE_DIRECTORY/heartbeat.json" >/dev/null 2>&1; then
+        return 0
     fi
+    return 1
 }
 
 sample() {

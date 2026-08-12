@@ -95,13 +95,14 @@ blocker affects only a later boundary.
   explicitly test-only Wall Mode entitlement with the real PhotoKit client;
   `sample` records device/app evidence. Owner actions and acceptance criteria
   are in `docs/PHYSICAL_ACCEPTANCE.md`.
-- Current execution boundary: the first automated `prepare` run on 2026-08-12
-  built and installed successfully, but iPadOS rejected foreground launch while
-  the device was locked. Unlocking is an intentional OS security boundary; the
-  script and remaining compile-time checks continue independently. A later
-  launch request returned without error but the process check and black device
-  screenshot still proved the display was locked; the monitor correctly kept
-  the run failed instead of accepting the launch response alone.
+- Harness execution: the first automated `prepare` run on 2026-08-12 built and
+  installed successfully, but iPadOS rejected foreground launch while locked.
+  After the owner unlocked the device, `prepare` launched successfully and the
+  monitor verified a live process plus a real Wall Mode Setup screenshot with
+  no Photos prompt before `Choose Album`. The baseline heartbeat reported the
+  app active, nominal thermal state, 95% battery while charging, idle-timer
+  ownership off outside Frame Mode, and Guided Access off. The remaining
+  permission scope and album choice are intentionally tester-owned.
 - Needed from owner: provide or approve a small licensed, human-labelled
   evaluation-photo set and exercise real Photos authorization, iCloud/Limited
   behavior, and sandbox purchase/restore on the connected iPad.
