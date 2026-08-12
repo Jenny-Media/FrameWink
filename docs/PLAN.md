@@ -9,12 +9,12 @@ time rather than unattended calendar time.
 |---|---:|---:|---|
 | 0. Contract and scaffold | 2 h | 1.5 h | Complete |
 | 1. Zero-permission preview | 5 h | 3.75 h | In progress — picker/offline checks pending |
-| 2. Frame engine | 6 h | — | Not started |
+| 2. Frame engine | 6 h | 3 h | Complete |
 | 3. Smart Reel curator | 10 h | — | Not started |
 | 4. Wall Mode | 5 h | — | Not started |
 | 5. Purchases | 4 h | — | Not started |
 | 6. Hardening and release | 8 h | — | Not started |
-| **Total** | **40 h** | **5.25 h** | **In progress** |
+| **Total** | **40 h** | **8.25 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -53,17 +53,26 @@ verification remain pending.
 
 ## Milestone 2 — Frame engine
 
-- [ ] Single-photo Fit and Fill layouts.
-- [ ] Two compatible portrait photos can be paired on a landscape display.
-- [ ] Tap/swipe previous and next.
-- [ ] Adjustable interval and pause.
-- [ ] Stable shuffle/order behavior.
-- [ ] Full-screen controls recede without making navigation undiscoverable.
-- [ ] Reduce Motion is respected.
-- [ ] Pure layout-selection tests cover faces and awkward aspect ratios.
+- [x] Single-photo Fit and Fill layouts.
+- [x] Two compatible portrait photos can be paired on a landscape display.
+- [x] Tap/swipe previous and next.
+- [x] Adjustable interval and pause.
+- [x] Stable shuffle/order behavior.
+- [x] Full-screen controls recede without making navigation undiscoverable.
+- [x] Reduce Motion is respected.
+- [x] Pure layout-selection tests cover faces and awkward aspect ratios.
 
 Acceptance: a 30-photo fixture reel plays repeatedly without incorrect bounds,
 stuck timers, or losing manual navigation.
+
+Status: complete. The deterministic layout chooser produces bounded Fit, Fill,
+face-safe fallback, portrait-pair, and rotated layouts. The pure frame-session
+controller replays a 30-page fixture, wraps manual navigation, changes timing,
+and pauses/resumes without timer drift. Frame Mode was visually exercised in
+portrait and landscape on the iOS 27 `iPad (A16)` Simulator; controls recede to
+an interaction hint and manual next navigation wraps correctly. All 18 project
+tests pass. Real-device touch gestures, rotation, and long-running playback
+remain release checks rather than blockers to the pure frame engine.
 
 ## Milestone 3 — Smart Reel curator
 
@@ -136,8 +145,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/FrameWink-DerivedData CODE_SIGNING_ALLOWED=NO build-for-testing
 
-# Pending until an iPad Simulator is booted:
-DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=<BOOTED_IPAD_UDID>' -derivedDataPath /private/tmp/FrameWink-DerivedData CODE_SIGNING_ALLOWED=NO test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-DerivedData CODE_SIGNING_ALLOWED=NO test
 ```
 
 ## Current risks and blockers

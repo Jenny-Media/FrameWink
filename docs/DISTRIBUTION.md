@@ -67,7 +67,7 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched, and all five tests passed.
+  was installed and launched; the current full suite passes all 18 tests.
 
 ## Remaining release decisions
 

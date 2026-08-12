@@ -29,6 +29,38 @@ The installed Xcode 27 toolchain only has iOS 27 Simulator runtimes. The app
 target remains iPadOS 15; the test runner target is iOS 17 to match the minimum
 version of XCTest bundled with this toolchain.
 
+### Milestone 2 verification record — 2026-08-11
+
+- Full Simulator suite: 18 tests passed with zero failures, skips, expected
+  failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
+- Seven `FrameLayoutChooserTests` cover Fit, centered Fill for panorama and
+  square inputs, an edge-positioned face, unsafe multi-face fallback, paired
+  portraits, and reflow after rotation.
+- Six `FrameSessionControllerTests` cover drift-free timer catch-up,
+  pause/resume, previous/next wraparound, a repeated 30-page fixture, page-count
+  changes, and interval changes.
+- Frame Mode was visually verified in portrait and landscape. The full-screen
+  entry and exit controls render within safe areas, controls recede after four
+  seconds to a persistent tap/swipe hint, automatic advance works, and manual
+  next navigation wraps around the three-photo sample.
+- Reduce Motion follows the system accessibility environment in both page and
+  control transitions; its pure non-animated branch compiles and the remaining
+  system-toggle behavior is a real-device interaction check.
+- A fresh non-test launch emitted no FrameWink-owned errors or faults. The sole
+  launch-time error was the iOS 27 Simulator's PointerUI service-port message.
+  CoreVideo pixel-buffer errors appeared only while the hosted ImageIO tests
+  were executing and did not reproduce during a fresh app launch.
+
+Verification command:
+
+```text
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-DerivedData CODE_SIGNING_ALLOWED=NO test
+```
+
+Still required on real hardware: touch/swipe and rotation checks, a sustained
+30-photo playback run, foreground/background transitions, and memory/thermal
+observation on the oldest supported device class.
+
 ### Photo import
 
 - Downsampling produces bounded pixel dimensions.

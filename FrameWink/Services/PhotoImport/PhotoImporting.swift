@@ -29,8 +29,3 @@ protocol ImageDownsampling {
         maxPixelDimension: Int
     ) throws -> PixelSize
 }
-
-struct PixelSize: Equatable {
-    let width: Int
-    let height: Int
-}

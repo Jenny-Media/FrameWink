@@ -12,6 +12,7 @@ struct RootView: View {
 
     @State private var presentedSheet: SheetDestination?
     @State private var showDeleteConfirmation = false
+    @State private var isFrameMode = false
 
     var body: some View {
         NavigationView {
@@ -20,13 +21,16 @@ struct RootView: View {
                     slides: model.slides,
                     loadImportedImage: { photo in
                         await model.image(for: photo)
-                    }
+                    },
+                    isFrameMode: $isFrameMode
                 )
                 .ignoresSafeArea()
 
-                chrome
+                if !isFrameMode {
+                    chrome
+                }
 
-                if model.importPhase != .idle {
+                if model.importPhase != .idle && !isFrameMode {
                     Color.black.opacity(0.2)
                         .ignoresSafeArea()
                         .transition(.opacity)
@@ -140,6 +144,14 @@ struct RootView: View {
                     .controlSize(.large)
                     .accessibilityHint("Opens the system photo picker with a 100-photo limit")
                 }
+
+                Button {
+                    isFrameMode = true
+                } label: {
+                    Label("Play Full Screen", systemImage: "play.fill")
+                }
+                .buttonStyle(.bordered)
+                .accessibilityHint("Starts the full-screen photo frame with playback controls")
 
                 if !model.importedPhotos.isEmpty {
                     Button("Delete Imported Photos", role: .destructive) {
