@@ -68,4 +68,16 @@ final class LocalAlbumSourceStoreTests: XCTestCase {
         XCTAssertEqual(store.loadConfiguration(), .defaultConfiguration)
         XCTAssertTrue(try store.loadRecords().isEmpty)
     }
+
+    func testAutomaticAlbumCacheIsExcludedFromBackup() throws {
+        var configuration = AutomaticAlbumConfiguration.defaultConfiguration
+        configuration.albumIdentifier = "album-id"
+        try store.saveConfiguration(configuration)
+
+        let values = try store.directory.resourceValues(
+            forKeys: [.isExcludedFromBackupKey]
+        )
+
+        XCTAssertEqual(values.isExcludedFromBackup, true)
+    }
 }

@@ -11,6 +11,7 @@ struct WallModeSetupView: View {
     @State private var guidedAccessIsEnabled = UIAccessibility.isGuidedAccessEnabled
     @State private var showAlbumPicker = false
     @State private var showDeleteAlbumConfirmation = false
+    @State private var showResetNeverShowConfirmation = false
     @State private var newConfigurationName = "My Frame"
     @State private var newConfigurationSource = FrameConfigurationSource.samples
     @State private var newConfigurationLayout = FrameLayoutPreference.automatic
@@ -97,6 +98,11 @@ struct WallModeSetupView: View {
                                 showDeleteAlbumConfirmation = true
                             }
                         }
+
+                        Button("Reset Automatic Never Show Choices") {
+                            showResetNeverShowConfirmation = true
+                        }
+                        .disabled(isAlbumBusy)
                     }
 
                     if let report = automaticAlbum.lastSyncReport,
@@ -329,6 +335,17 @@ struct WallModeSetupView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This removes FrameWink’s display-sized automatic-album copies, derived records, and current automatic source. It never changes any album or original in Apple Photos. A saved automatic configuration can rebuild the cache when you activate it again.")
+        }
+        .alert(
+            "Reset Automatic Never Show Choices?",
+            isPresented: $showResetNeverShowConfirmation
+        ) {
+            Button("Reset and Refresh") {
+                automaticAlbum.resetNeverShowChoices()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This clears only FrameWink’s local Never Show choices for automatic albums and refreshes suggestions. Cached photo copies and Apple Photos stay unchanged.")
         }
         .onAppear {
             guidedAccessIsEnabled = UIAccessibility.isGuidedAccessEnabled

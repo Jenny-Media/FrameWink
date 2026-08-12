@@ -189,7 +189,7 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
 
 ### Paid-scope completion verification record — 2026-08-12
 
-- Full Simulator suite: 80 tests passed with zero failures, skips, expected
+- Full Simulator suite: 86 tests passed with zero failures, skips, expected
   failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
 - The final unsigned generic-device Release build and Xcode static analysis
   both complete without diagnostics after the paid-scope changes.
@@ -239,10 +239,15 @@ Recovery status for the current MVP:
 | Automatic album cloud-only/partial failure | Strict Offline skips cloud-only items; prior usable copies survive refresh failure | Exercise real iCloud residency online/offline |
 | Deleted automatic-album asset | Sync prunes its metadata and only its app-controlled cache file | Verify real PhotoKit change notification |
 | Imported file deleted outside the manifest | Manifest is pruned and repaired by test | None for app-owned files |
-| Full disk / failed persistence | Transactional fakes preserve successful imports and surface retry | Trigger storage exhaustion on a disposable device |
+| Full disk / failed persistence | Fault-injected manifest failure rolls back the committed image, preserves prior imports, and surfaces the item for retry | Trigger storage exhaustion on a disposable device |
 | Corrupt disposable cache/reel | Invalid cache is discarded or rebuilt by test | None |
-| Corrupt durable exclusions | Error remains visible rather than silently forgetting `Never Show Again` | Delete Imported Photos remains the destructive recovery |
+| Corrupt durable exclusions | Error remains visible rather than silently forgetting `Never Show Again`; separate Free and automatic-album reset actions overwrite only the local veto list and rebuild suggestions without deleting photos | None for app-controlled storage |
 | Memory pressure / thermal | Bounded thumbnails, eager decode, cancellation, thermal fallback | Physical memory warning, Instruments, and thermal run |
+
+Imported photo copies, automatic-album caches, and their derived analysis data
+are excluded from device backup. Unit tests verify the exclusion resource flag
+on both local storage trees; small wall and saved-frame settings remain eligible
+for normal device backup.
 
 The local release packet now includes the App Privacy answer and policy draft,
 App Review notes, a six-shot Free/Paid screenshot plan, localized TestFlight

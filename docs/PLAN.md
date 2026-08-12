@@ -178,7 +178,7 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 80 tests pass. Xcode static analysis completes
+acceptance remains open. All 86 tests pass. Xcode static analysis completes
 without warnings after excluding the StoreKit test bundle from the Analyze
 action, and an unsigned Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
@@ -214,6 +214,14 @@ persistence have automated recovery coverage. Actual Limited Photos behavior,
 iCloud download behavior, large-album performance, change delivery,
 memory-pressure behavior, thermal response, and slideshow smoothness during
 real Vision work still require physical hardware.
+
+Durable Never Show corruption now has an explicit non-destructive recovery in
+both Free Smart Reel and paid automatic albums: reset only the local veto list,
+keep the photo copies, and rebuild suggestions. A fault-injected manifest-write
+test also proves failed persistence removes the just-committed image and leaves
+the source retryable. Photo copies, automatic-album caches, and derived analysis
+data are excluded from device backup and the resource flags are covered by
+tests.
 
 The paid analysis cache now keys persisted signals to the asset content
 revision, archives reusable Vision feature prints, skips image decode and Vision

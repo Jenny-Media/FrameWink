@@ -40,9 +40,11 @@ counts for that chooser, reads photo content only from the selected album,
 filters hidden photos and screenshots, and never edits the Photos library.
 
 FrameWink stores display-sized copies, local curation records, and local display
-history in its private app container. `Delete Imported Photos` and `Delete
-Automatic Album Cache` remove the corresponding app-controlled copies and
-derived records without deleting or changing the originals in Apple Photos.
+history in its private app container. Photo copies, automatic-album cache data,
+and derived curation data are excluded from device backup. `Delete Imported
+Photos` and `Delete Automatic Album Cache` remove the corresponding
+app-controlled copies and derived records without deleting or changing the
+originals in Apple Photos.
 Apple Photos may download an iCloud item when Strict Offline is disabled; that
 is Apple Photos behavior, not a FrameWink upload. Strict Offline keeps network
 access disabled for automatic-album image requests.

@@ -45,6 +45,25 @@ final class LocalCurationStoreTests: XCTestCase {
         XCTAssertEqual(try reopened.loadExclusions(), [excluded])
     }
 
+    func testPipelineCanResetCorruptedNeverShowChoices() throws {
+        try FileManager.default.createDirectory(
+            at: testRoot,
+            withIntermediateDirectories: true
+        )
+        try Data("not-json".utf8).write(to: store.exclusionsURL, options: .atomic)
+        let pipeline = SmartReelPipeline(
+            analyzer: DelayedFixtureAnalyzer(),
+            curator: SmartReelCurator(),
+            store: store
+        )
+
+        XCTAssertThrowsError(try store.loadExclusions())
+        try pipeline.resetExclusions()
+
+        XCTAssertEqual(try store.loadExclusions(), [])
+        XCTAssertTrue(FileManager.default.fileExists(atPath: store.exclusionsURL.path))
+    }
+
     func testPipelineCancellationStopsAnalysisAndLeavesReusableSignals() async throws {
         let pipeline = SmartReelPipeline(
             analyzer: DelayedFixtureAnalyzer(),

@@ -108,6 +108,37 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertFalse(controller.canDisplay)
     }
 
+    func testResetNeverShowPreservesCachedPhotosAndRefreshesSuggestions() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        let synchronizer = ControllerAlbumSynchronizer()
+        let builder = ControllerSmartReelBuilder()
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: builder,
+            changeRefreshDelayNanoseconds: 1
+        )
+        controller.setEntitled(true)
+        try await waitUntil { controller.smartReel != nil }
+        let cachedBeforeReset = controller.records
+        builder.exclusions = [try XCTUnwrap(controller.smartReel?.selections.first?.candidateID)]
+
+        controller.resetNeverShowChoices()
+        try await waitUntil { builder.resetExclusionsCount == 1 && synchronizer.syncCount == 2 }
+        try await waitUntil {
+            if case .ready = controller.phase { return true }
+            return false
+        }
+
+        XCTAssertEqual(builder.exclusions, [])
+        XCTAssertEqual(controller.records.map(\.photo.id), cachedBeforeReset.map(\.photo.id))
+        XCTAssertTrue(controller.canDisplay)
+    }
+
     private func makeController(
         client: ControllerPhotoLibraryClient,
         store: ControllerAlbumStore
@@ -249,6 +280,7 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
 private final class ControllerSmartReelBuilder: SmartReelBuilding {
     var savedReel: SmartReel?
     var exclusions: Set<UUID> = []
+    var resetExclusionsCount = 0
 
     func loadSavedReel() throws -> SmartReel? { savedReel }
 
@@ -301,5 +333,10 @@ private final class ControllerSmartReelBuilder: SmartReelBuilding {
         )
         savedReel = updated
         return updated
+    }
+
+    func resetExclusions() throws {
+        exclusions = []
+        resetExclusionsCount += 1
     }
 }

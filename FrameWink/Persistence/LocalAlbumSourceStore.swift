@@ -157,6 +157,10 @@ final class LocalAlbumSourceStore: AlbumSourceStoring {
             at: metadataDirectory,
             withIntermediateDirectories: true
         )
+        try LocalStoragePrivacy.excludeFromBackup(
+            directory,
+            fileManager: fileManager
+        )
     }
 
     private func imageURL(filename: String) -> URL {

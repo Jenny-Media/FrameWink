@@ -261,6 +261,16 @@ final class AutomaticAlbumController: ObservableObject {
         }
     }
 
+    func resetNeverShowChoices() {
+        do {
+            try smartReelBuilder.resetExclusions()
+            smartReel = nil
+            refresh()
+        } catch {
+            phase = .failed(error.localizedDescription)
+        }
+    }
+
     func image(for photo: ImportedPhoto) async -> UIImage? {
         await store.image(for: photo)
     }

@@ -21,6 +21,7 @@ struct RootView: View {
 
     @State private var presentedSheet: SheetDestination?
     @State private var showDeleteConfirmation = false
+    @State private var showResetNeverShowConfirmation = false
     @State private var isFrameMode = false
     @State private var didApplyInitialPresentation = false
 
@@ -121,6 +122,14 @@ struct RootView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This removes every app-controlled photo copy and its derived records. Your Apple Photos library is never changed.")
+        }
+        .alert("Reset Never Show Choices?", isPresented: $showResetNeverShowConfirmation) {
+            Button("Reset and Rebuild") {
+                model.resetNeverShowChoices()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This clears only FrameWink’s local Never Show choices and rebuilds the Smart Reel. Your imported photo copies and Apple Photos library stay unchanged.")
         }
         .onChange(of: model.curationPhase) { phase in
             if case .ready = phase {
@@ -311,6 +320,12 @@ struct RootView: View {
                         showDeleteConfirmation = true
                     }
                     .font(.footnote.weight(.semibold))
+
+                    Button("Reset Never Show Choices") {
+                        showResetNeverShowConfirmation = true
+                    }
+                    .font(.footnote.weight(.semibold))
+                    .disabled(model.isCurating)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -483,7 +498,7 @@ private struct PrivacySheet: View {
                     privacyPoint(
                         icon: "arrow.down.right.and.arrow.up.left",
                         title: "Display-sized local copies",
-                        detail: "Picker imports and automatic-album cache items are downsampled before they are saved to keep storage and memory use bounded."
+                        detail: "Picker imports and automatic-album cache items are downsampled before they are saved to keep storage and memory use bounded. Photo copies and derived analysis are excluded from device backup."
                     )
 
                     privacyPoint(

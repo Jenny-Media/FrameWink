@@ -115,6 +115,9 @@ Use separate app-controlled storage for:
 
 All caches must be disposable and rebuildable. Deleting imported photos must
 remove the files and all derived records that reference them.
+Imported display copies, automatic-album caches, and derived curation data are
+excluded from device backup. Small wall and saved-frame settings remain normal
+Application Support data.
 
 ## Performance rules
 

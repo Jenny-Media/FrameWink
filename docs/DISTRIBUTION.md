@@ -67,7 +67,7 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current full suite passes all 80 tests.
+  was installed and launched; the current full suite passes all 86 tests.
 
 ### B-004 — Physical curation-validation hardware and labelled set are missing
 
@@ -135,7 +135,7 @@ blocker affects only a later boundary.
   mutation, curates its full eligible candidate pool, caches display-sized
   copies with Strict Offline behavior, reduces repeats from local display
   history, adds Mosaic, and persists multiple album-aware frame configurations.
-  The paywall and release copy now describe the included scope. The 80-test
+  The paywall and release copy now describe the included scope. The 86-test
   Simulator suite covers local synchronization, corrupt-cache cleanup, change
   refresh, entitlement/revocation, unbounded input, repeat ranking, layouts, and
   saved configurations.
@@ -160,3 +160,13 @@ without preventing Build, Analyze, or Test workflows.
 - Confirm or create the App Store Connect app record and SKU.
 - Select the initial internal TestFlight tester group.
 - Provide the public privacy-policy/support URLs and support email (B-007).
+
+## Local debugger tooling note
+
+XcodeBuildMCP is configured for the correct project, scheme, bundle identifier,
+and booted iPad, but its process currently inherits `/Library/Developer/CommandLineTools`
+from global `xcode-select`; therefore its `simctl` and accessibility commands
+cannot resolve the full Xcode installation. Direct commands scoped with
+`DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer` continue to
+build, test, install, launch, and capture FrameWink successfully. Changing the
+machine-wide `xcode-select` setting is intentionally deferred to the owner.

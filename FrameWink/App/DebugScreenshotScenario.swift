@@ -371,5 +371,7 @@ final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
             selections: reel.selections.filter { $0.candidateID != candidateID }
         )
     }
+
+    func resetExclusions() throws {}
 }
 #endif

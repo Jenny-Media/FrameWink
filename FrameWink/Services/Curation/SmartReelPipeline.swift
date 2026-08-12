@@ -26,6 +26,8 @@ protocol SmartReelBuilding {
     ) async throws -> SmartReel
 
     func exclude(candidateID: UUID, from reel: SmartReel) throws -> SmartReel
+
+    func resetExclusions() throws
 }
 
 final class SmartReelPipeline: SmartReelBuilding {
@@ -194,5 +196,9 @@ final class SmartReelPipeline: SmartReelBuilding {
         )
         try store.saveSmartReel(updated)
         return updated
+    }
+
+    func resetExclusions() throws {
+        try store.saveExclusions([])
     }
 }

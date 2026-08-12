@@ -72,6 +72,48 @@ final class PhotoImportServiceTests: XCTestCase {
         XCTAssertNotEqual(report.imported[0].id, report.imported[1].id)
     }
 
+    func testManifestWriteFailureRollsBackImageAndRemainsRetryable() async throws {
+        let existing = ImportedPhoto(
+            id: UUID(),
+            filename: "existing.jpg",
+            pixelWidth: 800,
+            pixelHeight: 600,
+            importedAt: Date(timeIntervalSince1970: 100)
+        )
+        try store.prepareDirectories()
+        try makeJPEG(
+            at: store.imageURL(filename: existing.filename),
+            width: existing.pixelWidth,
+            height: existing.pixelHeight
+        )
+        try store.saveImportedPhotos([existing])
+        let sourceURL = testRoot.appendingPathComponent("valid.jpg")
+        try makeJPEG(at: sourceURL, width: 1_200, height: 900)
+        let item = FileImportItem(sourceURL: sourceURL)
+        let faultingStore = FaultingImportedPhotoStore(store: store)
+        faultingStore.saveError = TestImportError.expectedFailure
+        let faultingService = PhotoImportService(
+            store: faultingStore,
+            downsampler: ImageIODownsampler()
+        )
+
+        let report = await faultingService.importPhotos(
+            from: [item],
+            maxPixelDimension: 600,
+            progress: { _ in }
+        )
+
+        XCTAssertTrue(report.imported.isEmpty)
+        XCTAssertEqual(report.failures.map(\.sourceID), [item.id])
+        XCTAssertFalse(report.wasCancelled)
+        XCTAssertEqual(try store.loadImportedPhotos(), [existing])
+        let files = try FileManager.default.contentsOfDirectory(
+            at: store.importedPhotosDirectory,
+            includingPropertiesForKeys: nil
+        )
+        XCTAssertEqual(files.map(\.lastPathComponent), [existing.filename])
+    }
+
     func testCancellationLeavesNoOrphanedImportFiles() async throws {
         let sourceURL = testRoot.appendingPathComponent("valid.jpg")
         try makeJPEG(at: sourceURL, width: 800, height: 600)
@@ -186,4 +228,49 @@ private enum TestImportError: LocalizedError {
     case expectedFailure
 
     var errorDescription: String? { "Expected import failure" }
+}
+
+private final class FaultingImportedPhotoStore: ImportedPhotoStoring {
+    let store: LocalImportedPhotoStore
+    var saveError: Error?
+
+    var importedPhotosDirectory: URL { store.importedPhotosDirectory }
+    var derivedDataDirectory: URL { store.derivedDataDirectory }
+
+    init(store: LocalImportedPhotoStore) {
+        self.store = store
+    }
+
+    func prepareDirectories() throws {
+        try store.prepareDirectories()
+    }
+
+    func loadImportedPhotos() throws -> [ImportedPhoto] {
+        try store.loadImportedPhotos()
+    }
+
+    func saveImportedPhotos(_ photos: [ImportedPhoto]) throws {
+        if let saveError { throw saveError }
+        try store.saveImportedPhotos(photos)
+    }
+
+    func temporaryImageURL() throws -> URL {
+        try store.temporaryImageURL()
+    }
+
+    func imageURL(filename: String) -> URL {
+        store.imageURL(filename: filename)
+    }
+
+    func commitTemporaryImage(at temporaryURL: URL, filename: String) throws {
+        try store.commitTemporaryImage(at: temporaryURL, filename: filename)
+    }
+
+    func removeImage(filename: String) {
+        store.removeImage(filename: filename)
+    }
+
+    func deleteAllImportedData() throws {
+        try store.deleteAllImportedData()
+    }
 }

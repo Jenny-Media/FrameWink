@@ -75,6 +75,21 @@ final class LocalImportedPhotoStoreTests: XCTestCase {
         XCTAssertLessThanOrEqual(max(cgImage.width, cgImage.height), 160)
     }
 
+    func testPhotoAndDerivedDirectoriesAreExcludedFromBackup() throws {
+        let store = LocalImportedPhotoStore(baseURL: testRoot)
+        try store.prepareDirectories()
+
+        let photoValues = try store.importedPhotosDirectory.resourceValues(
+            forKeys: [.isExcludedFromBackupKey]
+        )
+        let derivedValues = try store.derivedDataDirectory.resourceValues(
+            forKeys: [.isExcludedFromBackupKey]
+        )
+
+        XCTAssertEqual(photoValues.isExcludedFromBackup, true)
+        XCTAssertEqual(derivedValues.isExcludedFromBackup, true)
+    }
+
     private func jpegData(width: Int, height: Int) throws -> Data {
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = 1

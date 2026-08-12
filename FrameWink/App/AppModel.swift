@@ -230,6 +230,18 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func resetNeverShowChoices() {
+        guard let smartReelBuilder = smartReelBuilder else { return }
+        do {
+            try smartReelBuilder.resetExclusions()
+            smartReel = nil
+            curationPhase = .idle
+            refreshSmartReel()
+        } catch {
+            curationPhase = .failed(error.localizedDescription)
+        }
+    }
+
     func importSelectedItems(_ items: [PhotoImportItem]) {
         guard !items.isEmpty else { return }
         startImport(items)

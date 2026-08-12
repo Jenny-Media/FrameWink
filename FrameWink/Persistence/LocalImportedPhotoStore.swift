@@ -57,6 +57,14 @@ final class LocalImportedPhotoStore: ImportedPhotoStoring, ImportedPhotoImageLoa
             at: derivedDataDirectory,
             withIntermediateDirectories: true
         )
+        try LocalStoragePrivacy.excludeFromBackup(
+            importedPhotosDirectory,
+            fileManager: fileManager
+        )
+        try LocalStoragePrivacy.excludeFromBackup(
+            derivedDataDirectory,
+            fileManager: fileManager
+        )
     }
 
     func loadImportedPhotos() throws -> [ImportedPhoto] {
