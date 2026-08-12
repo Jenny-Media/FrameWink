@@ -80,4 +80,41 @@ final class FrameSessionControllerTests: XCTestCase {
         controller.tick(at: start.addingTimeInterval(14))
         XCTAssertEqual(controller.currentPageIndex, 1)
     }
+
+    func testTickReportsOnlyVisiblePageChanges() {
+        var controller = FrameSessionController(
+            pageCount: 3,
+            interval: 5,
+            startedAt: start
+        )
+
+        XCTAssertFalse(controller.tick(at: start.addingTimeInterval(4)))
+        XCTAssertEqual(controller.currentPageIndex, 0)
+        XCTAssertTrue(controller.tick(at: start.addingTimeInterval(5)))
+        XCTAssertEqual(controller.currentPageIndex, 1)
+    }
+
+    func testTickDoesNotReportAnAdvanceThatReturnsToTheSamePage() {
+        var controller = FrameSessionController(
+            pageCount: 3,
+            interval: 5,
+            startedAt: start
+        )
+
+        XCTAssertFalse(controller.tick(at: start.addingTimeInterval(15)))
+        XCTAssertEqual(controller.currentPageIndex, 0)
+        XCTAssertTrue(controller.tick(at: start.addingTimeInterval(20)))
+        XCTAssertEqual(controller.currentPageIndex, 1)
+    }
+
+    func testTickDoesNotReportAVisibleChangeForOnePage() {
+        var controller = FrameSessionController(
+            pageCount: 1,
+            interval: 5,
+            startedAt: start
+        )
+
+        XCTAssertFalse(controller.tick(at: start.addingTimeInterval(5)))
+        XCTAssertEqual(controller.currentPageIndex, 0)
+    }
 }

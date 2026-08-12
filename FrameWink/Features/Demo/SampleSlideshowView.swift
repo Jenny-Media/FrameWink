@@ -1,4 +1,5 @@
 import Combine
+import ImageIO
 import SwiftUI
 import UIKit
 
@@ -21,9 +22,10 @@ struct SampleSlideshowView: View {
     @State private var layoutPreference: FrameLayoutPreference = .automatic
     @State private var controlsVisible = true
     @State private var hideControlsTask: Task<Void, Never>?
+    @StateObject private var imageCache = DisplayImageCache()
 
     private let layoutChooser = FrameLayoutChooser()
-    private let timer = Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     private let availableIntervals: [TimeInterval] = [5, 10, 30, 60]
 
     var body: some View {
@@ -49,6 +51,11 @@ struct SampleSlideshowView: View {
 
                     if let slide = slidesByID[page.placements.first?.photoID ?? ""] {
                         caption(for: slide)
+                            .id(slide.id)
+                            .transition(.identity)
+                            .transaction { transaction in
+                                transaction.animation = nil
+                            }
                     }
                 }
 
@@ -94,18 +101,30 @@ struct SampleSlideshowView: View {
                     layoutPreference = .automatic
                 }
             }
+            .task(id: nextPagePreloadID(in: pages, slidesByID: slidesByID)) {
+                await preloadNextPage(in: pages, slidesByID: slidesByID)
+            }
         }
         .background(Color.black)
         .clipped()
         .onReceive(timer) { date in
             refreshWallSchedule(date)
+            var updatedSession = session
+            guard updatedSession.tick(at: date) else { return }
             if reduceMotion {
-                session.tick(at: date)
+                session = updatedSession
             } else {
                 withAnimation(.easeInOut(duration: 0.65)) {
-                    session.tick(at: date)
+                    session = updatedSession
                 }
             }
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.didReceiveMemoryWarningNotification
+            )
+        ) { _ in
+            imageCache.removeAllImages()
         }
         .onChange(of: isFrameMode) { isActive in
             setControlsVisible(true)
@@ -144,8 +163,10 @@ struct SampleSlideshowView: View {
                         FramePhotoView(
                             slide: slide,
                             placement: placement,
-                            loadImportedImage: loadImportedImage,
-                            loadAutomaticAlbumImage: loadAutomaticAlbumImage
+                            initialImage: imageCache.cachedImage(
+                                forKey: slide.imageCacheKey
+                            ),
+                            loadImage: cachedImage
                         )
                         .frame(
                             width: proxy.size.width * CGFloat(placement.screenFrame.width),
@@ -157,6 +178,46 @@ struct SampleSlideshowView: View {
                         )
                     }
                 }
+            }
+        }
+    }
+
+    private func nextPagePreloadID(
+        in pages: [FramePage],
+        slidesByID: [String: DisplaySlide]
+    ) -> String? {
+        guard pages.count > 1 else { return nil }
+        let page = pages[(session.currentPageIndex + 1) % pages.count]
+        let imageRevisions = page.placements.compactMap { placement in
+            slidesByID[placement.photoID]?.imageCacheKey
+        }
+        return ([page.id] + imageRevisions).joined(separator: "|")
+    }
+
+    private func preloadNextPage(
+        in pages: [FramePage],
+        slidesByID: [String: DisplaySlide]
+    ) async {
+        guard pages.count > 1 else { return }
+        let page = pages[(session.currentPageIndex + 1) % pages.count]
+        for placement in page.placements {
+            guard !Task.isCancelled,
+                  let slide = slidesByID[placement.photoID] else {
+                return
+            }
+            _ = await cachedImage(for: slide)
+        }
+    }
+
+    private func cachedImage(for slide: DisplaySlide) async -> UIImage? {
+        await imageCache.image(forKey: slide.imageCacheKey) {
+            switch slide.source {
+            case .bundled(let resourceName):
+                return await BundledSampleImageLoader.imageAsync(named: resourceName)
+            case .imported(let photo):
+                return await loadImportedImage(photo)
+            case .automaticAlbum(let photo):
+                return await loadAutomaticAlbumImage(photo)
             }
         }
     }
@@ -421,6 +482,17 @@ struct SampleSlideshowView: View {
 }
 
 private extension DisplaySlide {
+    var imageCacheKey: String {
+        switch source {
+        case .bundled(let resourceName):
+            return "bundled:" + resourceName
+        case .imported(let photo):
+            return "imported:" + photo.filename
+        case .automaticAlbum(let photo):
+            return "automatic:" + photo.filename
+        }
+    }
+
     var frameLayoutItem: FrameLayoutItem {
         let pixelSize: PixelSize
         switch source {
@@ -444,16 +516,29 @@ private extension DisplaySlide {
 private struct FramePhotoView: View {
     let slide: DisplaySlide
     let placement: FrameLayoutPlacement
-    let loadImportedImage: (ImportedPhoto) async -> UIImage?
-    let loadAutomaticAlbumImage: (ImportedPhoto) async -> UIImage?
+    let initialImage: UIImage?
+    let loadImage: (DisplaySlide) async -> UIImage?
 
     @State private var image: UIImage?
+
+    init(
+        slide: DisplaySlide,
+        placement: FrameLayoutPlacement,
+        initialImage: UIImage?,
+        loadImage: @escaping (DisplaySlide) async -> UIImage?
+    ) {
+        self.slide = slide
+        self.placement = placement
+        self.initialImage = initialImage
+        self.loadImage = loadImage
+        _image = State(initialValue: initialImage)
+    }
 
     var body: some View {
         ZStack {
             Color.black
 
-            if let image = image {
+            if let image = image ?? initialImage {
                 switch placement.contentMode {
                 case .fit:
                     Image(uiImage: image)
@@ -471,15 +556,8 @@ private struct FramePhotoView: View {
             }
         }
         .clipped()
-        .task(id: slide.id) {
-            switch slide.source {
-            case .bundled(let resourceName):
-                image = BundledSampleImageLoader.image(named: resourceName)
-            case .imported(let photo):
-                image = await loadImportedImage(photo)
-            case .automaticAlbum(let photo):
-                image = await loadAutomaticAlbumImage(photo)
-            }
+        .task(id: slide.imageCacheKey) {
+            image = await loadImage(slide)
         }
         .accessibilityLabel(slide.accessibilityLabel)
     }
@@ -508,6 +586,29 @@ enum BundledSampleImageLoader {
             return nil
         }
         return UIImage(contentsOfFile: url.path)
+    }
+
+    static func imageAsync(
+        named resourceName: String,
+        bundle: Bundle = .main
+    ) async -> UIImage? {
+        guard let url = bundle.url(forResource: resourceName, withExtension: "png") else {
+            return nil
+        }
+        return await Task.detached(priority: .userInitiated) {
+            guard let source = CGImageSourceCreateWithURL(
+                url as CFURL,
+                [kCGImageSourceShouldCache: false] as CFDictionary
+            ),
+                  let image = CGImageSourceCreateImageAtIndex(
+                      source,
+                      0,
+                      [kCGImageSourceShouldCacheImmediately: true] as CFDictionary
+                  ) else {
+                return nil
+            }
+            return UIImage(cgImage: image)
+        }.value
     }
 }
 

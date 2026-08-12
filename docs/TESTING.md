@@ -189,7 +189,7 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
 
 ### Paid-scope completion verification record — 2026-08-12
 
-- Full shared-scheme Simulator suite: 93 tests passed with zero failures, skips, expected
+- Full shared-scheme Simulator suite: 99 tests passed with zero failures, skips, expected
   failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
 - The final unsigned generic-device Release build and Xcode static analysis
   both complete without diagnostics after the paid-scope changes.
@@ -232,6 +232,33 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
   truncated `Add Photos` action; the settled launch log contains no FrameWink-
   owned error or fault beyond the known Simulator PointerUI service message.
 
+### Slideshow performance-hardening verification record — 2026-08-12
+
+- The shared scheme remains green after the transition changes: 99 tests pass
+  with zero failures, skips, expected failures, or runtime warnings on the iOS
+  27 `iPad (A16)` Simulator. The unsigned generic-device Release build, Xcode
+  static analysis, and the Xcode Cloud release-identity/privacy preflight also
+  pass.
+- The slideshow schedule check now runs once per second instead of four times
+  per second. `FrameSessionController.tick` publishes state only when the
+  visible page changes, including no-op coverage for one-page reels and elapsed
+  intervals that wrap to the current page.
+- A main-actor `NSCache` retains at most four decoded display images with an
+  80 MiB cost limit. The next page is loaded ahead, duplicate requests share one
+  in-flight task, and a memory warning clears cached images, cancels in-flight
+  work, and prevents a late result from repopulating the purged generation.
+- Bundled sample images use eager ImageIO decode in a detached task. Imported
+  and automatic-album images continue through their existing detached ImageIO
+  loaders. Captions switch without animation so a photo dissolve cannot render
+  two readable captions on top of each other.
+- A 32.13-second, 1,640 x 2,360 Simulator recording at 60 fps captured five
+  automatic 0.65-second transitions. Sampling at 10 fps found only one or two
+  dark samples at the start of each monotonic dissolve and no sustained blank
+  image, spinner, or caption overlap. This is useful UI evidence, but it does
+  not close the physical 2 GB-device requirement for slideshow smoothness under
+  concurrent real Vision analysis or prove the approximately 300 MB memory
+  ceiling.
+
 Recovery status for the current MVP:
 
 | Scenario | Local evidence | Remaining check |
@@ -246,7 +273,7 @@ Recovery status for the current MVP:
 | Full disk / failed persistence | Fault-injected free import and paid album metadata failures roll back new images; failed album/setting writes retain the active durable configuration, options, cache, and reel | Trigger storage exhaustion on a disposable device |
 | Corrupt disposable cache/reel | Invalid cache is discarded or rebuilt by test | None |
 | Corrupt durable exclusions | Error remains visible rather than silently forgetting `Never Show Again`; separate Free and automatic-album reset actions overwrite only the local veto list and rebuild suggestions without deleting photos | None for app-controlled storage |
-| Memory pressure / thermal | Bounded thumbnails, eager decode, cancellation, thermal fallback | Physical memory warning, Instruments, and thermal run |
+| Memory pressure / thermal | Bounded thumbnails; an 80 MiB/four-image display cache; eager off-main decode; cancellation and late-result suppression after a memory warning; thermal fallback | Physical memory warning, Instruments, and thermal run |
 
 Imported photo copies, automatic-album caches, and their derived analysis data
 are excluded from device backup. Unit tests verify the exclusion resource flag

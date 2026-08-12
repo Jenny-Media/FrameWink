@@ -30,21 +30,25 @@ struct FrameSessionController: Equatable {
             : 0
     }
 
-    mutating func tick(at date: Date) {
-        guard isPlaying, pageCount > 0 else { return }
+    @discardableResult
+    mutating func tick(at date: Date) -> Bool {
+        guard isPlaying, pageCount > 0 else { return false }
         guard let lastAdvanceDate = lastAdvanceDate else {
             self.lastAdvanceDate = date
-            return
+            return false
         }
 
         let elapsed = max(date.timeIntervalSince(lastAdvanceDate), 0)
         let elapsedIntervals = Int(elapsed / interval)
-        guard elapsedIntervals > 0 else { return }
+        guard elapsedIntervals > 0 else { return false }
 
-        currentPageIndex = (currentPageIndex + elapsedIntervals) % pageCount
+        let nextPageIndex = (currentPageIndex + elapsedIntervals) % pageCount
         self.lastAdvanceDate = lastAdvanceDate.addingTimeInterval(
             Double(elapsedIntervals) * interval
         )
+        guard nextPageIndex != currentPageIndex else { return false }
+        currentPageIndex = nextPageIndex
+        return true
     }
 
     mutating func next(at date: Date) {

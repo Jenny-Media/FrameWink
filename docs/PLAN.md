@@ -181,7 +181,7 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 93 shared-scheme tests pass. Xcode static analysis completes
+acceptance remains open. All 99 shared-scheme tests pass. Xcode static analysis completes
 without warnings after excluding the StoreKit test bundle from the Analyze
 action, and an unsigned Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
@@ -202,6 +202,15 @@ the largest text size with Increase Contrast and Reduce Motion enabled. The app
 keeps Frame Mode controls visible when VoiceOver is enabled; Apple's first-run
 VoiceOver tutorial prevented a complete spoken-navigation pass, so that remains
 a physical accessibility check rather than a claimed acceptance result.
+
+The slideshow now checks its schedule once per second, publishes session state
+only for an actual visible page change, and preloads the next page through a
+bounded four-image/80 MiB decoded-image cache. Duplicate loads are coalesced;
+memory warnings cancel in-flight work, clear the cache, and prevent late results
+from repopulating it. A 32.13-second iPad Simulator recording captured five
+automatic dissolves without a sustained blank/spinner or overlapping captions.
+This closes the known simulator transition defect but not the physical 2 GB
+memory and smoothness gates under concurrent real Vision analysis.
 
 The original paid-scope mismatch is resolved locally. A verified entitlement
 now unlocks selected-album PhotoKit refresh, an unlimited eligible input pool,
