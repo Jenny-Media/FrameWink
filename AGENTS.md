@@ -1,0 +1,112 @@
+# Product contract
+
+This repository contains an iPad-only application that turns compatible older
+iPads into private, local digital photo frames.
+
+The central promise is:
+
+> Effortless smart highlights from photos you choose.
+
+Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
+`docs/DECISIONS.md`, and this file as authoritative. Track execution in
+`docs/PLAN.md`.
+
+## Non-negotiable product rules
+
+- Minimum deployment target is iPadOS 15.
+- Photos and analysis remain on-device.
+- The app has no developer server, account, ads, analytics SDK, or tracking.
+- Do not request Photos permission during first launch.
+- First launch demonstrates the product using clearly labelled bundled sample
+  photos.
+- Personal Preview uses PHPicker and does not require full-library access.
+- Request full PhotoKit access only when a user explicitly enables automatic
+  album updates.
+- Never claim access to Apple Photos Memories, Featured Photos, People
+  identities, or Apple's private ranking.
+- Never claim direct ambient-light sensing.
+- Describe Guided Access as assisted manual setup.
+- Never promise automatic relaunch or recovery after an iPad restart.
+- Never delete, edit, favorite, hide, or otherwise mutate the user's Photos
+  library.
+- Hidden photos and screenshots must not be selected automatically.
+- Provide review-before-display and `Never Show Again` controls.
+- Avoid autonomous whole-library display by default. Begin with photos or an
+  album the user chose.
+
+## Free and paid boundary
+
+### Free Smart Reel
+
+- Clearly labelled bundled sample experience with no permission prompt.
+- Import up to 100 candidates through PHPicker.
+- Generate one local 30-photo Smart Reel.
+- Include real curation, near-duplicate suppression, face-safe cropping,
+  portrait pairing, fit/fill, tap/swipe navigation, adjustable timing, pause,
+  `Never Show Again`, and unlimited replay.
+- No watermark, advertisements, account, or forced trial countdown.
+
+### Paid Wall Mode
+
+- One non-consumable lifetime unlock. Planned US launch price: $9.99.
+- Unlimited candidate pool and supported albums.
+- Automatic album refresh after explicit PhotoKit authorization.
+- Continuously regenerated recommendations and long-term repeat avoidance.
+- Multiple layouts and saved configurations.
+- Dimming and blackout schedules.
+- Wall commissioning and Guided Access assistant.
+- Family Sharing where StoreKit configuration supports it.
+
+## MVP engineering constraints
+
+- Use SwiftUI, UIKit, PhotoKit, PhotosUI, Vision, StoreKit 2, and Foundation.
+- Do not add third-party production dependencies without explicit approval.
+- Do not add a custom Core ML model during the MVP.
+- Prefer APIs available on iPadOS 15. Guard newer Vision improvements behind
+  availability checks.
+- Prefer `ObservableObject` and `@StateObject` for iPadOS 15 compatibility.
+- Do not introduce SwiftData for MVP persistence.
+- Analyze bounded thumbnails rather than full-resolution originals.
+- Keep caches bounded and memory-safe for 2 GB iPads.
+- Use simple Codable/file persistence for settings, scores, exclusions, and
+  display history.
+- Imported picker photos must have an obvious `Delete Imported Photos` action.
+- Do not use background audio, location, camera capture, or other execution
+  workarounds to keep the app alive.
+- Do not add background modes unless the platform-documented use exactly
+  matches the feature.
+- Do not manipulate project signing, bundle identifiers, production StoreKit
+  identifiers, or App Store credentials without explicit direction.
+- Put unexpected feature requests in `docs/BACKLOG.md` instead of expanding
+  the active milestone.
+
+## Architecture expectations
+
+- Separate photo sources, curation, layout, display behavior, persistence, and
+  purchase state behind small protocols.
+- The curator must accept a common `PhotoCandidate` abstraction so PHPicker
+  imports and PhotoKit assets share the same ranking pipeline.
+- Keep ranking deterministic for a fixed input, algorithm version, and seed so
+  unit tests are reproducible.
+- Keep view bodies declarative. Put PhotoKit, Vision, disk I/O, StoreKit, and
+  scheduling behavior outside SwiftUI views.
+- Keep all user-visible strings ready for localization.
+- Use accessibility labels and respect Reduce Motion.
+
+## Verification
+
+After each milestone:
+
+- Discover an available iPad Simulator destination and build the application
+  and tests with `xcodebuild`.
+- Run all affected unit tests.
+- Report the exact commands, result, warnings, untested behavior, and real-device
+  checks still required.
+- Update `docs/PLAN.md` with status, completed work, active-time estimate, and
+  known risks.
+- Do not mark a milestone complete while acceptance criteria are failing.
+- Preserve unrelated user changes.
+
+For behavior that cannot be proven in Simulator, state the required real-device
+test explicitly. Do not silently substitute simulator results for PhotoKit,
+brightness, thermal, Guided Access, purchase, or long-running device behavior.

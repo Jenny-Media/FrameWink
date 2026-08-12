@@ -1,0 +1,84 @@
+# FrameWink
+
+FrameWink is a small, local-first iPad photo-frame app. This repository contains
+the durable product context, implementation, tests, and release plan for a
+40-active-hour soft-launch timebox.
+
+The product name is `FrameWink`. The app uses bundle identifier
+`media.jenny.FrameWink`, the unit tests use `media.jenny.FrameWinkTests`, and
+both targets use the Jenny Media LLC Apple Developer team. The production
+StoreKit product identifier remains an explicit release decision.
+
+## Recreating the Xcode project
+
+The checked-in `FrameWink.xcodeproj` is the active project. If the starter ever
+needs to be recreated from the durable docs:
+
+1. In Xcode, choose **File → New → Project → iOS App**.
+2. Choose the final product name and organization identifier.
+3. Select SwiftUI, Swift, and include tests.
+4. Make the target iPad-only (`TARGETED_DEVICE_FAMILY = 2`).
+5. Set the minimum deployment target to iPadOS 15.0.
+6. Initialize a Git repository.
+7. Copy `AGENTS.md`, `docs/`, and `prompts/` into the Git root beside the
+   `.xcodeproj`.
+8. Open that Git root as the local Codex project.
+
+Do not add production dependencies during the MVP. The intended system
+frameworks are SwiftUI, UIKit, PhotoKit, PhotosUI, Vision, StoreKit 2, and
+Foundation.
+
+## Recommended source layout
+
+```text
+<AppName>/
+├── AGENTS.md
+├── docs/
+├── prompts/
+├── <AppName>.xcodeproj
+├── <AppName>/
+│   ├── App/
+│   ├── Domain/
+│   ├── Features/
+│   │   ├── Demo/
+│   │   ├── PhotoSetup/
+│   │   ├── ReelReview/
+│   │   ├── Frame/
+│   │   ├── Paywall/
+│   │   └── Settings/
+│   ├── Services/
+│   │   ├── PhotoImport/
+│   │   ├── Curation/
+│   │   ├── Layout/
+│   │   ├── Display/
+│   │   └── Purchases/
+│   ├── Persistence/
+│   └── Resources/SamplePhotos/
+├── <AppName>Tests/
+└── <AppName>UITests/
+```
+
+## Using this kit with local Codex
+
+Run one milestone at a time. The initial scaffold and zero-permission preview
+are already implemented; continue from the next incomplete milestone in
+`docs/PLAN.md`. After Codex finishes a milestone:
+
+1. Review the diff.
+2. Confirm the build and tests actually ran.
+3. Run the feature yourself in Simulator or on an iPad.
+4. Commit only when the milestone acceptance criteria pass.
+5. Continue to the next milestone under the durable project goal.
+
+`AGENTS.md` is the durable contract. `docs/PLAN.md` is the execution record.
+Any attractive but unnecessary feature belongs in `docs/BACKLOG.md`.
+
+## Forty-hour rule
+
+The goal is a narrow TestFlight-ready product, not a complete digital-frame
+platform. At 40 active hours, remove or postpone unfinished nonessential work.
+Do not extend the schedule for integrations, custom machine-learning models,
+weather, video, NAS support, or elaborate animation.
+
+The seven-day unattended test consumes calendar time but should run in parallel
+with release preparation.

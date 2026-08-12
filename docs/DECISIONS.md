@@ -1,0 +1,97 @@
+# Decision log
+
+Change a decision only with an explicit product reason. Add the replacement and
+date; do not silently rewrite historical decisions during implementation.
+
+## D-001 — Compatible older iPads, not every old iPad
+
+- **Decision:** Minimum deployment target is iPadOS 15.
+- **Reason:** Supports many useful older iPads while remaining compatible with
+  current App Store tooling. iOS/iPadOS 9–14 support would greatly expand test
+  and maintenance cost.
+
+## D-002 — One native app, Apple frameworks only for MVP
+
+- **Decision:** SwiftUI plus UIKit, PhotoKit, PhotosUI, Vision, StoreKit 2, and
+  Foundation. No production dependency package in the MVP.
+- **Reason:** Keeps build, privacy, binary, compatibility, and maintenance risk
+  small.
+
+## D-003 — Value before permission
+
+- **Decision:** First launch uses bundled sample photos. PHPicker creates the
+  personal preview without broad library authorization.
+- **Reason:** Lets users understand the product before a sensitive permission
+  request.
+
+## D-004 — Chosen scope before full-library autonomy
+
+- **Decision:** Curation starts from picker-selected photos or an explicitly
+  selected album. It does not automatically display an unrestricted library.
+- **Reason:** Prevents emotionally unsafe or embarrassing selections and makes
+  algorithmic review manageable.
+
+## D-005 — Free Smart Reel, paid Wall Mode
+
+- **Decision:** Free creates one excellent 30-photo reel from up to 100
+  candidates. Paid unlocks automatic freshness, scale, schedules, and durable
+  wall behavior.
+- **Reason:** Free demonstrates the differentiator; paid solves the ongoing
+  appliance job.
+
+## D-006 — $9.99 non-consumable unlock
+
+- **Decision:** Plan one $9.99 US lifetime Wall Mode non-consumable rather than a
+  subscription or separate paid app.
+- **Reason:** Fits a finite local utility, preserves one listing/review history,
+  and leaves more support margin than a $3.99–$4.99 unlock.
+
+## D-007 — Heuristics and public Vision before custom ML
+
+- **Decision:** MVP curation uses metadata, conventional image signals, and
+  public Vision requests. No custom Core ML model initially.
+- **Reason:** The key risk is product selection and UX, not model novelty. A
+  custom model is justified only after labelled comparisons demonstrate a gap.
+
+## D-008 — Privacy claim is app-specific
+
+- **Decision:** Say the app never uploads and has no server. Do not state that
+  the user's overall Photos library never uses iCloud.
+- **Reason:** Apple Photos may download optimized assets from iCloud.
+
+## D-009 — No ambient-light claim
+
+- **Decision:** Use system Auto-Brightness, user controls, and time-based visual
+  dimming. Do not access the camera as a light meter.
+- **Reason:** Direct ambient lux is unavailable to an ordinary consumer app;
+  camera permission and capture would conflict with privacy and reliability.
+
+## D-010 — Guided Access is assisted, not automated
+
+- **Decision:** Provide an OS-aware checklist and status messaging. Do not claim
+  one-tap kiosk activation or guaranteed relaunch after reboot.
+- **Reason:** Consumer Guided Access is manually started; persistent managed
+  Single App Mode requires supervision/MDM.
+
+## D-011 — Open source is a trust choice, not the moat
+
+- **Decision:** Keep the implementation compatible with later public source
+  release, but choose a license and trademark policy before publishing.
+- **Reason:** Source visibility can substantiate privacy. Demand, UX, curation,
+  reliability, support, and App Store convenience—not secret code—drive value.
+
+## D-012 — FrameWink uses the Jenny Media app identity
+
+- **Decision:** Product name `FrameWink`, app identifier
+  `media.jenny.FrameWink`, test identifier `media.jenny.FrameWinkTests`, and
+  Jenny Media LLC Apple Developer team `5736QK4NZX`.
+- **Reason:** These are the owner-confirmed production identity and signing
+  values; placeholder identifiers must not reach cloud or release builds.
+
+## D-013 — Xcode Cloud is the release builder
+
+- **Decision:** Xcode Cloud performs the authoritative archive and distributes
+  successful builds to TestFlight. Local builds provide development feedback
+  but are not the release-upload procedure.
+- **Reason:** Keeps signing and distribution reproducible in Jenny Media's
+  managed CI/CD path and avoids dependence on one developer Mac.
