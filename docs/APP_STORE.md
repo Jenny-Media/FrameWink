@@ -12,6 +12,11 @@ Recommended App Store Connect answer for the current build:
 - Third-party SDK data practices: none; the app has no third-party production
   SDKs.
 
+App Store Connect Apple ID `6800849400` has the policy URL and `Data Not
+Collected` answer saved. Publication remains an owner action because Apple's
+final dialog includes a legal accuracy/compliance attestation; see B-009 in
+`docs/DISTRIBUTION.md`.
+
 Picker-selected photos and photos from a paid, explicitly selected album are
 copied at display size into the app's private container and do not leave the
 iPad through FrameWink. StoreKit purchase processing is provided by Apple.
@@ -102,6 +107,10 @@ The production non-consumable identifier is
 `media.jenny.FrameWink.wallmode`, with Family Sharing enabled. No reviewer test
 account is required; App Review should use its StoreKit sandbox environment.
 
+The App Store Connect product is Apple ID `6800849862`, localized as `Wall Mode
+Lifetime`, priced at a $9.99 U.S. base across all available storefronts, and has
+Family Sharing permanently enabled.
+
 ## Screenshot plan
 
 Use only project-owned sample media or a separately approved licensed fixture
@@ -145,11 +154,11 @@ The broader eleven-image 1640 x 2360 source library remains under
 
 ## Xcode Cloud workflow recipe
 
-The workflow itself must be created in Xcode or App Store Connect after blockers
-B-001 and B-002 are resolved. B-006 is resolved: the paid TestFlight candidate
-uses `media.jenny.FrameWink.wallmode` with Family Sharing. The repository is
-otherwise prepared with a shared archivable `FrameWink` scheme and no external
-package dependency.
+The first-workflow assistant in Xcode has matched FrameWink, Jenny Media LLC,
+and `Jenny-Media/FrameWink`. B-001, B-002, and B-006 are resolved. It is paused
+at the explicit Xcode Cloud repository-access grant under B-010. The repository
+otherwise has a shared archivable `FrameWink` scheme and no external package
+dependency.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` runs automatically before each
 cloud action. Validation actions check the Release identity and privacy files.

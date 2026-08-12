@@ -452,8 +452,8 @@ recovery.
 - [x] Restore Purchases is visible.
 - [x] App Review notes give the Wall Mode product path and StoreKit test steps.
 - [x] Privacy policy draft states no developer server/upload/analytics.
-- [ ] Privacy policy and support pages are published at stable HTTPS URLs in
-      the new public repository.
+- [x] Privacy policy and support pages are published at stable HTTPS URLs in
+      the public repository and saved in App Store Connect.
 - [x] Ten native 2064 x 2752 submission JPEGs contain no alpha, clearly separate
       Free from Paid Wall Mode, and do not imply an ambient sensor, automatic
       Guided Access, reboot recovery, or another unavailable kiosk capability.
@@ -466,3 +466,12 @@ Xcode Cloud. Its validation path passes locally. Its archive path now validates
 the confirmed production Wall Mode product identifier and also guards the Jenny
 Media team, production bundle ID, iPad-only family, iPadOS 15 minimum, and both
 privacy property lists.
+
+## iPad Pro Simulator connection — 2026-08-12
+
+The iOS 27 `iPad Pro 13-inch (M5)` Simulator
+(`1BDA7ABF-4236-406E-8ACD-7E3B10569753`) was already booted. FrameWink built,
+installed, and launched there as `media.jenny.FrameWink` (launch PID `73339`).
+The settled first-launch screen showed the bundled Sample Photos experience and
+no Photos permission dialog. This verifies the named Simulator target; it does
+not satisfy physical iPad gates B-004 or B-005.

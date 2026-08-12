@@ -40,37 +40,22 @@ blocker affects only a later boundary.
 
 ### B-001 — Hosted Git remote is missing
 
-- Status: Open
+- Status: Resolved on 2026-08-12
 - First recorded: 2026-08-11
-- Evidence: `git remote -v` returns no remotes. GitHub CLI is authenticated as
-  `xcv58` with `repo` and `workflow` access, but no `xcv58/FrameWink`
-  repository exists and the account's visible organizations are unrelated to
-  Jenny Media LLC.
-- Impact: Xcode Cloud cannot clone or connect to the project.
-- Does not block: local implementation, builds, tests, signing configuration,
-  documentation, or commits.
-- Needed from owner: choose the Git provider, repository owner/organization,
-  visibility, name, and release branch, then authorize repository creation or
-  provide its URL and authorize the initial push/Xcode Cloud access.
+- Resolution: the audited repository was created as the public
+  `Jenny-Media/FrameWink` GitHub repository. `main` is the default branch,
+  `origin` tracks `https://github.com/Jenny-Media/FrameWink.git`, Issues are
+  enabled, and the complete local history was pushed successfully.
 
 ### B-002 — App Store Connect readiness is unverified
 
-- Status: Open
+- Status: Resolved on 2026-08-12
 - First recorded: 2026-08-11
-- Evidence: both available browser profiles reach App Store Connect's
-  `authResult=FAILED` login page, so the Jenny Media LLC team, app record, role,
-  agreements, and internal tester groups cannot yet be inspected. The installed
-  Apple Development certificate is a valid Jenny Media LLC certificate
-  (`OU=5736QK4NZX`, expires August 5, 2027); no local iOS provisioning profile
-  is installed. This supports local team identity but does not prove App Store
-  Connect or TestFlight readiness.
-- Impact: the first cloud workflow and TestFlight post-action cannot be
-  completed until the app record and sufficient Jenny Media LLC role are
-  available.
-- Does not block: all local milestones and cloud-ready project configuration.
-- Needed from owner: sign in to App Store Connect in Chrome or the in-app
-  browser, then confirm the Apple ID may create/manage the FrameWink app record
-  for `media.jenny.FrameWink` under Jenny Media LLC.
+- Resolution: App Store Connect was verified under Jenny Media LLC. The explicit
+  App ID `media.jenny.FrameWink` was registered with In-App Purchase support,
+  and the FrameWink iOS 1.0 record was created with full team access. Its App
+  Store Connect Apple ID is `6800849400` and internal SKU is
+  `media.jenny.FrameWink`.
 
 ### B-003 — No iPad Simulator is booted
 
@@ -90,7 +75,12 @@ blocker affects only a later boundary.
 - Evidence: `devicectl` and `xctrace` list only simulated iPads. The paired
   physical devices are an Apple Vision Pro and an iPhone 17 Pro Max; neither is
   a valid destination for the iPad-only FrameWink target. No physical iPad or
-  licensed human-labelled evaluation set is available in this workspace.
+  licensed human-labelled evaluation set is available in this workspace. On
+  2026-08-12 the unlocked `iPad Pro 13-inch (M5)` named by the owner was
+  confirmed to be Simulator UDID
+  `1BDA7ABF-4236-406E-8ACD-7E3B10569753`, not physical hardware. FrameWink was
+  built, installed, launched, and visually verified there, but macOS USB,
+  `devicectl`, and `xctrace` still found no physical iPad.
 - Impact: public Vision enrichment, the 100-photo and 1,000/5,000-album
   time/memory gates, real PhotoKit authorization/Limited/iCloud/change behavior,
   thermal behavior, and the human-labelled 80% displayability gate cannot yet
@@ -124,20 +114,21 @@ blocker affects only a later boundary.
   `media.jenny.FrameWink.wallmode` and enabled Family Sharing. Release now uses
   that production identifier, and the Debug StoreKit product mirrors the
   Family Sharing policy.
-- Remaining boundary: create and configure the non-consumable in App Store
-  Connect.
+- App Store Connect completion: the `Wall Mode Lifetime` non-consumable was
+  created as Apple ID `6800849862`, Family Sharing was permanently enabled,
+  the U.S. base price is $9.99 with Apple's comparable storefront prices, all
+  175 current storefronts plus future storefronts are selected, and English
+  (U.S.) localization is configured.
 
 ### B-007 — Public support and privacy-policy endpoints are missing
 
-- Status: Open
+- Status: Resolved on 2026-08-12
 - First recorded: 2026-08-12
-- Evidence: the privacy policy is drafted in `docs/APP_STORE.md`, but no stable
-  Jenny Media LLC HTTPS policy URL or support contact has been supplied.
-- Impact: required App Store metadata cannot be completed or submitted.
-- Does not block: source/privacy auditing, the bundled privacy manifest, local
-  builds/tests, screenshots, App Review-note drafting, or cloud workflow setup.
-- Needed from owner: provide or authorize a stable public privacy-policy URL,
-  a support URL, and a monitored Jenny Media LLC support email.
+- Resolution: the public policy is available at
+  `https://github.com/Jenny-Media/FrameWink/blob/main/PRIVACY.md`; support uses
+  `https://github.com/Jenny-Media/FrameWink/issues` and
+  `framewink@jenny.media`. The policy and support URLs are saved in App Store
+  Connect version/privacy metadata.
 
 ### B-008 — TestFlight paid scope did not match the product contract
 
@@ -158,6 +149,35 @@ blocker affects only a later boundary.
 - Remaining boundary: real PhotoKit permission, iCloud, large-album, and change-
   notification behavior still require physical-device evidence under B-004.
 
+### B-009 — App Privacy publication needs owner legal attestation
+
+- Status: Open
+- First recorded: 2026-08-12
+- Evidence: App Store Connect has the public policy URL and the audited answer
+  `Data Not Collected` saved. Its final Publish dialog requires the publisher to
+  attest that the responses are accurate, comply with App Review Guidelines and
+  applicable law, and will be promptly updated if practices change.
+- Impact: the prepared privacy response is not yet published on the future
+  product page.
+- Does not block: Xcode Cloud, TestFlight builds, support metadata, IAP setup,
+  local validation, or repository work.
+- Needed from owner: review the saved response and personally select Publish in
+  App Store Connect if Jenny Media LLC accepts the attestation.
+
+### B-010 — Xcode Cloud repository access awaits confirmation
+
+- Status: Open
+- First recorded: 2026-08-12
+- Evidence: Xcode's first-workflow assistant matched FrameWink and Jenny Media
+  LLC, then selected `Jenny-Media/FrameWink`. It is paused at `Connect…`, which
+  will grant Apple ongoing access to the repository source and associated build
+  metadata; Apple states that access can be revoked.
+- Impact: the first Xcode Cloud workflow cannot be saved or run, and no cloud
+  archive can reach TestFlight, until repository access is granted.
+- Does not block: all App Store Connect/IAP metadata, local verification,
+  physical-device discovery, or commits.
+- Needed from owner: explicitly confirm the Xcode Cloud repository-access grant.
+
 ## Committed Xcode Cloud guardrail
 
 Apple automatically runs `ci_scripts/ci_pre_xcodebuild.sh` before each Xcode
@@ -169,8 +189,10 @@ without preventing Build, Analyze, or Test workflows.
 
 ## Remaining release decisions
 
-- Confirm or create the App Store Connect app record and SKU.
-- Select the initial internal TestFlight tester group.
+- Select the initial internal TestFlight tester group after the first cloud
+  build exists.
+- Complete the owner-only App Privacy attestation under B-009.
+- Confirm the Xcode Cloud repository-access grant under B-010.
 
 ## Local debugger tooling note
 
