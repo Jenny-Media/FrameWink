@@ -145,9 +145,9 @@ the seven-day soak.
   recoverable `Unable to Complete Request` path. The paywall remained usable
   and explicitly stated that the free Smart Reel was unchanged.
 
-Still required in App Store Connect: confirm/create the immutable production
-product identifier, decide Family Sharing, configure pricing/localizations, and
-exercise purchase/restore/refund in TestFlight sandbox under blocker B-006.
+The immutable production identifier and Family Sharing policy are confirmed.
+Creating the product, configuring pricing/localizations, and exercising
+purchase/restore/refund in TestFlight sandbox remain App Store Connect work.
 
 This Milestone 5 record describes the narrower build verified on August 11. The
 paid-scope completion record below supersedes its planned-feature paywall copy.
@@ -167,8 +167,8 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
   iOS devices also succeeds.
 - Built-product inspection confirms an iPad-only `media.jenny.FrameWink` app
   with minimum OS 15.0, a compiled opaque 1,024-pixel AppIcon, a root
-  `PrivacyInfo.xcprivacy`, no local `.storekit` file, and an intentionally empty
-  Release Wall Mode product identifier.
+  `PrivacyInfo.xcprivacy`, no local `.storekit` file, and the production
+  `media.jenny.FrameWink.wallmode` Wall Mode identifier.
 - The Release executable links Apple system frameworks only. Source inspection
   found no `URLSession`, developer URL, analytics/tracking SDK, PhotoKit change
   request, `UserDefaults`, or `UIScreen.brightness` write.
@@ -452,7 +452,8 @@ recovery.
 - [x] Restore Purchases is visible.
 - [x] App Review notes give the Wall Mode product path and StoreKit test steps.
 - [x] Privacy policy draft states no developer server/upload/analytics.
-- [ ] Privacy policy and support pages are published at stable HTTPS URLs.
+- [ ] Privacy policy and support pages are published at stable HTTPS URLs in
+      the new public repository.
 - [x] Ten native 2064 x 2752 submission JPEGs contain no alpha, clearly separate
       Free from Paid Wall Mode, and do not imply an ambient sensor, automatic
       Guided Access, reboot recovery, or another unavailable kiosk capability.
@@ -461,7 +462,7 @@ recovery.
 - [ ] Xcode Cloud clean archive and TestFlight installation succeed.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` is recognized automatically by
-Xcode Cloud. Its validation path passes locally. Its archive path intentionally
-fails while the production Wall Mode product identifier is empty, and also
-guards the Jenny Media team, production bundle ID, iPad-only family, iPadOS 15
-minimum, and both privacy property lists.
+Xcode Cloud. Its validation path passes locally. Its archive path now validates
+the confirmed production Wall Mode product identifier and also guards the Jenny
+Media team, production bundle ID, iPad-only family, iPadOS 15 minimum, and both
+privacy property lists.

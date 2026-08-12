@@ -116,20 +116,16 @@ blocker affects only a later boundary.
 - Needed from owner: assign a compatible iPad, safe charger/cable and mounting
   location, then record device/OS and authorize the seven-day physical run.
 
-### B-006 — Production Wall Mode product decisions are unconfirmed
+### B-006 — Production Wall Mode product decisions were unconfirmed
 
-- Status: Open
+- Status: Resolved on 2026-08-12
 - First recorded: 2026-08-11
-- Evidence: the proposed immutable identifier
-  `media.jenny.FrameWink.wallmode` and Family Sharing policy have been asked of
-  the owner but not confirmed.
-- Impact: the production non-consumable cannot safely be created in App Store
-  Connect, and a Release/TestFlight build intentionally has no product ID.
-- Does not block: the isolated local product, StoreKit 2 implementation,
-  injected-client tests, StoreKit Test purchase/restore/refund/pending/failure
-  scenarios, paywall UI, hardening, cloud scripts, or local commits.
-- Needed from owner: confirm the exact production ID and whether Family Sharing
-  should be enabled before the immutable App Store Connect product is created.
+- Resolution: the owner confirmed the immutable identifier
+  `media.jenny.FrameWink.wallmode` and enabled Family Sharing. Release now uses
+  that production identifier, and the Debug StoreKit product mirrors the
+  Family Sharing policy.
+- Remaining boundary: create and configure the non-consumable in App Store
+  Connect.
 
 ### B-007 — Public support and privacy-policy endpoints are missing
 
@@ -173,13 +169,8 @@ without preventing Build, Analyze, or Test workflows.
 
 ## Remaining release decisions
 
-- Confirm the non-consumable Wall Mode StoreKit product identifier. Proposed:
-  `media.jenny.FrameWink.wallmode`.
-- Choose the hosted Git provider, organization, repository name, and release
-  branch.
 - Confirm or create the App Store Connect app record and SKU.
 - Select the initial internal TestFlight tester group.
-- Provide the public privacy-policy/support URLs and support email (B-007).
 
 ## Local debugger tooling note
 

@@ -23,7 +23,15 @@ required-reason API, tracking, or tracking-domain declarations. Re-run the Xcode
 privacy report before submission and change both the manifest and App Store
 answers if implementation changes.
 
-## Privacy policy draft
+## Published privacy policy
+
+- Privacy policy URL:
+  `https://github.com/Jenny-Media/FrameWink/blob/main/PRIVACY.md`
+- Support URL: `https://github.com/Jenny-Media/FrameWink/issues`
+- Support email: `framewink@jenny.media`
+
+The canonical policy is the root-level `PRIVACY.md`. The copy below is retained
+as release-review input and must remain aligned with it.
 
 Effective: August 12, 2026
 
@@ -53,9 +61,9 @@ Wall Mode purchases use Apple's StoreKit and App Store services. Jenny Media LLC
 does not receive payment-card details through FrameWink. Apple's own processing
 is governed by Apple's privacy policy.
 
-This policy must be published at a stable HTTPS URL and supplied with a Jenny
-Media LLC support contact before App Store submission; both are open under
-blocker B-007.
+The public repository hosts this policy and the Issues tracker provides the
+support endpoint. Privacy questions and support mail go to
+`framewink@jenny.media`.
 
 ## App Review notes draft
 
@@ -90,8 +98,9 @@ Consumer Guided Access must be started manually in iPadOS. FrameWink does not
 change system brightness, sense ambient light, promise an exact scheduled wake,
 or guarantee relaunch after a reboot.
 
-Before submission, replace this paragraph with the confirmed production product
-identifier and any reviewer-specific test account or StoreKit instructions.
+The production non-consumable identifier is
+`media.jenny.FrameWink.wallmode`, with Family Sharing enabled. No reviewer test
+account is required; App Review should use its StoreKit sandbox environment.
 
 ## Screenshot plan
 
@@ -137,9 +146,10 @@ The broader eleven-image 1640 x 2360 source library remains under
 ## Xcode Cloud workflow recipe
 
 The workflow itself must be created in Xcode or App Store Connect after blockers
-B-001 and B-002 are resolved. A paid TestFlight candidate additionally requires
-B-006 to be resolved. The repository is otherwise prepared with a
-shared archivable `FrameWink` scheme and no external package dependency.
+B-001 and B-002 are resolved. B-006 is resolved: the paid TestFlight candidate
+uses `media.jenny.FrameWink.wallmode` with Family Sharing. The repository is
+otherwise prepared with a shared archivable `FrameWink` scheme and no external
+package dependency.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` runs automatically before each
 cloud action. Validation actions check the Release identity and privacy files.

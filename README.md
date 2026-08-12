@@ -6,8 +6,13 @@ the durable product context, implementation, tests, and release plan for a
 
 The product name is `FrameWink`. The app uses bundle identifier
 `media.jenny.FrameWink`, the unit tests use `media.jenny.FrameWinkTests`, and
-both targets use the Jenny Media LLC Apple Developer team. The production
-StoreKit product identifier remains an explicit release decision.
+both targets use the Jenny Media LLC Apple Developer team. Wall Mode is a
+Family Sharing-enabled non-consumable with production identifier
+`media.jenny.FrameWink.wallmode`.
+
+The public [privacy policy](PRIVACY.md) and
+[support tracker](https://github.com/Jenny-Media/FrameWink/issues) are maintained
+by Jenny Media LLC. Support email: `framewink@jenny.media`.
 
 ## Recreating the Xcode project
 

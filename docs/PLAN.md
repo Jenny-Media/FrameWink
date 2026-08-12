@@ -144,8 +144,8 @@ failure states leave Free Smart Reel usable.
 
 Status: implementation complete; App Store Connect configuration remains open.
 The Debug scheme uses the explicitly local, non-consumable
-`media.jenny.FrameWink.wallmode.local` product, while Release has no product ID
-until the immutable production identifier is owner-confirmed. Verified StoreKit
+`media.jenny.FrameWink.wallmode.local` product, while Release uses the confirmed
+`media.jenny.FrameWink.wallmode` production identifier. Verified StoreKit
 2 entitlements and transaction updates gate all paid Wall Mode capabilities;
 refunds and revocations restore app-owned display state without deleting the
 free reel or cached automatic-album data.
@@ -156,7 +156,8 @@ unverified updates, revocation, and an offline StoreKit-verified entitlement.
 The local purchase scenarios and entitlement gates pass on the iOS 27 `iPad
 (A16)` Simulator. The paywall, $9.99 local price, visible Restore Purchases
 action, included paid-scope copy, and recoverable StoreKit failure are covered
-locally. Production ID and Family Sharing remain blocker B-006.
+locally. Production ID and Family Sharing are confirmed; App Store Connect
+product creation remains release work.
 
 ## Milestone 6 — Hardening and release
 
@@ -261,8 +262,8 @@ revision, archives reusable Vision feature prints, skips image decode and Vision
 for unchanged assets, uses bounded checkpoint frequency, and throttles paid
 progress publication. Simulator regressions exercise both the curator and full
 pipeline with 5,000 candidates. Xcode Cloud's pre-build archive guard is also
-committed and deliberately prevents a TestFlight archive while the production
-IAP identifier remains unconfirmed.
+committed and validates the confirmed production IAP identifier before a
+TestFlight archive.
 
 A Debug-only screenshot harness now isolates its fixture state from normal app
 data. It produces an upload-ready set of ten native 13-inch iPad JPEGs at 2064 x
@@ -289,9 +290,10 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   identifiers `media.jenny.FrameWinkTests` and `media.jenny.FrameWinkUITests`,
   and Jenny Media LLC team
   `5736QK4NZX` are confirmed and configured.
-- Production StoreKit product identifier is undecided.
-- Family Sharing for the production non-consumable is undecided. The local test
-  product keeps it disabled so the build does not imply a production policy.
+- Production StoreKit product identifier is confirmed as
+  `media.jenny.FrameWink.wallmode`.
+- Family Sharing is confirmed for the production non-consumable and enabled in
+  the local StoreKit test configuration.
 - Public open-source license is undecided.
 - Physical legacy-device test matrix must be acquired/confirmed.
 - Milestone 3's physical Vision, oldest-device performance, and human-labelled
@@ -301,15 +303,15 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - Milestone 4's physical idle-timer/Guided Access/thermal/brightness behavior
   and seven-day mounted-device soak remain open as blocker B-005. All schedule,
   persistence, state-restoration, and setup-copy work is independently verified.
-- Milestone 5's local purchase implementation and tests are complete. Creating
-  the immutable App Store product remains blocked on confirmation of
-  `media.jenny.FrameWink.wallmode` and the Family Sharing decision (B-006).
+- Milestone 5's local purchase implementation and tests are complete. The owner
+  confirmed `media.jenny.FrameWink.wallmode` with Family Sharing, resolving
+  B-006; App Store Connect configuration remains release work.
 - Xcode Cloud setup is blocked only at the cloud boundary: this local Git
   repository has no hosted remote yet, and the App Store Connect app record and
   account role have not been verified. Local implementation and validation
   continue while those inputs are pending. See `docs/DISTRIBUTION.md`.
-- Public privacy-policy/support URLs and a monitored Jenny Media LLC support
-  email are still required for App Store metadata under blocker B-007.
+- The public privacy-policy/support URLs and monitored support email are
+  confirmed; B-007 resolves when the new public repository is pushed.
 - B-008 is resolved locally: the paid implementation and paywall now match the
   authoritative automatic-album, scale, repeat-avoidance, layout, and saved-
   configuration contract. Physical PhotoKit validation remains under B-004.

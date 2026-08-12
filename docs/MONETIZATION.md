@@ -5,14 +5,12 @@
 - Type: non-consumable In-App Purchase.
 - Working reference name: `Wall Mode Lifetime`.
 - Planned US price: $9.99.
-- Proposed identifier: `media.jenny.FrameWink.wallmode`.
-- Confirm the identifier before creating the immutable product in App Store
-  Connect.
-- Production Family Sharing is not decided. The local test product keeps it
-  disabled; do not enable it in App Store Connect without owner confirmation.
+- Confirmed identifier: `media.jenny.FrameWink.wallmode`.
+- Family Sharing is enabled for the production non-consumable.
 - Local Debug-only identifier: `media.jenny.FrameWink.wallmode.local`.
-- The Release build deliberately receives no product identifier until the
-  production decision is confirmed.
+- The local StoreKit test product also enables Family Sharing so the Debug
+  purchase flow matches the production entitlement policy.
+- The Release build receives only the confirmed production identifier.
 
 ## Paywall timing
 
