@@ -9,6 +9,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
     override func tearDownWithError() throws {
         app?.terminate()
+        XCUIDevice.shared.orientation = .portrait
         app = nil
     }
 
@@ -72,9 +73,56 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Delete Imported Photos"].exists)
     }
 
+    func testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto() {
+        launch(scenario: "personal-reel")
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        XCTAssertTrue(waitForLandscape())
+
+        let playFullScreen = app.buttons["Play Full Screen"]
+        XCTAssertTrue(playFullScreen.waitForExistence(timeout: 8))
+        playFullScreen.tap()
+
+        let firstPhoto = app.descendants(matching: .any)[
+            "frame-photo-78F4585F-54C5-4360-9C36-34E2C3F82BC4"
+        ].firstMatch
+        XCTAssertTrue(firstPhoto.waitForExistence(timeout: 8))
+
+        app.swipeLeft()
+
+        let secondPhoto = app.descendants(matching: .any)[
+            "frame-photo-5255CD65-7C11-4EEB-B7F5-85FC76A4D11B"
+        ].firstMatch
+        XCTAssertTrue(secondPhoto.waitForExistence(timeout: 8))
+
+        XCUIDevice.shared.orientation = .portrait
+        XCTAssertTrue(waitForPortrait())
+        XCTAssertTrue(secondPhoto.exists)
+    }
+
     private func launch(scenario: String) {
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_SCREENSHOT_SCENARIO"] = scenario
         app.launch()
+    }
+
+    private func waitForLandscape(timeout: TimeInterval = 8) -> Bool {
+        waitForOrientation(timeout: timeout) { $0.width > $0.height }
+    }
+
+    private func waitForPortrait(timeout: TimeInterval = 8) -> Bool {
+        waitForOrientation(timeout: timeout) { $0.height > $0.width }
+    }
+
+    private func waitForOrientation(
+        timeout: TimeInterval,
+        matches: (CGSize) -> Bool
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        repeat {
+            if matches(app.frame.size) { return true }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        } while Date() < deadline
+        return matches(app.frame.size)
     }
 }

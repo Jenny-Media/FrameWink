@@ -42,23 +42,35 @@ blocker affects only a later boundary.
 
 - Status: Open
 - First recorded: 2026-08-11
-- Evidence: `git remote -v` returns no remotes.
+- Evidence: `git remote -v` returns no remotes. GitHub CLI is authenticated as
+  `xcv58` with `repo` and `workflow` access, but no `xcv58/FrameWink`
+  repository exists and the account's visible organizations are unrelated to
+  Jenny Media LLC.
 - Impact: Xcode Cloud cannot clone or connect to the project.
 - Does not block: local implementation, builds, tests, signing configuration,
   documentation, or commits.
-- Needed from owner: choose the Git provider and Jenny Media repository URL,
-  then authorize the initial push and Xcode Cloud repository access.
+- Needed from owner: choose the Git provider, repository owner/organization,
+  visibility, name, and release branch, then authorize repository creation or
+  provide its URL and authorize the initial push/Xcode Cloud access.
 
 ### B-002 — App Store Connect readiness is unverified
 
 - Status: Open
 - First recorded: 2026-08-11
+- Evidence: both available browser profiles reach App Store Connect's
+  `authResult=FAILED` login page, so the Jenny Media LLC team, app record, role,
+  agreements, and internal tester groups cannot yet be inspected. The installed
+  Apple Development certificate is a valid Jenny Media LLC certificate
+  (`OU=5736QK4NZX`, expires August 5, 2027); no local iOS provisioning profile
+  is installed. This supports local team identity but does not prove App Store
+  Connect or TestFlight readiness.
 - Impact: the first cloud workflow and TestFlight post-action cannot be
   completed until the app record and sufficient Jenny Media LLC role are
   available.
 - Does not block: all local milestones and cloud-ready project configuration.
-- Needed from owner: confirm the signed-in Apple ID has permission to create or
-  manage the FrameWink app record for `media.jenny.FrameWink`.
+- Needed from owner: sign in to App Store Connect in Chrome or the in-app
+  browser, then confirm the Apple ID may create/manage the FrameWink app record
+  for `media.jenny.FrameWink` under Jenny Media LLC.
 
 ### B-003 — No iPad Simulator is booted
 

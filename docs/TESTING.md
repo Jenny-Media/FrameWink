@@ -189,7 +189,7 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
 
 ### Paid-scope completion verification record — 2026-08-12
 
-- Full shared-scheme Simulator suite: 100 tests passed with zero failures, skips, expected
+- Full shared-scheme Simulator suite: 101 tests passed with zero failures, skips, expected
   failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
 - The final unsigned generic-device Release build and Xcode static analysis
   both complete without diagnostics after the paid-scope changes.
@@ -234,7 +234,7 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
 
 ### Slideshow performance-hardening verification record — 2026-08-12
 
-- The shared scheme remains green after the transition and local-reel UI changes: 100 tests pass
+- The shared scheme remains green after the transition and local-reel UI changes: 101 tests pass
   with zero failures, skips, expected failures, or runtime warnings on the iOS
   27 `iPad (A16)` Simulator. The unsigned generic-device Release build, Xcode
   static analysis, and the Xcode Cloud release-identity/privacy preflight also
@@ -288,9 +288,11 @@ to Sample Mode. A separate bundled-media fixture goes through the production
 private import store and saved-reel load path, displays the personal reel in
 Frame Mode, confirms deletion from a 58-point accessibility target, and verifies
 Samples/`Choose My Photos` return with no delete action. This closes the local
-picker-cancellation, offline-copy playback, and delete-all UI reruns; real
-provider, iCloud, Airplane Mode, and permission-transition behavior remains
-physical-device work.
+picker-cancellation, offline-copy playback, and delete-all UI reruns. A third
+flow rotates the iPad to landscape, enters Frame Mode, performs a real swipe to
+the exact next persisted photo, returns to portrait, and verifies that photo
+remains active. Real provider, iCloud, Airplane Mode, physical touch, and
+permission-transition behavior remains physical-device work.
 
 The local release packet now includes the App Privacy answer and policy draft,
 App Review notes, a ten-shot Free/Paid screenshot plan with ten visually checked

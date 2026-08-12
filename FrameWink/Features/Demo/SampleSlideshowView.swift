@@ -559,6 +559,7 @@ private struct FramePhotoView: View {
         .task(id: slide.imageCacheKey) {
             image = await loadImage(slide)
         }
+        .accessibilityIdentifier("frame-photo-" + slide.id)
         .accessibilityLabel(slide.accessibilityLabel)
     }
 

@@ -181,7 +181,7 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 100 shared-scheme tests pass. Xcode static analysis completes
+acceptance remains open. All 101 shared-scheme tests pass. Xcode static analysis completes
 without warnings after excluding the StoreKit test bundle from the Analyze
 action, and an unsigned Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
@@ -250,9 +250,11 @@ does not request Photos authorization, opens PHPicker only from the explicit
 photo action, cancels the picker, and returns safely. A second isolated flow
 loads a persisted personal reel from app-controlled local copies, displays it
 in Frame Mode, confirms `Delete Imported Photos`, and verifies the app returns
-to Samples with no delete action remaining. The destructive and local-veto
-reset controls now expose at least 44-point label hit areas. The same target
-will run inside Xcode Cloud's Test action.
+to Samples with no delete action remaining. A third flow rotates the iPad to
+landscape, enters Frame Mode, swipes to an exact next photo, returns to portrait,
+and verifies navigation state survives rotation. The destructive and local-veto
+reset controls expose at least 44-point label hit areas. The same target will
+run inside Xcode Cloud's Test action.
 
 The paid analysis cache now keys persisted signals to the asset content
 revision, archives reusable Vision feature prints, skips image decode and Vision
