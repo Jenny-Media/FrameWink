@@ -119,6 +119,7 @@ struct RootView: View {
             Button("Delete All Imported Photos", role: .destructive) {
                 model.deleteImportedPhotos()
             }
+            .accessibilityIdentifier("confirm-delete-imported-photos")
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This removes every app-controlled photo copy and its derived records. Your Apple Photos library is never changed.")
@@ -316,15 +317,28 @@ struct RootView: View {
                         }
                     }
 
-                    Button("Delete Imported Photos", role: .destructive) {
+                    Button(role: .destructive) {
                         showDeleteConfirmation = true
+                    } label: {
+                        Text("Delete Imported Photos")
+                            .frame(minHeight: 44)
+                            .contentShape(Rectangle())
                     }
                     .font(.footnote.weight(.semibold))
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+                    .accessibilityIdentifier("delete-imported-photos")
 
-                    Button("Reset Never Show Choices") {
+                    Button {
                         showResetNeverShowConfirmation = true
+                    } label: {
+                        Text("Reset Never Show Choices")
+                            .frame(minHeight: 44)
+                            .contentShape(Rectangle())
                     }
                     .font(.footnote.weight(.semibold))
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
                     .disabled(model.isCurating)
                 }
             }

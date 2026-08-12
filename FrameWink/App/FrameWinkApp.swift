@@ -36,8 +36,10 @@ struct FrameWinkApp: App {
         let curationStore = LocalCurationStore(directory: store.derivedDataDirectory)
         let smartReelBuilder: SmartReelBuilding
 #if DEBUG
-        if screenshotScenario == .freeReview {
-            smartReelBuilder = DebugScreenshotSmartReelBuilder()
+        if screenshotScenario == .freeReview || screenshotScenario == .personalReel {
+            smartReelBuilder = DebugScreenshotSmartReelBuilder(
+                savedCandidateIDs: DebugScreenshotScenario.importedPhotoFixtureIDs
+            )
         } else {
             smartReelBuilder = SmartReelPipeline(
                 analyzer: VisionPhotoAnalyzer(),
@@ -117,13 +119,17 @@ struct FrameWinkApp: App {
             store: albumCurationStore
         )
 #endif
-        _model = StateObject(
-            wrappedValue: AppModel(
-                importer: importer,
-                imageLoader: store,
-                smartReelBuilder: smartReelBuilder
-            )
+        let appModel = AppModel(
+            importer: importer,
+            imageLoader: store,
+            smartReelBuilder: smartReelBuilder
         )
+#if DEBUG
+        if screenshotScenario == .personalReel {
+            appModel.collectionMode = .personal
+        }
+#endif
+        _model = StateObject(wrappedValue: appModel)
         _wallMode = StateObject(
             wrappedValue: WallModeController(
                 idleTimer: ApplicationIdleTimerController(),

@@ -31,6 +31,7 @@ enum DebugScreenshotScenario: String {
     case automaticAlbumReview = "automatic-album-review"
     case mosaicFrame = "mosaic-frame"
     case freeReview = "free-review-grid"
+    case personalReel = "personal-reel"
 
     static var current: Self? {
         guard let value = ProcessInfo.processInfo.environment[
@@ -43,7 +44,7 @@ enum DebugScreenshotScenario: String {
 
     var initialPresentation: RootInitialPresentation? {
         switch self {
-        case .sample:
+        case .sample, .personalReel:
             return nil
         case .smartFrame:
             return .frameMode
@@ -80,13 +81,19 @@ enum DebugScreenshotScenario: String {
 }
 
 extension DebugScreenshotScenario {
+    static let importedPhotoFixtureIDs = [
+        UUID(uuidString: "78F4585F-54C5-4360-9C36-34E2C3F82BC4")!,
+        UUID(uuidString: "5255CD65-7C11-4EEB-B7F5-85FC76A4D11B")!,
+        UUID(uuidString: "37D2AC69-E0DE-4F0C-A769-8668CBD07BE6")!,
+    ]
+
     func seed(
         importedStore: ImportedPhotoStoring,
         wallModeStore: WallModeConfigurationStoring,
         albumStore: AlbumSourceStoring,
         frameConfigurationStore: FrameConfigurationStoring
     ) {
-        if self == .freeReview {
+        if self == .freeReview || self == .personalReel {
             seedFreeReview(importedStore: importedStore)
             return
         }
@@ -158,15 +165,15 @@ extension DebugScreenshotScenario {
     private func seedFreeReview(importedStore: ImportedPhotoStoring) {
         let samples = [
             (
-                id: UUID(uuidString: "78F4585F-54C5-4360-9C36-34E2C3F82BC4")!,
+                id: Self.importedPhotoFixtureIDs[0],
                 resource: "sample-lakeside"
             ),
             (
-                id: UUID(uuidString: "5255CD65-7C11-4EEB-B7F5-85FC76A4D11B")!,
+                id: Self.importedPhotoFixtureIDs[1],
                 resource: "sample-beach-dog"
             ),
             (
-                id: UUID(uuidString: "37D2AC69-E0DE-4F0C-A769-8668CBD07BE6")!,
+                id: Self.importedPhotoFixtureIDs[2],
                 resource: "sample-kitchen"
             ),
         ]
@@ -318,8 +325,18 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
 }
 
 final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
+    private let savedCandidateIDs: [UUID]
+
+    init(savedCandidateIDs: [UUID] = []) {
+        self.savedCandidateIDs = savedCandidateIDs
+    }
+
     func loadSavedReel() throws -> SmartReel? {
-        nil
+        guard !savedCandidateIDs.isEmpty else { return nil }
+        return makeReel(
+            candidateIDs: savedCandidateIDs,
+            maximumSelectionCount: 30
+        )
     }
 
     func build(
@@ -347,14 +364,24 @@ final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
                 totalCount: candidates.count
             )
         )
-        return SmartReel(
+        return makeReel(
+            candidateIDs: candidates.map(\.id),
+            maximumSelectionCount: maximumSelectionCount
+        )
+    }
+
+    private func makeReel(
+        candidateIDs: [UUID],
+        maximumSelectionCount: Int
+    ) -> SmartReel {
+        SmartReel(
             id: UUID(uuidString: "1E7EF660-F5E4-4A66-AC52-6C52A6D49F62")!,
             algorithmRevision: SmartReelCurator.algorithmRevision,
             createdAt: Date(timeIntervalSinceReferenceDate: 0),
-            selections: candidates.prefix(maximumSelectionCount).enumerated().map {
-                index, candidate in
+            selections: candidateIDs.prefix(maximumSelectionCount).enumerated().map {
+                index, candidateID in
                 CuratedPhoto(
-                    candidateID: candidate.id,
+                    candidateID: candidateID,
                     algorithmRevision: SmartReelCurator.algorithmRevision,
                     finalScore: 1 - Double(index) * 0.01,
                     reasons: [.quality, .layout]

@@ -189,7 +189,7 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
 
 ### Paid-scope completion verification record — 2026-08-12
 
-- Full shared-scheme Simulator suite: 99 tests passed with zero failures, skips, expected
+- Full shared-scheme Simulator suite: 100 tests passed with zero failures, skips, expected
   failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
 - The final unsigned generic-device Release build and Xcode static analysis
   both complete without diagnostics after the paid-scope changes.
@@ -234,7 +234,7 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
 
 ### Slideshow performance-hardening verification record — 2026-08-12
 
-- The shared scheme remains green after the transition changes: 99 tests pass
+- The shared scheme remains green after the transition and local-reel UI changes: 100 tests pass
   with zero failures, skips, expected failures, or runtime warnings on the iOS
   27 `iPad (A16)` Simulator. The unsigned generic-device Release build, Xcode
   static analysis, and the Xcode Cloud release-identity/privacy preflight also
@@ -264,6 +264,7 @@ Recovery status for the current MVP:
 | Scenario | Local evidence | Remaining check |
 |---|---|---|
 | Picker cancellation | Automated cleanup test plus isolated XCUI flow that opens and cancels PHPicker | Exercise a real provider item on physical iPad |
+| Local playback and delete all | Isolated XCUI flow loads a persisted personal reel from app-controlled local copies, enters Frame Mode, confirms deletion, and verifies fallback to Samples; destructive/reset controls expose at least 44-point label hit areas | Exercise a real provider import and physical Airplane Mode playback |
 | Partial/cloud-provider failure | Successful items persist and failure is retryable | Exercise an iCloud-only selection offline/online |
 | Permission denial / revocation | Automated controller tests fall back from automatic display, preserve cached state, and recover after restored access | Exercise real prompt/settings transitions |
 | Limited Photos | Automated controller test treats Limited as readable without another prompt and displays a configured visible album | Verify selected-album visibility on physical iPad |
@@ -283,8 +284,13 @@ for normal device backup.
 The shared scheme now includes `FrameWinkUITests`. Its isolated first-launch
 flow verifies Sample Mode appears without a Photos authorization alert, opens
 PHPicker only after `Choose My Photos`, cancels the system picker, and returns
-to Sample Mode. This closes the local picker-cancellation rerun; real provider,
-iCloud, and permission-transition behavior remains physical-device work.
+to Sample Mode. A separate bundled-media fixture goes through the production
+private import store and saved-reel load path, displays the personal reel in
+Frame Mode, confirms deletion from a 58-point accessibility target, and verifies
+Samples/`Choose My Photos` return with no delete action. This closes the local
+picker-cancellation, offline-copy playback, and delete-all UI reruns; real
+provider, iCloud, Airplane Mode, and permission-transition behavior remains
+physical-device work.
 
 The local release packet now includes the App Privacy answer and policy draft,
 App Review notes, a ten-shot Free/Paid screenshot plan with ten visually checked

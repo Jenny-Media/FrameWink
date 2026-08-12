@@ -181,7 +181,7 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 99 shared-scheme tests pass. Xcode static analysis completes
+acceptance remains open. All 100 shared-scheme tests pass. Xcode static analysis completes
 without warnings after excluding the StoreKit test bundle from the Analyze
 action, and an unsigned Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
@@ -247,8 +247,12 @@ tests.
 The shared scheme also runs an iPad UI test target with bundle identifier
 `media.jenny.FrameWinkUITests`. It isolates launch state, proves Sample Mode
 does not request Photos authorization, opens PHPicker only from the explicit
-photo action, cancels the picker, and returns safely. The same target will run
-inside Xcode Cloud's Test action.
+photo action, cancels the picker, and returns safely. A second isolated flow
+loads a persisted personal reel from app-controlled local copies, displays it
+in Frame Mode, confirms `Delete Imported Photos`, and verifies the app returns
+to Samples with no delete action remaining. The destructive and local-veto
+reset controls now expose at least 44-point label hit areas. The same target
+will run inside Xcode Cloud's Test action.
 
 The paid analysis cache now keys persisted signals to the asset content
 revision, archives reusable Vision feature prints, skips image decode and Vision
@@ -310,8 +314,9 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - Installed Simulator runtimes begin at iOS 27. The app compiles with an
   iPadOS 15 deployment target; the unit-test target uses iOS 17 because the
   XCTest libraries bundled with Xcode 27 no longer link cleanly at 15.0.
-- PHPicker cancellation, large/iCloud-backed selections, Airplane Mode, and
-  delete-all behavior still require Simulator and real-device interaction.
+- PHPicker cancellation and delete-all are covered in isolated Simulator UI
+  flows. Large/iCloud-backed selections and physical Airplane Mode behavior
+  remain real-device interaction checks.
 
 ## Timebox rule
 

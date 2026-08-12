@@ -68,7 +68,7 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current shared scheme passes all 87 unit and
+  was installed and launched; the current shared scheme passes all 100 unit and
   UI tests.
 
 ### B-004 — Physical curation-validation hardware and labelled set are missing
@@ -137,7 +137,7 @@ blocker affects only a later boundary.
   mutation, curates its full eligible candidate pool, caches display-sized
   copies with Strict Offline behavior, reduces repeats from local display
   history, adds Mosaic, and persists multiple album-aware frame configurations.
-  The paywall and release copy now describe the included scope. The 87-test
+  The paywall and release copy now describe the included scope. The 100-test
   Simulator suite covers local synchronization, corrupt-cache cleanup, change
   refresh, entitlement/revocation, unbounded input, repeat ranking, layouts, and
   saved configurations.
