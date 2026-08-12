@@ -2,86 +2,104 @@ import SwiftUI
 
 struct WallModePaywallView: View {
     @ObservedObject var purchases: PurchaseController
+    let initiallyShowsPurchaseControls: Bool
     @Environment(\.presentationMode) private var presentationMode
+
+    init(
+        purchases: PurchaseController,
+        initiallyShowsPurchaseControls: Bool = false
+    ) {
+        self.purchases = purchases
+        self.initiallyShowsPurchaseControls = initiallyShowsPurchaseControls
+    }
 
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Image(systemName: "rectangle.inset.filled.and.person.filled")
-                            .font(.system(size: 52))
-                            .foregroundColor(.accentColor)
-                            .accessibilityHidden(true)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Image(systemName: "rectangle.inset.filled.and.person.filled")
+                                .font(.system(size: 52))
+                                .foregroundColor(.accentColor)
+                                .accessibilityHidden(true)
 
-                        Text("Make this iPad a dependable frame")
-                            .font(.largeTitle.bold())
+                            Text("Make this iPad a dependable frame")
+                                .font(.largeTitle.bold())
 
-                        Text("Wall Mode Lifetime is one non-consumable purchase—no subscription, account, ads, or photo upload.")
-                            .font(.title3)
-                            .foregroundColor(.secondary)
-                    }
-
-                    VStack(alignment: .leading, spacing: 15) {
-                        paidPoint(
-                            icon: "photo.stack.fill",
-                            title: "Automatic selected albums",
-                            detail: "Choose a Photos album after purchase, curate all eligible candidates, and refresh privately as that album changes."
-                        )
-                        paidPoint(
-                            icon: "rectangle.grid.2x2.fill",
-                            title: "Mosaic and saved frames",
-                            detail: "Save multiple source, layout, and timing configurations—including a four-photo Mosaic layout."
-                        )
-                        paidPoint(
-                            icon: "arrow.triangle.2.circlepath",
-                            title: "Fresher recommendations",
-                            detail: "Regenerate suggestions from the current album and reduce long-term repeats using on-device display history."
-                        )
-                        paidPoint(
-                            icon: "moon.stars.fill",
-                            title: "Foreground dimming and blackout",
-                            detail: "Use a saved visual schedule while FrameWink remains active."
-                        )
-                        paidPoint(
-                            icon: "display",
-                            title: "Continuous foreground display",
-                            detail: "Prevent Auto-Lock only during active, foreground Frame Mode."
-                        )
-                        paidPoint(
-                            icon: "checklist",
-                            title: "Wall setup assistance",
-                            detail: "Commission power, ventilation, cable routing, orientation, Guided Access, and restart recovery."
-                        )
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Free Smart Reel stays fully useful")
-                            .font(.headline)
-                        Text("The free experience keeps full-quality local curation, up to 100 imported candidates, one 30-photo reel, review and Never Show Again, face-safe layouts, portrait pairing, Fit/Fill, timing, pause, navigation, and unlimited replay. StoreKit problems never disable it.")
-                            .foregroundColor(.secondary)
-                    }
-
-                    if purchases.isWallModeUnlocked {
-                        Label("Wall Mode is unlocked", systemImage: "checkmark.circle.fill")
-                            .font(.title3.weight(.semibold))
-                            .foregroundColor(.green)
-
-                        Button("Continue") {
-                            presentationMode.wrappedValue.dismiss()
+                            Text("Wall Mode Lifetime is one non-consumable purchase—no subscription, account, ads, or photo upload.")
+                                .font(.title3)
+                                .foregroundColor(.secondary)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
-                    } else {
-                        purchaseControls
-                    }
 
-                    Text("Automatic albums request Photos access only after you choose that feature. FrameWink reads the selected album, keeps display-sized copies on this iPad, never changes your Photos library, and offers a Strict Offline option that avoids iCloud downloads.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
+                        VStack(alignment: .leading, spacing: 15) {
+                            paidPoint(
+                                icon: "photo.stack.fill",
+                                title: "Automatic selected albums",
+                                detail: "Choose a Photos album after purchase, curate all eligible candidates, and refresh privately as that album changes."
+                            )
+                            paidPoint(
+                                icon: "rectangle.grid.2x2.fill",
+                                title: "Mosaic and saved frames",
+                                detail: "Save multiple source, layout, and timing configurations—including a four-photo Mosaic layout."
+                            )
+                            paidPoint(
+                                icon: "arrow.triangle.2.circlepath",
+                                title: "Fresher recommendations",
+                                detail: "Regenerate suggestions from the current album and reduce long-term repeats using on-device display history."
+                            )
+                            paidPoint(
+                                icon: "moon.stars.fill",
+                                title: "Foreground dimming and blackout",
+                                detail: "Use a saved visual schedule while FrameWink remains active."
+                            )
+                            paidPoint(
+                                icon: "display",
+                                title: "Continuous foreground display",
+                                detail: "Prevent Auto-Lock only during active, foreground Frame Mode."
+                            )
+                            paidPoint(
+                                icon: "checklist",
+                                title: "Wall setup assistance",
+                                detail: "Commission power, ventilation, cable routing, orientation, Guided Access, and restart recovery."
+                            )
+                        }
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Free Smart Reel stays fully useful")
+                                .font(.headline)
+                            Text("The free experience keeps full-quality local curation, up to 100 imported candidates, one 30-photo reel, review and Never Show Again, face-safe layouts, portrait pairing, Fit/Fill, timing, pause, navigation, and unlimited replay. StoreKit problems never disable it.")
+                                .foregroundColor(.secondary)
+                        }
+
+                        if purchases.isWallModeUnlocked {
+                            Label("Wall Mode is unlocked", systemImage: "checkmark.circle.fill")
+                                .font(.title3.weight(.semibold))
+                                .foregroundColor(.green)
+
+                            Button("Continue") {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                        } else {
+                            purchaseControls
+                                .id("purchase-controls")
+                        }
+
+                        Text("Automatic albums request Photos access only after you choose that feature. FrameWink reads the selected album, keeps display-sized copies on this iPad, never changes your Photos library, and offers a Strict Offline option that avoids iCloud downloads.")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: 680, alignment: .leading)
+                    .padding(32)
                 }
-                .frame(maxWidth: 680, alignment: .leading)
-                .padding(32)
+                .onAppear {
+                    guard initiallyShowsPurchaseControls else { return }
+                    DispatchQueue.main.async {
+                        proxy.scrollTo("purchase-controls", anchor: .bottom)
+                    }
+                }
             }
             .navigationTitle("Wall Mode")
             .navigationBarTitleDisplayMode(.inline)

@@ -402,7 +402,8 @@ recovery.
 - [x] App Review notes give the Wall Mode product path and StoreKit test steps.
 - [x] Privacy policy draft states no developer server/upload/analytics.
 - [ ] Privacy policy and support pages are published at stable HTTPS URLs.
-- [ ] Screenshots do not imply unavailable ambient sensor or automatic kiosk.
+- [x] Current raw screenshot drafts do not imply an ambient sensor, automatic
+      Guided Access, reboot recovery, or another unavailable kiosk capability.
 - [x] Compatibility copy says iPadOS 15+ rather than every old iPad.
 - [x] Battery, heat, ventilation, and damaged-device guidance is present.
 - [ ] Xcode Cloud clean archive and TestFlight installation succeed.

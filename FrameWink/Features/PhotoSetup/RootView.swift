@@ -17,10 +17,28 @@ struct RootView: View {
     @ObservedObject var purchases: PurchaseController
     @ObservedObject var automaticAlbum: AutomaticAlbumController
     @ObservedObject var frameConfigurations: FrameConfigurationController
+    let initialPresentation: RootInitialPresentation?
 
     @State private var presentedSheet: SheetDestination?
     @State private var showDeleteConfirmation = false
     @State private var isFrameMode = false
+    @State private var didApplyInitialPresentation = false
+
+    init(
+        model: AppModel,
+        wallMode: WallModeController,
+        purchases: PurchaseController,
+        automaticAlbum: AutomaticAlbumController,
+        frameConfigurations: FrameConfigurationController,
+        initialPresentation: RootInitialPresentation? = nil
+    ) {
+        self.model = model
+        self.wallMode = wallMode
+        self.purchases = purchases
+        self.automaticAlbum = automaticAlbum
+        self.frameConfigurations = frameConfigurations
+        self.initialPresentation = initialPresentation
+    }
 
     var body: some View {
         NavigationView {
@@ -88,7 +106,11 @@ struct RootView: View {
                     frameConfigurations: frameConfigurations
                 )
             case .wallModePaywall:
-                WallModePaywallView(purchases: purchases)
+                WallModePaywallView(
+                    purchases: purchases,
+                    initiallyShowsPurchaseControls: initialPresentation
+                        == .wallModePaywallPurchase
+                )
             }
         }
         .alert("Delete Imported Photos?", isPresented: $showDeleteConfirmation) {
@@ -128,6 +150,7 @@ struct RootView: View {
         .onAppear {
             wallMode.setFrameModeActive(isFrameMode)
             applyActiveFrameConfiguration()
+            applyInitialPresentationIfNeeded()
         }
         .onDisappear {
             wallMode.restoreOwnedDisplayState()
@@ -393,6 +416,21 @@ struct RootView: View {
                 )
             }
             model.collectionMode = automaticAlbum.canDisplay ? .automaticAlbum : .samples
+        }
+    }
+
+    private func applyInitialPresentationIfNeeded() {
+        guard !didApplyInitialPresentation else { return }
+        didApplyInitialPresentation = true
+        switch initialPresentation {
+        case .frameMode:
+            isFrameMode = true
+        case .wallModePaywallFeatures, .wallModePaywallPurchase:
+            presentedSheet = .wallModePaywall
+        case .wallModeSetup:
+            presentedSheet = .wallModeSetup
+        case nil:
+            break
         }
     }
 }

@@ -11,8 +11,23 @@ struct FrameWinkApp: App {
 
     init() {
         let fileManager = FileManager.default
-        let baseURL = (try? LocalImportedPhotoStore.defaultBaseURL(fileManager: fileManager))
+#if DEBUG
+        let screenshotScenario = DebugScreenshotScenario.current
+#endif
+        let baseURL: URL
+#if DEBUG
+        if screenshotScenario != nil {
+            baseURL = fileManager.temporaryDirectory
+                .appendingPathComponent("FrameWinkScreenshotState", isDirectory: true)
+            try? fileManager.removeItem(at: baseURL)
+        } else {
+            baseURL = (try? LocalImportedPhotoStore.defaultBaseURL(fileManager: fileManager))
+                ?? fileManager.temporaryDirectory.appendingPathComponent("FrameWink", isDirectory: true)
+        }
+#else
+        baseURL = (try? LocalImportedPhotoStore.defaultBaseURL(fileManager: fileManager))
             ?? fileManager.temporaryDirectory.appendingPathComponent("FrameWink", isDirectory: true)
+#endif
         let store = LocalImportedPhotoStore(baseURL: baseURL, fileManager: fileManager)
         let importer = PhotoImportService(
             store: store,
@@ -30,8 +45,40 @@ struct FrameWinkApp: App {
         let frameConfigurationStore = LocalFrameConfigurationStore(
             directory: baseURL.appendingPathComponent("Settings", isDirectory: true)
         )
-        let photoLibraryClient = PhotoKitLibraryClient()
+        let photoLibraryClient: PhotoLibraryClient
+#if DEBUG
+        if screenshotScenario?.requiresWallModeEntitlement == true {
+            photoLibraryClient = DebugScreenshotPhotoLibraryClient()
+        } else {
+            photoLibraryClient = PhotoKitLibraryClient()
+        }
+#else
+        photoLibraryClient = PhotoKitLibraryClient()
+#endif
         let albumStore = LocalAlbumSourceStore(baseURL: baseURL, fileManager: fileManager)
+#if DEBUG
+        screenshotScenario?.seed(
+            wallModeStore: wallModeStore,
+            albumStore: albumStore,
+            frameConfigurationStore: frameConfigurationStore
+        )
+#endif
+        let purchaseClient: PurchaseClient
+#if DEBUG
+        if let screenshotScenario {
+            purchaseClient = DebugScreenshotPurchaseClient(
+                isEntitled: screenshotScenario.requiresWallModeEntitlement
+            )
+        } else {
+            purchaseClient = StoreKitPurchaseClient(
+                productID: ProductConfiguration.wallModeProductID()
+            )
+        }
+#else
+        purchaseClient = StoreKitPurchaseClient(
+            productID: ProductConfiguration.wallModeProductID()
+        )
+#endif
         let albumSynchronizer = AlbumSyncService(
             client: photoLibraryClient,
             store: albumStore,
@@ -53,9 +100,7 @@ struct FrameWinkApp: App {
         )
         _purchases = StateObject(
             wrappedValue: PurchaseController(
-                client: StoreKitPurchaseClient(
-                    productID: ProductConfiguration.wallModeProductID()
-                )
+                client: purchaseClient
             )
         )
         _automaticAlbum = StateObject(
@@ -85,7 +130,8 @@ struct FrameWinkApp: App {
                 wallMode: wallMode,
                 purchases: purchases,
                 automaticAlbum: automaticAlbum,
-                frameConfigurations: frameConfigurations
+                frameConfigurations: frameConfigurations,
+                initialPresentation: initialPresentation
             )
                 .onAppear {
                     model.prepareSmartReelIfNeeded()
@@ -107,5 +153,13 @@ struct FrameWinkApp: App {
                     }
                 }
         }
+    }
+
+    private var initialPresentation: RootInitialPresentation? {
+#if DEBUG
+        return DebugScreenshotScenario.current?.initialPresentation
+#else
+        return nil
+#endif
     }
 }

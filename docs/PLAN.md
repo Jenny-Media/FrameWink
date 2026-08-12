@@ -223,6 +223,14 @@ pipeline with 5,000 candidates. Xcode Cloud's pre-build archive guard is also
 committed and deliberately prevents a TestFlight archive while the production
 IAP identifier remains unconfirmed.
 
+A Debug-only screenshot harness now isolates its fixture state from normal app
+data and produces five reproducible raw iPad captures from bundled project-owned
+media. The current set explicitly separates Free Sample/Frame Mode from paid
+capabilities, purchase/restore, and automatic-album privacy. Release builds
+ignore the harness. Final caption composition and the remaining planned views
+are still open, so the App Store screenshot checklist item above remains
+unchecked.
+
 ## Current build and test commands
 
 ```text
