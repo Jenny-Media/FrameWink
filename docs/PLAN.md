@@ -241,6 +241,10 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   continue while those inputs are pending. See `docs/DISTRIBUTION.md`.
 - Public privacy-policy/support URLs and a monitored Jenny Media LLC support
   email are still required for App Store metadata under blocker B-007.
+- The shipping paid scope needs an owner decision under blocker B-008: the
+  current paywall accurately sells Wall Mode core, while the authoritative
+  product contract also promises automatic album freshness, unlimited sources,
+  and multiple saved configurations.
 - Installed Simulator runtimes begin at iOS 27. The app compiles with an
   iPadOS 15 deployment target; the unit-test target uses iOS 17 because the
   XCTest libraries bundled with Xcode 27 no longer link cleanly at 15.0.

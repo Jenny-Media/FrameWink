@@ -122,6 +122,26 @@ blocker affects only a later boundary.
 - Needed from owner: provide or authorize a stable public privacy-policy URL,
   a support URL, and a monitored Jenny Media LLC support email.
 
+### B-008 — TestFlight paid scope needs an owner decision
+
+- Status: Open
+- First recorded: 2026-08-12
+- Evidence: `AGENTS.md`, `docs/PRODUCT.md`, and decision D-005 define paid Wall
+  Mode as including automatic album freshness, scale, and multiple saved
+  configurations. The implemented paywall truthfully labels those capabilities
+  as planned and currently sells only continuous foreground display,
+  dim/blackout schedules, and wall-setup assistance.
+- Impact: the current build is internally consistent and does not overclaim,
+  but it does not satisfy the authoritative paid-scope contract. The release
+  scope cannot be declared final until the contract and implementation agree.
+- Does not block: the free Smart Reel, current Wall Mode core, local tests,
+  physical reliability testing, hosted-repository setup, Xcode Cloud validation
+  workflow, or preparation of non-paid App Store metadata.
+- Needed from owner: choose whether the first TestFlight should (a) keep the
+  narrower Wall Mode core and explicitly revise the product decision, or (b)
+  implement the original automatic PhotoKit album/unlimited-source/multiple-
+  configuration scope before distribution.
+
 ## Remaining release decisions
 
 - Confirm the non-consumable Wall Mode StoreKit product identifier. Proposed:
@@ -131,3 +151,4 @@ blocker affects only a later boundary.
 - Confirm or create the App Store Connect app record and SKU.
 - Select the initial internal TestFlight tester group.
 - Provide the public privacy-policy/support URLs and support email (B-007).
+- Resolve the first-TestFlight paid scope (B-008).

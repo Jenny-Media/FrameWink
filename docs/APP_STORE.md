@@ -100,8 +100,9 @@ Access, or reboot recovery.
 ## Xcode Cloud workflow recipe
 
 The workflow itself must be created in Xcode or App Store Connect after blockers
-B-001, B-002, and B-006 are resolved. The repository is otherwise prepared with
-a shared archivable `FrameWink` scheme and no external package dependency.
+B-001 and B-002 are resolved. A paid TestFlight candidate additionally requires
+B-006 and B-008 to be resolved. The repository is otherwise prepared with a
+shared archivable `FrameWink` scheme and no external package dependency.
 
 Create two workflows:
 
