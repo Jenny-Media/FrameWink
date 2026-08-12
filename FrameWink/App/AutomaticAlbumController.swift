@@ -116,6 +116,7 @@ final class AutomaticAlbumController: ObservableObject {
                 refresh()
             }
         } else {
+            generation = UUID()
             syncTask?.cancel()
             debounceTask?.cancel()
             observationTask?.cancel()
@@ -124,11 +125,20 @@ final class AutomaticAlbumController: ObservableObject {
     }
 
     func refreshAuthorizationAfterForegrounding() {
+        let previous = authorization
         let updated = client.authorizationState()
         authorization = updated
         if updated.permitsReading {
             startObservingIfNeeded()
+            if configuration.isConfigured && !previous.permitsReading {
+                refresh()
+            }
         } else if configuration.isConfigured {
+            generation = UUID()
+            syncTask?.cancel()
+            debounceTask?.cancel()
+            observationTask?.cancel()
+            observationTask = nil
             phase = .accessDenied
         }
     }
@@ -262,6 +272,7 @@ final class AutomaticAlbumController: ObservableObject {
     }
 
     func deleteCachedAlbum() {
+        generation = UUID()
         syncTask?.cancel()
         debounceTask?.cancel()
         do {

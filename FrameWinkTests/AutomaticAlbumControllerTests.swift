@@ -89,9 +89,23 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertFalse(controller.smartReel?.selections.contains {
             $0.candidateID == excluded
         } ?? true)
-        controller.setEntitled(false)
+        client.authorization = .denied
+        controller.refreshAuthorizationAfterForegrounding()
+        XCTAssertEqual(controller.authorization, .denied)
+        XCTAssertEqual(controller.phase, .accessDenied)
         XCTAssertFalse(controller.canDisplay)
         XCTAssertFalse(controller.records.isEmpty)
+
+        client.authorization = .authorized
+        controller.refreshAuthorizationAfterForegrounding()
+        try await waitUntil {
+            if case .ready = controller.phase { return true }
+            return false
+        }
+        XCTAssertTrue(controller.canDisplay)
+
+        controller.setEntitled(false)
+        XCTAssertFalse(controller.canDisplay)
     }
 
     private func makeController(
