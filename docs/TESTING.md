@@ -524,8 +524,8 @@ The initial automation validation on 2026-08-12 built and installed the harness
 on the physical iPad. iPadOS correctly denied the foreground launch while the
 iPad was locked, and a host sample recorded the device as connected with no
 FrameWink process rather than producing a false pass. The complete iPad
-Simulator scheme now passes all 99 unit tests and all four UI tests, with the
-real-PhotoKit UI test intentionally skipped there. The acceptance environment also launched on Simulator and wrote an
+Simulator scheme now passes all 102 unit tests and three runnable UI tests, with
+the real-PhotoKit UI test intentionally skipped there. The acceptance environment also launched on Simulator and wrote an
 active, nominal-thermal, idle-timer/Guided-Access heartbeat at its expected app-
 container path.
 
@@ -547,3 +547,12 @@ observed the album list within its ten-second gate. Full test-album selection,
 synchronization, iCloud, and change-notification acceptance remain open.
 The command relaunches the interactive harness after XCTest completes so the
 iPad is not left on the test runner's black screen or App Library.
+
+A subsequent physical trial explained an apparent one-photo reel: the selected
+album contained 326 images, but Strict Offline allowed only the one original
+already resident on the iPad. PhotoKit returned `networkAccessRequired` for the
+other 325 items. FrameWink now classifies that response as an iCloud-only skip,
+shows the exact count plus **Allow iCloud Downloads and Refresh**, and refreshes
+immediately when Strict Offline is disabled. The same physical album now shows
+325 iCloud downloads needed rather than generic failures. Actually downloading
+those private originals remains an explicit owner action.

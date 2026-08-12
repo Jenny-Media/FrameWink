@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 7.75 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **28.75 h** | **In progress** |
+| 6. Hardening and release | 8 h | 8 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **29 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -331,6 +331,12 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   on the UI actor, album rows avoid eager per-album scans, failure/empty states
   are recoverable, and a physical-only ten-second UI regression now passes.
   Full selected-album synchronization acceptance remains under B-004.
+- Physical count-only diagnostics traced an apparent one-photo album reel to
+  Strict Offline: one of 326 originals was local and 325 required iCloud.
+  PhotoKit's network-required result is now classified correctly, the setup UI
+  offers an explicit download-and-refresh recovery action, and toggling Strict
+  Offline refreshes immediately. The owner-authorized network download and
+  post-download curation count remain open under B-014/B-004.
 - Installed Simulator runtimes begin at iOS 27. The app compiles with an
   iPadOS 15 deployment target; the unit-test target uses iOS 17 because the
   XCTest libraries bundled with Xcode 27 no longer link cleanly at 15.0.

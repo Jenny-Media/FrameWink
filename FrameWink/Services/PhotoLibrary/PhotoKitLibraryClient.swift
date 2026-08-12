@@ -191,15 +191,14 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
                     for: asset,
                     options: options
                 ) { data, _, _, info in
-                    if let error = info?[PHImageErrorKey] as? Error {
-                        requestState.finish(.failure(error))
-                    } else if (info?[PHImageCancelledKey] as? Bool) == true {
+                    if (info?[PHImageCancelledKey] as? Bool) == true {
                         requestState.finish(.failure(CancellationError()))
-                    } else if data == nil,
-                              (info?[PHImageResultIsInCloudKey] as? Bool) == true {
-                        requestState.finish(
-                            .failure(PhotoLibraryClientError.cloudAssetUnavailable)
-                        )
+                    } else if let failure = Self.exportFailure(
+                        error: info?[PHImageErrorKey] as? Error,
+                        isInCloud: (info?[PHImageResultIsInCloudKey] as? Bool) == true,
+                        networkAccessAllowed: networkAccessAllowed
+                    ) {
+                        requestState.finish(.failure(failure))
                     } else if let data = data {
                         do {
                             try data.write(to: destinationURL, options: .atomic)
@@ -218,6 +217,24 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         } onCancel: {
             requestState.cancel(manager: imageManager)
         }
+    }
+
+    nonisolated static func exportFailure(
+        error: Error?,
+        isInCloud: Bool,
+        networkAccessAllowed: Bool
+    ) -> Error? {
+        if !networkAccessAllowed,
+           isInCloud || isNetworkAccessRequired(error) {
+            return PhotoLibraryClientError.cloudAssetUnavailable
+        }
+        return error
+    }
+
+    nonisolated private static func isNetworkAccessRequired(_ error: Error?) -> Bool {
+        guard let error = error as NSError? else { return false }
+        return error.domain == PHPhotosErrorDomain
+            && error.code == PHPhotosError.networkAccessRequired.rawValue
     }
 
     func changeEvents() -> AsyncStream<Void> {

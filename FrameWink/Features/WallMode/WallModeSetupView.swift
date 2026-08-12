@@ -107,9 +107,21 @@ struct WallModeSetupView: View {
 
                     if let report = automaticAlbum.lastSyncReport,
                        report.hasPartialFailure {
-                        Text(partialReport(report))
-                            .font(.footnote)
-                            .foregroundColor(.orange)
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(partialReport(report))
+                                .font(.footnote)
+                                .foregroundColor(.orange)
+
+                            if report.cloudOnlyCount > 0,
+                               automaticAlbum.configuration.strictOffline {
+                                Button("Allow iCloud Downloads and Refresh") {
+                                    automaticAlbum.setStrictOffline(false)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(isAlbumBusy)
+                                .accessibilityIdentifier("allow-icloud-downloads")
+                            }
+                        }
                     }
                 }
                 .id(WallModeSetupInitialSection.automaticAlbum)
@@ -418,7 +430,7 @@ struct WallModeSetupView: View {
 
     private func partialReport(_ report: AlbumSyncReport) -> String {
         let cloud = report.cloudOnlyCount > 0
-            ? "\(report.cloudOnlyCount) iCloud-only photo(s) skipped. "
+            ? "\(report.cloudOnlyCount) photo(s) need an iCloud download and were skipped while Strict Offline is on. "
             : ""
         let failures = report.failures.isEmpty
             ? ""

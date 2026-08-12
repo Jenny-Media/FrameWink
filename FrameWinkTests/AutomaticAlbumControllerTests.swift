@@ -243,6 +243,30 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertEqual(controller.phase, .failed("Expected configuration write failure"))
     }
 
+    func testTurningOffStrictOfflineImmediatelyRefreshesConfiguredAlbum() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        let synchronizer = ControllerAlbumSynchronizer()
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: ControllerSmartReelBuilder(),
+            changeRefreshDelayNanoseconds: 1
+        )
+
+        controller.setEntitled(true)
+        try await waitUntil { synchronizer.syncCount == 1 }
+
+        controller.setStrictOffline(false)
+        try await waitUntil { synchronizer.syncCount == 2 }
+
+        XCTAssertFalse(controller.configuration.strictOffline)
+        XCTAssertEqual(synchronizer.lastStrictOffline, false)
+    }
+
     private func makeController(
         client: ControllerPhotoLibraryClient,
         store: ControllerAlbumStore

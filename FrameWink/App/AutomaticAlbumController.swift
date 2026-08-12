@@ -206,7 +206,10 @@ final class AutomaticAlbumController: ObservableObject {
         guard configuration.strictOffline != enabled else { return }
         var updatedConfiguration = configuration
         updatedConfiguration.strictOffline = enabled
-        _ = persistConfiguration(updatedConfiguration)
+        guard persistConfiguration(updatedConfiguration) else { return }
+        if configuration.isConfigured {
+            refresh()
+        }
     }
 
     func refresh() {

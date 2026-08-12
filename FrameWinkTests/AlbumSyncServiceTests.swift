@@ -1,6 +1,7 @@
 import CoreGraphics
 import Foundation
 import ImageIO
+import Photos
 import UniformTypeIdentifiers
 import XCTest
 @testable import FrameWink
@@ -56,6 +57,37 @@ final class AlbumSyncServiceTests: XCTestCase {
         XCTAssertTrue(report.failures.isEmpty)
         XCTAssertEqual(progress.last, ImportProgress(completedCount: 2, totalCount: 2))
         XCTAssertEqual(client.requestedNetworkAccess, ["cloud": false, "local": false])
+    }
+
+    func testPhotoKitNetworkRequiredErrorIsClassifiedAsCloudOnlyOffline() {
+        let networkRequired = NSError(
+            domain: PHPhotosErrorDomain,
+            code: PHPhotosError.networkAccessRequired.rawValue
+        )
+
+        let failure = PhotoKitLibraryClient.exportFailure(
+            error: networkRequired,
+            isInCloud: false,
+            networkAccessAllowed: false
+        )
+
+        XCTAssertEqual(failure as? PhotoLibraryClientError, .cloudAssetUnavailable)
+    }
+
+    func testPhotoKitNetworkErrorRemainsVisibleWhenDownloadsAreAllowed() {
+        let networkError = NSError(
+            domain: PHPhotosErrorDomain,
+            code: PHPhotosError.networkError.rawValue
+        )
+
+        let failure = PhotoKitLibraryClient.exportFailure(
+            error: networkError,
+            isInCloud: true,
+            networkAccessAllowed: true
+        ) as NSError?
+
+        XCTAssertEqual(failure?.domain, PHPhotosErrorDomain)
+        XCTAssertEqual(failure?.code, PHPhotosError.networkError.rawValue)
     }
 
     func testUnchangedAssetIsReusedAndModifiedAssetReplacesFileWithStableID() async throws {

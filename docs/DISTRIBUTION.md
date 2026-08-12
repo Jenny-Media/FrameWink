@@ -65,7 +65,7 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current shared scheme passes all 99 unit
+  was installed and launched; the current shared scheme passes all 102 unit
   tests and three runnable Simulator UI tests. The fourth UI test is explicitly
   physical-only and skips on Simulator.
 
@@ -267,6 +267,31 @@ blocker affects only a later boundary.
   harness, and only then reports pass or failure. An end-to-end rerun passed
   album discovery and finished with one live FrameWink process on the visible
   **Wall Mode Setup** screen.
+
+### B-014 — Cloud-only album items were reported as generic failures
+
+- Status: Partially resolved; owner-authorized download retest pending
+- First recorded: 2026-08-12
+- Evidence: repeated physical album trials appeared to produce only one
+  selected photo. Count-only private metadata and the visible setup status
+  confirmed that the current 326-image album prepared one local item while 325
+  exports failed with Strict Offline enabled.
+- Cause found in code: PhotoKit's `networkAccessRequired` error was propagated
+  before FrameWink classified the request as an iCloud-only skip. The UI
+  therefore gave a generic failure count, and changing Strict Offline did not
+  automatically refresh the album.
+- Resolution implemented: classify PhotoKit network-required responses as
+  cloud-only when network access is disabled, show an explicit **Allow iCloud
+  Downloads and Refresh** recovery action, and refresh immediately when Strict
+  Offline changes.
+- Physical retest: the replacement build reran the same 326-image album with
+  Strict Offline and now reports that 325 photos need an iCloud download,
+  retains the one local selection, and presents the recovery button. It no
+  longer labels these items as unexplained preparation failures.
+- Remaining resolution gate: the owner must explicitly authorize iCloud
+  downloads by using the recovery button; then confirm that more than one item
+  prepares and curates. The agent does not initiate potentially large private
+  photo downloads without that consent.
 
 ## App Store Connect readiness snapshot
 
