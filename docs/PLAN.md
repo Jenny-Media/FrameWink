@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Implementation complete — production setup pending |
-| 6. Hardening and release | 8 h | 5.5 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **26.5 h** | **In progress** |
+| 6. Hardening and release | 8 h | 7.5 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **28.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -146,16 +146,17 @@ Status: implementation complete; App Store Connect configuration remains open.
 The Debug scheme uses the explicitly local, non-consumable
 `media.jenny.FrameWink.wallmode.local` product, while Release has no product ID
 until the immutable production identifier is owner-confirmed. Verified StoreKit
-2 entitlements and transaction updates gate only Wall Mode; refunds and
-revocations restore app-owned display state without deleting the free reel.
+2 entitlements and transaction updates gate all paid Wall Mode capabilities;
+refunds and revocations restore app-owned display state without deleting the
+free reel or cached automatic-album data.
 StoreKit Test exercises product loading, purchase, `AppStore.sync`, refund,
 Ask to Buy/pending, and simulated purchase failure. Injected-client tests cover
 cancellation, successful and no-purchase restore, unavailable StoreKit,
 unverified updates, revocation, and an offline StoreKit-verified entitlement.
-All 58 tests pass on the iOS 27 `iPad (A16)` Simulator. The paywall, $9.99
-local price, visible Restore Purchases action,
-accurate current-vs-planned feature copy, and recoverable StoreKit failure were
-visually verified. Production ID and Family Sharing remain blocker B-006.
+The local purchase scenarios and entitlement gates pass on the iOS 27 `iPad
+(A16)` Simulator. The paywall, $9.99 local price, visible Restore Purchases
+action, included paid-scope copy, and recoverable StoreKit failure are covered
+locally. Production ID and Family Sharing remain blocker B-006.
 
 ## Milestone 6 — Hardening and release
 
@@ -177,14 +178,16 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 62 tests pass. Xcode static analysis completes
+acceptance remains open. All 77 tests pass. Xcode static analysis completes
 without warnings after excluding the StoreKit test bundle from the Analyze
 action, and an unsigned Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
 manifest, contains no third-party framework or StoreKit test configuration, and
 keeps the production Wall Mode product ID empty. Source and binary inspection
-found no developer networking, analytics, tracking, full-library PhotoKit
-authorization, or system-brightness mutation.
+found no developer networking, analytics, tracking, PhotoKit mutation, or
+system-brightness mutation. The Photos usage description supports the paid
+automatic-album flow; authorization is requested only after a user explicitly
+chooses that feature.
 
 The import store now repairs a missing or corrupt manifest, prunes records for
 deleted local image files, eagerly decodes display images off the main thread,
@@ -197,13 +200,20 @@ keeps Frame Mode controls visible when VoiceOver is enabled; Apple's first-run
 VoiceOver tutorial prevented a complete spoken-navigation pass, so that remains
 a physical accessibility check rather than a claimed acceptance result.
 
-Permission denial and Limited Photos are not applicable to this PHPicker-only
-MVP because it never requests full photo-library authorization. User-selected
-iCloud items are loaded by Apple's picker and expose retryable partial failure.
-Corrupt disposable caches, deleted imported files, partial import failure, and
-transactional-write failure have automated recovery coverage. Actual
-memory-pressure behavior, thermal response, offline iCloud selection, and
-slideshow smoothness during real Vision work still require physical hardware.
+The original paid-scope mismatch is resolved locally. A verified entitlement
+now unlocks selected-album PhotoKit refresh, an unlimited eligible input pool,
+display-history repeat reduction, a four-photo Mosaic layout, and multiple
+album-aware saved configurations. Automatic album images are downsampled to
+2,560 pixels, cached separately, refreshed from PhotoKit change notifications,
+and never mutate the Photos library. Strict Offline disables network access for
+image requests; failed/cloud-only items preserve a prior usable local copy.
+
+Permission denial, revocation, partial automatic-album failure, corrupt album
+metadata, deleted assets, display-history persistence, and configuration
+persistence have automated recovery coverage. Actual Limited Photos behavior,
+iCloud download behavior, large-album performance, change delivery,
+memory-pressure behavior, thermal response, and slideshow smoothness during
+real Vision work still require physical hardware.
 
 ## Current build and test commands
 
@@ -241,10 +251,9 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   continue while those inputs are pending. See `docs/DISTRIBUTION.md`.
 - Public privacy-policy/support URLs and a monitored Jenny Media LLC support
   email are still required for App Store metadata under blocker B-007.
-- The shipping paid scope needs an owner decision under blocker B-008: the
-  current paywall accurately sells Wall Mode core, while the authoritative
-  product contract also promises automatic album freshness, unlimited sources,
-  and multiple saved configurations.
+- B-008 is resolved locally: the paid implementation and paywall now match the
+  authoritative automatic-album, scale, repeat-avoidance, layout, and saved-
+  configuration contract. Physical PhotoKit validation remains under B-004.
 - Installed Simulator runtimes begin at iOS 27. The app compiles with an
   iPadOS 15 deployment target; the unit-test target uses iOS 17 because the
   XCTest libraries bundled with Xcode 27 no longer link cleanly at 15.0.

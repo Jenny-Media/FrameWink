@@ -20,7 +20,16 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
         var index = 0
 
         while index < items.count {
-            if preference == .automatic,
+            if preference == .mosaic {
+                let end = min(index + 4, items.count)
+                result.append(
+                    mosaicPage(
+                        items: Array(items[index..<end]),
+                        viewport: viewport
+                    )
+                )
+                index = end
+            } else if preference == .automatic,
                index + 1 < items.count,
                let pair = pairedPage(
                    first: items[index],
@@ -42,6 +51,52 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
         }
 
         return result
+    }
+
+    private func mosaicPage(
+        items: [FrameLayoutItem],
+        viewport: PixelSize
+    ) -> FramePage {
+        let frames: [NormalizedRect]
+        switch items.count {
+        case 1:
+            frames = [.unit]
+        case 2:
+            frames = [
+                NormalizedRect(x: 0, y: 0, width: 0.5, height: 1),
+                NormalizedRect(x: 0.5, y: 0, width: 0.5, height: 1),
+            ]
+        case 3:
+            frames = [
+                NormalizedRect(x: 0, y: 0, width: 0.58, height: 1),
+                NormalizedRect(x: 0.58, y: 0, width: 0.42, height: 0.5),
+                NormalizedRect(x: 0.58, y: 0.5, width: 0.42, height: 0.5),
+            ]
+        default:
+            frames = [
+                NormalizedRect(x: 0, y: 0, width: 0.5, height: 0.5),
+                NormalizedRect(x: 0.5, y: 0, width: 0.5, height: 0.5),
+                NormalizedRect(x: 0, y: 0.5, width: 0.5, height: 0.5),
+                NormalizedRect(x: 0.5, y: 0.5, width: 0.5, height: 0.5),
+            ]
+        }
+
+        let placements = zip(items, frames).map { item, frame in
+            let cellAspect = viewport.aspectRatio * frame.width / frame.height
+            let crop = safeCrop(for: item, targetAspectRatio: cellAspect)
+            return FrameLayoutPlacement(
+                id: "mosaic:\(item.id)",
+                photoID: item.id,
+                screenFrame: frame,
+                sourceCrop: crop ?? .unit,
+                contentMode: crop == nil ? .fit : .crop
+            )
+        }
+        return FramePage(
+            id: "mosaic:" + items.map(\.id).joined(separator: ":"),
+            kind: .mosaic,
+            placements: placements
+        )
     }
 
     private func singlePage(

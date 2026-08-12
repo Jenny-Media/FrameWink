@@ -4,6 +4,7 @@ import UIKit
 enum PhotoCollectionMode: String, CaseIterable, Identifiable {
     case samples
     case personal
+    case automaticAlbum
 
     var id: String { rawValue }
 
@@ -13,6 +14,8 @@ enum PhotoCollectionMode: String, CaseIterable, Identifiable {
             return "Samples"
         case .personal:
             return "My Photos"
+        case .automaticAlbum:
+            return "Auto Album"
         }
     }
 }
@@ -36,6 +39,7 @@ enum CurationPhase: Equatable {
 enum DisplaySlideSource {
     case bundled(resourceName: String)
     case imported(ImportedPhoto)
+    case automaticAlbum(ImportedPhoto)
 }
 
 struct DisplaySlide: Identifiable {

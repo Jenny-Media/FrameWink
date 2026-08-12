@@ -116,3 +116,63 @@ private struct ReviewPhotoCard: View {
         .accessibilityLabel("Smart Reel photo suggestion")
     }
 }
+
+struct AutomaticAlbumReviewView: View {
+    @ObservedObject var controller: AutomaticAlbumController
+    @Environment(\.presentationMode) private var presentationMode
+
+    private let columns = [
+        GridItem(.adaptive(minimum: 190, maximum: 280), spacing: 16),
+    ]
+
+    var body: some View {
+        NavigationView {
+            Group {
+                if controller.reviewPhotos.isEmpty {
+                    VStack(spacing: 14) {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .font(.system(size: 46))
+                            .foregroundColor(.secondary)
+                            .accessibilityHidden(true)
+                        Text("No automatic suggestions to review")
+                            .font(.title2.weight(.semibold))
+                        Text("Refresh the selected album after photos become available on this iPad.")
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(32)
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 18) {
+                            Text("These cached album selections can play offline. Never Show Again remains a hard veto when the album refreshes.")
+                                .foregroundColor(.secondary)
+
+                            LazyVGrid(columns: columns, spacing: 16) {
+                                ForEach(controller.reviewPhotos) { photo in
+                                    ReviewPhotoCard(
+                                        photo: photo,
+                                        loadImage: { photo in
+                                            await controller.thumbnail(for: photo)
+                                        },
+                                        neverShow: controller.neverShow
+                                    )
+                                }
+                            }
+                        }
+                        .padding(24)
+                    }
+                }
+            }
+            .navigationTitle("Review Automatic Album")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+            }
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+}

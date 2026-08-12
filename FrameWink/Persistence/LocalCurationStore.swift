@@ -9,11 +9,18 @@ protocol CurationStoring {
     func saveExclusions(_ exclusions: Set<UUID>) throws
 }
 
-final class LocalCurationStore: CurationStoring {
+protocol DisplayHistoryStoring {
+    func loadDisplayHistory() throws -> [UUID: DisplayHistoryEntry]
+    func recordDisplayed(candidateID: UUID, at date: Date) throws
+}
+
+final class LocalCurationStore: CurationStoring, DisplayHistoryStoring {
+    private static let displayHistoryWriteInterval: TimeInterval = 6 * 60 * 60
     let directory: URL
     let signalsURL: URL
     let smartReelURL: URL
     let exclusionsURL: URL
+    let displayHistoryURL: URL
 
     private let fileManager: FileManager
     private let encoder: JSONEncoder
@@ -25,6 +32,7 @@ final class LocalCurationStore: CurationStoring {
         signalsURL = directory.appendingPathComponent("signals.json")
         smartReelURL = directory.appendingPathComponent("smart-reel.json")
         exclusionsURL = directory.appendingPathComponent("exclusions.json")
+        displayHistoryURL = directory.appendingPathComponent("display-history.json")
 
         encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -80,6 +88,42 @@ final class LocalCurationStore: CurationStoring {
         try prepareDirectory()
         let ordered = exclusions.sorted { $0.uuidString < $1.uuidString }
         try encoder.encode(ordered).write(to: exclusionsURL, options: .atomic)
+    }
+
+    func loadDisplayHistory() throws -> [UUID: DisplayHistoryEntry] {
+        guard fileManager.fileExists(atPath: displayHistoryURL.path) else { return [:] }
+        do {
+            let decoded = try decoder.decode(
+                [DisplayHistoryEntry].self,
+                from: Data(contentsOf: displayHistoryURL)
+            )
+            return Dictionary(uniqueKeysWithValues: decoded.map { ($0.candidateID, $0) })
+        } catch {
+            try? fileManager.removeItem(at: displayHistoryURL)
+            return [:]
+        }
+    }
+
+    func recordDisplayed(candidateID: UUID, at date: Date) throws {
+        var history = try loadDisplayHistory()
+        if let existing = history[candidateID],
+           date.timeIntervalSince(existing.lastDisplayedAt)
+            < Self.displayHistoryWriteInterval {
+            return
+        }
+        var entry = history[candidateID] ?? DisplayHistoryEntry(
+            candidateID: candidateID,
+            lastDisplayedAt: date,
+            displayCount: 0
+        )
+        entry.lastDisplayedAt = date
+        entry.displayCount += 1
+        history[candidateID] = entry
+        try prepareDirectory()
+        let ordered = history.values.sorted {
+            $0.candidateID.uuidString < $1.candidateID.uuidString
+        }
+        try encoder.encode(ordered).write(to: displayHistoryURL, options: .atomic)
     }
 
     private func prepareDirectory() throws {

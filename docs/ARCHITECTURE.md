@@ -17,11 +17,13 @@ Suggested domain types:
 - `PhotoCandidate`: common identifier, source, dimensions, dates when known,
   thumbnail provider, and optional PhotoKit metadata.
 - `ImportedPhoto`: app-controlled, display-sized file created from PHPicker.
-- `LibraryPhoto`: `PHAsset`-backed candidate used after PhotoKit authorization.
+- `PhotoLibraryAsset`: minimal PhotoKit metadata exposed across the service seam.
+- `CachedAlbumAsset`: app-controlled display copy mapped to its selected-album
+  asset identifier and modification state.
 - `PhotoSignals`: quality, face, saliency, similarity, and layout measurements.
 - `CuratedPhoto`: candidate identifier plus algorithm version and final score.
 - `SmartReel`: ordered curated selections and creation metadata.
-- `FrameLayout`: single fit, single fill, or paired portraits.
+- `FrameLayout`: single fit/fill, paired portraits, or four-photo Mosaic.
 - `DisplaySchedule`: dim/blackout intervals and preferred intensity.
 - `EntitlementState`: loading, free, purchased, unavailable, or revoked.
 
@@ -108,6 +110,8 @@ Use separate app-controlled storage for:
 - Smart Reel definitions.
 - Never-show exclusions.
 - Recent-display history.
+- Automatic-album configuration, display-sized cache, and asset metadata.
+- Multiple saved frame source/layout/timing configurations.
 
 All caches must be disposable and rebuildable. Deleting imported photos must
 remove the files and all derived records that reference them.

@@ -21,16 +21,21 @@ Show the upgrade after the user has:
 1. Seen bundled Sample Mode, or
 2. Generated and watched a personal Smart Reel.
 
-The current paywall may promise only the implemented Wall Mode behavior:
+The current paywall may promise the implemented Wall Mode behavior:
 
+- Any explicitly selected supported Photos album, without the free 100-candidate
+  input limit.
+- Automatic change refresh after a user-initiated PhotoKit authorization flow.
+- On-device display history that reduces long-term repeats.
+- A four-photo Mosaic layout and multiple saved source/layout/timing
+  configurations.
 - Dimming/blackout schedules.
 - Auto-Lock prevention only during foreground Frame Mode.
 - Wall and Guided Access setup assistance.
 
-Unlimited sources, selected-album automation, automatic refresh, long-term
-repeat avoidance, additional layouts, and multiple configurations remain a
-paid roadmap. Until implemented, they must be explicitly labelled as planned
-and not included in the current build.
+Automatic sourcing is limited to albums the user explicitly selects. The app
+must not imply access to Apple Photos Memories, People identities, private
+Featured Photos ranking, or an unrestricted whole-library display feed.
 
 Do not imply that the free curation algorithm is deliberately inferior.
 

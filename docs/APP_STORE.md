@@ -12,10 +12,11 @@ Recommended App Store Connect answer for the current build:
 - Third-party SDK data practices: none; the app has no third-party production
   SDKs.
 
-Selected photos are copied at display size into the app's private container and
-do not leave the iPad through FrameWink. StoreKit purchase processing is
-provided by Apple. FrameWink has no account, developer server, analytics,
-advertising, telemetry, or developer-controlled network request.
+Picker-selected photos and photos from a paid, explicitly selected album are
+copied at display size into the app's private container and do not leave the
+iPad through FrameWink. StoreKit purchase processing is provided by Apple.
+FrameWink has no account, developer server, analytics, advertising, telemetry,
+or developer-controlled network request.
 
 The target includes `PrivacyInfo.xcprivacy` with no collected-data,
 required-reason API, tracking, or tracking-domain declarations. Re-run the Xcode
@@ -32,12 +33,19 @@ and does not upload photos, app activity, identifiers, diagnostics, purchases,
 or other personal data to Jenny Media LLC. It does not use advertising,
 tracking, or third-party analytics SDKs.
 
-The system photo picker gives FrameWink only the photos the user chooses.
-FrameWink stores display-sized copies and local curation records in its private
-app container. `Delete Imported Photos` removes those app-controlled copies and
+The system photo picker gives FrameWink only the free-mode photos the user
+chooses. After a Wall Mode purchase, a user may explicitly authorize Photos and
+select an album for automatic refresh. FrameWink lists album names and photo
+counts for that chooser, reads photo content only from the selected album,
+filters hidden photos and screenshots, and never edits the Photos library.
+
+FrameWink stores display-sized copies, local curation records, and local display
+history in its private app container. `Delete Imported Photos` and `Delete
+Automatic Album Cache` remove the corresponding app-controlled copies and
 derived records without deleting or changing the originals in Apple Photos.
-Apple Photos may download an item from iCloud when the user selects it; that is
-Apple Photos behavior, not a FrameWink upload.
+Apple Photos may download an iCloud item when Strict Offline is disabled; that
+is Apple Photos behavior, not a FrameWink upload. Strict Offline keeps network
+access disabled for automatic-album image requests.
 
 Wall Mode purchases use Apple's StoreKit and App Store services. Jenny Media LLC
 does not receive payment-card details through FrameWink. Apple's own processing
@@ -51,11 +59,13 @@ blocker B-007.
 
 FrameWink is iPad-only and requires iPadOS 15 or later.
 
-On first launch, the app immediately plays three bundled example photos. It does
+On first launch, the app immediately plays three bundled example photos and does
 not request Photos authorization. `Choose My Photos` opens Apple's PHPicker with
-a 100-item limit. The current build does not request full PhotoKit library
-authorization and therefore intentionally has no Photos usage-description key.
-Imported display-sized copies and all analysis remain in the app container.
+a 100-item limit. The target includes `NSPhotoLibraryUsageDescription`, but the
+full PhotoKit prompt appears only after a verified Wall Mode entitlement and the
+user taps `Choose Automatic Album`. Display-sized copies and all analysis remain
+in the app container. The app suppresses iOS's automatic Limited-access alert so
+later prompts remain tied to explicit album-management actions.
 
 The free experience includes local Smart Reel curation, review, Never Show
 Again, Fit/Fill and portrait pairing, timing, pause/navigation, unlimited
@@ -63,10 +73,16 @@ replay, and Delete Imported Photos.
 
 To review the non-consumable Wall Mode purchase, tap `Unlock Wall Mode` on the
 main screen. The paywall includes `Restore Purchases`. A verified entitlement
-unlocks foreground-only Auto-Lock prevention, visual dim/blackout schedules,
-and the wall commissioning checklist. Automatic albums, unlimited sources, and
-multiple saved configurations are explicitly labelled as planned and are not
-claimed as part of this build.
+unlocks automatic refresh for an explicitly selected Photos album, curation of
+all eligible album candidates without the free 100-candidate input limit,
+long-term repeat reduction, a Mosaic layout, multiple saved frame
+configurations, foreground-only Auto-Lock prevention, visual dim/blackout
+schedules, and the wall commissioning checklist.
+
+For automatic albums, try both Strict Offline states, change the selected album
+in Photos, return to FrameWink, review the regenerated suggestions, and use
+`Delete Automatic Album Cache`. FrameWink never creates a PhotoKit change
+request and does not edit or delete originals.
 
 Consumer Guided Access must be started manually in iPadOS. FrameWink does not
 change system brightness, sense ambient light, promise an exact scheduled wake,
@@ -88,20 +104,25 @@ set. Do not use private tester photos.
    layout and visible navigation/timing controls.
 4. **A one-time wall upgrade — Paid:** the $9.99 non-consumable paywall with the
    full Free Smart Reel comparison and Restore Purchases.
-5. **Quiet at night — Paid:** Wall Mode schedule controls with foreground-only
+5. **Fresh from your album — Paid:** the selected-album refresh controls with
+   Strict Offline and on-device privacy wording visible.
+6. **A frame for each room — Paid:** saved configurations and the four-photo
+   Mosaic layout.
+7. **Quiet at night — Paid:** Wall Mode schedule controls with foreground-only
    language visible.
-6. **Mount it honestly — Paid:** the power, ventilation, Guided Access, and
+8. **Mount it honestly — Paid:** the power, ventilation, Guided Access, and
    restart-recovery commissioning checklist.
 
 Each caption must say `Free` or `Paid Wall Mode` where the boundary could be
-ambiguous. Do not imply automatic albums, ambient sensing, automated Guided
+ambiguous. Automatic-album screenshots must show an explicitly selected album;
+do not imply Apple Memories/People access, ambient sensing, automated Guided
 Access, or reboot recovery.
 
 ## Xcode Cloud workflow recipe
 
 The workflow itself must be created in Xcode or App Store Connect after blockers
 B-001 and B-002 are resolved. A paid TestFlight candidate additionally requires
-B-006 and B-008 to be resolved. The repository is otherwise prepared with a
+B-006 to be resolved. The repository is otherwise prepared with a
 shared archivable `FrameWink` scheme and no external package dependency.
 
 Create two workflows:

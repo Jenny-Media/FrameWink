@@ -138,6 +138,73 @@ final class LocalCurationStoreTests: XCTestCase {
         }
     }
 
+    func testDisplayHistoryPersistsCountsAndLatestDate() throws {
+        let candidateID = UUID()
+        try store.recordDisplayed(
+            candidateID: candidateID,
+            at: Date(timeIntervalSince1970: 100)
+        )
+        try store.recordDisplayed(
+            candidateID: candidateID,
+            at: Date(timeIntervalSince1970: 200)
+        )
+        XCTAssertEqual(
+            try store.loadDisplayHistory()[candidateID],
+            DisplayHistoryEntry(
+                candidateID: candidateID,
+                lastDisplayedAt: Date(timeIntervalSince1970: 100),
+                displayCount: 1
+            )
+        )
+        try store.recordDisplayed(
+            candidateID: candidateID,
+            at: Date(timeIntervalSince1970: 22_000)
+        )
+
+        XCTAssertEqual(
+            try store.loadDisplayHistory()[candidateID],
+            DisplayHistoryEntry(
+                candidateID: candidateID,
+                lastDisplayedAt: Date(timeIntervalSince1970: 22_000),
+                displayCount: 2
+            )
+        )
+    }
+
+    func testPaidPipelineAnalyzesBeyondFreeHundredCandidateLimit() async throws {
+        let pipeline = SmartReelPipeline(
+            analyzer: InstantFixtureAnalyzer(),
+            curator: SmartReelCurator(),
+            store: store,
+            now: { Date(timeIntervalSince1970: 20_000) },
+            makeID: UUID.init
+        )
+        let candidates = (1...120).map { index in
+            PhotoCandidate(
+                id: UUID(),
+                source: .photoLibraryAlbum,
+                pixelWidth: 800,
+                pixelHeight: 600,
+                creationDate: Date(timeIntervalSince1970: Double(index * 60))
+            )
+        }
+
+        let reel = try await pipeline.buildUnbounded(
+            candidates: candidates,
+            maximumSelectionCount: 120,
+            imageProvider: { _ in UIImage() },
+            progress: { _ in }
+        )
+
+        XCTAssertEqual(reel.selections.count, 120)
+        XCTAssertEqual(
+            try store.loadSignals(
+                algorithmRevision: SmartReelCurator.algorithmRevision
+            ).count,
+            120
+        )
+    }
+
     private func signals(id: UUID, revision: Int) -> PhotoSignals {
         PhotoSignals(
             candidateID: id,
@@ -166,6 +233,27 @@ private struct DelayedFixtureAnalyzer: PhotoAnalyzing {
             candidateID: candidate.id,
             algorithmRevision: SmartReelCurator.algorithmRevision,
             sharpness: sharpness,
+            exposure: 0.5,
+            contrast: 0.7,
+            faceQuality: nil,
+            saliencyConfidence: nil,
+            layoutFitness: 0.8,
+            importantRects: []
+        )
+        return AnalyzedPhoto(candidate: candidate, signals: signals, featurePrint: nil)
+    }
+}
+
+private struct InstantFixtureAnalyzer: PhotoAnalyzing {
+    func analyze(
+        candidate: PhotoCandidate,
+        image: UIImage,
+        cachedSignals: PhotoSignals?
+    ) async throws -> AnalyzedPhoto {
+        let signals = cachedSignals ?? PhotoSignals(
+            candidateID: candidate.id,
+            algorithmRevision: SmartReelCurator.algorithmRevision,
+            sharpness: 0.7,
             exposure: 0.5,
             contrast: 0.7,
             faceQuality: nil,

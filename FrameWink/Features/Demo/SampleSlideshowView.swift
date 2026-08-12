@@ -5,6 +5,12 @@ import UIKit
 struct SampleSlideshowView: View {
     let slides: [DisplaySlide]
     let loadImportedImage: (ImportedPhoto) async -> UIImage?
+    let loadAutomaticAlbumImage: (ImportedPhoto) async -> UIImage?
+    let automaticAlbumPhotoDidDisplay: (ImportedPhoto) -> Void
+    let preferredLayoutPreference: FrameLayoutPreference
+    let preferredInterval: TimeInterval
+    let availableLayoutPreferences: [FrameLayoutPreference]
+    let presentationDidChange: (FrameLayoutPreference, TimeInterval) -> Void
     @Binding var isFrameMode: Bool
     let wallVisualState: WallVisualState
     let refreshWallSchedule: (Date) -> Void
@@ -62,11 +68,31 @@ struct SampleSlideshowView: View {
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .onAppear {
+                applyPreferredPresentation()
                 synchronizePageCount(pages.count)
                 scheduleControlsToRecede()
             }
             .onChange(of: pages.count) { newCount in
                 synchronizePageCount(newCount)
+            }
+            .onChange(of: session.currentPageIndex) { _ in
+                guard isFrameMode, let page = activePage(in: pages) else { return }
+                recordAutomaticAlbumPhotos(in: page, slidesByID: slidesByID)
+            }
+            .onChange(of: isFrameMode) { active in
+                guard active, let page = activePage(in: pages) else { return }
+                recordAutomaticAlbumPhotos(in: page, slidesByID: slidesByID)
+            }
+            .onChange(of: preferredLayoutPreference) { _ in
+                applyPreferredPresentation()
+            }
+            .onChange(of: preferredInterval) { _ in
+                applyPreferredPresentation()
+            }
+            .onChange(of: availableLayoutPreferences) { preferences in
+                if !preferences.contains(layoutPreference) {
+                    layoutPreference = .automatic
+                }
             }
         }
         .background(Color.black)
@@ -118,7 +144,8 @@ struct SampleSlideshowView: View {
                         FramePhotoView(
                             slide: slide,
                             placement: placement,
-                            loadImportedImage: loadImportedImage
+                            loadImportedImage: loadImportedImage,
+                            loadAutomaticAlbumImage: loadAutomaticAlbumImage
                         )
                         .frame(
                             width: proxy.size.width * CGFloat(placement.screenFrame.width),
@@ -131,6 +158,19 @@ struct SampleSlideshowView: View {
                     }
                 }
             }
+        }
+    }
+
+    private func recordAutomaticAlbumPhotos(
+        in page: FramePage,
+        slidesByID: [String: DisplaySlide]
+    ) {
+        for placement in page.placements {
+            guard let slide = slidesByID[placement.photoID],
+                  case .automaticAlbum(let photo) = slide.source else {
+                continue
+            }
+            automaticAlbumPhotoDidDisplay(photo)
         }
     }
 
@@ -234,9 +274,10 @@ struct SampleSlideshowView: View {
                     .overlay(Color.white.opacity(0.35))
 
                 Menu {
-                    ForEach(FrameLayoutPreference.allCases) { preference in
+                    ForEach(availableLayoutPreferences) { preference in
                         Button {
                             layoutPreference = preference
+                            presentationDidChange(preference, session.interval)
                             revealControls()
                         } label: {
                             if layoutPreference == preference {
@@ -255,6 +296,7 @@ struct SampleSlideshowView: View {
                     ForEach(availableIntervals, id: \.self) { interval in
                         Button {
                             session.setInterval(interval, at: Date())
+                            presentationDidChange(layoutPreference, interval)
                             revealControls()
                         } label: {
                             if session.interval == interval {
@@ -338,6 +380,13 @@ struct SampleSlideshowView: View {
         session.updatePageCount(count)
     }
 
+    private func applyPreferredPresentation() {
+        layoutPreference = availableLayoutPreferences.contains(preferredLayoutPreference)
+            ? preferredLayoutPreference
+            : .automatic
+        session.setInterval(preferredInterval, at: Date())
+    }
+
     private func revealControls() {
         setControlsVisible(true)
         scheduleControlsToRecede()
@@ -377,7 +426,7 @@ private extension DisplaySlide {
         switch source {
         case .bundled:
             pixelSize = PixelSize(width: 1_536, height: 1_024)
-        case .imported(let photo):
+        case .imported(let photo), .automaticAlbum(let photo):
             pixelSize = PixelSize(
                 width: photo.pixelWidth,
                 height: photo.pixelHeight
@@ -396,6 +445,7 @@ private struct FramePhotoView: View {
     let slide: DisplaySlide
     let placement: FrameLayoutPlacement
     let loadImportedImage: (ImportedPhoto) async -> UIImage?
+    let loadAutomaticAlbumImage: (ImportedPhoto) async -> UIImage?
 
     @State private var image: UIImage?
 
@@ -427,6 +477,8 @@ private struct FramePhotoView: View {
                 image = BundledSampleImageLoader.image(named: resourceName)
             case .imported(let photo):
                 image = await loadImportedImage(photo)
+            case .automaticAlbum(let photo):
+                image = await loadAutomaticAlbumImage(photo)
             }
         }
         .accessibilityLabel(slide.accessibilityLabel)
@@ -473,6 +525,12 @@ struct SampleSlideshowView_Previews: PreviewProvider {
                 )
             ],
             loadImportedImage: { _ in nil },
+            loadAutomaticAlbumImage: { _ in nil },
+            automaticAlbumPhotoDidDisplay: { _ in },
+            preferredLayoutPreference: .automatic,
+            preferredInterval: 7,
+            availableLayoutPreferences: [.automatic, .fit, .fill],
+            presentationDidChange: { _, _ in },
             isFrameMode: .constant(false),
             wallVisualState: .normal,
             refreshWallSchedule: { _ in }

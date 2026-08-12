@@ -207,6 +207,27 @@ final class SmartReelCuratorTests: XCTestCase {
         XCTAssertLessThan(CFAbsoluteTimeGetCurrent() - start, 1)
     }
 
+    func testRecentRepeatedPhotoYieldsToFreshDisplayablePhoto() throws {
+        let repeated = fixture(index: 1, sharpness: 0.95)
+        let fresh = fixture(index: 2, dateOffset: 86_400, sharpness: 0.72)
+        let history = DisplayHistoryEntry(
+            candidateID: repeated.candidate.id,
+            lastDisplayedAt: baseDate.addingTimeInterval(-60),
+            displayCount: 12
+        )
+
+        let reel = try curator.makeReel(
+            from: [repeated, fresh],
+            exclusions: [],
+            displayHistory: [repeated.candidate.id: history],
+            maximumCount: 1,
+            now: baseDate,
+            reelID: id(999)
+        )
+
+        XCTAssertEqual(reel.selections.first?.candidateID, fresh.candidate.id)
+    }
+
     private func fixture(
         index: Int,
         dateOffset: TimeInterval = 0,

@@ -48,10 +48,11 @@ struct NormalizedRect: Codable, Equatable {
     }
 }
 
-enum FrameLayoutPreference: String, CaseIterable, Identifiable {
+enum FrameLayoutPreference: String, CaseIterable, Codable, Identifiable {
     case automatic
     case fit
     case fill
+    case mosaic
 
     var id: String { rawValue }
 
@@ -60,6 +61,7 @@ enum FrameLayoutPreference: String, CaseIterable, Identifiable {
         case .automatic: return "Auto"
         case .fit: return "Fit"
         case .fill: return "Fill"
+        case .mosaic: return "Mosaic"
         }
     }
 }
@@ -68,6 +70,7 @@ enum FrameLayoutKind: String, Equatable {
     case singleFit
     case singleFill
     case pairedPortraits
+    case mosaic
 }
 
 enum FrameContentMode: Equatable {

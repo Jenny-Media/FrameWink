@@ -24,6 +24,21 @@ struct WallModePaywallView: View {
 
                     VStack(alignment: .leading, spacing: 15) {
                         paidPoint(
+                            icon: "photo.stack.fill",
+                            title: "Automatic selected albums",
+                            detail: "Choose a Photos album after purchase, curate all eligible candidates, and refresh privately as that album changes."
+                        )
+                        paidPoint(
+                            icon: "rectangle.grid.2x2.fill",
+                            title: "Mosaic and saved frames",
+                            detail: "Save multiple source, layout, and timing configurations—including a four-photo Mosaic layout."
+                        )
+                        paidPoint(
+                            icon: "arrow.triangle.2.circlepath",
+                            title: "Fresher recommendations",
+                            detail: "Regenerate suggestions from the current album and reduce long-term repeats using on-device display history."
+                        )
+                        paidPoint(
                             icon: "moon.stars.fill",
                             title: "Foreground dimming and blackout",
                             detail: "Use a saved visual schedule while FrameWink remains active."
@@ -61,7 +76,7 @@ struct WallModePaywallView: View {
                         purchaseControls
                     }
 
-                    Text("Automatic album refresh, unlimited library sources, and additional saved frame configurations are planned paid capabilities but are not included in this build. This purchase screen only promises the Wall Mode behavior available now.")
+                    Text("Automatic albums request Photos access only after you choose that feature. FrameWink reads the selected album, keeps display-sized copies on this iPad, never changes your Photos library, and offers a Strict Offline option that avoids iCloud downloads.")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }

@@ -67,15 +67,16 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current full suite passes all 62 tests.
+  was installed and launched; the current full suite passes all 77 tests.
 
 ### B-004 — Physical curation-validation hardware and labelled set are missing
 
 - Status: Open
 - First recorded: 2026-08-11
-- Impact: public Vision enrichment, the 100-photo time/memory gate on the
-  oldest supported iPad, thermal behavior, and the human-labelled 80%
-  displayability gate cannot yet receive physical acceptance evidence.
+- Impact: public Vision enrichment, the 100-photo and 1,000/5,000-album
+  time/memory gates, real PhotoKit authorization/Limited/iCloud/change behavior,
+  thermal behavior, and the human-labelled 80% displayability gate cannot yet
+  receive physical acceptance evidence.
 - Does not block: deterministic curator implementation, Simulator analysis,
   fixture-driven duplicate/date/layout tests, review UI, persistence, Wall Mode,
   purchases, cloud-readiness work, or local checkpoint commits.
@@ -122,25 +123,24 @@ blocker affects only a later boundary.
 - Needed from owner: provide or authorize a stable public privacy-policy URL,
   a support URL, and a monitored Jenny Media LLC support email.
 
-### B-008 — TestFlight paid scope needs an owner decision
+### B-008 — TestFlight paid scope did not match the product contract
 
-- Status: Open
+- Status: Resolved on 2026-08-12
 - First recorded: 2026-08-12
 - Evidence: `AGENTS.md`, `docs/PRODUCT.md`, and decision D-005 define paid Wall
   Mode as including automatic album freshness, scale, and multiple saved
-  configurations. The implemented paywall truthfully labels those capabilities
-  as planned and currently sells only continuous foreground display,
-  dim/blackout schedules, and wall-setup assistance.
-- Impact: the current build is internally consistent and does not overclaim,
-  but it does not satisfy the authoritative paid-scope contract. The release
-  scope cannot be declared final until the contract and implementation agree.
-- Does not block: the free Smart Reel, current Wall Mode core, local tests,
-  physical reliability testing, hosted-repository setup, Xcode Cloud validation
-  workflow, or preparation of non-paid App Store metadata.
-- Needed from owner: choose whether the first TestFlight should (a) keep the
-  narrower Wall Mode core and explicitly revise the product decision, or (b)
-  implement the original automatic PhotoKit album/unlimited-source/multiple-
-  configuration scope before distribution.
+  configurations. The earlier build labelled those capabilities as planned.
+- Resolution: the paid implementation now requests PhotoKit authorization only
+  from the explicit album action, reads and observes a selected album without
+  mutation, curates its full eligible candidate pool, caches display-sized
+  copies with Strict Offline behavior, reduces repeats from local display
+  history, adds Mosaic, and persists multiple album-aware frame configurations.
+  The paywall and release copy now describe the included scope. The 77-test
+  Simulator suite covers local synchronization, corrupt-cache cleanup, change
+  refresh, entitlement/revocation, unbounded input, repeat ranking, layouts, and
+  saved configurations.
+- Remaining boundary: real PhotoKit permission, iCloud, large-album, and change-
+  notification behavior still require physical-device evidence under B-004.
 
 ## Remaining release decisions
 
@@ -151,4 +151,3 @@ blocker affects only a later boundary.
 - Confirm or create the App Store Connect app record and SKU.
 - Select the initial internal TestFlight tester group.
 - Provide the public privacy-policy/support URLs and support email (B-007).
-- Resolve the first-TestFlight paid scope (B-008).

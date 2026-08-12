@@ -3,6 +3,7 @@ import Foundation
 enum PhotoSource: String, Codable {
     case bundledSample
     case pickerImport
+    case photoLibraryAlbum
 }
 
 struct PhotoCandidate: Identifiable, Codable, Equatable {

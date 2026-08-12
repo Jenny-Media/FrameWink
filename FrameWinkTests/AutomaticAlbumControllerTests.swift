@@ -1,0 +1,291 @@
+import UIKit
+import XCTest
+@testable import FrameWink
+
+@MainActor
+final class AutomaticAlbumControllerTests: XCTestCase {
+    func testPhotoAuthorizationIsRequestedOnlyAfterExplicitAlbumAction() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .notDetermined)
+        client.albumsValue = [PhotoLibraryAlbum(id: "family", title: "Family", photoCount: 12)]
+        let store = ControllerAlbumStore()
+        let controller = makeController(client: client, store: store)
+
+        controller.setEntitled(true)
+        XCTAssertEqual(client.authorizationRequestCount, 0)
+        XCTAssertTrue(controller.albums.isEmpty)
+
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { controller.albums.count == 1 }
+
+        XCTAssertEqual(client.authorizationRequestCount, 1)
+        XCTAssertEqual(controller.authorization, .authorized)
+    }
+
+    func testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        client.albumsValue = [PhotoLibraryAlbum(id: "family", title: "Family", photoCount: 2)]
+        let store = ControllerAlbumStore()
+        let synchronizer = ControllerAlbumSynchronizer()
+        let builder = ControllerSmartReelBuilder()
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: builder,
+            changeRefreshDelayNanoseconds: 10_000_000
+        )
+
+        controller.setEntitled(true)
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { controller.albums.count == 1 }
+        controller.selectAlbum(client.albumsValue[0])
+        try await waitUntil {
+            if case .ready = controller.phase { return true }
+            return false
+        }
+
+        XCTAssertEqual(synchronizer.syncCount, 1)
+        XCTAssertEqual(synchronizer.lastStrictOffline, true)
+        XCTAssertEqual(controller.reviewPhotos.count, 2)
+        XCTAssertEqual(controller.slides.count, 2)
+        XCTAssertTrue(controller.canDisplay)
+
+        controller.selectAlbum(
+            PhotoLibraryAlbum(id: "travel", title: "Travel", photoCount: 2)
+        )
+        XCTAssertNil(controller.smartReel)
+        XCTAssertFalse(controller.canDisplay)
+        try await waitUntil {
+            if case .ready = controller.phase { return true }
+            return false
+        }
+        XCTAssertEqual(synchronizer.lastAlbumIdentifier, "travel")
+
+        client.sendChange()
+        try await waitUntil { synchronizer.syncCount == 3 }
+    }
+
+    func testNeverShowPersistsAsHardVetoAndRevocationHidesPaidSource() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        let synchronizer = ControllerAlbumSynchronizer()
+        let builder = ControllerSmartReelBuilder()
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: builder,
+            changeRefreshDelayNanoseconds: 1
+        )
+        controller.setEntitled(true)
+        try await waitUntil { controller.smartReel != nil }
+        let excluded = try XCTUnwrap(controller.smartReel?.selections.first?.candidateID)
+
+        controller.neverShow(candidateID: excluded)
+
+        XCTAssertEqual(builder.exclusions, [excluded])
+        XCTAssertFalse(controller.smartReel?.selections.contains {
+            $0.candidateID == excluded
+        } ?? true)
+        controller.setEntitled(false)
+        XCTAssertFalse(controller.canDisplay)
+        XCTAssertFalse(controller.records.isEmpty)
+    }
+
+    private func makeController(
+        client: ControllerPhotoLibraryClient,
+        store: ControllerAlbumStore
+    ) -> AutomaticAlbumController {
+        AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: ControllerAlbumSynchronizer(),
+            smartReelBuilder: ControllerSmartReelBuilder(),
+            changeRefreshDelayNanoseconds: 1
+        )
+    }
+
+    private func waitUntil(
+        timeout: TimeInterval = 2,
+        condition: @escaping @MainActor () -> Bool
+    ) async throws {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition(), Date() < deadline {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertTrue(condition(), "Timed out waiting for controller state")
+    }
+}
+
+@MainActor
+private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
+    var authorization: PhotoLibraryAuthorizationState
+    var authorizationRequestCount = 0
+    var albumsValue: [PhotoLibraryAlbum] = []
+    private var changeContinuation: AsyncStream<Void>.Continuation?
+
+    init(authorization: PhotoLibraryAuthorizationState) {
+        self.authorization = authorization
+    }
+
+    func authorizationState() -> PhotoLibraryAuthorizationState { authorization }
+
+    func requestAuthorization() async -> PhotoLibraryAuthorizationState {
+        authorizationRequestCount += 1
+        authorization = .authorized
+        return authorization
+    }
+
+    func albums() throws -> [PhotoLibraryAlbum] { albumsValue }
+    func assets(in albumIdentifier: String) throws -> [PhotoLibraryAsset] { [] }
+
+    func exportCurrentImage(
+        assetIdentifier: String,
+        to destinationURL: URL,
+        networkAccessAllowed: Bool
+    ) async throws {}
+
+    func changeEvents() -> AsyncStream<Void> {
+        AsyncStream { continuation in
+            changeContinuation = continuation
+        }
+    }
+
+    func sendChange() {
+        changeContinuation?.yield(())
+    }
+}
+
+private final class ControllerAlbumStore: AlbumSourceStoring {
+    var configuration = AutomaticAlbumConfiguration.defaultConfiguration
+    var records: [CachedAlbumAsset] = []
+
+    func loadConfiguration() -> AutomaticAlbumConfiguration { configuration }
+    func saveConfiguration(_ configuration: AutomaticAlbumConfiguration) throws {
+        self.configuration = configuration
+    }
+    func loadRecords() throws -> [CachedAlbumAsset] { records }
+    func replaceRecords(
+        _ records: [CachedAlbumAsset],
+        removingFilenames: [String]
+    ) throws {
+        self.records = records
+    }
+    func temporaryURL(pathExtension: String) throws -> URL {
+        FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(pathExtension)
+    }
+    func commitTemporaryImage(at temporaryURL: URL, filename: String) throws {}
+    func removeImage(filename: String) {}
+    func deleteAllCachedData() throws {
+        configuration = .defaultConfiguration
+        records = []
+    }
+    func image(for photo: ImportedPhoto) async -> UIImage? { UIImage() }
+    func thumbnail(for photo: ImportedPhoto, maxPixelDimension: Int) async -> UIImage? {
+        UIImage()
+    }
+}
+
+private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
+    var syncCount = 0
+    var lastAlbumIdentifier: String?
+    var lastStrictOffline: Bool?
+
+    func synchronize(
+        albumIdentifier: String,
+        strictOffline: Bool,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> AlbumSyncReport {
+        syncCount += 1
+        lastAlbumIdentifier = albumIdentifier
+        lastStrictOffline = strictOffline
+        await progress(ImportProgress(completedCount: 0, totalCount: 2))
+        let records = [0, 1].map { index in
+            let id = UUID(uuidString: index == 0
+                ? "00000000-0000-0000-0000-000000000001"
+                : "00000000-0000-0000-0000-000000000002")!
+            return CachedAlbumAsset(
+                assetIdentifier: "asset-\(index)",
+                assetModificationDate: Date(timeIntervalSince1970: 100),
+                photo: ImportedPhoto(
+                    id: id,
+                    filename: id.uuidString + ".jpg",
+                    pixelWidth: 1_200,
+                    pixelHeight: 800,
+                    importedAt: Date(timeIntervalSince1970: 100)
+                )
+            )
+        }
+        await progress(ImportProgress(completedCount: 2, totalCount: 2))
+        return AlbumSyncReport(
+            records: records,
+            importedCount: 2,
+            refreshedCount: 0,
+            removedCount: 0,
+            cloudOnlyCount: 0,
+            failures: []
+        )
+    }
+}
+
+private final class ControllerSmartReelBuilder: SmartReelBuilding {
+    var savedReel: SmartReel?
+    var exclusions: Set<UUID> = []
+
+    func loadSavedReel() throws -> SmartReel? { savedReel }
+
+    func build(
+        candidates: [PhotoCandidate],
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
+        try await buildUnbounded(
+            candidates: candidates,
+            maximumSelectionCount: 30,
+            imageProvider: imageProvider,
+            progress: progress
+        )
+    }
+
+    func buildUnbounded(
+        candidates: [PhotoCandidate],
+        maximumSelectionCount: Int,
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
+        await progress(
+            ImportProgress(completedCount: candidates.count, totalCount: candidates.count)
+        )
+        let reel = SmartReel(
+            id: UUID(),
+            algorithmRevision: SmartReelCurator.algorithmRevision,
+            createdAt: Date(timeIntervalSince1970: 100),
+            selections: candidates.prefix(maximumSelectionCount).map {
+                CuratedPhoto(
+                    candidateID: $0.id,
+                    algorithmRevision: SmartReelCurator.algorithmRevision,
+                    finalScore: 0.8,
+                    reasons: [.quality]
+                )
+            }
+        )
+        savedReel = reel
+        return reel
+    }
+
+    func exclude(candidateID: UUID, from reel: SmartReel) throws -> SmartReel {
+        exclusions.insert(candidateID)
+        let updated = SmartReel(
+            id: reel.id,
+            algorithmRevision: reel.algorithmRevision,
+            createdAt: reel.createdAt,
+            selections: reel.selections.filter { $0.candidateID != candidateID }
+        )
+        savedReel = updated
+        return updated
+    }
+}

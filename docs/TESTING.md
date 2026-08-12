@@ -149,6 +149,9 @@ Still required in App Store Connect: confirm/create the immutable production
 product identifier, decide Family Sharing, configure pricing/localizations, and
 exercise purchase/restore/refund in TestFlight sandbox under blocker B-006.
 
+This Milestone 5 record describes the narrower build verified on August 11. The
+paid-scope completion record below supersedes its planned-feature paywall copy.
+
 ### Milestone 6 verification record — 2026-08-12
 
 - Full Simulator suite: 62 tests passed with zero failures or skips on the iOS
@@ -167,9 +170,8 @@ exercise purchase/restore/refund in TestFlight sandbox under blocker B-006.
   `PrivacyInfo.xcprivacy`, no local `.storekit` file, and an intentionally empty
   Release Wall Mode product identifier.
 - The Release executable links Apple system frameworks only. Source inspection
-  found no `URLSession`, developer URL, analytics/tracking SDK, full-library
-  PhotoKit authorization request, `UserDefaults`, or `UIScreen.brightness`
-  write.
+  found no `URLSession`, developer URL, analytics/tracking SDK, PhotoKit change
+  request, `UserDefaults`, or `UIScreen.brightness` write.
 - At the largest Simulator text size, the setup controls and Frame Mode caption
   remain visible and usable; button labels may wrap without clipping. Increase
   Contrast and Reduce Motion remained legible and functional. The generated app
@@ -185,13 +187,48 @@ exercise purchase/restore/refund in TestFlight sandbox under blocker B-006.
 - Optional Vision enrichments are skipped under serious or critical thermal
   state; conventional local curation still produces a reel.
 
+### Paid-scope completion verification record — 2026-08-12
+
+- Full Simulator suite: 77 tests passed with zero failures, skips, expected
+  failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
+- The final unsigned generic-device Release build and Xcode static analysis
+  both complete without diagnostics after the paid-scope changes.
+- Three `AlbumSyncServiceTests` cover hidden/screenshot filtering, Strict
+  Offline cloud-only behavior, stable-ID replacement, persisted burst metadata,
+  and removal of cache files for deleted assets.
+- Three `LocalAlbumSourceStoreTests` cover configuration/record persistence,
+  orphan pruning, corrupt metadata recovery, and cache-only deletion.
+- Three `AutomaticAlbumControllerTests` cover entitlement gating, explicit
+  authorization, sync/curation, PhotoKit-change refresh, and revocation.
+- Paid-pipeline and curator tests prove candidates beyond the free 100 limit are
+  analyzed, local display history persists without per-slide write churn, and
+  recently/repeatedly shown candidates receive a repeat penalty.
+- Layout/configuration tests cover bounded four-photo Mosaic geometry and
+  entitlement-gated persistence, activation, update, deletion, and album IDs for
+  multiple frame configurations.
+- The automatic source requests read access only after the paid user action,
+  observes only while entitled/configured, excludes hidden photos/screenshots,
+  never issues a Photos-library mutation, and caches display-sized JPEGs in a
+  separate deletable directory. Strict Offline passes network access disabled
+  to PhotoKit; non-strict mode may let Apple Photos fetch iCloud originals.
+- Simulator unit seams verify the state machine and storage. Real authorization
+  prompts, Limited Photos selection, iCloud residency, PhotoKit change delivery,
+  and 1,000/5,000-asset performance remain physical-device checks under B-004.
+- The updated app installs and launches on the booted iPad Simulator without a
+  Photos prompt. A portrait screenshot exposed and then verified the fix for a
+  truncated `Add Photos` action; the settled launch log contains no FrameWink-
+  owned error or fault beyond the known Simulator PointerUI service message.
+
 Recovery status for the current MVP:
 
 | Scenario | Local evidence | Remaining check |
 |---|---|---|
 | Picker cancellation | Automated cleanup test | Repeat on physical iPad |
 | Partial/cloud-provider failure | Successful items persist and failure is retryable | Exercise an iCloud-only selection offline/online |
-| Permission denial / Limited Photos | Not applicable: the MVP uses PHPicker and requests no full-library authorization | Reassess only if automatic PhotoKit albums ship |
+| Permission denial / revocation | Controller falls back from automatic display and preserves free content | Exercise real prompt/settings transitions |
+| Limited Photos | Limited status is treated as readable and album fetch stays scoped by PhotoKit | Verify selected-album visibility on physical iPad |
+| Automatic album cloud-only/partial failure | Strict Offline skips cloud-only items; prior usable copies survive refresh failure | Exercise real iCloud residency online/offline |
+| Deleted automatic-album asset | Sync prunes its metadata and only its app-controlled cache file | Verify real PhotoKit change notification |
 | Imported file deleted outside the manifest | Manifest is pruned and repaired by test | None for app-owned files |
 | Full disk / failed persistence | Transactional fakes preserve successful imports and surface retry | Trigger storage exhaustion on a disposable device |
 | Corrupt disposable cache/reel | Invalid cache is discarded or rebuilt by test | None |
@@ -307,10 +344,17 @@ Provisional gates:
 - First launch produces no Photos authorization prompt.
 - Sample Mode works with networking disabled.
 - Imported Smart Reel works in Airplane Mode.
-- Automatic/Strict Offline PhotoKit albums are not in this MVP; PHPicker may ask
-  Apple Photos to download an iCloud item only after the user selects it.
+- Paid automatic albums prompt only after the explicit `Choose Automatic Album`
+  action; denial does not affect Sample Mode or Free Smart Reel.
+- `PHPhotoLibraryPreventAutomaticLimitedAccessAlert` prevents iOS from showing
+  its own recurring Limited-access alert at launch.
+- Strict Offline automatic albums request no network access. With it disabled,
+  Apple Photos—not a FrameWink endpoint—may download an iCloud original.
+- Hidden photos and screenshots are excluded from automatic selection, and the
+  app issues no PhotoKit mutation request.
 - No developer-controlled endpoint or third-party SDK exists in the binary.
-- Delete Imported Photos removes app-controlled photo files.
+- Delete Imported Photos and Delete Automatic Album Cache remove the respective
+  app-controlled photo files without changing originals.
 - Privacy policy, App Privacy answers, and actual implementation agree.
 
 ## Seven-day unattended test
@@ -342,8 +386,8 @@ recovery.
 
 ## App Store release checklist
 
-- [x] The build has no Photos usage-description key because it uses PHPicker and
-  requests no full-library authorization; App Review notes explain this.
+- [x] The build has a purpose-specific Photos usage-description key; App Review
+  notes explain that it is used only after the paid automatic-album action.
 - [x] Free and paid functionality are accurately described.
 - [x] Restore Purchases is visible.
 - [x] App Review notes give the Wall Mode product path and StoreKit test steps.

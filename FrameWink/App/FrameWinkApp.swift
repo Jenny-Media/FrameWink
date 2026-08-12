@@ -5,6 +5,8 @@ struct FrameWinkApp: App {
     @StateObject private var model: AppModel
     @StateObject private var wallMode: WallModeController
     @StateObject private var purchases: PurchaseController
+    @StateObject private var automaticAlbum: AutomaticAlbumController
+    @StateObject private var frameConfigurations: FrameConfigurationController
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
@@ -25,6 +27,17 @@ struct FrameWinkApp: App {
         let wallModeStore = LocalWallModeStore(
             directory: baseURL.appendingPathComponent("Settings", isDirectory: true)
         )
+        let frameConfigurationStore = LocalFrameConfigurationStore(
+            directory: baseURL.appendingPathComponent("Settings", isDirectory: true)
+        )
+        let photoLibraryClient = PhotoKitLibraryClient()
+        let albumStore = LocalAlbumSourceStore(baseURL: baseURL, fileManager: fileManager)
+        let albumSynchronizer = AlbumSyncService(
+            client: photoLibraryClient,
+            store: albumStore,
+            downsampler: ImageIODownsampler()
+        )
+        let albumCurationStore = LocalCurationStore(directory: albumStore.metadataDirectory)
         _model = StateObject(
             wrappedValue: AppModel(
                 importer: importer,
@@ -45,22 +58,53 @@ struct FrameWinkApp: App {
                 )
             )
         )
+        _automaticAlbum = StateObject(
+            wrappedValue: AutomaticAlbumController(
+                client: photoLibraryClient,
+                store: albumStore,
+                synchronizer: albumSynchronizer,
+                smartReelBuilder: SmartReelPipeline(
+                    analyzer: VisionPhotoAnalyzer(),
+                    curator: SmartReelCurator(),
+                    store: albumCurationStore
+                ),
+                displayHistoryStore: albumCurationStore
+            )
+        )
+        _frameConfigurations = StateObject(
+            wrappedValue: FrameConfigurationController(
+                store: frameConfigurationStore
+            )
+        )
     }
 
     var body: some Scene {
         WindowGroup {
-            RootView(model: model, wallMode: wallMode, purchases: purchases)
+            RootView(
+                model: model,
+                wallMode: wallMode,
+                purchases: purchases,
+                automaticAlbum: automaticAlbum,
+                frameConfigurations: frameConfigurations
+            )
                 .onAppear {
                     model.prepareSmartReelIfNeeded()
                     purchases.start()
                     wallMode.setEntitled(purchases.isWallModeUnlocked)
+                    automaticAlbum.setEntitled(purchases.isWallModeUnlocked)
+                    frameConfigurations.setEntitled(purchases.isWallModeUnlocked)
                     wallMode.setSceneIsForeground(scenePhase == .active)
                 }
                 .onChange(of: purchases.entitlement) { _ in
                     wallMode.setEntitled(purchases.isWallModeUnlocked)
+                    automaticAlbum.setEntitled(purchases.isWallModeUnlocked)
+                    frameConfigurations.setEntitled(purchases.isWallModeUnlocked)
                 }
                 .onChange(of: scenePhase) { phase in
                     wallMode.setSceneIsForeground(phase == .active)
+                    if phase == .active {
+                        automaticAlbum.refreshAuthorizationAfterForegrounding()
+                    }
                 }
         }
     }

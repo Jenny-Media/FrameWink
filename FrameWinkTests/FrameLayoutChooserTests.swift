@@ -127,6 +127,38 @@ final class FrameLayoutChooserTests: XCTestCase {
         XCTAssertTrue(portraitPages.allSatisfy { $0.kind != .pairedPortraits })
     }
 
+    func testMosaicCreatesBoundedNonOverlappingFourPhotoGrid() throws {
+        let items = (1...5).map { index in
+            fixture(id: "photo-\(index)", width: 1_600, height: 1_200)
+        }
+
+        let pages = chooser.pages(
+            for: items,
+            viewport: landscapeViewport,
+            preference: .mosaic
+        )
+
+        XCTAssertEqual(pages.count, 2)
+        XCTAssertEqual(pages.first?.kind, .mosaic)
+        XCTAssertEqual(pages.first?.placements.count, 4)
+        XCTAssertEqual(pages.last?.placements.count, 1)
+        let placements = try XCTUnwrap(pages.first?.placements)
+        XCTAssertTrue(placements.allSatisfy {
+            $0.screenFrame.isWithinUnitBounds && $0.sourceCrop.isWithinUnitBounds
+        })
+        for firstIndex in placements.indices {
+            for secondIndex in placements.indices where secondIndex > firstIndex {
+                let first = placements[firstIndex].screenFrame
+                let second = placements[secondIndex].screenFrame
+                let overlaps = first.minX < second.maxX
+                    && first.maxX > second.minX
+                    && first.minY < second.maxY
+                    && first.maxY > second.minY
+                XCTAssertFalse(overlaps)
+            }
+        }
+    }
+
     private func fixture(
         id: String,
         width: Int,

@@ -18,6 +18,13 @@ protocol SmartReelBuilding {
         progress: @escaping @MainActor (ImportProgress) -> Void
     ) async throws -> SmartReel
 
+    func buildUnbounded(
+        candidates: [PhotoCandidate],
+        maximumSelectionCount: Int,
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel
+
     func exclude(candidateID: UUID, from reel: SmartReel) throws -> SmartReel
 }
 
@@ -55,55 +62,100 @@ final class SmartReelPipeline: SmartReelBuilding {
         imageProvider: @escaping (UUID) async -> UIImage?,
         progress: @escaping @MainActor (ImportProgress) -> Void
     ) async throws -> SmartReel {
-        let boundedCandidates = Array(candidates.prefix(100))
+        try await build(
+            candidates: Array(candidates.prefix(100)),
+            maximumSelectionCount: 30,
+            imageProvider: imageProvider,
+            progress: progress
+        )
+    }
+
+    func buildUnbounded(
+        candidates: [PhotoCandidate],
+        maximumSelectionCount: Int,
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
+        try await build(
+            candidates: candidates,
+            maximumSelectionCount: maximumSelectionCount,
+            imageProvider: imageProvider,
+            progress: progress
+        )
+    }
+
+    private func build(
+        candidates: [PhotoCandidate],
+        maximumSelectionCount: Int,
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
         var cachedSignals = try store.loadSignals(
             algorithmRevision: SmartReelCurator.algorithmRevision
         )
         var analyzed: [AnalyzedPhoto] = []
-        await progress(ImportProgress(completedCount: 0, totalCount: boundedCandidates.count))
+        var unsavedSignalCount = 0
+        await progress(ImportProgress(completedCount: 0, totalCount: candidates.count))
 
-        for (index, candidate) in boundedCandidates.enumerated() {
-            do {
+        do {
+            for (index, candidate) in candidates.enumerated() {
                 try Task.checkCancellation()
-                guard let image = await imageProvider(candidate.id) else {
-                    await progress(
-                        ImportProgress(
-                            completedCount: index + 1,
-                            totalCount: boundedCandidates.count
+                do {
+                    guard let image = await imageProvider(candidate.id) else {
+                        await progress(
+                            ImportProgress(
+                                completedCount: index + 1,
+                                totalCount: candidates.count
+                            )
                         )
+                        continue
+                    }
+
+                    let photo = try await analyzer.analyze(
+                        candidate: candidate,
+                        image: image,
+                        cachedSignals: cachedSignals[candidate.id]
                     )
-                    continue
+                    analyzed.append(photo)
+                    cachedSignals[candidate.id] = photo.signals
+                    unsavedSignalCount += 1
+                    if unsavedSignalCount >= 64 {
+                        try store.saveSignals(cachedSignals)
+                        unsavedSignalCount = 0
+                    }
+                } catch is CancellationError {
+                    throw CancellationError()
+                } catch {
+                    // One unreadable candidate must not prevent the remaining chosen photos
+                    // from producing a usable local reel.
                 }
 
-                let photo = try await analyzer.analyze(
-                    candidate: candidate,
-                    image: image,
-                    cachedSignals: cachedSignals[candidate.id]
+                await progress(
+                    ImportProgress(
+                        completedCount: index + 1,
+                        totalCount: candidates.count
+                    )
                 )
-                analyzed.append(photo)
-                cachedSignals[candidate.id] = photo.signals
-                try store.saveSignals(cachedSignals)
-            } catch is CancellationError {
-                throw CancellationError()
-            } catch {
-                // One unreadable candidate must not prevent the remaining chosen photos
-                // from producing a usable local reel.
             }
-
-            await progress(
-                ImportProgress(
-                    completedCount: index + 1,
-                    totalCount: boundedCandidates.count
-                )
-            )
+        } catch is CancellationError {
+            if unsavedSignalCount > 0 {
+                try? store.saveSignals(cachedSignals)
+            }
+            throw CancellationError()
+        }
+        if unsavedSignalCount > 0 {
+            try store.saveSignals(cachedSignals)
         }
 
         try Task.checkCancellation()
         let exclusions = try store.loadExclusions()
+        let displayHistory = try (store as? DisplayHistoryStoring)?
+            .loadDisplayHistory() ?? [:]
         let reel = try curator.makeReel(
             from: analyzed,
             exclusions: exclusions,
-            maximumCount: 30,
+            displayHistory: displayHistory,
+            maximumCount: maximumSelectionCount,
             now: now(),
             reelID: makeID()
         )

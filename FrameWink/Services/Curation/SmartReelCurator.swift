@@ -4,10 +4,30 @@ protocol PhotoCurating {
     func makeReel(
         from photos: [AnalyzedPhoto],
         exclusions: Set<UUID>,
+        displayHistory: [UUID: DisplayHistoryEntry],
         maximumCount: Int,
         now: Date,
         reelID: UUID
     ) throws -> SmartReel
+}
+
+extension PhotoCurating {
+    func makeReel(
+        from photos: [AnalyzedPhoto],
+        exclusions: Set<UUID>,
+        maximumCount: Int,
+        now: Date,
+        reelID: UUID
+    ) throws -> SmartReel {
+        try makeReel(
+            from: photos,
+            exclusions: exclusions,
+            displayHistory: [:],
+            maximumCount: maximumCount,
+            now: now,
+            reelID: reelID
+        )
+    }
 }
 
 struct SmartReelCurator: PhotoCurating {
@@ -20,6 +40,7 @@ struct SmartReelCurator: PhotoCurating {
     func makeReel(
         from photos: [AnalyzedPhoto],
         exclusions: Set<UUID>,
+        displayHistory: [UUID: DisplayHistoryEntry],
         maximumCount: Int = 30,
         now: Date = Date(),
         reelID: UUID = UUID()
@@ -33,7 +54,7 @@ struct SmartReelCurator: PhotoCurating {
 
         let burstWinners = suppressBurstAndTimeNeighbors(in: eligible)
         let distinct = try suppressNearDuplicates(in: burstWinners)
-        let ranked = rank(distinct)
+        let ranked = rank(distinct, displayHistory: displayHistory, now: now)
         let selected = selectWithDateDiversity(ranked, maximumCount: max(maximumCount, 0))
 
         return SmartReel(
@@ -130,7 +151,11 @@ struct SmartReelCurator: PhotoCurating {
         return Self.dayFormatter.string(from: date)
     }
 
-    private func rank(_ photos: [AnalyzedPhoto]) -> [RankedPhoto] {
+    private func rank(
+        _ photos: [AnalyzedPhoto],
+        displayHistory: [UUID: DisplayHistoryEntry],
+        now: Date
+    ) -> [RankedPhoto] {
         let dated = photos.compactMap(\.candidate.creationDate)
         let oldest = dated.min()
         let newest = dated.max()
@@ -145,7 +170,14 @@ struct SmartReelCurator: PhotoCurating {
             }
 
             let recencyBalance = 1 - abs(recency - 0.5) * 0.16
-            let score = min(max(photo.signals.qualityScore * recencyBalance, 0), 1)
+            let repeatFitness = repeatFitness(
+                for: displayHistory[photo.candidate.id],
+                now: now
+            )
+            let score = min(
+                max(photo.signals.qualityScore * recencyBalance * repeatFitness, 0),
+                1
+            )
             return RankedPhoto(
                 photo: photo,
                 score: score,
@@ -153,6 +185,24 @@ struct SmartReelCurator: PhotoCurating {
             )
         }
         .sorted(by: rankedBefore)
+    }
+
+    private func repeatFitness(
+        for history: DisplayHistoryEntry?,
+        now: Date
+    ) -> Double {
+        guard let history = history else { return 1 }
+        let countFitness = 1 / (1 + Double(max(history.displayCount, 0)) * 0.12)
+        let age = max(now.timeIntervalSince(history.lastDisplayedAt), 0)
+        let recentFitness: Double
+        if age < 7 * 86_400 {
+            recentFitness = 0.65
+        } else if age < 30 * 86_400 {
+            recentFitness = 0.82
+        } else {
+            recentFitness = 1
+        }
+        return max(countFitness * recentFitness, 0.2)
     }
 
     private func selectWithDateDiversity(

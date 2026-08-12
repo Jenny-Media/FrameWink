@@ -94,3 +94,9 @@ struct SmartReel: Identifiable, Codable, Equatable {
     let createdAt: Date
     let selections: [CuratedPhoto]
 }
+
+struct DisplayHistoryEntry: Codable, Equatable {
+    let candidateID: UUID
+    var lastDisplayedAt: Date
+    var displayCount: Int
+}
