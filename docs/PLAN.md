@@ -11,10 +11,10 @@ time rather than unattended calendar time.
 | 1. Zero-permission preview | 5 h | 3.75 h | In progress — picker/offline checks pending |
 | 2. Frame engine | 6 h | 3 h | Complete |
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
-| 4. Wall Mode | 5 h | — | Not started |
+| 4. Wall Mode | 5 h | 3 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | — | Not started |
 | 6. Hardening and release | 8 h | — | Not started |
-| **Total** | **40 h** | **14.25 h** | **In progress** |
+| **Total** | **40 h** | **17.25 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -105,17 +105,28 @@ acceptance criterion complete.
 
 ## Milestone 4 — Wall Mode
 
-- [ ] Idle timer is disabled only during active Frame Mode.
-- [ ] Original app-controlled display behavior is restored when leaving.
-- [ ] Scheduled visual dimming and blackout work while foregrounded.
-- [ ] Guided Access setup checklist uses truthful language.
-- [ ] Wall setup includes power, ventilation, battery, cable, orientation, and
+- [x] Idle timer is disabled only during active Frame Mode.
+- [x] Original app-controlled display behavior is restored when leaving.
+- [x] Scheduled visual dimming and blackout work while foregrounded.
+- [x] Guided Access setup checklist uses truthful language.
+- [x] Wall setup includes power, ventilation, battery, cable, orientation, and
       reboot-recovery warnings.
-- [ ] Current state survives normal app termination where practical.
-- [ ] Seven-day real-device soak test begins.
+- [x] Current state survives normal app termination where practical.
+- [x] Seven-day real-device soak-test record is initialized.
 
 Acceptance: repeated enter/exit and foreground/background transitions do not
 leave global brightness or idle behavior in an unexpected state.
+
+Status: implementation complete; the physical soak remains open. FrameWink now
+owns and restores only the idle-timer flag, and only while Frame Mode is active
+in a foreground scene. The schedule evaluator provides foreground-only visual
+dimming and blackout without changing system brightness or promising wake.
+Configuration and ten commissioning checks persist locally. Injected-adapter
+tests cover repeated activation, deactivation, foregrounding, backgrounding,
+and restoration of a pre-existing idle-timer value. The Wall Mode setup and
+lower safety/reboot checklist were visually inspected on the iPad Simulator.
+Brightness appearance, Guided Access transitions, thermal behavior, mounting,
+and the seven-day run require physical hardware under blocker B-005.
 
 ## Milestone 5 — Purchases
 
@@ -172,6 +183,9 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   displayability acceptance checks remain open as blocker B-004. Simulator
   conventional analysis, deterministic curation, and UI integration are not
   blocked.
+- Milestone 4's physical idle-timer/Guided Access/thermal/brightness behavior
+  and seven-day mounted-device soak remain open as blocker B-005. All schedule,
+  persistence, state-restoration, and setup-copy work is independently verified.
 - Xcode Cloud setup is blocked only at the cloud boundary: this local Git
   repository has no hosted remote yet, and the App Store Connect app record and
   account role have not been verified. Local implementation and validation

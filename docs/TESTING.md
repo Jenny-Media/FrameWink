@@ -96,6 +96,30 @@ Still required: physical Vision execution, the complete 100-photo performance
 and peak-memory run on the oldest supported iPad, and a licensed human-labelled
 displayability/duplicate evaluation set.
 
+### Milestone 4 verification record — 2026-08-11
+
+- Full Simulator suite: 43 tests passed with zero failures, skips, expected
+  failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
+- Four schedule/checklist tests cover evening dimming, overnight blackout across
+  midnight, inactive/disabled schedules, and all required safety topics.
+- Three controller tests verify idle-timer ownership only during foreground
+  Frame Mode, idempotent repeated transitions, restoration of a pre-existing
+  value, and immediate schedule refresh after configuration changes.
+- Three local-store tests verify schedule/checklist persistence, safe corrupted
+  settings fallback, and normalization of invalid time/opacity values.
+- The Wall Mode setup screen was visually inspected on Simulator. The paid
+  preview boundary, three schedule times, dimming strength, foreground-only
+  limitation, Guided Access wording, and lower cable/orientation/
+  Auto-Brightness/Guided Access/restart-recovery checks render within the sheet.
+- The app does not write `UIScreen.brightness`; visual schedules are black
+  overlays. Blackout suppresses its dormant interaction hint, while a tap can
+  still reveal Frame Mode controls so the user is not trapped.
+
+Physical checks still required: actual Auto-Lock prevention/restoration,
+Guided Access status changes, foreground/background visual transitions,
+perceived dim/blackout appearance, thermal response, charging/mount safety, and
+the seven-day soak.
+
 ### Photo import
 
 - Downsampling produces bounded pixel dimensions.
@@ -219,6 +243,9 @@ For each real device, record:
 | Manual recoveries | — |
 | Memory/thermal observations | — |
 | Result | Not run |
+
+The record is initialized. No physical wall device has been assigned yet, so
+the seven-day clock has not started; see blocker B-005.
 
 Exercise normal slideshow use, overnight visual blackout, Wi-Fi loss, photo
 source changes, foreground/background transitions, and at least one deliberate

@@ -82,6 +82,19 @@ blocker affects only a later boundary.
 - Needed from owner: identify the oldest available supported iPad and provide
   or approve a small licensed, human-labelled evaluation-photo set.
 
+### B-005 — Physical Wall Mode soak device is not assigned
+
+- Status: Open
+- First recorded: 2026-08-11
+- Impact: actual Auto-Lock prevention/restoration, brightness appearance,
+  Guided Access status changes, thermal/charging behavior, mount safety, and the
+  seven-day unattended run cannot yet receive physical evidence.
+- Does not block: schedule logic, visual overlays, state restoration, persisted
+  configuration, safety guidance, purchases, Xcode Cloud readiness, or local
+  commits.
+- Needed from owner: assign a compatible iPad, safe charger/cable and mounting
+  location, then record device/OS and authorize the seven-day physical run.
+
 ## Remaining release decisions
 
 - Confirm the non-consumable Wall Mode StoreKit product identifier. Proposed:

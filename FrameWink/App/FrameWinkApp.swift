@@ -3,6 +3,8 @@ import SwiftUI
 @main
 struct FrameWinkApp: App {
     @StateObject private var model: AppModel
+    @StateObject private var wallMode: WallModeController
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         let fileManager = FileManager.default
@@ -19,6 +21,9 @@ struct FrameWinkApp: App {
             curator: SmartReelCurator(),
             store: curationStore
         )
+        let wallModeStore = LocalWallModeStore(
+            directory: baseURL.appendingPathComponent("Settings", isDirectory: true)
+        )
         _model = StateObject(
             wrappedValue: AppModel(
                 importer: importer,
@@ -26,13 +31,23 @@ struct FrameWinkApp: App {
                 smartReelBuilder: smartReelBuilder
             )
         )
+        _wallMode = StateObject(
+            wrappedValue: WallModeController(
+                idleTimer: ApplicationIdleTimerController(),
+                store: wallModeStore
+            )
+        )
     }
 
     var body: some Scene {
         WindowGroup {
-            RootView(model: model)
+            RootView(model: model, wallMode: wallMode)
                 .onAppear {
                     model.prepareSmartReelIfNeeded()
+                    wallMode.setSceneIsForeground(scenePhase == .active)
+                }
+                .onChange(of: scenePhase) { phase in
+                    wallMode.setSceneIsForeground(phase == .active)
                 }
         }
     }

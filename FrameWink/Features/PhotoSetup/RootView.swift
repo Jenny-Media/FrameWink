@@ -4,12 +4,14 @@ private enum SheetDestination: String, Identifiable {
     case photoPicker
     case privacy
     case reviewSuggestions
+    case wallModeSetup
 
     var id: String { rawValue }
 }
 
 struct RootView: View {
     @ObservedObject var model: AppModel
+    @ObservedObject var wallMode: WallModeController
 
     @State private var presentedSheet: SheetDestination?
     @State private var showDeleteConfirmation = false
@@ -23,7 +25,9 @@ struct RootView: View {
                     loadImportedImage: { photo in
                         await model.image(for: photo)
                     },
-                    isFrameMode: $isFrameMode
+                    isFrameMode: $isFrameMode,
+                    wallVisualState: wallMode.visualState,
+                    refreshWallSchedule: wallMode.refresh
                 )
                 .ignoresSafeArea()
 
@@ -60,6 +64,8 @@ struct RootView: View {
                 PrivacySheet()
             case .reviewSuggestions:
                 ReviewSuggestionsView(model: model)
+            case .wallModeSetup:
+                WallModeSetupView(wallMode: wallMode)
             }
         }
         .alert("Delete Imported Photos?", isPresented: $showDeleteConfirmation) {
@@ -80,6 +86,15 @@ struct RootView: View {
                     presentedSheet = .reviewSuggestions
                 }
             }
+        }
+        .onChange(of: isFrameMode) { isActive in
+            wallMode.setFrameModeActive(isActive)
+        }
+        .onAppear {
+            wallMode.setFrameModeActive(isFrameMode)
+        }
+        .onDisappear {
+            wallMode.restoreOwnedDisplayState()
         }
     }
 
@@ -156,6 +171,12 @@ struct RootView: View {
                         presentedSheet = .privacy
                     }
                     .buttonStyle(.bordered)
+
+                    Button("Wall Mode Setup") {
+                        presentedSheet = .wallModeSetup
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityHint("Opens the paid Wall Mode commissioning and schedule preview")
 
                     Button(model.importedPhotos.isEmpty ? "Choose My Photos" : "Add Photos") {
                         presentedSheet = .photoPicker

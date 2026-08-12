@@ -6,6 +6,8 @@ struct SampleSlideshowView: View {
     let slides: [DisplaySlide]
     let loadImportedImage: (ImportedPhoto) async -> UIImage?
     @Binding var isFrameMode: Bool
+    let wallVisualState: WallVisualState
+    let refreshWallSchedule: (Date) -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var session = FrameSessionController()
@@ -43,13 +45,15 @@ struct SampleSlideshowView: View {
                     }
                 }
 
+                wallScheduleOverlay
+
                 if isFrameMode {
                     interactionLayer
 
                     if controlsVisible {
                         frameControls
                             .transition(reduceMotion ? .identity : .opacity)
-                    } else {
+                    } else if wallVisualState != .blackout {
                         controlsHint
                             .transition(reduceMotion ? .identity : .opacity)
                     }
@@ -67,6 +71,7 @@ struct SampleSlideshowView: View {
         .background(Color.black)
         .clipped()
         .onReceive(timer) { date in
+            refreshWallSchedule(date)
             if reduceMotion {
                 session.tick(at: date)
             } else {
@@ -280,6 +285,25 @@ struct SampleSlideshowView: View {
             .allowsHitTesting(false)
     }
 
+    @ViewBuilder
+    private var wallScheduleOverlay: some View {
+        switch wallVisualState {
+        case .normal:
+            EmptyView()
+        case .dimmed(let opacity):
+            Color.black
+                .opacity(opacity)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        case .blackout:
+            Color.black
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+                .accessibilityLabel("Scheduled Wall Mode blackout")
+        }
+    }
+
     private func showNextPage() {
         performPageChange {
             session.next(at: Date())
@@ -440,7 +464,9 @@ struct SampleSlideshowView_Previews: PreviewProvider {
                 )
             ],
             loadImportedImage: { _ in nil },
-            isFrameMode: .constant(false)
+            isFrameMode: .constant(false),
+            wallVisualState: .normal,
+            refreshWallSchedule: { _ in }
         )
         .previewInterfaceOrientation(.landscapeLeft)
     }
