@@ -178,6 +178,22 @@ blocker affects only a later boundary.
   physical-device discovery, or commits.
 - Needed from owner: explicitly confirm the Xcode Cloud repository-access grant.
 
+## App Store Connect readiness snapshot
+
+- The `Jenny Media Internal` TestFlight group exists with no invited testers
+  and no builds yet. App Store Connect notes that its automatic-distribution
+  switch applies to uploaded Xcode builds but not Xcode Cloud builds, so the
+  cloud archive workflow must explicitly distribute to the group after a
+  successful build.
+- TestFlight has `framewink@jenny.media` as its feedback address, the public
+  GitHub repository as its marketing URL, and `PRIVACY.md` as its privacy URL.
+  Beta App Review contact details remain blank because App Store Connect
+  requires a real phone number; none has been supplied and no placeholder was
+  invented.
+- Jenny Media LLC's Paid Apps Agreement and Free Apps Agreement are active for
+  all regions. Its configured bank account, U.S. W-9, and Digital Services Act
+  compliance record are also active.
+
 ## Committed Xcode Cloud guardrail
 
 Apple automatically runs `ci_scripts/ci_pre_xcodebuild.sh` before each Xcode
@@ -189,8 +205,9 @@ without preventing Build, Analyze, or Test workflows.
 
 ## Remaining release decisions
 
-- Select the initial internal TestFlight tester group after the first cloud
-  build exists.
+- Add real App Store Connect users to `Jenny Media Internal` when the owner is
+  ready to send invitations. The first successful Xcode Cloud build must be
+  explicitly assigned to this group.
 - Complete the owner-only App Privacy attestation under B-009.
 - Confirm the Xcode Cloud repository-access grant under B-010.
 

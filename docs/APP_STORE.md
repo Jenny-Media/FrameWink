@@ -178,11 +178,25 @@ Create two workflows:
    - Environment: Clean.
    - Action: Archive `FrameWink` for iOS with `TestFlight (Internal Testing
      Only)` deployment preparation.
-   - Post-action: distribute to the owner-confirmed Jenny Media LLC internal
-     tester group.
+   - Post-action: distribute to the existing `Jenny Media Internal` group.
+     App Store Connect explicitly states that Xcode Cloud builds are not
+     included by the group's automatic-distribution switch.
    - Use the current production Xcode version after one successful validation
      workflow; do not pin the local beta toolchain by assumption.
 
 Xcode Cloud automatically increments build numbers. The committed
 `TestFlight/WhatToTest.en-US.txt` supplies the tester notes. Download release
 artifacts and dSYMs before Xcode Cloud's retention window expires.
+
+## App Store Connect readiness
+
+- Internal testing group: `Jenny Media Internal` (currently 0 testers and 0
+  builds)
+- TestFlight feedback email: `framewink@jenny.media`
+- TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
+- TestFlight privacy URL:
+  `https://github.com/Jenny-Media/FrameWink/blob/main/PRIVACY.md`
+- Paid Apps and Free Apps agreements: active for all regions
+- Banking, U.S. W-9, and Digital Services Act compliance: active
+- Beta App Review contact: intentionally blank until Jenny Media LLC supplies
+  a real phone number; do not use placeholder contact data.
