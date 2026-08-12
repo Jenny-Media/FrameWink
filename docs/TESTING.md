@@ -189,7 +189,7 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
 
 ### Paid-scope completion verification record — 2026-08-12
 
-- Full Simulator suite: 77 tests passed with zero failures, skips, expected
+- Full Simulator suite: 80 tests passed with zero failures, skips, expected
   failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
 - The final unsigned generic-device Release build and Xcode static analysis
   both complete without diagnostics after the paid-scope changes.
@@ -202,7 +202,14 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
   authorization, sync/curation, PhotoKit-change refresh, and revocation.
 - Paid-pipeline and curator tests prove candidates beyond the free 100 limit are
   analyzed, local display history persists without per-slide write churn, and
-  recently/repeatedly shown candidates receive a repeat penalty.
+  recently/repeatedly shown candidates receive a repeat penalty. A 5,000-photo
+  bounded-similarity fixture completes in 0.49 seconds, while a complete
+  5,000-candidate synthetic pipeline completes in 1.38 seconds with ten signal
+  checkpoints and requires zero image loads on its unchanged second refresh.
+- Cached analysis is keyed by the PhotoKit asset modification revision. Matching
+  content restores conventional signals and an archived Vision feature print
+  without decoding; changed content invalidates the cache and requires fresh
+  analysis. The algorithm revision is now 2 so older incomplete caches rebuild.
 - Layout/configuration tests cover bounded four-photo Mosaic geometry and
   entitlement-gated persistence, activation, update, deletion, and album IDs for
   multiple frame configurations.
@@ -211,9 +218,11 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
   never issues a Photos-library mutation, and caches display-sized JPEGs in a
   separate deletable directory. Strict Offline passes network access disabled
   to PhotoKit; non-strict mode may let Apple Photos fetch iCloud originals.
-- Simulator unit seams verify the state machine and storage. Real authorization
-  prompts, Limited Photos selection, iCloud residency, PhotoKit change delivery,
-  and 1,000/5,000-asset performance remain physical-device checks under B-004.
+- Simulator unit seams verify the state machine, storage, and absence of an
+  algorithmic 5,000-item limit. Real authorization prompts, Limited Photos
+  selection, iCloud residency, PhotoKit change delivery, Vision execution,
+  storage consumption, and 1,000/5,000-asset device performance remain physical-
+  device checks under B-004.
 - The updated app installs and launches on the booted iPad Simulator without a
   Photos prompt. A portrait screenshot exposed and then verified the fix for a
   truncated `Add Photos` action; the settled launch log contains no FrameWink-
@@ -397,3 +406,9 @@ recovery.
 - [x] Compatibility copy says iPadOS 15+ rather than every old iPad.
 - [x] Battery, heat, ventilation, and damaged-device guidance is present.
 - [ ] Xcode Cloud clean archive and TestFlight installation succeed.
+
+The executable `ci_scripts/ci_pre_xcodebuild.sh` is recognized automatically by
+Xcode Cloud. Its validation path passes locally. Its archive path intentionally
+fails while the production Wall Mode product identifier is empty, and also
+guards the Jenny Media team, production bundle ID, iPad-only family, iPadOS 15
+minimum, and both privacy property lists.

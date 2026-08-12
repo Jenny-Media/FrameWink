@@ -23,6 +23,7 @@ final class AutomaticAlbumController: ObservableObject {
     private var observationTask: Task<Void, Never>?
     private var debounceTask: Task<Void, Never>?
     private var generation = UUID()
+    private var lastProgressUpdate = Date.distantPast
 
     init(
         client: PhotoLibraryClient,
@@ -213,6 +214,7 @@ final class AutomaticAlbumController: ObservableObject {
         syncTask?.cancel()
         generation = UUID()
         let currentGeneration = generation
+        lastProgressUpdate = .distantPast
         phase = .syncing(ImportProgress(completedCount: 0, totalCount: 0))
         syncTask = Task { [weak self] in
             guard let self = self else { return }
@@ -224,7 +226,7 @@ final class AutomaticAlbumController: ObservableObject {
                     guard let self = self, self.generation == currentGeneration else {
                         return
                     }
-                    self.phase = .syncing(progress)
+                    self.publishProgress(progress, phase: AutomaticAlbumPhase.syncing)
                 }
                 try Task.checkCancellation()
                 guard generation == currentGeneration else { return }
@@ -312,7 +314,7 @@ final class AutomaticAlbumController: ObservableObject {
                 guard let self = self, self.generation == currentGeneration else {
                     return
                 }
-                self.phase = .curating(progress)
+                self.publishProgress(progress, phase: AutomaticAlbumPhase.curating)
             }
         )
         try Task.checkCancellation()
@@ -329,6 +331,19 @@ final class AutomaticAlbumController: ObservableObject {
             return .ready(photoCount: records.count, suggestionCount: count)
         }
         return .idle
+    }
+
+    private func publishProgress(
+        _ progress: ImportProgress,
+        phase: (ImportProgress) -> AutomaticAlbumPhase
+    ) {
+        let now = Date()
+        guard progress.completedCount == progress.totalCount
+            || now.timeIntervalSince(lastProgressUpdate) >= 0.1 else {
+            return
+        }
+        lastProgressUpdate = now
+        self.phase = phase(progress)
     }
 
     private func persistConfiguration() {

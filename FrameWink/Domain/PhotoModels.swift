@@ -15,6 +15,7 @@ struct PhotoCandidate: Identifiable, Codable, Equatable {
     let isHidden: Bool
     let isScreenshot: Bool
     let burstIdentifier: String?
+    let contentRevision: String?
 
     init(
         id: UUID,
@@ -24,7 +25,8 @@ struct PhotoCandidate: Identifiable, Codable, Equatable {
         creationDate: Date?,
         isHidden: Bool = false,
         isScreenshot: Bool = false,
-        burstIdentifier: String? = nil
+        burstIdentifier: String? = nil,
+        contentRevision: String? = nil
     ) {
         self.id = id
         self.source = source
@@ -34,6 +36,7 @@ struct PhotoCandidate: Identifiable, Codable, Equatable {
         self.isHidden = isHidden
         self.isScreenshot = isScreenshot
         self.burstIdentifier = burstIdentifier
+        self.contentRevision = contentRevision
     }
 }
 

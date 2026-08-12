@@ -31,7 +31,7 @@ extension PhotoCurating {
 }
 
 struct SmartReelCurator: PhotoCurating {
-    static let algorithmRevision = 1
+    static let algorithmRevision = 2
 
     private let duplicateDistanceThreshold = 0.12
     private let comparisonWindow = 8

@@ -83,8 +83,15 @@ struct CachedAlbumAsset: Codable, Equatable, Identifiable {
             creationDate: asset?.creationDate ?? photo.creationDate,
             isHidden: asset?.isHidden ?? isHidden ?? false,
             isScreenshot: asset?.isScreenshot ?? isScreenshot ?? false,
-            burstIdentifier: asset?.burstIdentifier ?? burstIdentifier
+            burstIdentifier: asset?.burstIdentifier ?? burstIdentifier,
+            contentRevision: Self.contentRevision(
+                for: asset?.modificationDate ?? assetModificationDate
+            )
         )
+    }
+
+    private static func contentRevision(for date: Date?) -> String? {
+        date.map { String($0.timeIntervalSinceReferenceDate.bitPattern, radix: 16) }
     }
 }
 

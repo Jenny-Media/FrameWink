@@ -178,7 +178,7 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 77 tests pass. Xcode static analysis completes
+acceptance remains open. All 80 tests pass. Xcode static analysis completes
 without warnings after excluding the StoreKit test bundle from the Analyze
 action, and an unsigned Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
@@ -214,6 +214,14 @@ persistence have automated recovery coverage. Actual Limited Photos behavior,
 iCloud download behavior, large-album performance, change delivery,
 memory-pressure behavior, thermal response, and slideshow smoothness during
 real Vision work still require physical hardware.
+
+The paid analysis cache now keys persisted signals to the asset content
+revision, archives reusable Vision feature prints, skips image decode and Vision
+for unchanged assets, uses bounded checkpoint frequency, and throttles paid
+progress publication. Simulator regressions exercise both the curator and full
+pipeline with 5,000 candidates. Xcode Cloud's pre-build archive guard is also
+committed and deliberately prevents a TestFlight archive while the production
+IAP identifier remains unconfirmed.
 
 ## Current build and test commands
 

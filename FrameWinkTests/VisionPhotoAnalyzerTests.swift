@@ -66,6 +66,53 @@ final class VisionPhotoAnalyzerTests: XCTestCase {
         XCTAssertLessThan(peakGrowth, 300 * 1_048_576)
     }
 
+    func testMatchingCachedSignalsRestoreWithoutDecodingAndRevisionChangeInvalidates() async throws {
+        let analyzer = VisionPhotoAnalyzer()
+        let image = try XCTUnwrap(
+            BundledSampleImageLoader.image(named: "sample-lakeside")
+        )
+        let id = UUID()
+        let original = PhotoCandidate(
+            id: id,
+            source: .photoLibraryAlbum,
+            pixelWidth: Int(image.size.width),
+            pixelHeight: Int(image.size.height),
+            creationDate: nil,
+            contentRevision: "revision-a"
+        )
+        let analyzed = try await analyzer.analyze(
+            candidate: original,
+            image: image,
+            cachedSignals: nil
+        )
+
+        let restored = try await analyzer.analyze(
+            candidate: original,
+            image: UIImage(),
+            cachedSignals: analyzed.signals
+        )
+        XCTAssertEqual(restored.signals, analyzed.signals)
+
+        let changed = PhotoCandidate(
+            id: id,
+            source: .photoLibraryAlbum,
+            pixelWidth: Int(image.size.width),
+            pixelHeight: Int(image.size.height),
+            creationDate: nil,
+            contentRevision: "revision-b"
+        )
+        do {
+            _ = try await analyzer.analyze(
+                candidate: changed,
+                image: UIImage(),
+                cachedSignals: analyzed.signals
+            )
+            XCTFail("A changed asset revision must require fresh image analysis")
+        } catch PhotoAnalysisError.missingImageData {
+            XCTAssertTrue(true)
+        }
+    }
+
     private func peakResidentMemoryBytes() -> UInt64 {
         var info = mach_task_basic_info()
         var count = mach_msg_type_number_t(

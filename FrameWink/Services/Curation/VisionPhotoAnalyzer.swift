@@ -4,11 +4,35 @@ import UIKit
 import Vision
 
 protocol PhotoAnalyzing {
+    func restoredAnalysis(
+        candidate: PhotoCandidate,
+        cachedSignals: PhotoSignals
+    ) -> AnalyzedPhoto?
+
     func analyze(
         candidate: PhotoCandidate,
         image: UIImage,
         cachedSignals: PhotoSignals?
     ) async throws -> AnalyzedPhoto
+}
+
+extension PhotoAnalyzing {
+    func restoredAnalysis(
+        candidate: PhotoCandidate,
+        cachedSignals: PhotoSignals
+    ) -> AnalyzedPhoto? {
+        guard cachedSignals.isReusable(
+            for: candidate,
+            algorithmRevision: SmartReelCurator.algorithmRevision
+        ) else {
+            return nil
+        }
+        return AnalyzedPhoto(
+            candidate: candidate,
+            signals: cachedSignals,
+            featurePrint: nil
+        )
+    }
 }
 
 enum PhotoAnalysisError: LocalizedError {
@@ -26,6 +50,16 @@ final class VisionFeaturePrint: PhotoFeaturePrintDistance {
         self.observation = observation
     }
 
+    convenience init?(archivedData: Data) {
+        guard let observation = try? NSKeyedUnarchiver.unarchivedObject(
+            ofClass: VNFeaturePrintObservation.self,
+            from: archivedData
+        ) else {
+            return nil
+        }
+        self.init(observation: observation)
+    }
+
     func normalizedDistance(to other: any PhotoFeaturePrintDistance) -> Double? {
         guard let other = other as? VisionFeaturePrint else { return nil }
         var distance: Float = 0
@@ -39,12 +73,45 @@ final class VisionFeaturePrint: PhotoFeaturePrintDistance {
 }
 
 struct VisionPhotoAnalyzer: PhotoAnalyzing {
+    func restoredAnalysis(
+        candidate: PhotoCandidate,
+        cachedSignals: PhotoSignals
+    ) -> AnalyzedPhoto? {
+        guard cachedSignals.isReusable(
+            for: candidate,
+            algorithmRevision: SmartReelCurator.algorithmRevision
+        ) else {
+            return nil
+        }
+        let featurePrint: VisionFeaturePrint?
+        if let archive = cachedSignals.featurePrintArchive {
+            guard let restored = VisionFeaturePrint(archivedData: archive) else {
+                return nil
+            }
+            featurePrint = restored
+        } else {
+            featurePrint = nil
+        }
+        return AnalyzedPhoto(
+            candidate: candidate,
+            signals: cachedSignals,
+            featurePrint: featurePrint
+        )
+    }
+
     func analyze(
         candidate: PhotoCandidate,
         image: UIImage,
         cachedSignals: PhotoSignals?
     ) async throws -> AnalyzedPhoto {
-        try await Task.detached(priority: .utility) {
+        if let cachedSignals = cachedSignals,
+           let restored = restoredAnalysis(
+               candidate: candidate,
+               cachedSignals: cachedSignals
+           ) {
+            return restored
+        }
+        return try await Task.detached(priority: .utility) {
             try Task.checkCancellation()
             guard let cgImage = image.cgImage else {
                 throw PhotoAnalysisError.missingImageData
@@ -61,31 +128,32 @@ struct VisionPhotoAnalyzer: PhotoAnalyzing {
             }
             try Task.checkCancellation()
 
-            let signals: PhotoSignals
-            if let cachedSignals = cachedSignals,
-               cachedSignals.algorithmRevision == SmartReelCurator.algorithmRevision,
-               cachedSignals.candidateID == candidate.id {
-                signals = cachedSignals
-            } else {
-                let conventional = Self.conventionalSignals(for: cgImage)
-                let importantRects = (vision.faceRects + vision.salientRects)
-                    .filter(\.isWithinUnitBounds)
-                signals = PhotoSignals(
-                    candidateID: candidate.id,
-                    algorithmRevision: SmartReelCurator.algorithmRevision,
-                    sharpness: conventional.sharpness,
-                    exposure: conventional.exposure,
-                    contrast: conventional.contrast,
-                    faceQuality: vision.faceQuality,
-                    saliencyConfidence: vision.saliencyConfidence,
-                    layoutFitness: Self.layoutFitness(
-                        pixelWidth: candidate.pixelWidth,
-                        pixelHeight: candidate.pixelHeight,
-                        importantRects: importantRects
-                    ),
-                    importantRects: importantRects
+            let conventional = Self.conventionalSignals(for: cgImage)
+            let importantRects = (vision.faceRects + vision.salientRects)
+                .filter(\.isWithinUnitBounds)
+            let featurePrintArchive = vision.featurePrint.flatMap {
+                try? NSKeyedArchiver.archivedData(
+                    withRootObject: $0,
+                    requiringSecureCoding: true
                 )
             }
+            let signals = PhotoSignals(
+                candidateID: candidate.id,
+                algorithmRevision: SmartReelCurator.algorithmRevision,
+                contentRevision: candidate.contentRevision,
+                sharpness: conventional.sharpness,
+                exposure: conventional.exposure,
+                contrast: conventional.contrast,
+                faceQuality: vision.faceQuality,
+                saliencyConfidence: vision.saliencyConfidence,
+                layoutFitness: Self.layoutFitness(
+                    pixelWidth: candidate.pixelWidth,
+                    pixelHeight: candidate.pixelHeight,
+                    importantRects: importantRects
+                ),
+                importantRects: importantRects,
+                featurePrintArchive: featurePrintArchive
+            )
 
             return AnalyzedPhoto(
                 candidate: candidate,

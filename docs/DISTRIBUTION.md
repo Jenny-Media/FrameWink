@@ -67,7 +67,7 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current full suite passes all 77 tests.
+  was installed and launched; the current full suite passes all 80 tests.
 
 ### B-004 — Physical curation-validation hardware and labelled set are missing
 
@@ -135,12 +135,21 @@ blocker affects only a later boundary.
   mutation, curates its full eligible candidate pool, caches display-sized
   copies with Strict Offline behavior, reduces repeats from local display
   history, adds Mosaic, and persists multiple album-aware frame configurations.
-  The paywall and release copy now describe the included scope. The 77-test
+  The paywall and release copy now describe the included scope. The 80-test
   Simulator suite covers local synchronization, corrupt-cache cleanup, change
   refresh, entitlement/revocation, unbounded input, repeat ranking, layouts, and
   saved configurations.
 - Remaining boundary: real PhotoKit permission, iCloud, large-album, and change-
   notification behavior still require physical-device evidence under B-004.
+
+## Committed Xcode Cloud guardrail
+
+Apple automatically runs `ci_scripts/ci_pre_xcodebuild.sh` before each Xcode
+Cloud action. FrameWink's script validates its two privacy property lists and
+Release identity for every action. For an archive, it additionally requires the
+Jenny Media LLC team, `media.jenny.FrameWink`, and a nonempty non-local Wall Mode
+product identifier. This makes B-006 fail closed at the cloud archive boundary
+without preventing Build, Analyze, or Test workflows.
 
 ## Remaining release decisions
 

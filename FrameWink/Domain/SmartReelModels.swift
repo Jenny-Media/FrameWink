@@ -3,6 +3,7 @@ import Foundation
 struct PhotoSignals: Codable, Equatable {
     let candidateID: UUID
     let algorithmRevision: Int
+    let contentRevision: String?
     let sharpness: Double
     let exposure: Double
     let contrast: Double
@@ -10,6 +11,39 @@ struct PhotoSignals: Codable, Equatable {
     let saliencyConfidence: Double?
     let layoutFitness: Double
     let importantRects: [NormalizedRect]
+    let featurePrintArchive: Data?
+
+    init(
+        candidateID: UUID,
+        algorithmRevision: Int,
+        contentRevision: String? = nil,
+        sharpness: Double,
+        exposure: Double,
+        contrast: Double,
+        faceQuality: Double?,
+        saliencyConfidence: Double?,
+        layoutFitness: Double,
+        importantRects: [NormalizedRect],
+        featurePrintArchive: Data? = nil
+    ) {
+        self.candidateID = candidateID
+        self.algorithmRevision = algorithmRevision
+        self.contentRevision = contentRevision
+        self.sharpness = sharpness
+        self.exposure = exposure
+        self.contrast = contrast
+        self.faceQuality = faceQuality
+        self.saliencyConfidence = saliencyConfidence
+        self.layoutFitness = layoutFitness
+        self.importantRects = importantRects
+        self.featurePrintArchive = featurePrintArchive
+    }
+
+    func isReusable(for candidate: PhotoCandidate, algorithmRevision: Int) -> Bool {
+        candidateID == candidate.id
+            && self.algorithmRevision == algorithmRevision
+            && contentRevision == candidate.contentRevision
+    }
 
     var qualityScore: Double {
         let exposureFitness = max(0, 1 - abs(exposure - 0.5) * 2)

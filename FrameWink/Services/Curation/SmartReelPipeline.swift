@@ -95,12 +95,27 @@ final class SmartReelPipeline: SmartReelBuilding {
         )
         var analyzed: [AnalyzedPhoto] = []
         var unsavedSignalCount = 0
+        let signalSaveBatchSize = max(64, min(512, max(candidates.count / 10, 1)))
         await progress(ImportProgress(completedCount: 0, totalCount: candidates.count))
 
         do {
             for (index, candidate) in candidates.enumerated() {
                 try Task.checkCancellation()
                 do {
+                    if let cached = cachedSignals[candidate.id],
+                       let restored = analyzer.restoredAnalysis(
+                           candidate: candidate,
+                           cachedSignals: cached
+                       ) {
+                        analyzed.append(restored)
+                        await progress(
+                            ImportProgress(
+                                completedCount: index + 1,
+                                totalCount: candidates.count
+                            )
+                        )
+                        continue
+                    }
                     guard let image = await imageProvider(candidate.id) else {
                         await progress(
                             ImportProgress(
@@ -119,7 +134,7 @@ final class SmartReelPipeline: SmartReelBuilding {
                     analyzed.append(photo)
                     cachedSignals[candidate.id] = photo.signals
                     unsavedSignalCount += 1
-                    if unsavedSignalCount >= 64 {
+                    if unsavedSignalCount >= signalSaveBatchSize {
                         try store.saveSignals(cachedSignals)
                         unsavedSignalCount = 0
                     }

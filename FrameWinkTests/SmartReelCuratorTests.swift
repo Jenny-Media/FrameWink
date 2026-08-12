@@ -228,6 +228,30 @@ final class SmartReelCuratorTests: XCTestCase {
         XCTAssertEqual(reel.selections.first?.candidateID, fresh.candidate.id)
     }
 
+    func testFiveThousandCandidatePoolUsesBoundedSimilarityWindow() throws {
+        let photos = (1...5_000).map { index in
+            fixture(
+                index: index,
+                dateOffset: TimeInterval(index * 10),
+                featurePrint: FixtureFeaturePrint(values: [Double(index) * 0.2])
+            )
+        }
+        let start = CFAbsoluteTimeGetCurrent()
+
+        let reel = try curator.makeReel(
+            from: photos,
+            exclusions: [],
+            maximumCount: 100,
+            now: baseDate,
+            reelID: id(999_999)
+        )
+
+        let elapsed = CFAbsoluteTimeGetCurrent() - start
+        print(String(format: "PAID_5000_CURATOR_PERF elapsed=%.3fs", elapsed))
+        XCTAssertEqual(reel.selections.count, 100)
+        XCTAssertLessThan(elapsed, 5)
+    }
+
     private func fixture(
         index: Int,
         dateOffset: TimeInterval = 0,

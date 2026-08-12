@@ -70,6 +70,7 @@ final class AlbumSyncServiceTests: XCTestCase {
         let original = try XCTUnwrap(first.records.first)
         XCTAssertEqual(original.burstIdentifier, "burst-one")
         XCTAssertEqual(original.candidate().burstIdentifier, "burst-one")
+        let originalRevision = try XCTUnwrap(original.candidate().contentRevision)
         let originalURL = store.imagesDirectory.appendingPathComponent(
             original.photo.filename
         )
@@ -94,6 +95,7 @@ final class AlbumSyncServiceTests: XCTestCase {
         XCTAssertEqual(replacement.photo.id, original.photo.id)
         XCTAssertNotEqual(replacement.photo.filename, original.photo.filename)
         XCTAssertEqual(refreshed.refreshedCount, 1)
+        XCTAssertNotEqual(replacement.candidate().contentRevision, originalRevision)
         XCTAssertFalse(FileManager.default.fileExists(atPath: originalURL.path))
     }
 

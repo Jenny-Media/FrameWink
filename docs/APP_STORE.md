@@ -125,6 +125,11 @@ B-001 and B-002 are resolved. A paid TestFlight candidate additionally requires
 B-006 to be resolved. The repository is otherwise prepared with a
 shared archivable `FrameWink` scheme and no external package dependency.
 
+The executable `ci_scripts/ci_pre_xcodebuild.sh` runs automatically before each
+cloud action. Validation actions check the Release identity and privacy files.
+Archive actions fail closed until the production Wall Mode identifier is
+configured, and reject the Debug-only local product identifier.
+
 Create two workflows:
 
 1. **FrameWink Validation**

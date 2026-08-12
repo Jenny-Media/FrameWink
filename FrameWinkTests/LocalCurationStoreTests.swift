@@ -203,6 +203,72 @@ final class LocalCurationStoreTests: XCTestCase {
             ).count,
             120
         )
+
+        var cachedImageRequests = 0
+        let rebuilt = try await pipeline.buildUnbounded(
+            candidates: candidates,
+            maximumSelectionCount: 120,
+            imageProvider: { _ in
+                cachedImageRequests += 1
+                return UIImage()
+            },
+            progress: { _ in }
+        )
+        XCTAssertEqual(rebuilt.selections.count, 120)
+        XCTAssertEqual(cachedImageRequests, 0)
+    }
+
+    func testPaidPipelineProcessesFiveThousandWithBoundedSignalCheckpoints() async throws {
+        let countingStore = CountingCurationStore()
+        let pipeline = SmartReelPipeline(
+            analyzer: InstantFixtureAnalyzer(),
+            curator: SmartReelCurator(),
+            store: countingStore,
+            now: { Date(timeIntervalSince1970: 100_000) },
+            makeID: UUID.init
+        )
+        let candidates = (1...5_000).map { index in
+            PhotoCandidate(
+                id: UUID(),
+                source: .photoLibraryAlbum,
+                pixelWidth: 1_600,
+                pixelHeight: 1_200,
+                creationDate: Date(timeIntervalSince1970: Double(index * 10))
+            )
+        }
+        var imageRequestCount = 0
+        let start = CFAbsoluteTimeGetCurrent()
+
+        let reel = try await pipeline.buildUnbounded(
+            candidates: candidates,
+            maximumSelectionCount: 100,
+            imageProvider: { _ in
+                imageRequestCount += 1
+                return UIImage()
+            },
+            progress: { _ in }
+        )
+
+        let elapsed = CFAbsoluteTimeGetCurrent() - start
+        print(String(format: "PAID_5000_PIPELINE_PERF elapsed=%.3fs", elapsed))
+        XCTAssertEqual(reel.selections.count, 100)
+        XCTAssertEqual(imageRequestCount, 5_000)
+        XCTAssertEqual(countingStore.signals.count, 5_000)
+        XCTAssertLessThanOrEqual(countingStore.signalSaveCount, 10)
+        XCTAssertLessThan(elapsed, 10)
+
+        imageRequestCount = 0
+        _ = try await pipeline.buildUnbounded(
+            candidates: candidates,
+            maximumSelectionCount: 100,
+            imageProvider: { _ in
+                imageRequestCount += 1
+                return UIImage()
+            },
+            progress: { _ in }
+        )
+        XCTAssertEqual(imageRequestCount, 0)
+        XCTAssertEqual(countingStore.signalSaveCount, 10)
     }
 
     private func signals(id: UUID, revision: Int) -> PhotoSignals {
@@ -262,5 +328,28 @@ private struct InstantFixtureAnalyzer: PhotoAnalyzing {
             importantRects: []
         )
         return AnalyzedPhoto(candidate: candidate, signals: signals, featurePrint: nil)
+    }
+}
+
+private final class CountingCurationStore: CurationStoring {
+    var signals: [UUID: PhotoSignals] = [:]
+    var signalSaveCount = 0
+    var reel: SmartReel?
+    var exclusions: Set<UUID> = []
+
+    func loadSignals(algorithmRevision: Int) throws -> [UUID: PhotoSignals] {
+        signals.filter { $0.value.algorithmRevision == algorithmRevision }
+    }
+
+    func saveSignals(_ signals: [UUID: PhotoSignals]) throws {
+        self.signals = signals
+        signalSaveCount += 1
+    }
+
+    func loadSmartReel() throws -> SmartReel? { reel }
+    func saveSmartReel(_ reel: SmartReel) throws { self.reel = reel }
+    func loadExclusions() throws -> Set<UUID> { exclusions }
+    func saveExclusions(_ exclusions: Set<UUID>) throws {
+        self.exclusions = exclusions
     }
 }
