@@ -168,7 +168,7 @@ locally. Production ID and Family Sharing remain blocker B-006.
 - [ ] Permission denial, Limited Photos, cloud-only, deleted asset, full disk,
       memory warning, thermal, and corrupted cache states are recoverable.
 - [x] App privacy responses and privacy policy match the implementation.
-- [ ] App Store screenshots distinguish free and paid behavior.
+- [x] App Store screenshots distinguish free and paid behavior.
 - [x] App Review notes explain Photos permissions and Wall Mode unlock.
 - [ ] Seven-day soak results are recorded in `docs/TESTING.md`.
 - [ ] Xcode Cloud clean archive succeeds and its post-action distributes to
@@ -238,14 +238,13 @@ committed and deliberately prevents a TestFlight archive while the production
 IAP identifier remains unconfirmed.
 
 A Debug-only screenshot harness now isolates its fixture state from normal app
-data and produces eleven reproducible raw iPad captures from bundled project-owned
-media. The current set explicitly separates Free Sample/Frame Mode from paid
-capabilities, purchase/restore, automatic-album privacy, saved configurations,
-night scheduling, and honest commissioning guidance. Release builds ignore the
-harness. Paid automatic suggestion-review and active Mosaic captures are also
-covered, along with a separate Free Smart Reel review grid. Final caption
-composition is still open, so the App Store screenshot checklist item above
-remains unchecked.
+data. It produces an upload-ready set of ten native 13-inch iPad JPEGs at 2064 x
+2752 without alpha, plus an eleven-image source library, using bundled
+project-owned media. The submission set explicitly orders three Free Smart Reel
+screens before seven Paid Wall Mode screens covering purchase/restore,
+automatic-album privacy, saved configurations, Mosaic, night scheduling, and
+honest commissioning guidance. Release builds ignore the harness. Marketing
+caption overlays remain optional polish rather than a release gate.
 
 ## Current build and test commands
 

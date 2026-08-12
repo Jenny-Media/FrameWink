@@ -1,7 +1,43 @@
-# App Store screenshot drafts
+# App Store screenshots
+
+The upload-ready set is in `Submission/iPad-13-inch/`. It contains exactly ten
+portrait JPEGs at 2064 x 2752 with no alpha channel, matching Apple's 13-inch
+iPad screenshot specification and the App Store Connect maximum of ten images.
+
+Run `scripts/capture_app_store_submission_screenshots.sh` with a booted 13-inch
+iPad Simulator to rebuild the set. The script builds and installs FrameWink,
+normalizes the Simulator status bar and light appearance, captures every
+scenario, and rejects the result unless all ten images have the required format,
+dimensions, and alpha status. Set `FRAMEWINK_SIMULATOR_ID` to select a specific
+booted device.
+
+Submission order:
+
+1. `01-free-sample.jpg` — Free Sample Photos, no Photos access needed.
+2. `02-free-review-grid.jpg` — Free private Smart Reel review.
+3. `03-free-frame-mode.jpg` — Free full-screen Frame Mode.
+4. `04-paid-wall-mode-purchase.jpg` — Paid price, restore, and free-tier promise.
+5. `05-paid-automatic-album.jpg` — Paid local automatic-album setup.
+6. `06-paid-saved-configurations.jpg` — Paid saved frame configurations.
+7. `07-paid-mosaic-frame.jpg` — Paid four-photo Mosaic Frame Mode.
+8. `08-paid-night-schedule.jpg` — Paid foreground dimming/blackout schedule.
+9. `09-paid-commissioning-checklist.jpg` — Paid wall commissioning guidance.
+10. `10-paid-wall-mode-features.jpg` — Paid Wall Mode feature overview.
+
+The filename and visible product UI distinguish Free from Paid Wall Mode. These
+native app screenshots are valid submission assets without marketing overlays;
+caption composition remains optional marketing polish, not a release gate.
+
+Apple references:
+
+- [Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)
+- [Upload app previews and screenshots](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots/)
+
+## Source library
 
 Run `scripts/capture_app_store_screenshots.sh` with a booted iPad Simulator to
-rebuild and capture the raw screenshots in `iPad/`.
+rebuild the broader eleven-image source library in `iPad/`. The 1640 x 2360 PNGs
+remain useful for design iteration, but the 13-inch set above is the upload set.
 
 The capture path is intentionally Debug-only. It uses project-owned bundled
 sample photos, a deterministic local `$9.99` product presentation, and a fake
@@ -10,7 +46,7 @@ opens the system picker, changes Photos permissions, edits Apple Photos, or
 grants a production entitlement. Release builds ignore the screenshot launch
 environment entirely.
 
-The current raw set covers:
+The source library covers:
 
 1. Free first-launch Sample Photos with no permission prompt.
 2. Free full-screen Frame Mode controls.
@@ -24,5 +60,5 @@ The current raw set covers:
 10. Paid four-photo Mosaic Frame Mode.
 11. Free Smart Reel suggestion review with Never Show Again.
 
-These are source captures for App Store composition. Final submission assets
-still need approved caption composition.
+Do not upload private tester photos. Both capture paths use only the bundled,
+project-owned fixture media.

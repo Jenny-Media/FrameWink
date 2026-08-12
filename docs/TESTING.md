@@ -256,10 +256,11 @@ to Sample Mode. This closes the local picker-cancellation rerun; real provider,
 iCloud, and permission-transition behavior remains physical-device work.
 
 The local release packet now includes the App Privacy answer and policy draft,
-App Review notes, a six-shot Free/Paid screenshot plan, localized TestFlight
-tester notes, and exact Xcode Cloud workflow recipes. Stable support/privacy
-URLs, actual screenshots, product setup, a hosted repository, the Xcode Cloud
-workflow, and TestFlight installation remain external release work.
+App Review notes, a ten-shot Free/Paid screenshot plan with ten visually checked
+native 13-inch assets, localized TestFlight tester notes, and exact Xcode Cloud
+workflow recipes. Stable support/privacy URLs, product setup, a hosted
+repository, the Xcode Cloud workflow, and TestFlight installation remain
+external release work.
 
 ### Photo import
 
@@ -413,7 +414,8 @@ recovery.
 - [x] App Review notes give the Wall Mode product path and StoreKit test steps.
 - [x] Privacy policy draft states no developer server/upload/analytics.
 - [ ] Privacy policy and support pages are published at stable HTTPS URLs.
-- [x] Current raw screenshot drafts do not imply an ambient sensor, automatic
+- [x] Ten native 2064 x 2752 submission JPEGs contain no alpha, clearly separate
+      Free from Paid Wall Mode, and do not imply an ambient sensor, automatic
       Guided Access, reboot recovery, or another unavailable kiosk capability.
 - [x] Compatibility copy says iPadOS 15+ rather than every old iPad.
 - [x] Battery, heat, ventilation, and damaged-device guidance is present.

@@ -115,20 +115,24 @@ set. Do not use private tester photos.
 8. **Mount it honestly — Paid:** the power, ventilation, Guided Access, and
    restart-recovery commissioning checklist.
 
-Each caption must say `Free` or `Paid Wall Mode` where the boundary could be
-ambiguous. Automatic-album screenshots must show an explicitly selected album;
-do not imply Apple Memories/People access, ambient sensing, automated Guided
-Access, or reboot recovery.
+The filename and visible product UI must say `Free` or `Paid Wall Mode` where
+the boundary could be ambiguous. Automatic-album screenshots must show an
+explicitly selected album; do not imply Apple Memories/People access, ambient
+sensing, automated Guided Access, or reboot recovery.
 
-Eleven reproducible raw iPad drafts are committed under
-`AppStore/Screenshots/iPad/`: clean Free Sample Photos, Free Frame Mode, paid
-capabilities, the `$9.99` one-time purchase with Restore Purchases, and the paid
-automatic-album/Strict Offline, saved-configuration, night-schedule, and
-commissioning-checklist screens. They use only bundled project-owned media. Run
-`scripts/capture_app_store_screenshots.sh` to regenerate them. Paid automatic
-suggestion-review and active four-photo Mosaic captures are also included.
-The Free Smart Reel review-grid variant is included separately. Final caption
-composition remains release work.
+Ten native, upload-ready 13-inch iPad screenshots are committed under
+`AppStore/Screenshots/Submission/iPad-13-inch/`. They are 2064 x 2752 JPEGs
+without alpha and cover three Free Smart Reel screens followed by seven Paid
+Wall Mode screens. The paid sequence includes the `$9.99` one-time purchase and
+Restore Purchases, automatic-album/Strict Offline setup, saved configurations,
+Mosaic Frame Mode, night scheduling, commissioning guidance, and the feature
+overview. They use only bundled project-owned media. Run
+`scripts/capture_app_store_submission_screenshots.sh` to regenerate and validate
+the set. Marketing caption overlays are optional rather than a submission gate.
+
+The broader eleven-image 1640 x 2360 source library remains under
+`AppStore/Screenshots/iPad/` and can be regenerated with
+`scripts/capture_app_store_screenshots.sh`.
 
 ## Xcode Cloud workflow recipe
 
