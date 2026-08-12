@@ -475,3 +475,15 @@ installed, and launched there as `media.jenny.FrameWink` (launch PID `73339`).
 The settled first-launch screen showed the bundled Sample Photos experience and
 no Photos permission dialog. This verifies the named Simulator target; it does
 not satisfy physical iPad gates B-004 or B-005.
+
+## Physical-device inventory — 2026-08-12
+
+Apple's `devicectl` reports a paired physical Apple Vision Pro and a connected
+physical iPhone 17 Pro Max. Neither is a valid physical test destination for
+the iPad-only FrameWink target: Xcode rejects the iPhone because it is outside
+the targeted device family, and the Vision Pro is not an iPadOS device. The
+booted `iPad Pro 13-inch (M5)` and `iPad (A16)` are both iOS 27 Simulators.
+
+Result: no FrameWink test, PhotoKit validation, StoreKit purchase/restore run,
+thermal check, or unattended soak has run on a physical iPad. B-004 and B-005
+remain open until a compatible physical iPad is connected and assigned.

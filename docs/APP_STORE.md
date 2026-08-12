@@ -215,9 +215,8 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - App Store screenshots: all ten accepted for the 13-inch iPad slot and ordered
   `01` through `10`; Apple will reuse them for all iPad display sizes and the
   current English (U.S.) localization
-- App Review phone: owner supplied and entered, but intentionally omitted from
-  this public repository. App Store Connect will not save the contact section
-  until first name, last name, and email are also supplied; no identity data is
-  inferred or invented.
+- App Review contact: Yihong Chen and `framewink@jenny.media` saved with the
+  owner-supplied phone number, which is intentionally omitted from this public
+  repository.
 - App Review submission still requires publisher-owned content-rights and age
   rating declarations; see B-011 in `docs/DISTRIBUTION.md`.

@@ -186,7 +186,7 @@ blocker affects only a later boundary.
   Xcode. Repository-scoped GitHub access is complete and must remain limited to
   `Jenny-Media/FrameWink`.
 
-### B-011 — App Store declarations need owner-supplied answers
+### B-011 — App Store declarations need owner completion
 
 - Status: Open
 - First recorded: 2026-08-12
@@ -194,18 +194,16 @@ blocker affects only a later boundary.
   availability are configured, but App Store Connect still requires the age
   rating questionnaire, content-rights declaration, and a real App Review
   contact record. The owner supplied the real App Review phone number on
-  2026-08-12. It is entered in the version form, but App Store Connect validates
-  and saves the contact section only when first name, last name, email, and
-  phone are all present together. The public repository intentionally does not
-  reproduce the private contact number. These are publisher attestations or
-  facts that cannot be inferred safely from the source tree.
+  2026-08-12. The complete Yihong Chen contact record, using the monitored
+  FrameWink support mailbox, is now saved in App Store Connect. The public
+  repository intentionally does not reproduce the private contact number. The
+  remaining content-rights and age-rating answers are publisher attestations
+  that cannot be inferred safely from the source tree.
 - Impact: version 1.0 cannot be submitted to App Review until the declarations
   and contact record are complete.
 - Does not block: Xcode Cloud setup, internal TestFlight builds, local
   validation, or repository work.
-- Needed from owner: complete the content-rights and age-rating declarations;
-  provide the App Review contact first name, last name, and email to accompany
-  the supplied phone number; then save the complete contact record.
+- Needed from owner: complete the content-rights and age-rating declarations.
 
 ## App Store Connect readiness snapshot
 
@@ -216,9 +214,9 @@ blocker affects only a later boundary.
   successful build.
 - TestFlight has `framewink@jenny.media` as its feedback address, the public
   GitHub repository as its marketing URL, and `PRIVACY.md` as its privacy URL.
-  Beta App Review contact details remain blank because App Store Connect
-  requires a real phone number; none has been supplied and no placeholder was
-  invented.
+  The complete App Review contact for Yihong Chen is saved with the same
+  monitored FrameWink mailbox; its private phone number is not duplicated in
+  this public repository.
 - Jenny Media LLC's Paid Apps Agreement and Free Apps Agreement are active for
   all regions. Its configured bank account, U.S. W-9, and Digital Services Act
   compliance record are also active.
