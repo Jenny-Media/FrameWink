@@ -12,7 +12,7 @@ time rather than unattended calendar time.
 | 2. Frame engine | 6 h | 3 h | Complete |
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3 h | Implementation complete — physical soak pending |
-| 5. Purchases | 4 h | 3.75 h | Implementation complete — production setup pending |
+| 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
 | 6. Hardening and release | 8 h | 7.5 h | Implementation complete — physical/cloud validation pending |
 | **Total** | **40 h** | **28.5 h** | **In progress** |
 
@@ -131,7 +131,7 @@ and the seven-day run require physical hardware under blocker B-005.
 ## Milestone 5 — Purchases
 
 - [x] Local StoreKit configuration contains a non-consumable Wall Mode product.
-- [x] Production product identifier is documented but not assumed.
+- [x] Production product identifier and App Store Connect product are configured.
 - [x] Verified transactions drive entitlement.
 - [x] Purchase, cancellation, pending, failure, restore, offline, revocation,
       and StoreKit-unavailable states are handled.
@@ -142,7 +142,8 @@ and the seven-day run require physical hardware under blocker B-005.
 Acceptance: StoreKit Test purchase and restoration unlock Wall Mode, while all
 failure states leave Free Smart Reel usable.
 
-Status: implementation complete; App Store Connect configuration remains open.
+Status: complete. App Store Connect configuration and local implementation are
+both complete; physical purchase behavior remains a release-validation item.
 The Debug scheme uses the explicitly local, non-consumable
 `media.jenny.FrameWink.wallmode.local` product, while Release uses the confirmed
 `media.jenny.FrameWink.wallmode` production identifier. Verified StoreKit
@@ -156,8 +157,10 @@ unverified updates, revocation, and an offline StoreKit-verified entitlement.
 The local purchase scenarios and entitlement gates pass on the iOS 27 `iPad
 (A16)` Simulator. The paywall, $9.99 local price, visible Restore Purchases
 action, included paid-scope copy, and recoverable StoreKit failure are covered
-locally. Production ID and Family Sharing are confirmed; App Store Connect
-product creation remains release work.
+locally. The production non-consumable is App Store Connect Apple ID
+`6800849862`, with a $9.99 U.S. base price, all 175 current and future
+storefronts, English (U.S.) localization, and Family Sharing permanently
+enabled.
 
 ## Milestone 6 — Hardening and release
 
@@ -182,12 +185,13 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 101 shared-scheme tests pass. Xcode static analysis completes
+acceptance remains open. All 100 shared-scheme tests pass. Xcode static analysis completes
 without warnings after excluding the StoreKit test bundle from the Analyze
 action, and an unsigned Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
 manifest, contains no third-party framework or StoreKit test configuration, and
-keeps the production Wall Mode product ID empty. Source and binary inspection
+contains the production Wall Mode product ID and non-exempt-encryption
+declaration. Source and binary inspection
 found no developer networking, analytics, tracking, PhotoKit mutation, or
 system-brightness mutation. The Photos usage description supports the paid
 automatic-album flow; authorization is requested only after a user explicitly
@@ -303,15 +307,14 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - Milestone 4's physical idle-timer/Guided Access/thermal/brightness behavior
   and seven-day mounted-device soak remain open as blocker B-005. All schedule,
   persistence, state-restoration, and setup-copy work is independently verified.
-- Milestone 5's local purchase implementation and tests are complete. The owner
-  confirmed `media.jenny.FrameWink.wallmode` with Family Sharing, resolving
-  B-006; App Store Connect configuration remains release work.
-- Xcode Cloud setup is blocked only at the cloud boundary: this local Git
-  repository has no hosted remote yet, and the App Store Connect app record and
-  account role have not been verified. Local implementation and validation
-  continue while those inputs are pending. See `docs/DISTRIBUTION.md`.
+- Milestone 5's implementation, tests, production product, Family Sharing,
+  pricing, storefronts, and Paid Apps agreement are configured. A physical
+  StoreKit purchase/restore check remains part of B-004, not product setup.
+- The public GitHub remote and App Store Connect app record are configured.
+  Xcode Cloud is paused only at the explicit revocable repository-access grant
+  under B-010; local implementation and validation are unaffected.
 - The public privacy-policy/support URLs and monitored support email are
-  confirmed; B-007 resolves when the new public repository is pushed.
+  confirmed and B-007 is resolved.
 - B-008 is resolved locally: the paid implementation and paywall now match the
   authoritative automatic-album, scale, repeat-avoidance, layout, and saved-
   configuration contract. Physical PhotoKit validation remains under B-004.
