@@ -74,7 +74,9 @@ scripts/physical_acceptance.sh verify-albums
 
 The physical-only UI test taps **Choose Album** and requires the real PhotoKit
 album list to replace the loading state within ten seconds. Simulator runs skip
-this check by design.
+this check by design. XCTest temporarily shows iPadOS's automation indicator;
+the command always relaunches the interactive FrameWink harness afterward,
+whether the test passes or fails.
 6. Enable **Strict Offline**, make the iCloud-only item unavailable locally,
    refresh, and confirm the UI reports it as skipped while cached selections
    remain usable. Disable Strict Offline, reconnect, refresh, and confirm Apple

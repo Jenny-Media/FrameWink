@@ -254,6 +254,20 @@ blocker affects only a later boundary.
   synchronization, curation, iCloud, and change-notification behavior remain
   tracked under B-004.
 
+### B-013 — Physical UI verification left the iPad in automation state
+
+- Status: Resolved on 2026-08-12
+- First recorded: 2026-08-12
+- Evidence: after the physical-only album regression completed, iPadOS still
+  showed its automation indicator and then returned to App Library, leaving the
+  owner without FrameWink controls. No FrameWink or XCTest runner process
+  remained; a host screenshot confirmed App Library rather than an app crash.
+- Resolution: `scripts/physical_acceptance.sh verify-albums` now preserves the
+  XCTest result, always relaunches the interactive Debug physical-acceptance
+  harness, and only then reports pass or failure. An end-to-end rerun passed
+  album discovery and finished with one live FrameWink process on the visible
+  **Wall Mode Setup** screen.
+
 ## App Store Connect readiness snapshot
 
 - The `Jenny Media Internal` TestFlight group exists with no invited testers

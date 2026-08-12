@@ -162,6 +162,7 @@ prepare() {
 
 verify_albums() {
     echo "Verifying authorized PhotoKit album discovery on ${FRAMEWINK_DEVICE_MODEL}…"
+    set +e
     DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcodebuild -quiet \
         -project "$FRAMEWINK_REPOSITORY_ROOT/FrameWink.xcodeproj" \
         -scheme FrameWink \
@@ -171,6 +172,20 @@ verify_albums() {
         -allowProvisioningUpdates \
         -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker \
         test
+    FRAMEWINK_VERIFY_ALBUMS_STATUS=$?
+    set -e
+
+    echo "Returning the iPad to the interactive FrameWink harness…"
+    DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device process launch \
+        --device "$FRAMEWINK_DEVICE_ID" \
+        --terminate-existing \
+        --environment-variables '{"FRAMEWINK_PHYSICAL_ACCEPTANCE":"1"}' \
+        "$FRAMEWINK_BUNDLE_ID"
+
+    if [ "$FRAMEWINK_VERIFY_ALBUMS_STATUS" -ne 0 ]; then
+        echo "Authorized physical PhotoKit album discovery failed." >&2
+        return "$FRAMEWINK_VERIFY_ALBUMS_STATUS"
+    fi
     echo "Authorized physical PhotoKit album discovery passed."
 }
 

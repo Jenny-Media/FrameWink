@@ -545,3 +545,5 @@ recoverable error/empty states were added. The `verify-albums` physical-only UI
 test then launched the real-PhotoKit harness, tapped **Choose Album**, and
 observed the album list within its ten-second gate. Full test-album selection,
 synchronization, iCloud, and change-notification acceptance remain open.
+The command relaunches the interactive harness after XCTest completes so the
+iPad is not left on the test runner's black screen or App Library.
