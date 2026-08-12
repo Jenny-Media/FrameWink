@@ -311,10 +311,10 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   pricing, storefronts, and Paid Apps agreement are configured. A physical
   StoreKit purchase/restore check remains part of B-004, not product setup.
 - The public GitHub remote and App Store Connect app record are configured.
-  Repository-scoped Xcode Cloud access is owner-approved, but Xcode's Apple
-  Accounts settings are signed out. The GitHub App installation is already
-  restricted to `Jenny-Media/FrameWink` and is waiting at GitHub's owner passkey
-  confirmation. B-010 tracks those two authentication boundaries; local
+  Repository-scoped Xcode Cloud access is owner-approved and successfully
+  connected. The GitHub App is restricted to `Jenny-Media/FrameWink`. Xcode is
+  waiting at its Apple Account authentication sheet before it can create the
+  first workflow; B-010 tracks that remaining login boundary. Local
   implementation and validation are unaffected.
 - The public privacy-policy/support URLs and monitored support email are
   confirmed and B-007 is resolved.

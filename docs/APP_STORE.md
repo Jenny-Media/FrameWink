@@ -161,10 +161,9 @@ The broader eleven-image 1640 x 2360 source library remains under
 The first-workflow assistant in Xcode has matched FrameWink, Jenny Media LLC,
 and `Jenny-Media/FrameWink`. B-001, B-002, and B-006 are resolved. The owner
 approved repository-scoped Xcode Cloud access on 2026-08-12, but Xcode is
-currently signed out under Settings > Apple Accounts. The resumable App Store
-Connect setup flow confirms Apple/GitHub account linking is complete. The Xcode
-Cloud GitHub App installation is restricted to `Jenny-Media/FrameWink` and is
-waiting at GitHub's owner passkey confirmation. Finish that passkey prompt and
+currently waiting at its Apple Account sign-in sheet. GitHub owner
+authentication is complete; App Store Connect confirms Xcode Cloud can access
+the source, and the GitHub App is restricted to `Jenny-Media/FrameWink`. Finish
 the Xcode Apple Account authentication under B-010, then resume the workflow in
 Xcode. The repository otherwise has a shared archivable `FrameWink` scheme and
 no external package dependency.
@@ -216,7 +215,9 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - App Store screenshots: all ten accepted for the 13-inch iPad slot and ordered
   `01` through `10`; Apple will reuse them for all iPad display sizes and the
   current English (U.S.) localization
-- Beta App Review contact: intentionally blank until Jenny Media LLC supplies
-  a real phone number; do not use placeholder contact data.
+- App Review phone: owner supplied and entered, but intentionally omitted from
+  this public repository. App Store Connect will not save the contact section
+  until first name, last name, and email are also supplied; no identity data is
+  inferred or invented.
 - App Review submission still requires publisher-owned content-rights and age
   rating declarations; see B-011 in `docs/DISTRIBUTION.md`.
