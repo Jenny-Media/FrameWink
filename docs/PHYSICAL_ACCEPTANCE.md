@@ -64,6 +64,17 @@ one intentionally blurred image, and one item that is iCloud-only if available.
    selections against the labelled fixture sheet described below.
 5. In Photos, add and remove one test image. Return to FrameWink and confirm the
    album refreshes without changing or deleting any original. Record a sample.
+
+After Photos access has been granted, album discovery itself can be repeated
+without exposing album names or photos in the repository:
+
+```sh
+scripts/physical_acceptance.sh verify-albums
+```
+
+The physical-only UI test taps **Choose Album** and requires the real PhotoKit
+album list to replace the loading state within ten seconds. Simulator runs skip
+this check by design.
 6. Enable **Strict Offline**, make the iCloud-only item unavailable locally,
    refresh, and confirm the UI reports it as skipped while cached selections
    remain usable. Disable Strict Offline, reconnect, refresh, and confirm Apple

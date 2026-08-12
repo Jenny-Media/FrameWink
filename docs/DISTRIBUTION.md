@@ -65,8 +65,9 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current shared scheme passes all 100 unit and
-  UI tests.
+  was installed and launched; the current shared scheme passes all 99 unit
+  tests and three runnable Simulator UI tests. The fourth UI test is explicitly
+  physical-only and skips on Simulator.
 
 ### B-004 — Physical curation validation is incomplete
 
@@ -163,8 +164,8 @@ blocker affects only a later boundary.
   mutation, curates its full eligible candidate pool, caches display-sized
   copies with Strict Offline behavior, reduces repeats from local display
   history, adds Mosaic, and persists multiple album-aware frame configurations.
-  The paywall and release copy now describe the included scope. The 100-test
-  Simulator suite covers local synchronization, corrupt-cache cleanup, change
+  The paywall and release copy now describe the included scope. The Simulator
+  suite covers local synchronization, corrupt-cache cleanup, change
   refresh, entitlement/revocation, unbounded input, repeat ranking, layouts, and
   saved configurations.
 - Remaining boundary: real PhotoKit permission, iCloud, large-album, and change-
@@ -225,6 +226,33 @@ blocker affects only a later boundary.
 - Does not block: Xcode Cloud setup, internal TestFlight builds, local
   validation, or repository work.
 - Needed from owner: complete the content-rights and age-rating declarations.
+
+### B-012 — Physical PhotoKit album picker stalled after authorization
+
+- Status: Resolved on 2026-08-12
+- First recorded: 2026-08-12
+- Evidence: after the owner chose **Choose Album** and granted Full Photos
+  access on the connected iPad, the **Choose Automatic Album** sheet remained
+  on **Loading albums…** for more than ten seconds. An automated sample
+  confirmed that FrameWink was still running with an active heartbeat, nominal
+  thermal state, and no crash.
+- Cause found in code: album discovery synchronously performed a full filtered
+  asset fetch for every supported album on the main UI actor. The selected
+  album's full asset index used the same actor. The picker also displayed its
+  loading state for empty and failed results, making a recoverable failure look
+  like a permanent hang.
+- Resolution: album and asset discovery now run outside the UI
+  actor; album rows use PhotoKit's inexpensive estimated item count instead of
+  pre-scanning every album; and the sheet has explicit error, retry, and empty
+  states. The replacement build was installed on the same authorized physical
+  iPad, and the physical-only UI regression launched the real PhotoKit harness,
+  tapped **Choose Album**, and verified that the album list replaced the
+  loading state within its ten-second gate. The check is repeatable with
+  `scripts/physical_acceptance.sh verify-albums` and intentionally skips on
+  Simulator.
+- Remaining boundary: choosing a licensed test album and validating its full
+  synchronization, curation, iCloud, and change-notification behavior remain
+  tracked under B-004.
 
 ## App Store Connect readiness snapshot
 

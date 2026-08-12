@@ -100,6 +100,35 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(secondPhoto.exists)
     }
 
+    func testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker() throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Real PhotoKit album discovery requires a physical iPad.")
+#else
+        app = XCUIApplication()
+        app.launchEnvironment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] = "1"
+        app.launch()
+
+        let chooseAlbum = app.buttons["Choose Album"]
+        XCTAssertTrue(chooseAlbum.waitForExistence(timeout: 8))
+
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        XCTAssertFalse(
+            springboard.alerts.firstMatch.exists,
+            "Authorize Photos manually before running physical album verification."
+        )
+
+        chooseAlbum.tap()
+
+        let albumList = app.descendants(matching: .any)["album-picker-list"]
+        XCTAssertTrue(
+            albumList.waitForExistence(timeout: 10),
+            "The real PhotoKit album list did not replace the loading state."
+        )
+        XCTAssertFalse(app.descendants(matching: .any)["album-picker-error"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["album-picker-empty"].exists)
+#endif
+    }
+
     private func launch(scenario: String) {
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_SCREENSHOT_SCENARIO"] = scenario

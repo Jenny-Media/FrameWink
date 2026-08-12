@@ -12,13 +12,13 @@ enum PhotoLibraryAuthorizationState: String, Equatable {
     }
 }
 
-struct PhotoLibraryAlbum: Identifiable, Equatable {
+struct PhotoLibraryAlbum: Identifiable, Equatable, Sendable {
     let id: String
     let title: String
-    let photoCount: Int
+    let photoCount: Int?
 }
 
-struct PhotoLibraryAsset: Identifiable, Equatable {
+struct PhotoLibraryAsset: Identifiable, Equatable, Sendable {
     let id: String
     let pixelWidth: Int
     let pixelHeight: Int

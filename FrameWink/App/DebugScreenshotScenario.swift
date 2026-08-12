@@ -265,7 +265,7 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         .authorized
     }
 
-    func albums() throws -> [PhotoLibraryAlbum] {
+    func albums() async throws -> [PhotoLibraryAlbum] {
         [
             PhotoLibraryAlbum(
                 id: "screenshot-family-favorites",
@@ -275,7 +275,7 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         ]
     }
 
-    func assets(in albumIdentifier: String) throws -> [PhotoLibraryAsset] {
+    func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] {
         guard albumIdentifier == "screenshot-family-favorites" else {
             throw PhotoLibraryClientError.albumUnavailable
         }

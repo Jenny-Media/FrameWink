@@ -161,7 +161,7 @@ final class AutomaticAlbumController: ObservableObject {
                 return
             }
             do {
-                albums = try client.albums()
+                albums = try await client.albums()
                 phase = currentReadyPhase
                 startObservingIfNeeded()
             } catch {

@@ -9,10 +9,11 @@ FRAMEWINK_BUNDLE_ID=media.jenny.FrameWink
 
 usage() {
     cat <<'EOF'
-Usage: scripts/physical_acceptance.sh <prepare|sample|soak> [options]
+Usage: scripts/physical_acceptance.sh <prepare|verify-albums|sample|soak> [options]
 
 Commands:
   prepare              Build, install, and launch the real-PhotoKit Debug harness.
+  verify-albums        UI-test authorized album discovery on the physical iPad.
   sample               Record one process/lock/heartbeat/screenshot sample.
   soak [hours] [secs]  Monitor the already-running app (defaults: 168 hours, 300 sec).
 
@@ -159,6 +160,20 @@ prepare() {
     echo "  scripts/physical_acceptance.sh sample"
 }
 
+verify_albums() {
+    echo "Verifying authorized PhotoKit album discovery on ${FRAMEWINK_DEVICE_MODEL}…"
+    DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcodebuild -quiet \
+        -project "$FRAMEWINK_REPOSITORY_ROOT/FrameWink.xcodeproj" \
+        -scheme FrameWink \
+        -configuration Debug \
+        -destination "platform=iOS,id=$FRAMEWINK_XCODE_UDID" \
+        -derivedDataPath "$FRAMEWINK_DERIVED_DATA" \
+        -allowProvisioningUpdates \
+        -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker \
+        test
+    echo "Authorized physical PhotoKit album discovery passed."
+}
+
 copy_heartbeat() {
     if DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device copy from \
         --device "$FRAMEWINK_DEVICE_ID" \
@@ -298,6 +313,9 @@ discover_device
 case "$FRAMEWINK_COMMAND" in
     prepare)
         prepare
+        ;;
+    verify-albums)
+        verify_albums
         ;;
     sample)
         sample

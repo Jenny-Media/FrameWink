@@ -4,8 +4,8 @@ import Foundation
 protocol PhotoLibraryClient: AnyObject {
     func authorizationState() -> PhotoLibraryAuthorizationState
     func requestAuthorization() async -> PhotoLibraryAuthorizationState
-    func albums() throws -> [PhotoLibraryAlbum]
-    func assets(in albumIdentifier: String) throws -> [PhotoLibraryAsset]
+    func albums() async throws -> [PhotoLibraryAlbum]
+    func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset]
     func exportCurrentImage(
         assetIdentifier: String,
         to destinationURL: URL,

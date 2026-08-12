@@ -59,6 +59,27 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertFalse(controller.canDisplay)
     }
 
+    func testAlbumLoadingFailureLeavesRecoverableErrorState() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        client.albumsError = ControllerPhotoLibraryError.expectedFailure
+        let controller = makeController(client: client, store: ControllerAlbumStore())
+
+        controller.setEntitled(true)
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil {
+            controller.phase == .failed("Albums could not be loaded.")
+        }
+
+        XCTAssertTrue(controller.albums.isEmpty)
+        client.albumsError = nil
+        client.albumsValue = [
+            PhotoLibraryAlbum(id: "family", title: "Family", photoCount: nil)
+        ]
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { controller.albums.count == 1 }
+        XCTAssertEqual(controller.phase, .idle)
+    }
+
     func testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         client.albumsValue = [PhotoLibraryAlbum(id: "family", title: "Family", photoCount: 2)]
@@ -253,6 +274,7 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     var authorizationAfterRequest: PhotoLibraryAuthorizationState = .authorized
     var authorizationRequestCount = 0
     var albumsValue: [PhotoLibraryAlbum] = []
+    var albumsError: Error?
     private var changeContinuation: AsyncStream<Void>.Continuation?
 
     init(authorization: PhotoLibraryAuthorizationState) {
@@ -267,8 +289,11 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
         return authorization
     }
 
-    func albums() throws -> [PhotoLibraryAlbum] { albumsValue }
-    func assets(in albumIdentifier: String) throws -> [PhotoLibraryAsset] { [] }
+    func albums() async throws -> [PhotoLibraryAlbum] {
+        if let albumsError = albumsError { throw albumsError }
+        return albumsValue
+    }
+    func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] { [] }
 
     func exportCurrentImage(
         assetIdentifier: String,
@@ -291,6 +316,12 @@ private enum ControllerStoreError: LocalizedError {
     case expectedFailure
 
     var errorDescription: String? { "Expected configuration write failure" }
+}
+
+private enum ControllerPhotoLibraryError: LocalizedError {
+    case expectedFailure
+
+    var errorDescription: String? { "Albums could not be loaded." }
 }
 
 private final class ControllerAlbumStore: AlbumSourceStoring {

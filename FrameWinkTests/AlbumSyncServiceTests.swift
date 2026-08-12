@@ -278,8 +278,8 @@ private final class FixturePhotoLibraryClient: PhotoLibraryClient {
 
     func authorizationState() -> PhotoLibraryAuthorizationState { .authorized }
     func requestAuthorization() async -> PhotoLibraryAuthorizationState { .authorized }
-    func albums() throws -> [PhotoLibraryAlbum] { [] }
-    func assets(in albumIdentifier: String) throws -> [PhotoLibraryAsset] {
+    func albums() async throws -> [PhotoLibraryAlbum] { [] }
+    func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] {
         fixtureAssets
     }
 

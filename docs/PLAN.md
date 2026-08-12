@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 7.5 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **28.5 h** | **In progress** |
+| 6. Hardening and release | 8 h | 7.75 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **28.75 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -326,6 +326,11 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - B-008 is resolved locally: the paid implementation and paywall now match the
   authoritative automatic-album, scale, repeat-avoidance, layout, and saved-
   configuration contract. Physical PhotoKit validation remains under B-004.
+- A real-library album-picker stall found after Full Photos authorization on
+  the physical iPad is resolved: PhotoKit album/asset discovery no longer runs
+  on the UI actor, album rows avoid eager per-album scans, failure/empty states
+  are recoverable, and a physical-only ten-second UI regression now passes.
+  Full selected-album synchronization acceptance remains under B-004.
 - Installed Simulator runtimes begin at iOS 27. The app compiles with an
   iPadOS 15 deployment target; the unit-test target uses iOS 17 because the
   XCTest libraries bundled with Xcode 27 no longer link cleanly at 15.0.

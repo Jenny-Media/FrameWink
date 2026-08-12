@@ -38,11 +38,22 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         return Self.authorizationState(from: status)
     }
 
-    func albums() throws -> [PhotoLibraryAlbum] {
+    func albums() async throws -> [PhotoLibraryAlbum] {
         guard authorizationState().permitsReading else {
             throw PhotoLibraryClientError.accessDenied
         }
 
+        let discovery = Task.detached(priority: .userInitiated) {
+            try Self.discoverAlbums()
+        }
+        return try await withTaskCancellationHandler {
+            try await discovery.value
+        } onCancel: {
+            discovery.cancel()
+        }
+    }
+
+    nonisolated private static func discoverAlbums() throws -> [PhotoLibraryAlbum] {
         var collections: [PHAssetCollection] = []
         let userAlbums = PHAssetCollection.fetchAssetCollections(
             with: .album,
@@ -70,29 +81,39 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         }
 
         var seen: Set<String> = []
-        return collections.compactMap { collection in
+        let albums: [PhotoLibraryAlbum] = collections.compactMap { collection in
+            guard !Task.isCancelled else { return nil }
             guard seen.insert(collection.localIdentifier).inserted else { return nil }
-            let options = PHFetchOptions()
-            options.predicate = NSPredicate(
-                format: "mediaType == %d",
-                PHAssetMediaType.image.rawValue
-            )
-            let count = PHAsset.fetchAssets(in: collection, options: options).count
+            let estimatedCount = collection.estimatedAssetCount
             return PhotoLibraryAlbum(
                 id: collection.localIdentifier,
                 title: collection.localizedTitle ?? "Untitled Album",
-                photoCount: count
+                photoCount: estimatedCount == NSNotFound ? nil : estimatedCount
             )
         }
-        .sorted {
+        try Task.checkCancellation()
+        return albums.sorted {
             $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
         }
     }
 
-    func assets(in albumIdentifier: String) throws -> [PhotoLibraryAsset] {
+    func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] {
         guard authorizationState().permitsReading else {
             throw PhotoLibraryClientError.accessDenied
         }
+        let discovery = Task.detached(priority: .userInitiated) {
+            try Self.discoverAssets(in: albumIdentifier)
+        }
+        return try await withTaskCancellationHandler {
+            try await discovery.value
+        } onCancel: {
+            discovery.cancel()
+        }
+    }
+
+    nonisolated private static func discoverAssets(
+        in albumIdentifier: String
+    ) throws -> [PhotoLibraryAsset] {
         let collections = PHAssetCollection.fetchAssetCollections(
             withLocalIdentifiers: [albumIdentifier],
             options: nil
@@ -112,7 +133,11 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         let fetched = PHAsset.fetchAssets(in: collection, options: options)
         var result: [PhotoLibraryAsset] = []
         result.reserveCapacity(fetched.count)
-        fetched.enumerateObjects { asset, _, _ in
+        fetched.enumerateObjects { asset, _, stop in
+            guard !Task.isCancelled else {
+                stop.pointee = true
+                return
+            }
             result.append(
                 PhotoLibraryAsset(
                     id: asset.localIdentifier,
@@ -126,6 +151,7 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
                 )
             )
         }
+        try Task.checkCancellation()
         return result.sorted {
             switch ($0.creationDate, $1.creationDate) {
             case let (left?, right?) where left != right:

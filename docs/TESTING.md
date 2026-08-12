@@ -505,8 +505,8 @@ and B-005 remain open for those acceptance checks.
 
 ## Physical acceptance automation
 
-`scripts/physical_acceptance.sh` now provides `prepare`, `sample`, and `soak`
-commands. Its explicitly launched Debug harness grants only a local test Wall
+`scripts/physical_acceptance.sh` now provides `prepare`, `verify-albums`,
+`sample`, and `soak` commands. Its explicitly launched Debug harness grants only a local test Wall
 Mode entitlement while retaining the production `PhotoKitLibraryClient`, so a
 tester can exercise the real Photos prompt, Limited access, album changes, and
 iCloud residency without making a purchase. Release and TestFlight builds do
@@ -524,8 +524,8 @@ The initial automation validation on 2026-08-12 built and installed the harness
 on the physical iPad. iPadOS correctly denied the foreground launch while the
 iPad was locked, and a host sample recorded the device as connected with no
 FrameWink process rather than producing a false pass. The complete iPad
-Simulator scheme then passed all 101 tests after the new Debug-only seam was
-added. The acceptance environment also launched on Simulator and wrote an
+Simulator scheme now passes all 99 unit tests and all four UI tests, with the
+real-PhotoKit UI test intentionally skipped there. The acceptance environment also launched on Simulator and wrote an
 active, nominal-thermal, idle-timer/Guided-Access heartbeat at its expected app-
 container path.
 
@@ -536,5 +536,12 @@ photo-free heartbeat reported the app active, nominal thermal state, battery at
 95% while charging, Low Power Mode off, idle-timer ownership off outside Frame
 Mode, and Guided Access off. The host heartbeat-copy destination was corrected
 from a directory to an explicit filename, and a second sample captured every
-field successfully. The real PhotoKit flow now waits only on the tester-owned
-Limited/Full authorization and test-album selection.
+field successfully.
+
+After Full Photos access was granted, a synchronous per-album asset scan left
+the picker on **Loading albums…** for more than ten seconds. Album and asset
+discovery were moved off the UI actor, eager per-album scans were removed, and
+recoverable error/empty states were added. The `verify-albums` physical-only UI
+test then launched the real-PhotoKit harness, tapped **Choose Album**, and
+observed the album list within its ten-second gate. Full test-album selection,
+synchronization, iCloud, and change-notification acceptance remain open.

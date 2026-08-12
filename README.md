@@ -85,9 +85,9 @@ localized internal-beta checklist is in `TestFlight/WhatToTest.en-US.txt`.
 Physical Photos/iCloud, TestFlight sandbox-purchase, Guided Access, Auto-Lock,
 and unattended Wall Mode acceptance are guided by
 [`docs/PHYSICAL_ACCEPTANCE.md`](docs/PHYSICAL_ACCEPTANCE.md). The accompanying
-`scripts/physical_acceptance.sh` command builds the Debug real-PhotoKit harness
-and captures ignored, device-local acceptance evidence without committing
-device identifiers or tester photos.
+`scripts/physical_acceptance.sh` command builds the Debug real-PhotoKit harness,
+verifies authorized album discovery, and captures ignored, device-local
+acceptance evidence without committing device identifiers or tester photos.
 
 ## Forty-hour rule
 

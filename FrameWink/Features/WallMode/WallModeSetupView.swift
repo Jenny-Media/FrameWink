@@ -456,12 +456,47 @@ private struct AlbumPickerView: View {
                             .foregroundColor(.secondary)
                     }
                     .padding(32)
-                } else if controller.albums.isEmpty {
+                } else if case .failed(let message) = controller.phase {
+                    VStack(spacing: 14) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 44))
+                            .foregroundColor(.secondary)
+                        Text("Albums couldn’t be loaded")
+                            .font(.title2.weight(.semibold))
+                        Text(message)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.secondary)
+                        Button("Try Again") {
+                            controller.requestAccessAndLoadAlbums()
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding(32)
+                    .accessibilityIdentifier("album-picker-error")
+                } else if controller.phase == .loadingAlbums {
                     VStack(spacing: 14) {
                         ProgressView()
                         Text("Loading albums…")
                             .foregroundColor(.secondary)
                     }
+                    .accessibilityIdentifier("album-picker-loading")
+                } else if controller.albums.isEmpty {
+                    VStack(spacing: 14) {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .font(.system(size: 44))
+                            .foregroundColor(.secondary)
+                        Text("No albums available")
+                            .font(.title2.weight(.semibold))
+                        Text("Create an album in Photos or change FrameWink’s Photos access, then try again.")
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.secondary)
+                        Button("Try Again") {
+                            controller.requestAccessAndLoadAlbums()
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding(32)
+                    .accessibilityIdentifier("album-picker-empty")
                 } else {
                     List(controller.albums) { album in
                         Button {
@@ -472,7 +507,7 @@ private struct AlbumPickerView: View {
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(album.title)
                                         .foregroundColor(.primary)
-                                    Text("\(album.photoCount) photos")
+                                    Text(albumCountDescription(album.photoCount))
                                         .font(.footnote)
                                         .foregroundColor(.secondary)
                                 }
@@ -484,6 +519,7 @@ private struct AlbumPickerView: View {
                             }
                         }
                     }
+                    .accessibilityIdentifier("album-picker-list")
                 }
             }
             .navigationTitle("Choose Automatic Album")
@@ -497,5 +533,10 @@ private struct AlbumPickerView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+    }
+
+    private func albumCountDescription(_ photoCount: Int?) -> String {
+        guard let photoCount = photoCount else { return "Photo album" }
+        return photoCount == 1 ? "1 item" : "\(photoCount) items"
     }
 }
