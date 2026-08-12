@@ -1,0 +1,32 @@
+{
+  "identifier" : "3C0EA3E8-DF4A-4BB5-89F4-AE16FB1B218D",
+  "nonRenewingSubscriptions" : [
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "759DDA95-53C2-45E8-A240-6B3C63D7731A",
+      "localizations" : [
+        {
+          "description" : "Unlock foreground wall schedules, continuous display, and wall setup assistance for this iPad.",
+          "displayName" : "Wall Mode Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "media.jenny.FrameWink.wallmode.local",
+      "referenceName" : "Wall Mode Lifetime (Local Test)",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "1234567890",
+    "_developerTeamID" : "5736QK4NZX"
+  },
+  "subscriptionGroups" : [
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

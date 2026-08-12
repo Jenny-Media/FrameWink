@@ -67,7 +67,7 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current full suite passes all 33 tests.
+  was installed and launched; the current full suite passes all 58 tests.
 
 ### B-004 — Physical curation-validation hardware and labelled set are missing
 
@@ -94,6 +94,21 @@ blocker affects only a later boundary.
   commits.
 - Needed from owner: assign a compatible iPad, safe charger/cable and mounting
   location, then record device/OS and authorize the seven-day physical run.
+
+### B-006 — Production Wall Mode product decisions are unconfirmed
+
+- Status: Open
+- First recorded: 2026-08-11
+- Evidence: the proposed immutable identifier
+  `media.jenny.FrameWink.wallmode` and Family Sharing policy have been asked of
+  the owner but not confirmed.
+- Impact: the production non-consumable cannot safely be created in App Store
+  Connect, and a Release/TestFlight build intentionally has no product ID.
+- Does not block: the isolated local product, StoreKit 2 implementation,
+  injected-client tests, StoreKit Test purchase/restore/refund/pending/failure
+  scenarios, paywall UI, hardening, cloud scripts, or local commits.
+- Needed from owner: confirm the exact production ID and whether Family Sharing
+  should be enabled before the immutable App Store Connect product is created.
 
 ## Remaining release decisions
 

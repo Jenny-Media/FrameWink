@@ -12,9 +12,9 @@ time rather than unattended calendar time.
 | 2. Frame engine | 6 h | 3 h | Complete |
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3 h | Implementation complete — physical soak pending |
-| 5. Purchases | 4 h | — | Not started |
+| 5. Purchases | 4 h | 3.75 h | Implementation complete — production setup pending |
 | 6. Hardening and release | 8 h | — | Not started |
-| **Total** | **40 h** | **17.25 h** | **In progress** |
+| **Total** | **40 h** | **21 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -130,17 +130,32 @@ and the seven-day run require physical hardware under blocker B-005.
 
 ## Milestone 5 — Purchases
 
-- [ ] Local StoreKit configuration contains a non-consumable Wall Mode product.
-- [ ] Production product identifier is documented but not assumed.
-- [ ] Verified transactions drive entitlement.
-- [ ] Purchase, cancellation, pending, failure, restore, offline, revocation,
+- [x] Local StoreKit configuration contains a non-consumable Wall Mode product.
+- [x] Production product identifier is documented but not assumed.
+- [x] Verified transactions drive entitlement.
+- [x] Purchase, cancellation, pending, failure, restore, offline, revocation,
       and StoreKit-unavailable states are handled.
-- [ ] App screens clearly distinguish free and paid behavior.
-- [ ] Family Sharing configuration is documented.
-- [ ] Purchase controller has unit tests using an injected client.
+- [x] App screens clearly distinguish free and paid behavior.
+- [x] Family Sharing configuration is documented.
+- [x] Purchase controller has unit tests using an injected client.
 
 Acceptance: StoreKit Test purchase and restoration unlock Wall Mode, while all
 failure states leave Free Smart Reel usable.
+
+Status: implementation complete; App Store Connect configuration remains open.
+The Debug scheme uses the explicitly local, non-consumable
+`media.jenny.FrameWink.wallmode.local` product, while Release has no product ID
+until the immutable production identifier is owner-confirmed. Verified StoreKit
+2 entitlements and transaction updates gate only Wall Mode; refunds and
+revocations restore app-owned display state without deleting the free reel.
+StoreKit Test exercises product loading, purchase, `AppStore.sync`, refund,
+Ask to Buy/pending, and simulated purchase failure. Injected-client tests cover
+cancellation, successful and no-purchase restore, unavailable StoreKit,
+unverified updates, revocation, and an offline StoreKit-verified entitlement.
+All 58 tests pass on the iOS 27 `iPad (A16)` Simulator. The paywall, $9.99
+local price, visible Restore Purchases action,
+accurate current-vs-planned feature copy, and recoverable StoreKit failure were
+visually verified. Production ID and Family Sharing remain blocker B-006.
 
 ## Milestone 6 — Hardening and release
 
@@ -177,6 +192,8 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   identifier `media.jenny.FrameWinkTests`, and Jenny Media LLC team
   `5736QK4NZX` are confirmed and configured.
 - Production StoreKit product identifier is undecided.
+- Family Sharing for the production non-consumable is undecided. The local test
+  product keeps it disabled so the build does not imply a production policy.
 - Public open-source license is undecided.
 - Physical legacy-device test matrix must be acquired/confirmed.
 - Milestone 3's physical Vision, oldest-device performance, and human-labelled
@@ -186,6 +203,9 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - Milestone 4's physical idle-timer/Guided Access/thermal/brightness behavior
   and seven-day mounted-device soak remain open as blocker B-005. All schedule,
   persistence, state-restoration, and setup-copy work is independently verified.
+- Milestone 5's local purchase implementation and tests are complete. Creating
+  the immutable App Store product remains blocked on confirmation of
+  `media.jenny.FrameWink.wallmode` and the Family Sharing decision (B-006).
 - Xcode Cloud setup is blocked only at the cloud boundary: this local Git
   repository has no hosted remote yet, and the App Store Connect app record and
   account role have not been verified. Local implementation and validation

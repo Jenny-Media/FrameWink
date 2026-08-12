@@ -5,6 +5,7 @@ private enum SheetDestination: String, Identifiable {
     case privacy
     case reviewSuggestions
     case wallModeSetup
+    case wallModePaywall
 
     var id: String { rawValue }
 }
@@ -12,6 +13,7 @@ private enum SheetDestination: String, Identifiable {
 struct RootView: View {
     @ObservedObject var model: AppModel
     @ObservedObject var wallMode: WallModeController
+    @ObservedObject var purchases: PurchaseController
 
     @State private var presentedSheet: SheetDestination?
     @State private var showDeleteConfirmation = false
@@ -66,6 +68,8 @@ struct RootView: View {
                 ReviewSuggestionsView(model: model)
             case .wallModeSetup:
                 WallModeSetupView(wallMode: wallMode)
+            case .wallModePaywall:
+                WallModePaywallView(purchases: purchases)
             }
         }
         .alert("Delete Imported Photos?", isPresented: $showDeleteConfirmation) {
@@ -172,11 +176,17 @@ struct RootView: View {
                     }
                     .buttonStyle(.bordered)
 
-                    Button("Wall Mode Setup") {
-                        presentedSheet = .wallModeSetup
+                    Button(purchases.isWallModeUnlocked ? "Wall Mode Setup" : "Unlock Wall Mode") {
+                        presentedSheet = purchases.isWallModeUnlocked
+                            ? .wallModeSetup
+                            : .wallModePaywall
                     }
                     .buttonStyle(.bordered)
-                    .accessibilityHint("Opens the paid Wall Mode commissioning and schedule preview")
+                    .accessibilityHint(
+                        purchases.isWallModeUnlocked
+                            ? "Opens Wall Mode commissioning and schedule settings"
+                            : "Shows the one-time Wall Mode purchase"
+                    )
 
                     Button(model.importedPhotos.isEmpty ? "Choose My Photos" : "Add Photos") {
                         presentedSheet = .photoPicker

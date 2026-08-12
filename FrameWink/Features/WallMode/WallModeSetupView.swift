@@ -17,9 +17,9 @@ struct WallModeSetupView: View {
         NavigationView {
             Form {
                 Section {
-                    Label("Paid feature preview", systemImage: "sparkles")
+                    Label("Wall Mode Lifetime", systemImage: "checkmark.seal.fill")
                         .foregroundColor(.accentColor)
-                    Text("Wall Mode is the planned one-time upgrade for durable frame behavior. StoreKit gating arrives in the purchase milestone; this screen currently previews and verifies the local behavior.")
+                    Text("Your one-time Wall Mode unlock is active. These settings stay on this iPad and never upload your photos or configuration.")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }

@@ -120,6 +120,35 @@ Guided Access status changes, foreground/background visual transitions,
 perceived dim/blackout appearance, thermal response, charging/mount safety, and
 the seven-day soak.
 
+### Milestone 5 verification record — 2026-08-11
+
+- Full Simulator suite: 58 tests passed with zero failures or skips on the iOS
+  27 `iPad (A16)` Simulator.
+- Four `StoreKitConfigurationTests` use the bundled local StoreKit file to load
+  the $9.99 non-consumable, complete a verified purchase, call
+  `AppStore.sync`, verify current entitlement, process a refund, exercise Ask
+  to Buy/pending, and inject an App Store purchase failure.
+- Ten injected-client `PurchaseControllerTests` cover startup with an offline
+  verified entitlement, purchase success, cancellation, pending, failure,
+  successful and no-purchase restore, StoreKit-unavailable state, unverified
+  updates, and revocation.
+- Four `WallModeControllerTests` confirm paid access is required and that losing
+  entitlement immediately restores the idle timer and clears visual dimming.
+- The local product identifier is
+  `media.jenny.FrameWink.wallmode.local`. It is configured only for Debug;
+  Release intentionally has an empty product ID pending the production choice.
+- The paywall was visually inspected with the local $9.99 product. It shows the
+  current paid Wall Mode behavior, preserves full-quality Free Smart Reel copy,
+  exposes Restore Purchases, and labels automatic album refresh/unlimited
+  sources/additional configurations as planned rather than included.
+- A simulated launch without an active StoreKit purchase session produced the
+  recoverable `Unable to Complete Request` path. The paywall remained usable
+  and explicitly stated that the free Smart Reel was unchanged.
+
+Still required in App Store Connect: confirm/create the immutable production
+product identifier, decide Family Sharing, configure pricing/localizations, and
+exercise purchase/restore/refund in TestFlight sandbox under blocker B-006.
+
 ### Photo import
 
 - Downsampling produces bounded pixel dimensions.

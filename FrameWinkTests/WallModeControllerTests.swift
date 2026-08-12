@@ -8,6 +8,7 @@ final class WallModeControllerTests: XCTestCase {
         let store = FakeWallModeStore()
         let controller = WallModeController(idleTimer: idleTimer, store: store)
 
+        controller.setEntitled(true)
         controller.setFrameModeActive(true)
         XCTAssertTrue(idleTimer.isIdleTimerDisabled)
         XCTAssertTrue(controller.ownsIdleTimerState)
@@ -38,6 +39,7 @@ final class WallModeControllerTests: XCTestCase {
             store: FakeWallModeStore()
         )
 
+        controller.setEntitled(true)
         controller.setFrameModeActive(true)
         controller.restoreOwnedDisplayState()
 
@@ -61,11 +63,39 @@ final class WallModeControllerTests: XCTestCase {
         var configuration = WallModeConfiguration.defaultConfiguration
         configuration.scheduleEnabled = true
 
+        controller.setEntitled(true, at: blackoutDate)
         controller.setFrameModeActive(true, at: blackoutDate)
         controller.updateConfiguration(configuration, at: blackoutDate)
 
         XCTAssertEqual(store.savedConfiguration, configuration)
         XCTAssertEqual(controller.visualState, .blackout)
+    }
+
+    func testLosingEntitlementImmediatelyRestoresIdleTimerAndVisualState() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        var configuration = WallModeConfiguration.defaultConfiguration
+        configuration.scheduleEnabled = true
+        let store = FakeWallModeStore()
+        store.configuration = configuration
+        let idleTimer = FakeIdleTimerController(initialValue: false)
+        let controller = WallModeController(
+            idleTimer: idleTimer,
+            store: store,
+            calendar: calendar
+        )
+        let blackoutDate = try XCTUnwrap(
+            calendar.date(from: DateComponents(year: 2026, month: 8, day: 11, hour: 23))
+        )
+
+        controller.setEntitled(true, at: blackoutDate)
+        controller.setFrameModeActive(true, at: blackoutDate)
+        XCTAssertTrue(idleTimer.isIdleTimerDisabled)
+        XCTAssertEqual(controller.visualState, .blackout)
+
+        controller.setEntitled(false, at: blackoutDate)
+        XCTAssertFalse(idleTimer.isIdleTimerDisabled)
+        XCTAssertEqual(controller.visualState, .normal)
     }
 }
 

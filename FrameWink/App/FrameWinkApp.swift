@@ -4,6 +4,7 @@ import SwiftUI
 struct FrameWinkApp: App {
     @StateObject private var model: AppModel
     @StateObject private var wallMode: WallModeController
+    @StateObject private var purchases: PurchaseController
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
@@ -37,14 +38,26 @@ struct FrameWinkApp: App {
                 store: wallModeStore
             )
         )
+        _purchases = StateObject(
+            wrappedValue: PurchaseController(
+                client: StoreKitPurchaseClient(
+                    productID: ProductConfiguration.wallModeProductID()
+                )
+            )
+        )
     }
 
     var body: some Scene {
         WindowGroup {
-            RootView(model: model, wallMode: wallMode)
+            RootView(model: model, wallMode: wallMode, purchases: purchases)
                 .onAppear {
                     model.prepareSmartReelIfNeeded()
+                    purchases.start()
+                    wallMode.setEntitled(purchases.isWallModeUnlocked)
                     wallMode.setSceneIsForeground(scenePhase == .active)
+                }
+                .onChange(of: purchases.entitlement) { _ in
+                    wallMode.setEntitled(purchases.isWallModeUnlocked)
                 }
                 .onChange(of: scenePhase) { phase in
                     wallMode.setSceneIsForeground(phase == .active)

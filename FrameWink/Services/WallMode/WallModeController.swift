@@ -20,6 +20,7 @@ final class WallModeController: ObservableObject {
     @Published private(set) var visualState: WallVisualState = .normal
     @Published private(set) var frameModeIsActive = false
     @Published private(set) var sceneIsForeground = true
+    @Published private(set) var isEntitled = false
     @Published private(set) var configurationError: String?
 
     private let idleTimer: IdleTimerControlling
@@ -52,6 +53,12 @@ final class WallModeController: ObservableObject {
         refresh(at: date)
     }
 
+    func setEntitled(_ entitled: Bool, at date: Date = Date()) {
+        isEntitled = entitled
+        synchronizeIdleTimerOwnership()
+        refresh(at: date)
+    }
+
     func setSceneIsForeground(_ isForeground: Bool, at date: Date = Date()) {
         sceneIsForeground = isForeground
         synchronizeIdleTimerOwnership()
@@ -76,7 +83,7 @@ final class WallModeController: ObservableObject {
             at: date,
             calendar: calendar,
             configuration: configuration,
-            frameModeIsActive: frameModeIsActive,
+            frameModeIsActive: frameModeIsActive && isEntitled,
             sceneIsForeground: sceneIsForeground
         )
     }
@@ -88,7 +95,7 @@ final class WallModeController: ObservableObject {
     }
 
     private func synchronizeIdleTimerOwnership() {
-        if frameModeIsActive && sceneIsForeground {
+        if isEntitled && frameModeIsActive && sceneIsForeground {
             if previousIdleTimerState == nil {
                 previousIdleTimerState = idleTimer.isIdleTimerDisabled
             }

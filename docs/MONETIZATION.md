@@ -8,8 +8,11 @@
 - Proposed identifier: `media.jenny.FrameWink.wallmode`.
 - Confirm the identifier before creating the immutable product in App Store
   Connect.
-- Enable Family Sharing if the final App Store Connect configuration supports
-  the intended household behavior.
+- Production Family Sharing is not decided. The local test product keeps it
+  disabled; do not enable it in App Store Connect without owner confirmation.
+- Local Debug-only identifier: `media.jenny.FrameWink.wallmode.local`.
+- The Release build deliberately receives no product identifier until the
+  production decision is confirmed.
 
 ## Paywall timing
 
@@ -18,14 +21,16 @@ Show the upgrade after the user has:
 1. Seen bundled Sample Mode, or
 2. Generated and watched a personal Smart Reel.
 
-The paywall should describe the ongoing wall job:
+The current paywall may promise only the implemented Wall Mode behavior:
 
-- Unlimited photos and selected albums.
-- Automatic refresh.
-- Long-term repeat avoidance.
-- More layouts.
 - Dimming/blackout schedules.
+- Auto-Lock prevention only during foreground Frame Mode.
 - Wall and Guided Access setup assistance.
+
+Unlimited sources, selected-album automation, automatic refresh, long-term
+repeat avoidance, additional layouts, and multiple configurations remain a
+paid roadmap. Until implemented, they must be explicitly labelled as planned
+and not included in the current build.
 
 Do not imply that the free curation algorithm is deliberately inferior.
 
