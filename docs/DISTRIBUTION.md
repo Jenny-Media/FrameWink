@@ -164,19 +164,32 @@ blocker affects only a later boundary.
 - Needed from owner: review the saved response and personally select Publish in
   App Store Connect if Jenny Media LLC accepts the attestation.
 
-### B-010 — Xcode Cloud repository access awaits confirmation
+### B-010 — Xcode Cloud onboarding needs an authenticated Xcode account
 
 - Status: Open
 - First recorded: 2026-08-12
-- Evidence: Xcode's first-workflow assistant matched FrameWink and Jenny Media
-  LLC, then selected `Jenny-Media/FrameWink`. It is paused at `Connect…`, which
-  will grant Apple ongoing access to the repository source and associated build
-  metadata; Apple states that access can be revoked.
+- Evidence: the owner explicitly confirmed on 2026-08-12 that Apple/Xcode Cloud
+  may access `Jenny-Media/FrameWink`. Xcode's first-workflow assistant matched
+  FrameWink and Jenny Media LLC and selected that repository. Its resumable App
+  Store Connect setup session confirms that Apple/GitHub account linking is
+  complete and requested only `Jenny-Media/FrameWink`. The GitHub installation
+  has been explicitly changed from its default `All repositories` to `Only
+  select repositories: Jenny-Media/FrameWink`; GitHub is now waiting at its
+  owner `Confirm access` passkey screen before it will install the app. Xcode's
+  Apple Accounts settings separately show `Sign in to your Apple Account`; after
+  a safe cache recovery, Integrate > Create Workflow is disabled. Apple
+  documents adding an Apple Account to Xcode as a prerequisite for Xcode Cloud
+  onboarding.
 - Impact: the first Xcode Cloud workflow cannot be saved or run, and no cloud
-  archive can reach TestFlight, until repository access is granted.
+  archive can reach TestFlight, until an authorized Jenny Media LLC team member
+  signs in to Xcode and the repository-scoped GitHub App installation succeeds.
 - Does not block: all App Store Connect/IAP metadata, local verification,
   physical-device discovery, or commits.
-- Needed from owner: explicitly confirm the Xcode Cloud repository-access grant.
+- Needed from owner: finish Apple Account authentication in Xcode Settings >
+  Apple Accounts and complete GitHub's open `Confirm access` passkey prompt.
+  Repository-scoped access itself is already confirmed and selected; do not
+  broaden the Xcode Cloud GitHub App installation beyond
+  `Jenny-Media/FrameWink`.
 
 ### B-011 — App Store declarations need owner-supplied answers
 
@@ -233,7 +246,9 @@ without preventing Build, Analyze, or Test workflows.
   ready to send invitations. The first successful Xcode Cloud build must be
   explicitly assigned to this group.
 - Complete the owner-only App Privacy attestation under B-009.
-- Confirm the Xcode Cloud repository-access grant under B-010.
+- Sign in to the Jenny Media LLC Apple Account in Xcode and complete the already
+  approved GitHub passkey confirmation for the repository-scoped Xcode Cloud
+  installation under B-010.
 - Complete the publisher declarations and contact data under B-011.
 
 ## Local debugger tooling note

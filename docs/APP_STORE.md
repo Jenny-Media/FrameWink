@@ -159,10 +159,15 @@ The broader eleven-image 1640 x 2360 source library remains under
 ## Xcode Cloud workflow recipe
 
 The first-workflow assistant in Xcode has matched FrameWink, Jenny Media LLC,
-and `Jenny-Media/FrameWink`. B-001, B-002, and B-006 are resolved. It is paused
-at the explicit Xcode Cloud repository-access grant under B-010. The repository
-otherwise has a shared archivable `FrameWink` scheme and no external package
-dependency.
+and `Jenny-Media/FrameWink`. B-001, B-002, and B-006 are resolved. The owner
+approved repository-scoped Xcode Cloud access on 2026-08-12, but Xcode is
+currently signed out under Settings > Apple Accounts. The resumable App Store
+Connect setup flow confirms Apple/GitHub account linking is complete. The Xcode
+Cloud GitHub App installation is restricted to `Jenny-Media/FrameWink` and is
+waiting at GitHub's owner passkey confirmation. Finish that passkey prompt and
+the Xcode Apple Account authentication under B-010, then resume the workflow in
+Xcode. The repository otherwise has a shared archivable `FrameWink` scheme and
+no external package dependency.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` runs automatically before each
 cloud action. Validation actions check the Release identity and privacy files.
