@@ -1,10 +1,21 @@
 import Foundation
+import UIKit
 
 enum RootInitialPresentation: Equatable {
     case frameMode
+    case mosaicFrame
     case wallModePaywallFeatures
     case wallModePaywallPurchase
-    case wallModeSetup
+    case wallModeSetup(WallModeSetupInitialSection?)
+    case automaticAlbumReview
+    case freeReview
+}
+
+enum WallModeSetupInitialSection: String, Hashable {
+    case automaticAlbum
+    case savedConfigurations
+    case schedule
+    case checklist
 }
 
 #if DEBUG
@@ -14,6 +25,12 @@ enum DebugScreenshotScenario: String {
     case paywall
     case paywallFeatures = "paywall-features"
     case wallModeSetup = "wall-mode-setup"
+    case savedConfigurations = "saved-configurations"
+    case wallSchedule = "wall-schedule"
+    case wallChecklist = "wall-checklist"
+    case automaticAlbumReview = "automatic-album-review"
+    case mosaicFrame = "mosaic-frame"
+    case freeReview = "free-review-grid"
 
     static var current: Self? {
         guard let value = ProcessInfo.processInfo.environment[
@@ -35,21 +52,44 @@ enum DebugScreenshotScenario: String {
         case .paywallFeatures:
             return .wallModePaywallFeatures
         case .wallModeSetup:
-            return .wallModeSetup
+            return .wallModeSetup(.automaticAlbum)
+        case .savedConfigurations:
+            return .wallModeSetup(.savedConfigurations)
+        case .wallSchedule:
+            return .wallModeSetup(.schedule)
+        case .wallChecklist:
+            return .wallModeSetup(.checklist)
+        case .automaticAlbumReview:
+            return .automaticAlbumReview
+        case .mosaicFrame:
+            return .mosaicFrame
+        case .freeReview:
+            return .freeReview
         }
     }
 
     var requiresWallModeEntitlement: Bool {
-        self == .wallModeSetup
+        switch self {
+        case .wallModeSetup, .savedConfigurations, .wallSchedule, .wallChecklist,
+                .automaticAlbumReview, .mosaicFrame:
+            return true
+        default:
+            return false
+        }
     }
 }
 
 extension DebugScreenshotScenario {
     func seed(
+        importedStore: ImportedPhotoStoring,
         wallModeStore: WallModeConfigurationStoring,
         albumStore: AlbumSourceStoring,
         frameConfigurationStore: FrameConfigurationStoring
     ) {
+        if self == .freeReview {
+            seedFreeReview(importedStore: importedStore)
+            return
+        }
         guard requiresWallModeEntitlement else { return }
 
         try? wallModeStore.saveConfiguration(
@@ -78,6 +118,7 @@ extension DebugScreenshotScenario {
 
         let livingRoomID = UUID(uuidString: "7C4E3A23-7EE6-48D5-83C2-BA4692E296F5")!
         let nightstandID = UUID(uuidString: "42D285AF-D0D4-4C5C-AEFC-388DB0A08F13")!
+        let galleryID = UUID(uuidString: "F3EBD59A-115B-4D85-90C1-1587C8B0DE05")!
         try? frameConfigurationStore.saveArchive(
             FrameConfigurationArchive(
                 configurations: [
@@ -99,10 +140,63 @@ extension DebugScreenshotScenario {
                         layoutPreference: .fit,
                         interval: 30
                     ),
+                    SavedFrameConfiguration(
+                        id: galleryID,
+                        name: "Gallery Wall",
+                        source: .automaticAlbum,
+                        albumIdentifier: "screenshot-family-favorites",
+                        albumTitle: "Family Favorites",
+                        layoutPreference: .mosaic,
+                        interval: 10
+                    ),
                 ],
-                activeConfigurationID: livingRoomID
+                activeConfigurationID: self == .mosaicFrame ? galleryID : livingRoomID
             )
         )
+    }
+
+    private func seedFreeReview(importedStore: ImportedPhotoStoring) {
+        let samples = [
+            (
+                id: UUID(uuidString: "78F4585F-54C5-4360-9C36-34E2C3F82BC4")!,
+                resource: "sample-lakeside"
+            ),
+            (
+                id: UUID(uuidString: "5255CD65-7C11-4EEB-B7F5-85FC76A4D11B")!,
+                resource: "sample-beach-dog"
+            ),
+            (
+                id: UUID(uuidString: "37D2AC69-E0DE-4F0C-A769-8668CBD07BE6")!,
+                resource: "sample-kitchen"
+            ),
+        ]
+        do {
+            try importedStore.prepareDirectories()
+            let photos = try samples.enumerated().map { index, sample -> ImportedPhoto in
+                guard let sourceURL = Bundle.main.url(
+                    forResource: sample.resource,
+                    withExtension: "png"
+                ) else {
+                    throw PhotoLibraryClientError.assetUnavailable
+                }
+                let filename = sample.id.uuidString + ".png"
+                try FileManager.default.copyItem(
+                    at: sourceURL,
+                    to: importedStore.imageURL(filename: filename)
+                )
+                return ImportedPhoto(
+                    id: sample.id,
+                    filename: filename,
+                    pixelWidth: 1_536,
+                    pixelHeight: 1_024,
+                    importedAt: Date(timeIntervalSinceReferenceDate: Double(index)),
+                    creationDate: Date(timeIntervalSinceReferenceDate: Double(index) * 86_400)
+                )
+            }
+            try importedStore.saveImportedPhotos(photos)
+        } catch {
+            assertionFailure("Could not seed Free review screenshot: \(error)")
+        }
     }
 }
 
@@ -143,10 +237,11 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
 
 @MainActor
 final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
-    private let sampleNames = [
-        "sample-lakeside",
-        "sample-beach-dog",
-        "sample-kitchen",
+    private let sampleAssets = [
+        (id: "sample-lakeside", resource: "sample-lakeside"),
+        (id: "sample-beach-dog", resource: "sample-beach-dog"),
+        (id: "sample-kitchen", resource: "sample-kitchen"),
+        (id: "sample-lakeside-alt", resource: "sample-lakeside"),
     ]
 
     func authorizationState() -> PhotoLibraryAuthorizationState {
@@ -162,7 +257,7 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
             PhotoLibraryAlbum(
                 id: "screenshot-family-favorites",
                 title: "Family Favorites",
-                photoCount: sampleNames.count
+                photoCount: sampleAssets.count
             ),
         ]
     }
@@ -171,9 +266,9 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         guard albumIdentifier == "screenshot-family-favorites" else {
             throw PhotoLibraryClientError.albumUnavailable
         }
-        return sampleNames.enumerated().map { index, name in
+        return sampleAssets.enumerated().map { index, sample in
             PhotoLibraryAsset(
-                id: name,
+                id: sample.id,
                 pixelWidth: 2_048,
                 pixelHeight: 2_560,
                 creationDate: Date(timeIntervalSinceReferenceDate: Double(index) * 86_400),
@@ -190,12 +285,27 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         to destinationURL: URL,
         networkAccessAllowed: Bool
     ) async throws {
-        guard sampleNames.contains(assetIdentifier),
+        guard let sample = sampleAssets.first(where: { $0.id == assetIdentifier }),
               let sourceURL = Bundle.main.url(
-                forResource: assetIdentifier,
+                forResource: sample.resource,
                 withExtension: "png"
               ) else {
             throw PhotoLibraryClientError.assetUnavailable
+        }
+        if assetIdentifier == "sample-lakeside-alt",
+           let image = UIImage(contentsOfFile: sourceURL.path),
+           let cgImage = image.cgImage,
+           let detail = cgImage.cropping(
+            to: CGRect(
+                x: cgImage.width / 2,
+                y: 0,
+                width: cgImage.width / 2,
+                height: cgImage.height
+            )
+           ),
+           let data = UIImage(cgImage: detail).pngData() {
+            try data.write(to: destinationURL, options: .atomic)
+            return
         }
         try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
     }
@@ -204,6 +314,62 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         AsyncStream { continuation in
             continuation.finish()
         }
+    }
+}
+
+final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
+    func loadSavedReel() throws -> SmartReel? {
+        nil
+    }
+
+    func build(
+        candidates: [PhotoCandidate],
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
+        try await buildUnbounded(
+            candidates: candidates,
+            maximumSelectionCount: 30,
+            imageProvider: imageProvider,
+            progress: progress
+        )
+    }
+
+    func buildUnbounded(
+        candidates: [PhotoCandidate],
+        maximumSelectionCount: Int,
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
+        await progress(
+            ImportProgress(
+                completedCount: candidates.count,
+                totalCount: candidates.count
+            )
+        )
+        return SmartReel(
+            id: UUID(uuidString: "1E7EF660-F5E4-4A66-AC52-6C52A6D49F62")!,
+            algorithmRevision: SmartReelCurator.algorithmRevision,
+            createdAt: Date(timeIntervalSinceReferenceDate: 0),
+            selections: candidates.prefix(maximumSelectionCount).enumerated().map {
+                index, candidate in
+                CuratedPhoto(
+                    candidateID: candidate.id,
+                    algorithmRevision: SmartReelCurator.algorithmRevision,
+                    finalScore: 1 - Double(index) * 0.01,
+                    reasons: [.quality, .layout]
+                )
+            }
+        )
+    }
+
+    func exclude(candidateID: UUID, from reel: SmartReel) throws -> SmartReel {
+        SmartReel(
+            id: reel.id,
+            algorithmRevision: reel.algorithmRevision,
+            createdAt: reel.createdAt,
+            selections: reel.selections.filter { $0.candidateID != candidateID }
+        )
     }
 }
 #endif

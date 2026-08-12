@@ -224,12 +224,14 @@ committed and deliberately prevents a TestFlight archive while the production
 IAP identifier remains unconfirmed.
 
 A Debug-only screenshot harness now isolates its fixture state from normal app
-data and produces five reproducible raw iPad captures from bundled project-owned
+data and produces eleven reproducible raw iPad captures from bundled project-owned
 media. The current set explicitly separates Free Sample/Frame Mode from paid
-capabilities, purchase/restore, and automatic-album privacy. Release builds
-ignore the harness. Final caption composition and the remaining planned views
-are still open, so the App Store screenshot checklist item above remains
-unchecked.
+capabilities, purchase/restore, automatic-album privacy, saved configurations,
+night scheduling, and honest commissioning guidance. Release builds ignore the
+harness. Paid automatic suggestion-review and active Mosaic captures are also
+covered, along with a separate Free Smart Reel review grid. Final caption
+composition is still open, so the App Store screenshot checklist item above
+remains unchecked.
 
 ## Current build and test commands
 

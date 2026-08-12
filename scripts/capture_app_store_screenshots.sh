@@ -71,7 +71,7 @@ capture_scenario() {
         DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" \
         xcrun simctl launch --terminate-running-process \
         "$FRAMEWINK_SIMULATOR_ID" media.jenny.FrameWink >/dev/null
-    sleep 4
+    sleep 3
     DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun simctl io \
         "$FRAMEWINK_SIMULATOR_ID" screenshot \
         "$FRAMEWINK_SCREENSHOT_DIRECTORY/$FRAMEWINK_FILENAME"
@@ -82,5 +82,11 @@ capture_scenario smart-frame 02-free-frame-mode.png
 capture_scenario paywall-features 03-paid-wall-mode-features.png
 capture_scenario paywall 04-paid-wall-mode-purchase.png
 capture_scenario wall-mode-setup 05-paid-automatic-album.png
+capture_scenario saved-configurations 06-paid-saved-configurations.png
+capture_scenario wall-schedule 07-paid-night-schedule.png
+capture_scenario wall-checklist 08-paid-commissioning-checklist.png
+capture_scenario automatic-album-review 09-paid-review-grid.png
+capture_scenario mosaic-frame 10-paid-mosaic-frame.png
+capture_scenario free-review-grid 11-free-review-grid.png
 
 echo "Captured FrameWink screenshots in $FRAMEWINK_SCREENSHOT_DIRECTORY"

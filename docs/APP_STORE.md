@@ -118,13 +118,15 @@ ambiguous. Automatic-album screenshots must show an explicitly selected album;
 do not imply Apple Memories/People access, ambient sensing, automated Guided
 Access, or reboot recovery.
 
-Five reproducible raw iPad drafts are committed under
+Eleven reproducible raw iPad drafts are committed under
 `AppStore/Screenshots/iPad/`: clean Free Sample Photos, Free Frame Mode, paid
 capabilities, the `$9.99` one-time purchase with Restore Purchases, and the paid
-automatic-album/Strict Offline screen. They use only bundled project-owned
-media. Run `scripts/capture_app_store_screenshots.sh` to regenerate them. Final
-caption composition and the planned review-grid, Mosaic, schedule, and
-commissioning-checklist captures remain release work.
+automatic-album/Strict Offline, saved-configuration, night-schedule, and
+commissioning-checklist screens. They use only bundled project-owned media. Run
+`scripts/capture_app_store_screenshots.sh` to regenerate them. Paid automatic
+suggestion-review and active four-photo Mosaic captures are also included.
+The Free Smart Reel review-grid variant is included separately. Final caption
+composition remains release work.
 
 ## Xcode Cloud workflow recipe
 

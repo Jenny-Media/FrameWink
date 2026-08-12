@@ -17,7 +17,12 @@ The current raw set covers:
 3. Paid Wall Mode capabilities.
 4. The one-time `$9.99` purchase and Restore Purchases.
 5. Paid automatic-album refresh and Strict Offline privacy wording.
+6. Paid saved frame configurations, including Mosaic.
+7. Paid foreground-only dimming and blackout schedule.
+8. Paid wall commissioning and honest platform-limit guidance.
+9. Paid automatic-album suggestion review with Never Show Again.
+10. Paid four-photo Mosaic Frame Mode.
+11. Free Smart Reel suggestion review with Never Show Again.
 
 These are source captures for App Store composition. Final submission assets
-still need approved captions and the remaining planned review-grid, Mosaic,
-schedule, and commissioning-checklist views.
+still need approved caption composition.

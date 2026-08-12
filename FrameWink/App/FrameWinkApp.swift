@@ -34,11 +34,24 @@ struct FrameWinkApp: App {
             downsampler: ImageIODownsampler()
         )
         let curationStore = LocalCurationStore(directory: store.derivedDataDirectory)
-        let smartReelBuilder = SmartReelPipeline(
+        let smartReelBuilder: SmartReelBuilding
+#if DEBUG
+        if screenshotScenario == .freeReview {
+            smartReelBuilder = DebugScreenshotSmartReelBuilder()
+        } else {
+            smartReelBuilder = SmartReelPipeline(
+                analyzer: VisionPhotoAnalyzer(),
+                curator: SmartReelCurator(),
+                store: curationStore
+            )
+        }
+#else
+        smartReelBuilder = SmartReelPipeline(
             analyzer: VisionPhotoAnalyzer(),
             curator: SmartReelCurator(),
             store: curationStore
         )
+#endif
         let wallModeStore = LocalWallModeStore(
             directory: baseURL.appendingPathComponent("Settings", isDirectory: true)
         )
@@ -58,6 +71,7 @@ struct FrameWinkApp: App {
         let albumStore = LocalAlbumSourceStore(baseURL: baseURL, fileManager: fileManager)
 #if DEBUG
         screenshotScenario?.seed(
+            importedStore: store,
             wallModeStore: wallModeStore,
             albumStore: albumStore,
             frameConfigurationStore: frameConfigurationStore
@@ -85,6 +99,24 @@ struct FrameWinkApp: App {
             downsampler: ImageIODownsampler()
         )
         let albumCurationStore = LocalCurationStore(directory: albumStore.metadataDirectory)
+        let automaticAlbumSmartReelBuilder: SmartReelBuilding
+#if DEBUG
+        if screenshotScenario?.requiresWallModeEntitlement == true {
+            automaticAlbumSmartReelBuilder = DebugScreenshotSmartReelBuilder()
+        } else {
+            automaticAlbumSmartReelBuilder = SmartReelPipeline(
+                analyzer: VisionPhotoAnalyzer(),
+                curator: SmartReelCurator(),
+                store: albumCurationStore
+            )
+        }
+#else
+        automaticAlbumSmartReelBuilder = SmartReelPipeline(
+            analyzer: VisionPhotoAnalyzer(),
+            curator: SmartReelCurator(),
+            store: albumCurationStore
+        )
+#endif
         _model = StateObject(
             wrappedValue: AppModel(
                 importer: importer,
@@ -108,11 +140,7 @@ struct FrameWinkApp: App {
                 client: photoLibraryClient,
                 store: albumStore,
                 synchronizer: albumSynchronizer,
-                smartReelBuilder: SmartReelPipeline(
-                    analyzer: VisionPhotoAnalyzer(),
-                    curator: SmartReelCurator(),
-                    store: albumCurationStore
-                ),
+                smartReelBuilder: automaticAlbumSmartReelBuilder,
                 displayHistoryStore: albumCurationStore
             )
         )

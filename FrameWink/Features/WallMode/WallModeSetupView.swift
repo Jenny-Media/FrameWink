@@ -15,21 +15,25 @@ struct WallModeSetupView: View {
     @State private var newConfigurationSource = FrameConfigurationSource.samples
     @State private var newConfigurationLayout = FrameLayoutPreference.automatic
     @State private var newConfigurationInterval: TimeInterval = 10
+    let initialSection: WallModeSetupInitialSection?
 
     init(
         wallMode: WallModeController,
         automaticAlbum: AutomaticAlbumController,
-        frameConfigurations: FrameConfigurationController
+        frameConfigurations: FrameConfigurationController,
+        initialSection: WallModeSetupInitialSection? = nil
     ) {
         self.wallMode = wallMode
         self.automaticAlbum = automaticAlbum
         self.frameConfigurations = frameConfigurations
+        self.initialSection = initialSection
         _draft = State(initialValue: wallMode.configuration)
     }
 
     var body: some View {
         NavigationView {
-            Form {
+            ScrollViewReader { proxy in
+                Form {
                 Section {
                     Label("Wall Mode Lifetime", systemImage: "checkmark.seal.fill")
                         .foregroundColor(.accentColor)
@@ -102,6 +106,7 @@ struct WallModeSetupView: View {
                             .foregroundColor(.orange)
                     }
                 }
+                .id(WallModeSetupInitialSection.automaticAlbum)
 
                 Section("Saved frame configurations") {
                     if frameConfigurations.configurations.isEmpty {
@@ -188,6 +193,7 @@ struct WallModeSetupView: View {
                             .foregroundColor(.orange)
                     }
                 }
+                .id(WallModeSetupInitialSection.savedConfigurations)
 
                 Section("Foreground display schedule") {
                     Toggle("Use dimming and blackout schedule", isOn: $draft.scheduleEnabled)
@@ -223,6 +229,7 @@ struct WallModeSetupView: View {
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
+                .id(WallModeSetupInitialSection.schedule)
 
                 Section("Guided Access") {
                     HStack {
@@ -274,11 +281,19 @@ struct WallModeSetupView: View {
                         )
                     }
                 }
+                .id(WallModeSetupInitialSection.checklist)
 
                 if let error = wallMode.configurationError {
                     Section {
                         Label(error, systemImage: "exclamationmark.triangle.fill")
                             .foregroundColor(.orange)
+                    }
+                }
+            }
+                .onAppear {
+                    guard let initialSection else { return }
+                    DispatchQueue.main.async {
+                        proxy.scrollTo(initialSection, anchor: .top)
                     }
                 }
             }

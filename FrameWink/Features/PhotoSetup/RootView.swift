@@ -56,7 +56,7 @@ struct RootView: View {
                     },
                     preferredLayoutPreference: activeLayoutPreference,
                     preferredInterval: activeInterval,
-                    availableLayoutPreferences: frameConfigurations.availableLayoutPreferences,
+                    availableLayoutPreferences: availableLayoutPreferences,
                     presentationDidChange: frameConfigurations.updateActive,
                     isFrameMode: $isFrameMode,
                     wallVisualState: wallMode.visualState,
@@ -103,7 +103,8 @@ struct RootView: View {
                 WallModeSetupView(
                     wallMode: wallMode,
                     automaticAlbum: automaticAlbum,
-                    frameConfigurations: frameConfigurations
+                    frameConfigurations: frameConfigurations,
+                    initialSection: initialPresentation.wallModeSetupSection
                 )
             case .wallModePaywall:
                 WallModePaywallView(
@@ -390,7 +391,16 @@ struct RootView: View {
     }
 
     private var activeLayoutPreference: FrameLayoutPreference {
-        frameConfigurations.activeConfiguration?.layoutPreference ?? .automatic
+        if initialPresentation == .mosaicFrame {
+            return .mosaic
+        }
+        return frameConfigurations.activeConfiguration?.layoutPreference ?? .automatic
+    }
+
+    private var availableLayoutPreferences: [FrameLayoutPreference] {
+        initialPresentation == .mosaicFrame
+            ? FrameLayoutPreference.allCases
+            : frameConfigurations.availableLayoutPreferences
     }
 
     private var activeInterval: TimeInterval {
@@ -423,15 +433,26 @@ struct RootView: View {
         guard !didApplyInitialPresentation else { return }
         didApplyInitialPresentation = true
         switch initialPresentation {
-        case .frameMode:
+        case .frameMode, .mosaicFrame:
             isFrameMode = true
         case .wallModePaywallFeatures, .wallModePaywallPurchase:
             presentedSheet = .wallModePaywall
         case .wallModeSetup:
             presentedSheet = .wallModeSetup
+        case .automaticAlbumReview:
+            presentedSheet = .automaticAlbumReview
+        case .freeReview:
+            presentedSheet = .reviewSuggestions
         case nil:
             break
         }
+    }
+}
+
+private extension Optional where Wrapped == RootInitialPresentation {
+    var wallModeSetupSection: WallModeSetupInitialSection? {
+        guard case .wallModeSetup(let section) = self else { return nil }
+        return section
     }
 }
 
