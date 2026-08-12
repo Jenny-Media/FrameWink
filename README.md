@@ -82,6 +82,13 @@ Release preparation is recorded in `docs/DISTRIBUTION.md`, App Store privacy,
 review, screenshot, and Xcode Cloud inputs are in `docs/APP_STORE.md`, and the
 localized internal-beta checklist is in `TestFlight/WhatToTest.en-US.txt`.
 
+Physical Photos/iCloud, TestFlight sandbox-purchase, Guided Access, Auto-Lock,
+and unattended Wall Mode acceptance are guided by
+[`docs/PHYSICAL_ACCEPTANCE.md`](docs/PHYSICAL_ACCEPTANCE.md). The accompanying
+`scripts/physical_acceptance.sh` command builds the Debug real-PhotoKit harness
+and captures ignored, device-local acceptance evidence without committing
+device identifiers or tester photos.
+
 ## Forty-hour rule
 
 The goal is a narrow TestFlight-ready product, not a complete digital-frame

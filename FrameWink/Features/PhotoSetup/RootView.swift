@@ -145,6 +145,9 @@ struct RootView: View {
         }
         .onChange(of: isFrameMode) { isActive in
             wallMode.setFrameModeActive(isActive)
+#if DEBUG
+            PhysicalAcceptanceRecorder.shared.recordStateChange()
+#endif
         }
         .onChange(of: automaticAlbum.canDisplay) { canDisplay in
             if canDisplay,

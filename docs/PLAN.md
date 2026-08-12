@@ -307,7 +307,10 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   displayability acceptance remain open as blocker B-004.
 - Milestone 4 now has physical install, launch, rotation, and local-frame UI
   evidence. Idle-timer/Guided Access/thermal/brightness behavior and the
-  seven-day mounted-device soak remain open as blocker B-005.
+  seven-day mounted-device soak remain open as blocker B-005. A Debug-only
+  physical acceptance harness and host monitor now automate app/process,
+  idle-timer, Guided Access, thermal, battery, lock-state, and screenshot
+  evidence while the physical safety and visual checks remain human-owned.
 - Milestone 5's implementation, tests, production product, Family Sharing,
   pricing, storefronts, and Paid Apps agreement are configured. Local StoreKit
   purchase/restore/refund behavior passes on the physical iPad; a TestFlight

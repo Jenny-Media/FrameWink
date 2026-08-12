@@ -19,6 +19,12 @@ enum WallModeSetupInitialSection: String, Hashable {
 }
 
 #if DEBUG
+enum DebugPhysicalAcceptanceMode {
+    static var isEnabled: Bool {
+        ProcessInfo.processInfo.environment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] == "1"
+    }
+}
+
 enum DebugScreenshotScenario: String {
     case sample
     case smartFrame = "smart-frame"
@@ -221,7 +227,7 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
             displayName: "Wall Mode Lifetime",
             description: "One-time Wall Mode unlock",
             displayPrice: "$9.99",
-            isFamilyShareable: false
+            isFamilyShareable: true
         )
     }
 

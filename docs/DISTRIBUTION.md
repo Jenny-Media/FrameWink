@@ -91,6 +91,17 @@ blocker affects only a later boundary.
 - Does not block: deterministic curator implementation, Simulator analysis,
   fixture-driven duplicate/date/layout tests, review UI, persistence, Wall Mode,
   purchases, cloud-readiness work, or local checkpoint commits.
+- Automation ready: `scripts/physical_acceptance.sh prepare` launches an
+  explicitly test-only Wall Mode entitlement with the real PhotoKit client;
+  `sample` records device/app evidence. Owner actions and acceptance criteria
+  are in `docs/PHYSICAL_ACCEPTANCE.md`.
+- Current execution boundary: the first automated `prepare` run on 2026-08-12
+  built and installed successfully, but iPadOS rejected foreground launch while
+  the device was locked. Unlocking is an intentional OS security boundary; the
+  script and remaining compile-time checks continue independently. A later
+  launch request returned without error but the process check and black device
+  screenshot still proved the display was locked; the monitor correctly kept
+  the run failed instead of accepting the launch response alone.
 - Needed from owner: provide or approve a small licensed, human-labelled
   evaluation-photo set and exercise real Photos authorization, iCloud/Limited
   behavior, and sandbox purchase/restore on the connected iPad.
@@ -108,6 +119,10 @@ blocker affects only a later boundary.
 - Does not block: schedule logic, visual overlays, state restoration, persisted
   configuration, safety guidance, purchases, Xcode Cloud readiness, or local
   commits.
+- Automation ready: `scripts/physical_acceptance.sh soak 168 300` records
+  reachability, process presence, lock state, screenshots, and the app's
+  photo-free idle-timer/Guided Access/thermal/battery heartbeat. It cannot
+  certify the charger, mount, battery condition, or perceived display behavior.
 - Needed from owner: assign a safe charger/cable and mounting location, then
   authorize the seven-day physical run on the connected iPad.
 

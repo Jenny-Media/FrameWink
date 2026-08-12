@@ -13,6 +13,7 @@ struct FrameWinkApp: App {
         let fileManager = FileManager.default
 #if DEBUG
         let screenshotScenario = DebugScreenshotScenario.current
+        let physicalAcceptanceMode = DebugPhysicalAcceptanceMode.isEnabled
 #endif
         let baseURL: URL
 #if DEBUG
@@ -85,6 +86,8 @@ struct FrameWinkApp: App {
             purchaseClient = DebugScreenshotPurchaseClient(
                 isEntitled: screenshotScenario.requiresWallModeEntitlement
             )
+        } else if physicalAcceptanceMode {
+            purchaseClient = DebugScreenshotPurchaseClient(isEntitled: true)
         } else {
             purchaseClient = StoreKitPurchaseClient(
                 productID: ProductConfiguration.wallModeProductID()
@@ -168,6 +171,9 @@ struct FrameWinkApp: App {
                 initialPresentation: initialPresentation
             )
                 .onAppear {
+#if DEBUG
+                    PhysicalAcceptanceRecorder.shared.start()
+#endif
                     model.prepareSmartReelIfNeeded()
                     purchases.start()
                     wallMode.setEntitled(purchases.isWallModeUnlocked)
@@ -182,6 +188,9 @@ struct FrameWinkApp: App {
                 }
                 .onChange(of: scenePhase) { phase in
                     wallMode.setSceneIsForeground(phase == .active)
+#if DEBUG
+                    PhysicalAcceptanceRecorder.shared.recordStateChange()
+#endif
                     if phase == .active {
                         automaticAlbum.refreshAuthorizationAfterForegrounding()
                     }
@@ -191,6 +200,9 @@ struct FrameWinkApp: App {
 
     private var initialPresentation: RootInitialPresentation? {
 #if DEBUG
+        if DebugPhysicalAcceptanceMode.isEnabled {
+            return .wallModeSetup(.automaticAlbum)
+        }
         return DebugScreenshotScenario.current?.initialPresentation
 #else
         return nil
