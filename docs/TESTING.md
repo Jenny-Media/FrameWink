@@ -61,6 +61,41 @@ Still required on real hardware: touch/swipe and rotation checks, a sustained
 30-photo playback run, foreground/background transitions, and memory/thermal
 observation on the oldest supported device class.
 
+### Milestone 3 verification record — 2026-08-11
+
+- Full Simulator suite: 33 tests passed with zero failures, skips, expected
+  failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
+- Eight `SmartReelCuratorTests` cover high-confidence filters, strongest burst
+  and duplicate winners, fixed-input determinism, hard exclusions, date/event
+  caps, explicit recent/older representation, layout-fitness ranking, and a
+  100-candidate/30-selection fixture.
+- Five `LocalCurationStoreTests` cover revision invalidation, corrupted
+  disposable caches, durable exclusions, cancellation with reusable partial
+  signals, immediate reel updates, and refusing to persist an empty reel.
+- Two `VisionPhotoAnalyzerTests` prove the bundled images always yield bounded
+  conventional signals and exercise 100 sequential thumbnail analyses.
+- The final 100-thumbnail Simulator fallback run took 0.24 seconds. A prior
+  conservative run that attempted the iOS 27 Simulator's unavailable Espresso
+  Vision backend took 1.899 seconds and increased peak resident memory by
+  54.6 MB; both are inside the provisional 30-second/300-MB gates. These
+  measurements do not substitute for a physical legacy iPad.
+- PHPicker was exercised end to end using three photos placed in the Simulator
+  library. All three imported, persisted, and produced review suggestions. The
+  review grid rendered, `Never Show Again` removed one selection immediately,
+  the two-photo reel played, and both the reel and exclusion survived relaunch.
+- Runtime inspection caught and fixed an empty-reel defect: one unavailable
+  optional Vision request could previously discard otherwise usable
+  conventional signals. Vision enrichments now fail independently, and an
+  all-rejected selection yields an actionable error instead of black playback.
+- iOS 27 Simulator Vision requests are skipped because its backend repeatedly
+  reports Espresso-context creation failures. Face-capture quality, saliency,
+  and feature-print execution must be verified on physical hardware; their
+  deterministic consumers are fixture-tested in Simulator.
+
+Still required: physical Vision execution, the complete 100-photo performance
+and peak-memory run on the oldest supported iPad, and a licensed human-labelled
+displayability/duplicate evaluation set.
+
 ### Photo import
 
 - Downsampling produces bounded pixel dimensions.

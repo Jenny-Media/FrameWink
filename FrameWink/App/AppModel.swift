@@ -25,6 +25,14 @@ enum ImportPhase: Equatable {
     case deletionFailed(String)
 }
 
+enum CurationPhase: Equatable {
+    case idle
+    case analyzing(ImportProgress)
+    case ready(Int)
+    case cancelled
+    case failed(String)
+}
+
 enum DisplaySlideSource {
     case bundled(resourceName: String)
     case imported(ImportedPhoto)
@@ -36,6 +44,23 @@ struct DisplaySlide: Identifiable {
     let caption: LocalizedStringKey
     let accessibilityLabel: LocalizedStringKey
     let source: DisplaySlideSource
+    let importantRects: [NormalizedRect]
+
+    init(
+        id: String,
+        title: LocalizedStringKey,
+        caption: LocalizedStringKey,
+        accessibilityLabel: LocalizedStringKey,
+        source: DisplaySlideSource,
+        importantRects: [NormalizedRect] = []
+    ) {
+        self.id = id
+        self.title = title
+        self.caption = caption
+        self.accessibilityLabel = accessibilityLabel
+        self.source = source
+        self.importantRects = importantRects
+    }
 }
 
 @MainActor
@@ -43,27 +68,54 @@ final class AppModel: ObservableObject {
     @Published private(set) var importedPhotos: [ImportedPhoto] = []
     @Published var collectionMode: PhotoCollectionMode = .samples
     @Published private(set) var importPhase: ImportPhase = .idle
+    @Published private(set) var curationPhase: CurationPhase = .idle
+    @Published private(set) var smartReel: SmartReel?
 
     private let importer: PhotoImporting
     private let imageLoader: ImportedPhotoImageLoading
+    private let smartReelBuilder: SmartReelBuilding?
     private var importTask: Task<Void, Never>?
+    private var curationTask: Task<Void, Never>?
+    private var curationGeneration = UUID()
     private var retryItems: [PhotoImportItem] = []
 
-    init(importer: PhotoImporting, imageLoader: ImportedPhotoImageLoading) {
+    init(
+        importer: PhotoImporting,
+        imageLoader: ImportedPhotoImageLoading,
+        smartReelBuilder: SmartReelBuilding? = nil
+    ) {
         self.importer = importer
         self.imageLoader = imageLoader
+        self.smartReelBuilder = smartReelBuilder
         importedPhotos = (try? importer.loadImportedPhotos()) ?? []
+        smartReel = try? smartReelBuilder?.loadSavedReel()
+        if let smartReel = smartReel {
+            curationPhase = .ready(smartReel.selections.count)
+        }
     }
 
     var slides: [DisplaySlide] {
         if collectionMode == .personal, !importedPhotos.isEmpty {
-            return importedPhotos.map { photo in
+            let photosByID = Dictionary(uniqueKeysWithValues: importedPhotos.map { ($0.id, $0) })
+            let selections: [(ImportedPhoto, [NormalizedRect])]
+            if let smartReel = smartReel {
+                selections = smartReel.selections.compactMap { selection in
+                    photosByID[selection.candidateID].map {
+                        ($0, selection.importantRects)
+                    }
+                }
+            } else {
+                selections = importedPhotos.map { ($0, []) }
+            }
+
+            return selections.map { photo, importantRects in
                 DisplaySlide(
                     id: photo.id.uuidString,
-                    title: "Your photo",
-                    caption: "Stored privately on this iPad",
-                    accessibilityLabel: "A photo you imported",
-                    source: .imported(photo)
+                    title: "Smart Reel selection",
+                    caption: "Curated privately on this iPad",
+                    accessibilityLabel: "A photo selected for your Smart Reel",
+                    source: .imported(photo),
+                    importantRects: importantRects
                 )
             }
         }
@@ -73,6 +125,85 @@ final class AppModel: ObservableObject {
 
     var canRetryImport: Bool {
         !retryItems.isEmpty
+    }
+
+    var reviewPhotos: [ImportedPhoto] {
+        guard let smartReel = smartReel else { return [] }
+        let photosByID = Dictionary(uniqueKeysWithValues: importedPhotos.map { ($0.id, $0) })
+        return smartReel.selections.compactMap { photosByID[$0.candidateID] }
+    }
+
+    var isCurating: Bool {
+        if case .analyzing = curationPhase { return true }
+        return false
+    }
+
+    func prepareSmartReelIfNeeded() {
+        guard !importedPhotos.isEmpty, smartReel == nil, !isCurating else { return }
+        refreshSmartReel()
+    }
+
+    func refreshSmartReel() {
+        guard let smartReelBuilder = smartReelBuilder,
+              !importedPhotos.isEmpty else {
+            return
+        }
+
+        curationTask?.cancel()
+        curationGeneration = UUID()
+        let generation = curationGeneration
+        let photos = importedPhotos
+        let photosByID = Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0) })
+        let imageLoader = imageLoader
+        curationPhase = .analyzing(
+            ImportProgress(completedCount: 0, totalCount: photos.count)
+        )
+
+        curationTask = Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                let reel = try await smartReelBuilder.build(
+                    candidates: photos.map(\.candidate),
+                    imageProvider: { id in
+                        guard let photo = photosByID[id] else { return nil }
+                        return await imageLoader.image(for: photo)
+                    },
+                    progress: { [weak self] progress in
+                        guard self?.curationGeneration == generation else { return }
+                        self?.curationPhase = .analyzing(progress)
+                    }
+                )
+                try Task.checkCancellation()
+                guard curationGeneration == generation else { return }
+                smartReel = reel
+                collectionMode = .personal
+                curationPhase = .ready(reel.selections.count)
+            } catch is CancellationError {
+                guard curationGeneration == generation else { return }
+                curationPhase = .cancelled
+            } catch {
+                guard curationGeneration == generation else { return }
+                curationPhase = .failed(error.localizedDescription)
+            }
+        }
+    }
+
+    func cancelCuration() {
+        curationTask?.cancel()
+    }
+
+    func neverShow(candidateID: UUID) {
+        guard let smartReelBuilder = smartReelBuilder,
+              let smartReel = smartReel else {
+            return
+        }
+        do {
+            let updated = try smartReelBuilder.exclude(candidateID: candidateID, from: smartReel)
+            self.smartReel = updated
+            curationPhase = .ready(updated.selections.count)
+        } catch {
+            curationPhase = .failed(error.localizedDescription)
+        }
     }
 
     func importSelectedItems(_ items: [PhotoImportItem]) {
@@ -98,12 +229,15 @@ final class AppModel: ObservableObject {
 
     func deleteImportedPhotos() {
         importTask?.cancel()
+        curationTask?.cancel()
         do {
             try importer.deleteAllImportedPhotos()
             importedPhotos = []
             retryItems = []
+            smartReel = nil
             collectionMode = .samples
             importPhase = .idle
+            curationPhase = .idle
         } catch {
             importPhase = .deletionFailed(error.localizedDescription)
         }
@@ -142,6 +276,9 @@ final class AppModel: ObservableObject {
             let retryIDs = Set(report.failures.map(\.sourceID) + report.remainingSourceIDs)
             retryItems = items.filter { retryIDs.contains($0.id) }
             importPhase = .finished(report)
+            if !report.imported.isEmpty {
+                refreshSmartReel()
+            }
         }
     }
 

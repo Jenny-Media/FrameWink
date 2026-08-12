@@ -3,6 +3,7 @@ import SwiftUI
 private enum SheetDestination: String, Identifiable {
     case photoPicker
     case privacy
+    case reviewSuggestions
 
     var id: String { rawValue }
 }
@@ -57,6 +58,8 @@ struct RootView: View {
                 .ignoresSafeArea()
             case .privacy:
                 PrivacySheet()
+            case .reviewSuggestions:
+                ReviewSuggestionsView(model: model)
             }
         }
         .alert("Delete Imported Photos?", isPresented: $showDeleteConfirmation) {
@@ -66,6 +69,17 @@ struct RootView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This removes every app-controlled photo copy and its derived records. Your Apple Photos library is never changed.")
+        }
+        .onChange(of: model.curationPhase) { phase in
+            if case .ready = phase {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    guard presentedSheet == nil,
+                          case .ready = model.curationPhase else {
+                        return
+                    }
+                    presentedSheet = .reviewSuggestions
+                }
+            }
         }
     }
 
@@ -123,8 +137,14 @@ struct RootView: View {
                     Text("Choose up to 100 photos. FrameWink keeps only display-sized copies on this iPad.")
                         .foregroundColor(.secondary)
                 } else {
-                    Text("\(model.importedPhotos.count) imported photos are ready offline.")
+                    Text(curationStatus)
                         .foregroundColor(.secondary)
+
+                    if case .analyzing(let progress) = model.curationPhase {
+                        ProgressView(value: progress.fractionCompleted)
+                            .accessibilityLabel("Smart Reel analysis progress")
+                            .accessibilityValue("\(progress.completedCount) of \(progress.totalCount)")
+                    }
                 }
             }
 
@@ -152,8 +172,33 @@ struct RootView: View {
                 }
                 .buttonStyle(.bordered)
                 .accessibilityHint("Starts the full-screen photo frame with playback controls")
+                .disabled(
+                    model.collectionMode == .personal
+                        && !model.importedPhotos.isEmpty
+                        && model.smartReel == nil
+                )
 
                 if !model.importedPhotos.isEmpty {
+                    HStack {
+                        Button("Review Suggestions") {
+                            presentedSheet = .reviewSuggestions
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(model.smartReel == nil)
+
+                        if model.isCurating {
+                            Button("Stop Curating", role: .cancel) {
+                                model.cancelCuration()
+                            }
+                            .buttonStyle(.bordered)
+                        } else {
+                            Button("Refresh Smart Reel") {
+                                model.refreshSmartReel()
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    }
+
                     Button("Delete Imported Photos", role: .destructive) {
                         showDeleteConfirmation = true
                     }
@@ -166,6 +211,21 @@ struct RootView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .shadow(color: .black.opacity(0.22), radius: 20, y: 8)
         .accessibilityElement(children: .contain)
+    }
+
+    private var curationStatus: String {
+        switch model.curationPhase {
+        case .idle:
+            return "\(model.importedPhotos.count) imported photos are ready offline."
+        case .analyzing(let progress):
+            return "Curating \(progress.completedCount) of \(progress.totalCount) photos on this iPad."
+        case .ready(let count):
+            return "\(count) Smart Reel suggestions are ready to review."
+        case .cancelled:
+            return "Curation stopped. Saved analysis will be reused when you resume."
+        case .failed:
+            return "Smart Reel needs another try; your imported photos are still available."
+        }
     }
 }
 

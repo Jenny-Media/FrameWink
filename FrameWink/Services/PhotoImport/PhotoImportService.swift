@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 
 final class PhotoImportService: PhotoImporting {
     private let store: ImportedPhotoStoring
@@ -81,7 +82,8 @@ final class PhotoImportService: PhotoImporting {
                     filename: filename,
                     pixelWidth: size.width,
                     pixelHeight: size.height,
-                    importedAt: now()
+                    importedAt: now(),
+                    creationDate: imageCreationDate(at: loadedFile.url)
                 )
                 var updatedPhotos = allPhotos
                 updatedPhotos.append(photo)
@@ -121,5 +123,24 @@ final class PhotoImportService: PhotoImporting {
 
     func deleteAllImportedPhotos() throws {
         try store.deleteAllImportedData()
+    }
+
+    private func imageCreationDate(at url: URL) -> Date? {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
+                as? [CFString: Any] else {
+            return nil
+        }
+
+        let exif = properties[kCGImagePropertyExifDictionary] as? [CFString: Any]
+        let tiff = properties[kCGImagePropertyTIFFDictionary] as? [CFString: Any]
+        let value = exif?[kCGImagePropertyExifDateTimeOriginal] as? String
+            ?? tiff?[kCGImagePropertyTIFFDateTime] as? String
+        guard let value = value else { return nil }
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
+        return formatter.date(from: value)
     }
 }

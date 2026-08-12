@@ -10,11 +10,11 @@ time rather than unattended calendar time.
 | 0. Contract and scaffold | 2 h | 1.5 h | Complete |
 | 1. Zero-permission preview | 5 h | 3.75 h | In progress — picker/offline checks pending |
 | 2. Frame engine | 6 h | 3 h | Complete |
-| 3. Smart Reel curator | 10 h | — | Not started |
+| 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | — | Not started |
 | 5. Purchases | 4 h | — | Not started |
 | 6. Hardening and release | 8 h | — | Not started |
-| **Total** | **40 h** | **8.25 h** | **In progress** |
+| **Total** | **40 h** | **14.25 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -76,20 +76,32 @@ remain release checks rather than blockers to the pure frame engine.
 
 ## Milestone 3 — Smart Reel curator
 
-- [ ] High-confidence filters and basic quality signals.
-- [ ] Burst and near-duplicate suppression.
-- [ ] Vision face quality and saliency integration.
-- [ ] Bounded similarity comparisons.
-- [ ] Date/event diversity and recent/older balance.
-- [ ] Layout fitness contributes to ranking.
-- [ ] Review Suggestions grid.
-- [ ] `Never Show Again` applies immediately and persists.
-- [ ] Algorithm revision is persisted with cached scores.
-- [ ] Ranking is deterministic under test.
+- [x] High-confidence filters and basic quality signals.
+- [x] Burst and near-duplicate suppression.
+- [x] Vision face quality and saliency integration.
+- [x] Bounded similarity comparisons.
+- [x] Date/event diversity and recent/older balance.
+- [x] Layout fitness contributes to ranking.
+- [x] Review Suggestions grid.
+- [x] `Never Show Again` applies immediately and persists.
+- [x] Algorithm revision is persisted with cached scores.
+- [x] Ranking is deterministic under test.
 
 Acceptance: 100 candidates produce a 30-photo reel in under 30 seconds on the
 oldest target device, duplicate suppression exceeds 90% in fixtures, and at
 least 80% of a small human-labelled evaluation set is considered displayable.
+
+Status: implementation complete; physical acceptance remains open. The pure
+100-candidate fixture selects 30 photos in under one second and the bounded
+Simulator analysis test processes 100 thumbnails in 0.24 seconds using the
+conventional-signal fallback. A conservative run that attempted unavailable
+Simulator Vision requests took 1.899 seconds with 54.6 MB peak resident-memory
+growth. Duplicate/burst fixtures collapse all labelled duplicates. The picker,
+analysis, review grid, immediate exclusion, curated playback, cache/reel
+persistence, and relaunch flow were exercised end to end with three imported
+photos. Physical Vision execution, the oldest-device 30-second/memory gate, and
+a licensed human-labelled displayability set still prevent marking the full
+acceptance criterion complete.
 
 ## Milestone 4 — Wall Mode
 
@@ -156,6 +168,10 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - Production StoreKit product identifier is undecided.
 - Public open-source license is undecided.
 - Physical legacy-device test matrix must be acquired/confirmed.
+- Milestone 3's physical Vision, oldest-device performance, and human-labelled
+  displayability acceptance checks remain open as blocker B-004. Simulator
+  conventional analysis, deterministic curation, and UI integration are not
+  blocked.
 - Xcode Cloud setup is blocked only at the cloud boundary: this local Git
   repository has no hosted remote yet, and the App Store Connect app record and
   account role have not been verified. Local implementation and validation

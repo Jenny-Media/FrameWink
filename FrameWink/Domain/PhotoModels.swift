@@ -11,6 +11,29 @@ struct PhotoCandidate: Identifiable, Codable, Equatable {
     let pixelWidth: Int
     let pixelHeight: Int
     let creationDate: Date?
+    let isHidden: Bool
+    let isScreenshot: Bool
+    let burstIdentifier: String?
+
+    init(
+        id: UUID,
+        source: PhotoSource,
+        pixelWidth: Int,
+        pixelHeight: Int,
+        creationDate: Date?,
+        isHidden: Bool = false,
+        isScreenshot: Bool = false,
+        burstIdentifier: String? = nil
+    ) {
+        self.id = id
+        self.source = source
+        self.pixelWidth = pixelWidth
+        self.pixelHeight = pixelHeight
+        self.creationDate = creationDate
+        self.isHidden = isHidden
+        self.isScreenshot = isScreenshot
+        self.burstIdentifier = burstIdentifier
+    }
 }
 
 struct ImportedPhoto: Identifiable, Codable, Equatable {
@@ -19,6 +42,23 @@ struct ImportedPhoto: Identifiable, Codable, Equatable {
     let pixelWidth: Int
     let pixelHeight: Int
     let importedAt: Date
+    let creationDate: Date?
+
+    init(
+        id: UUID,
+        filename: String,
+        pixelWidth: Int,
+        pixelHeight: Int,
+        importedAt: Date,
+        creationDate: Date? = nil
+    ) {
+        self.id = id
+        self.filename = filename
+        self.pixelWidth = pixelWidth
+        self.pixelHeight = pixelHeight
+        self.importedAt = importedAt
+        self.creationDate = creationDate
+    }
 
     var candidate: PhotoCandidate {
         PhotoCandidate(
@@ -26,7 +66,7 @@ struct ImportedPhoto: Identifiable, Codable, Equatable {
             source: .pickerImport,
             pixelWidth: pixelWidth,
             pixelHeight: pixelHeight,
-            creationDate: nil
+            creationDate: creationDate
         )
     }
 }

@@ -13,14 +13,27 @@ struct FrameWinkApp: App {
             store: store,
             downsampler: ImageIODownsampler()
         )
+        let curationStore = LocalCurationStore(directory: store.derivedDataDirectory)
+        let smartReelBuilder = SmartReelPipeline(
+            analyzer: VisionPhotoAnalyzer(),
+            curator: SmartReelCurator(),
+            store: curationStore
+        )
         _model = StateObject(
-            wrappedValue: AppModel(importer: importer, imageLoader: store)
+            wrappedValue: AppModel(
+                importer: importer,
+                imageLoader: store,
+                smartReelBuilder: smartReelBuilder
+            )
         )
     }
 
     var body: some Scene {
         WindowGroup {
             RootView(model: model)
+                .onAppear {
+                    model.prepareSmartReelIfNeeded()
+                }
         }
     }
 }

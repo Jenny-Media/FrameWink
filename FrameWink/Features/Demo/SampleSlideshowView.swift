@@ -354,7 +354,7 @@ private extension DisplaySlide {
         return FrameLayoutItem(
             id: id,
             pixelSize: pixelSize,
-            importantRects: []
+            importantRects: importantRects
         )
     }
 }

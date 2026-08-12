@@ -1,6 +1,6 @@
 import Foundation
 
-struct PixelSize: Equatable {
+struct PixelSize: Codable, Equatable {
     let width: Int
     let height: Int
 
@@ -14,7 +14,7 @@ struct PixelSize: Equatable {
     }
 }
 
-struct NormalizedRect: Equatable {
+struct NormalizedRect: Codable, Equatable {
     let x: Double
     let y: Double
     let width: Double

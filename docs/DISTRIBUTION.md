@@ -67,7 +67,20 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current full suite passes all 18 tests.
+  was installed and launched; the current full suite passes all 33 tests.
+
+### B-004 — Physical curation-validation hardware and labelled set are missing
+
+- Status: Open
+- First recorded: 2026-08-11
+- Impact: public Vision enrichment, the 100-photo time/memory gate on the
+  oldest supported iPad, thermal behavior, and the human-labelled 80%
+  displayability gate cannot yet receive physical acceptance evidence.
+- Does not block: deterministic curator implementation, Simulator analysis,
+  fixture-driven duplicate/date/layout tests, review UI, persistence, Wall Mode,
+  purchases, cloud-readiness work, or local checkpoint commits.
+- Needed from owner: identify the oldest available supported iPad and provide
+  or approve a small licensed, human-labelled evaluation-photo set.
 
 ## Remaining release decisions
 
