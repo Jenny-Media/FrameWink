@@ -27,7 +27,7 @@ final class StoreKitConfigurationTests: XCTestCase {
 
         XCTAssertEqual(product.type, .nonConsumable)
         XCTAssertEqual(product.displayName, "Wall Mode Lifetime")
-        XCTAssertFalse(product.isFamilyShareable)
+        XCTAssertTrue(product.isFamilyShareable)
     }
 
     func testStoreKitTestPurchaseAndRefundUpdateCurrentEntitlement() async throws {
@@ -37,16 +37,11 @@ final class StoreKitConfigurationTests: XCTestCase {
         _ = try await client.loadProduct()
         let purchaseResult = try await client.purchase()
         XCTAssertEqual(purchaseResult, .success)
-        let purchased = await Transaction.currentEntitlement(
-            for: ProductConfiguration.localWallModeProductID
+        let purchased = await waitForEntitlement(
+            from: client,
+            matching: { $0 == .purchased }
         )
-
-        switch purchased {
-        case .verified(let verified):
-            XCTAssertEqual(verified.productID, ProductConfiguration.localWallModeProductID)
-        default:
-            XCTFail("Expected a verified local purchase")
-        }
+        XCTAssertEqual(purchased, .purchased)
 
         try await client.restore()
         let restoredEntitlement = try await client.currentEntitlement()
@@ -54,11 +49,12 @@ final class StoreKitConfigurationTests: XCTestCase {
 
         let transaction = try XCTUnwrap(session.allTransactions().first)
         try session.refundTransaction(identifier: transaction.identifier)
-        try await Task.sleep(nanoseconds: 100_000_000)
-        let refunded = await Transaction.currentEntitlement(
-            for: ProductConfiguration.localWallModeProductID
+        let refunded = await waitForEntitlement(
+            from: client,
+            matching: { $0 == .revoked || $0 == .notPurchased }
         )
-        XCTAssertNil(refunded)
+        XCTAssertNotEqual(refunded, .purchased)
+        XCTAssertTrue(refunded == .revoked || refunded == .notPurchased)
     }
 
     func testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking() async throws {
@@ -92,5 +88,20 @@ final class StoreKitConfigurationTests: XCTestCase {
             let entitlement = try await client.currentEntitlement()
             XCTAssertEqual(entitlement, .notPurchased)
         }
+    }
+
+    private func waitForEntitlement(
+        from client: StoreKitPurchaseClient,
+        matching predicate: (PurchaseEntitlementEvent) -> Bool,
+        attempts: Int = 50
+    ) async -> PurchaseEntitlementEvent? {
+        for _ in 0..<attempts {
+            if let entitlement = try? await client.currentEntitlement(),
+               predicate(entitlement) {
+                return entitlement
+            }
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
+        return nil
     }
 }

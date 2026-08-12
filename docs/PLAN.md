@@ -299,17 +299,19 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - Family Sharing is confirmed for the production non-consumable and enabled in
   the local StoreKit test configuration.
 - Public open-source license is undecided.
-- Physical legacy-device test matrix must be acquired/confirmed.
-- Milestone 3's physical Vision, oldest-device performance, and human-labelled
-  displayability acceptance checks remain open as blocker B-004. Simulator
-  conventional analysis, deterministic curation, and UI integration are not
-  blocked.
-- Milestone 4's physical idle-timer/Guided Access/thermal/brightness behavior
-  and seven-day mounted-device soak remain open as blocker B-005. All schedule,
-  persistence, state-restoration, and setup-copy work is independently verified.
+- A physical iPad Pro 12.9-inch (3rd generation) on iPadOS 26.6 is now connected
+  and has physical install/launch plus partial automated-test evidence. Older
+  deployment-target coverage and the broader legacy-device matrix remain open.
+- Milestone 3 now has on-device Vision and curator performance evidence, but
+  real Photos/iCloud behavior, oldest-device coverage, and human-labelled
+  displayability acceptance remain open as blocker B-004.
+- Milestone 4 now has physical install, launch, rotation, and local-frame UI
+  evidence. Idle-timer/Guided Access/thermal/brightness behavior and the
+  seven-day mounted-device soak remain open as blocker B-005.
 - Milestone 5's implementation, tests, production product, Family Sharing,
-  pricing, storefronts, and Paid Apps agreement are configured. A physical
-  StoreKit purchase/restore check remains part of B-004, not product setup.
+  pricing, storefronts, and Paid Apps agreement are configured. Local StoreKit
+  purchase/restore/refund behavior passes on the physical iPad; a TestFlight
+  sandbox account check remains part of B-004, not product setup.
 - The public GitHub remote and App Store Connect app record are configured.
   Repository-scoped Xcode Cloud access is owner-approved and successfully
   connected. The GitHub App is restricted to `Jenny-Media/FrameWink`. Xcode is

@@ -476,14 +476,29 @@ The settled first-launch screen showed the bundled Sample Photos experience and
 no Photos permission dialog. This verifies the named Simulator target; it does
 not satisfy physical iPad gates B-004 or B-005.
 
-## Physical-device inventory — 2026-08-12
+## Physical iPad smoke and automated test — 2026-08-12
 
-Apple's `devicectl` reports a paired physical Apple Vision Pro and a connected
-physical iPhone 17 Pro Max. Neither is a valid physical test destination for
-the iPad-only FrameWink target: Xcode rejects the iPhone because it is outside
-the targeted device family, and the Vision Pro is not an iPadOS device. The
-booted `iPad Pro 13-inch (M5)` and `iPad (A16)` are both iOS 27 Simulators.
+Apple's `devicectl` reports a wired, paired physical iPad Pro 12.9-inch (3rd
+generation), product `iPad8,5`, running iPadOS 26.6 with Developer Mode enabled.
+The signed Debug build used Jenny Media LLC team `5736QK4NZX`, installed as
+`media.jenny.FrameWink`, launched successfully, remained live, and visibly
+rendered the bundled sample slideshow. The initial no-permission sample flow
+therefore has physical-device smoke evidence.
 
-Result: no FrameWink test, PhotoKit validation, StoreKit purchase/restore run,
-thermal check, or unattended soak has run on a physical iPad. B-004 and B-005
-remain open until a compatible physical iPad is connected and assigned.
+The physical test run produced:
+
+- All 98 unit tests passed.
+- All 3 UI tests passed, including picker cancellation, persisted local-frame
+  playback/deletion, swipe navigation, and portrait/landscape transitions.
+- The 100-image Vision benchmark passed in 12.140 seconds with 0.0 MB reported
+  peak growth, inside its 30-second gate.
+- The 5,000-candidate curator benchmark passed in 1.363 seconds.
+- All 4 local StoreKit configuration tests passed, covering Family Sharing
+  metadata plus purchase, restore, pending, failure, and refunded-entitlement
+  behavior. These use Xcode's local StoreKit session and do not replace a
+  TestFlight sandbox account check.
+
+This closes the physical install/launch gap but does not yet prove real PhotoKit
+authorization/iCloud behavior, TestFlight sandbox purchase/restore, thermals,
+Guided Access, Auto-Lock restoration, or the seven-day unattended soak. B-004
+and B-005 remain open for those acceptance checks.

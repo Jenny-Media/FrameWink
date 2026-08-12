@@ -68,43 +68,48 @@ blocker affects only a later boundary.
   was installed and launched; the current shared scheme passes all 100 unit and
   UI tests.
 
-### B-004 — Physical curation-validation hardware and labelled set are missing
+### B-004 — Physical curation validation is incomplete
 
 - Status: Open
 - First recorded: 2026-08-11
-- Evidence: `devicectl` and `xctrace` list only simulated iPads. The paired
-  physical devices are an Apple Vision Pro and an iPhone 17 Pro Max; neither is
-  a valid destination for the iPad-only FrameWink target. No physical iPad or
-  licensed human-labelled evaluation set is available in this workspace. On
-  2026-08-12 the unlocked `iPad Pro 13-inch (M5)` named by the owner was
-  confirmed to be Simulator UDID
-  `1BDA7ABF-4236-406E-8ACD-7E3B10569753`, not physical hardware. FrameWink was
-  built, installed, launched, and visually verified there, but macOS USB,
-  `devicectl`, and `xctrace` still found no physical iPad.
-- Impact: public Vision enrichment, the 100-photo and 1,000/5,000-album
-  time/memory gates, real PhotoKit authorization/Limited/iCloud/change behavior,
-  thermal behavior, and the human-labelled 80% displayability gate cannot yet
-  receive physical acceptance evidence.
+- Evidence: on 2026-08-12 a wired, paired physical iPad Pro 12.9-inch (3rd
+  generation), iPadOS 26.6, became available with Developer Mode enabled.
+  FrameWink built and signed for Jenny Media LLC, installed as
+  `media.jenny.FrameWink`, launched, remained live, and rendered bundled sample
+  photos. On-device tests passed all 98 unit tests and all 3 UI tests. The
+  100-image Vision analysis completed in 12.140 seconds with no reported peak
+  growth, and the 5,000-candidate curator benchmark completed in 1.363 seconds.
+  The local StoreKit configuration also passed on-device purchase, restore, pending,
+  failure, and refund-state tests after the Family Sharing expectation was
+  aligned with the production product and entitlement checks were made tolerant
+  of StoreKit's asynchronous propagation. No licensed human-labelled evaluation
+  set is available yet.
+- Impact: real PhotoKit authorization/Limited/iCloud/change behavior,
+  oldest-supported-device coverage, TestFlight sandbox transactions, and the
+  human-labelled 80% displayability gate do not yet have physical acceptance
+  evidence.
 - Does not block: deterministic curator implementation, Simulator analysis,
   fixture-driven duplicate/date/layout tests, review UI, persistence, Wall Mode,
   purchases, cloud-readiness work, or local checkpoint commits.
-- Needed from owner: identify the oldest available supported iPad and provide
-  or approve a small licensed, human-labelled evaluation-photo set.
+- Needed from owner: provide or approve a small licensed, human-labelled
+  evaluation-photo set and exercise real Photos authorization, iCloud/Limited
+  behavior, and sandbox purchase/restore on the connected iPad.
 
-### B-005 — Physical Wall Mode soak device is not assigned
+### B-005 — Physical Wall Mode soak is not assigned
 
 - Status: Open
 - First recorded: 2026-08-11
-- Evidence: the connected-device inventory contains no physical iPad, and no
-  mounted test location, charger/cable, or unattended-run record is assigned.
+- Evidence: the physical iPad Pro is now available and passes installation,
+  launch, rotation, local-frame persistence, and UI smoke tests. No mounted test
+  location, charger/cable, or unattended-run record is assigned.
 - Impact: actual Auto-Lock prevention/restoration, brightness appearance,
   Guided Access status changes, thermal/charging behavior, mount safety, and the
   seven-day unattended run cannot yet receive physical evidence.
 - Does not block: schedule logic, visual overlays, state restoration, persisted
   configuration, safety guidance, purchases, Xcode Cloud readiness, or local
   commits.
-- Needed from owner: assign a compatible iPad, safe charger/cable and mounting
-  location, then record device/OS and authorize the seven-day physical run.
+- Needed from owner: assign a safe charger/cable and mounting location, then
+  authorize the seven-day physical run on the connected iPad.
 
 ### B-006 — Production Wall Mode product decisions were unconfirmed
 
