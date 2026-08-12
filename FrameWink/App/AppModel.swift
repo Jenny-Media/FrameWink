@@ -77,6 +77,7 @@ final class AppModel: ObservableObject {
     private var importTask: Task<Void, Never>?
     private var curationTask: Task<Void, Never>?
     private var curationGeneration = UUID()
+    private var lastCurationProgressUpdate = Date.distantPast
     private var retryItems: [PhotoImportItem] = []
 
     init(
@@ -88,9 +89,20 @@ final class AppModel: ObservableObject {
         self.imageLoader = imageLoader
         self.smartReelBuilder = smartReelBuilder
         importedPhotos = (try? importer.loadImportedPhotos()) ?? []
-        smartReel = try? smartReelBuilder?.loadSavedReel()
-        if let smartReel = smartReel {
-            curationPhase = .ready(smartReel.selections.count)
+        if let savedReel = try? smartReelBuilder?.loadSavedReel() {
+            let availableIDs = Set(importedPhotos.map(\.id))
+            let availableSelections = savedReel.selections.filter {
+                availableIDs.contains($0.candidateID)
+            }
+            if !availableSelections.isEmpty {
+                smartReel = SmartReel(
+                    id: savedReel.id,
+                    algorithmRevision: savedReel.algorithmRevision,
+                    createdAt: savedReel.createdAt,
+                    selections: availableSelections
+                )
+                curationPhase = .ready(availableSelections.count)
+            }
         }
     }
 
@@ -151,6 +163,7 @@ final class AppModel: ObservableObject {
 
         curationTask?.cancel()
         curationGeneration = UUID()
+        lastCurationProgressUpdate = .distantPast
         let generation = curationGeneration
         let photos = importedPhotos
         let photosByID = Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0) })
@@ -169,8 +182,15 @@ final class AppModel: ObservableObject {
                         return await imageLoader.image(for: photo)
                     },
                     progress: { [weak self] progress in
-                        guard self?.curationGeneration == generation else { return }
-                        self?.curationPhase = .analyzing(progress)
+                        guard let self = self,
+                              self.curationGeneration == generation else { return }
+                        let now = Date()
+                        guard progress.completedCount == progress.totalCount
+                            || now.timeIntervalSince(self.lastCurationProgressUpdate) >= 0.1 else {
+                            return
+                        }
+                        self.lastCurationProgressUpdate = now
+                        self.curationPhase = .analyzing(progress)
                     }
                 )
                 try Task.checkCancellation()
@@ -245,6 +265,10 @@ final class AppModel: ObservableObject {
 
     func image(for photo: ImportedPhoto) async -> UIImage? {
         await imageLoader.image(for: photo)
+    }
+
+    func thumbnail(for photo: ImportedPhoto, maxPixelDimension: Int = 640) async -> UIImage? {
+        await imageLoader.thumbnail(for: photo, maxPixelDimension: maxPixelDimension)
     }
 
     private func startImport(_ items: [PhotoImportItem]) {

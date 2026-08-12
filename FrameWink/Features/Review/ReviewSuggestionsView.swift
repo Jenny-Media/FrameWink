@@ -37,7 +37,7 @@ struct ReviewSuggestionsView: View {
                                     ReviewPhotoCard(
                                         photo: photo,
                                         loadImage: { photo in
-                                            await model.image(for: photo)
+                                            await model.thumbnail(for: photo)
                                         },
                                         neverShow: model.neverShow
                                     )
@@ -108,6 +108,9 @@ private struct ReviewPhotoCard: View {
         .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .task(id: photo.id) {
             image = await loadImage(photo)
+        }
+        .onDisappear {
+            image = nil
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Smart Reel photo suggestion")

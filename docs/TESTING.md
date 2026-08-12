@@ -149,6 +149,61 @@ Still required in App Store Connect: confirm/create the immutable production
 product identifier, decide Family Sharing, configure pricing/localizations, and
 exercise purchase/restore/refund in TestFlight sandbox under blocker B-006.
 
+### Milestone 6 verification record — 2026-08-12
+
+- Full Simulator suite: 62 tests passed with zero failures or skips on the iOS
+  27 `iPad (A16)` Simulator.
+- Three `LocalImportedPhotoStoreTests` verify that a corrupt manifest rebuilds
+  from valid imported JPEGs, records for deleted image files are pruned, and a
+  review thumbnail is downsampled to the requested bound.
+- `WallModeControllerTests` verifies that repeated refreshes do not publish an
+  unchanged visual state. The controller still reacts immediately when the
+  schedule state actually changes.
+- Xcode static analysis completes with no diagnostics after the unit-test bundle
+  is excluded from the Analyze action. An unsigned Release build for generic
+  iOS devices also succeeds.
+- Built-product inspection confirms an iPad-only `media.jenny.FrameWink` app
+  with minimum OS 15.0, a compiled opaque 1,024-pixel AppIcon, a root
+  `PrivacyInfo.xcprivacy`, no local `.storekit` file, and an intentionally empty
+  Release Wall Mode product identifier.
+- The Release executable links Apple system frameworks only. Source inspection
+  found no `URLSession`, developer URL, analytics/tracking SDK, full-library
+  PhotoKit authorization request, `UserDefaults`, or `UIScreen.brightness`
+  write.
+- At the largest Simulator text size, the setup controls and Frame Mode caption
+  remain visible and usable; button labels may wrap without clipping. Increase
+  Contrast and Reduce Motion remained legible and functional. The generated app
+  icon was also verified on the iPad Home Screen.
+- Enabling VoiceOver keeps Frame Mode controls visible instead of letting them
+  recede. Apple's first-run VoiceOver gesture tutorial appeared, so spoken
+  traversal and activation are still a physical-device release check.
+- Review cells now retain bounded 640-pixel thumbnails rather than full imported
+  images, eager ImageIO decoding runs off the main thread, curation progress is
+  throttled to roughly 10 UI updates per second, and unchanged Wall Mode state
+  is no longer republished at 4 Hz. These code-level performance fixes do not
+  replace a physical Instruments capture.
+- Optional Vision enrichments are skipped under serious or critical thermal
+  state; conventional local curation still produces a reel.
+
+Recovery status for the current MVP:
+
+| Scenario | Local evidence | Remaining check |
+|---|---|---|
+| Picker cancellation | Automated cleanup test | Repeat on physical iPad |
+| Partial/cloud-provider failure | Successful items persist and failure is retryable | Exercise an iCloud-only selection offline/online |
+| Permission denial / Limited Photos | Not applicable: the MVP uses PHPicker and requests no full-library authorization | Reassess only if automatic PhotoKit albums ship |
+| Imported file deleted outside the manifest | Manifest is pruned and repaired by test | None for app-owned files |
+| Full disk / failed persistence | Transactional fakes preserve successful imports and surface retry | Trigger storage exhaustion on a disposable device |
+| Corrupt disposable cache/reel | Invalid cache is discarded or rebuilt by test | None |
+| Corrupt durable exclusions | Error remains visible rather than silently forgetting `Never Show Again` | Delete Imported Photos remains the destructive recovery |
+| Memory pressure / thermal | Bounded thumbnails, eager decode, cancellation, thermal fallback | Physical memory warning, Instruments, and thermal run |
+
+The local release packet now includes the App Privacy answer and policy draft,
+App Review notes, a six-shot Free/Paid screenshot plan, localized TestFlight
+tester notes, and exact Xcode Cloud workflow recipes. Stable support/privacy
+URLs, actual screenshots, product setup, a hosted repository, the Xcode Cloud
+workflow, and TestFlight installation remain external release work.
+
 ### Photo import
 
 - Downsampling produces bounded pixel dimensions.
@@ -252,7 +307,8 @@ Provisional gates:
 - First launch produces no Photos authorization prompt.
 - Sample Mode works with networking disabled.
 - Imported Smart Reel works in Airplane Mode.
-- Strict Offline does not request cloud-only PhotoKit assets over the network.
+- Automatic/Strict Offline PhotoKit albums are not in this MVP; PHPicker may ask
+  Apple Photos to download an iCloud item only after the user selects it.
 - No developer-controlled endpoint or third-party SDK exists in the binary.
 - Delete Imported Photos removes app-controlled photo files.
 - Privacy policy, App Privacy answers, and actual implementation agree.
@@ -286,12 +342,14 @@ recovery.
 
 ## App Store release checklist
 
-- [ ] Photos usage description explains the user-initiated album feature.
-- [ ] Free and paid functionality are accurately described.
-- [ ] Restore Purchases is visible.
-- [ ] App Review notes give the Wall Mode product path and StoreKit test steps.
-- [ ] Privacy policy states no developer server/upload/analytics.
+- [x] The build has no Photos usage-description key because it uses PHPicker and
+  requests no full-library authorization; App Review notes explain this.
+- [x] Free and paid functionality are accurately described.
+- [x] Restore Purchases is visible.
+- [x] App Review notes give the Wall Mode product path and StoreKit test steps.
+- [x] Privacy policy draft states no developer server/upload/analytics.
+- [ ] Privacy policy and support pages are published at stable HTTPS URLs.
 - [ ] Screenshots do not imply unavailable ambient sensor or automatic kiosk.
-- [ ] Compatibility copy says iPadOS 15+ rather than every old iPad.
-- [ ] Battery, heat, ventilation, and damaged-device guidance is present.
+- [x] Compatibility copy says iPadOS 15+ rather than every old iPad.
+- [x] Battery, heat, ventilation, and damaged-device guidance is present.
 - [ ] Xcode Cloud clean archive and TestFlight installation succeed.

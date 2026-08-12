@@ -79,13 +79,16 @@ final class WallModeController: ObservableObject {
     }
 
     func refresh(at date: Date = Date()) {
-        visualState = evaluator.visualState(
+        let updatedState = evaluator.visualState(
             at: date,
             calendar: calendar,
             configuration: configuration,
             frameModeIsActive: frameModeIsActive && isEntitled,
             sceneIsForeground: sceneIsForeground
         )
+        if visualState != updatedState {
+            visualState = updatedState
+        }
     }
 
     func restoreOwnedDisplayState(at date: Date = Date()) {

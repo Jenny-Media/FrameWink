@@ -5,7 +5,7 @@
          <BuildActionEntry buildForTesting="YES" buildForRunning="YES" buildForProfiling="YES" buildForArchiving="YES" buildForAnalyzing="YES">
             <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="A00000000000000000000001" BuildableName="FrameWink.app" BlueprintName="FrameWink" ReferencedContainer="container:FrameWink.xcodeproj"/>
          </BuildActionEntry>
-         <BuildActionEntry buildForTesting="YES" buildForRunning="NO" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="YES">
+         <BuildActionEntry buildForTesting="YES" buildForRunning="NO" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="NO">
             <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="A00000000000000000000002" BuildableName="FrameWinkTests.xctest" BlueprintName="FrameWinkTests" ReferencedContainer="container:FrameWink.xcodeproj"/>
          </BuildActionEntry>
       </BuildActionEntries>

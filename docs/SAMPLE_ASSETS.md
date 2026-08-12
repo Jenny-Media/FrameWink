@@ -46,3 +46,21 @@ Color palette: terracotta, dusty rose, cream, weathered oak
 Constraints: no labels, no logos, no people, no text, no watermark, no border
 Avoid: catalog perfection, artificial CGI appearance, oversaturation
 ```
+
+## `AppIcon-1024.png`
+
+The opaque 1,024-pixel app icon master was generated with Codex's built-in
+image-generation tool on 2026-08-12 and saved in
+`FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/`.
+
+```text
+Use case: logo-brand
+Asset type: iPadOS App Store icon master, square 1024 × 1024 bitmap
+Primary request: Create a refined, memorable icon for FrameWink, a private local digital photo-frame app. Show a single bold cream-colored picture-frame shape enclosing an abstract warm sunrise over two simple curved hills; add one tiny four-point glint near the upper-right inside edge to suggest a playful wink.
+Style/medium: premium flat geometric illustration with subtle tactile grain, exceptionally clean silhouette, native Apple-platform sensibility without copying an Apple icon
+Composition/framing: centered, symmetrical overall balance, large simple forms that remain legible at 32 px, generous but not empty margins, full-bleed square background
+Lighting/mood: warm, calm, trustworthy, quietly joyful
+Color palette: deep midnight indigo background, warm ivory frame, muted coral sun, sage and muted teal hills, small soft-gold glint
+Constraints: opaque full-bleed square; no transparency; no text; no letters; no photography; no device mockup; no border around the overall canvas; do not pre-round the canvas corners because iPadOS applies its own mask; no watermark
+Avoid: gradients that turn muddy at small size, thin linework, excessive detail, lens/camera imagery, human faces, hearts, smiley faces, neon colors, glossy 3D rendering
+```

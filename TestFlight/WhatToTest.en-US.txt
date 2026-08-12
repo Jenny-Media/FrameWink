@@ -1,0 +1,11 @@
+FrameWink turns an iPad into a private local photo frame.
+
+Please test:
+- Launch and watch the clearly labelled bundled sample reel without a Photos permission prompt.
+- Choose a small set of photos with the system picker, wait for local Smart Reel curation, review suggestions, and use Never Show Again.
+- Enter Frame Mode, navigate in both directions, pause/resume, change timing and layout, rotate the iPad, and leave Frame Mode.
+- Open Unlock Wall Mode, verify the one-time purchase copy, complete or cancel the test purchase, and try Restore Purchases.
+- With Wall Mode unlocked, review the commissioning checklist and foreground-only dim/blackout schedule wording.
+- Delete Imported Photos and confirm the originals remain in Apple Photos.
+
+Please report the iPad model, iPadOS version, exact steps, and whether the app was foregrounded. Guided Access must be started manually in iPadOS, and FrameWink cannot guarantee relaunch after a restart.

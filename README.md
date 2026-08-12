@@ -73,6 +73,10 @@ are already implemented; continue from the next incomplete milestone in
 `AGENTS.md` is the durable contract. `docs/PLAN.md` is the execution record.
 Any attractive but unnecessary feature belongs in `docs/BACKLOG.md`.
 
+Release preparation is recorded in `docs/DISTRIBUTION.md`, App Store privacy,
+review, screenshot, and Xcode Cloud inputs are in `docs/APP_STORE.md`, and the
+localized internal-beta checklist is in `TestFlight/WhatToTest.en-US.txt`.
+
 ## Forty-hour rule
 
 The goal is a narrow TestFlight-ready product, not a complete digital-frame

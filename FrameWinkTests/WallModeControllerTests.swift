@@ -1,8 +1,26 @@
+import Combine
 import XCTest
 @testable import FrameWink
 
 @MainActor
 final class WallModeControllerTests: XCTestCase {
+    func testRefreshDoesNotPublishWhenVisualStateIsUnchanged() {
+        let controller = WallModeController(
+            idleTimer: FakeIdleTimerController(initialValue: false),
+            store: FakeWallModeStore()
+        )
+        var emissions: [WallVisualState] = []
+        let cancellable = controller.$visualState
+            .dropFirst()
+            .sink { emissions.append($0) }
+
+        controller.refresh(at: Date(timeIntervalSince1970: 100))
+        controller.refresh(at: Date(timeIntervalSince1970: 200))
+
+        XCTAssertTrue(emissions.isEmpty)
+        withExtendedLifetime(cancellable) {}
+    }
+
     func testIdleTimerIsOwnedOnlyWhileFrameModeIsActiveAndForeground() {
         let idleTimer = FakeIdleTimerController(initialValue: false)
         let store = FakeWallModeStore()

@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Implementation complete — production setup pending |
-| 6. Hardening and release | 8 h | — | Not started |
-| **Total** | **40 h** | **21 h** | **In progress** |
+| 6. Hardening and release | 8 h | 5.5 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **26.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -162,19 +162,48 @@ visually verified. Production ID and Family Sharing remain blocker B-006.
 - [ ] Test on the oldest supported 2 GB target and one current iPad.
 - [ ] Peak memory during 100-photo import/analysis is below approximately 300 MB.
 - [ ] No visible slideshow hitching while background analysis is active.
-- [ ] Accessibility labels, Dynamic Type where appropriate, contrast, and Reduce
+- [x] Accessibility labels, Dynamic Type where appropriate, contrast, and Reduce
       Motion are reviewed.
 - [ ] Permission denial, Limited Photos, cloud-only, deleted asset, full disk,
       memory warning, thermal, and corrupted cache states are recoverable.
-- [ ] App privacy responses and privacy policy match the implementation.
+- [x] App privacy responses and privacy policy match the implementation.
 - [ ] App Store screenshots distinguish free and paid behavior.
-- [ ] App Review notes explain Photos permissions and Wall Mode unlock.
+- [x] App Review notes explain Photos permissions and Wall Mode unlock.
 - [ ] Seven-day soak results are recorded in `docs/TESTING.md`.
 - [ ] Xcode Cloud clean archive succeeds and its post-action distributes to
       TestFlight.
 
 Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
+
+Status: local hardening is complete; physical-device and cloud-boundary
+acceptance remains open. All 62 tests pass. Xcode static analysis completes
+without warnings after excluding the StoreKit test bundle from the Analyze
+action, and an unsigned Release device build succeeds. The built product is
+iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
+manifest, contains no third-party framework or StoreKit test configuration, and
+keeps the production Wall Mode product ID empty. Source and binary inspection
+found no developer networking, analytics, tracking, full-library PhotoKit
+authorization, or system-brightness mutation.
+
+The import store now repairs a missing or corrupt manifest, prunes records for
+deleted local image files, eagerly decodes display images off the main thread,
+and supplies bounded review thumbnails. Wall Mode no longer republishes an
+unchanged visual state four times per second, curation progress is UI-throttled,
+and optional Vision work is skipped at serious/critical thermal states. Tests
+cover recovery and unchanged-state publication. Simulator UI review passed at
+the largest text size with Increase Contrast and Reduce Motion enabled. The app
+keeps Frame Mode controls visible when VoiceOver is enabled; Apple's first-run
+VoiceOver tutorial prevented a complete spoken-navigation pass, so that remains
+a physical accessibility check rather than a claimed acceptance result.
+
+Permission denial and Limited Photos are not applicable to this PHPicker-only
+MVP because it never requests full photo-library authorization. User-selected
+iCloud items are loaded by Apple's picker and expose retryable partial failure.
+Corrupt disposable caches, deleted imported files, partial import failure, and
+transactional-write failure have automated recovery coverage. Actual
+memory-pressure behavior, thermal response, offline iCloud selection, and
+slideshow smoothness during real Vision work still require physical hardware.
 
 ## Current build and test commands
 
@@ -210,6 +239,8 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   repository has no hosted remote yet, and the App Store Connect app record and
   account role have not been verified. Local implementation and validation
   continue while those inputs are pending. See `docs/DISTRIBUTION.md`.
+- Public privacy-policy/support URLs and a monitored Jenny Media LLC support
+  email are still required for App Store metadata under blocker B-007.
 - Installed Simulator runtimes begin at iOS 27. The app compiles with an
   iPadOS 15 deployment target; the unit-test target uses iOS 17 because the
   XCTest libraries bundled with Xcode 27 no longer link cleanly at 15.0.

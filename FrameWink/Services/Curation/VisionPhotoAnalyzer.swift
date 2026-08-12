@@ -50,7 +50,15 @@ struct VisionPhotoAnalyzer: PhotoAnalyzing {
                 throw PhotoAnalysisError.missingImageData
             }
 
-            let vision = Self.performVision(on: cgImage)
+            let vision: VisionResult
+            switch ProcessInfo.processInfo.thermalState {
+            case .serious, .critical:
+                // Keep curation usable under thermal pressure while avoiding
+                // optional Vision work until the device cools.
+                vision = .empty
+            default:
+                vision = Self.performVision(on: cgImage)
+            }
             try Task.checkCancellation()
 
             let signals: PhotoSignals
@@ -234,4 +242,12 @@ private struct VisionResult {
     let saliencyConfidence: Double?
     let faceRects: [NormalizedRect]
     let salientRects: [NormalizedRect]
+
+    static let empty = VisionResult(
+        featurePrint: nil,
+        faceQuality: nil,
+        saliencyConfidence: nil,
+        faceRects: [],
+        salientRects: []
+    )
 }

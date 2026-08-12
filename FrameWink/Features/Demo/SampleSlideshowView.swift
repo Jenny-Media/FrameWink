@@ -10,6 +10,7 @@ struct SampleSlideshowView: View {
     let refreshWallSchedule: (Date) -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
     @State private var session = FrameSessionController()
     @State private var layoutPreference: FrameLayoutPreference = .automatic
     @State private var controlsVisible = true
@@ -88,6 +89,14 @@ struct SampleSlideshowView: View {
                 hideControlsTask?.cancel()
             }
         }
+        .onChange(of: voiceOverEnabled) { isEnabled in
+            if isEnabled {
+                hideControlsTask?.cancel()
+                setControlsVisible(true)
+            } else {
+                scheduleControlsToRecede()
+            }
+        }
         .onDisappear {
             hideControlsTask?.cancel()
         }
@@ -128,7 +137,7 @@ struct SampleSlideshowView: View {
     private func caption(for slide: DisplaySlide) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(slide.title)
-                .font(.system(size: 38, weight: .semibold, design: .rounded))
+                .font(.system(.largeTitle, design: .rounded).weight(.semibold))
                 .foregroundColor(.white)
                 .shadow(radius: 8)
 
@@ -346,7 +355,7 @@ struct SampleSlideshowView: View {
 
     private func scheduleControlsToRecede() {
         hideControlsTask?.cancel()
-        guard isFrameMode, session.isPlaying else { return }
+        guard isFrameMode, session.isPlaying, !voiceOverEnabled else { return }
 
         hideControlsTask = Task {
             try? await Task.sleep(nanoseconds: 4_000_000_000)

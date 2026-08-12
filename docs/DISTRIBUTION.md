@@ -67,7 +67,7 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current full suite passes all 58 tests.
+  was installed and launched; the current full suite passes all 62 tests.
 
 ### B-004 — Physical curation-validation hardware and labelled set are missing
 
@@ -110,6 +110,18 @@ blocker affects only a later boundary.
 - Needed from owner: confirm the exact production ID and whether Family Sharing
   should be enabled before the immutable App Store Connect product is created.
 
+### B-007 — Public support and privacy-policy endpoints are missing
+
+- Status: Open
+- First recorded: 2026-08-12
+- Evidence: the privacy policy is drafted in `docs/APP_STORE.md`, but no stable
+  Jenny Media LLC HTTPS policy URL or support contact has been supplied.
+- Impact: required App Store metadata cannot be completed or submitted.
+- Does not block: source/privacy auditing, the bundled privacy manifest, local
+  builds/tests, screenshots, App Review-note drafting, or cloud workflow setup.
+- Needed from owner: provide or authorize a stable public privacy-policy URL,
+  a support URL, and a monitored Jenny Media LLC support email.
+
 ## Remaining release decisions
 
 - Confirm the non-consumable Wall Mode StoreKit product identifier. Proposed:
@@ -118,3 +130,4 @@ blocker affects only a later boundary.
   branch.
 - Confirm or create the App Store Connect app record and SKU.
 - Select the initial internal TestFlight tester group.
+- Provide the public privacy-policy/support URLs and support email (B-007).

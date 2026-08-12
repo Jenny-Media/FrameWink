@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 import UIKit
 
 protocol ImportedPhotoStoring {
@@ -17,6 +18,7 @@ protocol ImportedPhotoStoring {
 
 protocol ImportedPhotoImageLoading {
     func image(for photo: ImportedPhoto) async -> UIImage?
+    func thumbnail(for photo: ImportedPhoto, maxPixelDimension: Int) async -> UIImage?
 }
 
 final class LocalImportedPhotoStore: ImportedPhotoStoring, ImportedPhotoImageLoading {
@@ -58,9 +60,23 @@ final class LocalImportedPhotoStore: ImportedPhotoStoring, ImportedPhotoImageLoa
     }
 
     func loadImportedPhotos() throws -> [ImportedPhoto] {
-        guard fileManager.fileExists(atPath: manifestURL.path) else { return [] }
-        let data = try Data(contentsOf: manifestURL)
-        return try JSONDecoder().decode([ImportedPhoto].self, from: data)
+        guard fileManager.fileExists(atPath: manifestURL.path) else {
+            return try rebuildManifestFromImages()
+        }
+
+        do {
+            let data = try Data(contentsOf: manifestURL)
+            let decoded = try JSONDecoder().decode([ImportedPhoto].self, from: data)
+            let available = decoded.filter {
+                fileManager.fileExists(atPath: imageURL(filename: $0.filename).path)
+            }
+            if available.count != decoded.count {
+                try saveImportedPhotos(available)
+            }
+            return available
+        } catch {
+            return try rebuildManifestFromImages()
+        }
     }
 
     func saveImportedPhotos(_ photos: [ImportedPhoto]) throws {
@@ -103,7 +119,101 @@ final class LocalImportedPhotoStore: ImportedPhotoStoring, ImportedPhotoImageLoa
     func image(for photo: ImportedPhoto) async -> UIImage? {
         let url = imageURL(filename: photo.filename)
         return await Task.detached(priority: .userInitiated) {
-            UIImage(contentsOfFile: url.path)
+            Self.decodedImage(at: url)
         }.value
+    }
+
+    func thumbnail(for photo: ImportedPhoto, maxPixelDimension: Int) async -> UIImage? {
+        let url = imageURL(filename: photo.filename)
+        let boundedDimension = min(max(maxPixelDimension, 64), 2_048)
+        return await Task.detached(priority: .utility) {
+            guard let source = CGImageSourceCreateWithURL(
+                url as CFURL,
+                [kCGImageSourceShouldCache: false] as CFDictionary
+            ) else {
+                return nil
+            }
+            let options = [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceShouldCacheImmediately: true,
+                kCGImageSourceThumbnailMaxPixelSize: boundedDimension,
+            ] as CFDictionary
+            guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else {
+                return nil
+            }
+            return UIImage(cgImage: image)
+        }.value
+    }
+
+    private func rebuildManifestFromImages() throws -> [ImportedPhoto] {
+        guard fileManager.fileExists(atPath: importedPhotosDirectory.path) else {
+            return []
+        }
+
+        let imageURLs = try fileManager.contentsOfDirectory(
+            at: importedPhotosDirectory,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )
+        let recovered = imageURLs.compactMap(Self.recoveredPhoto)
+            .sorted { $0.id.uuidString < $1.id.uuidString }
+        try saveImportedPhotos(recovered)
+        return recovered
+    }
+
+    private static func recoveredPhoto(at url: URL) -> ImportedPhoto? {
+        guard url.pathExtension.lowercased() == "jpg",
+              let id = UUID(uuidString: url.deletingPathExtension().lastPathComponent),
+              let source = CGImageSourceCreateWithURL(
+                  url as CFURL,
+                  [kCGImageSourceShouldCache: false] as CFDictionary
+              ),
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
+                as? [CFString: Any],
+              let width = (properties[kCGImagePropertyPixelWidth] as? NSNumber)?.intValue,
+              let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.intValue,
+              width > 0,
+              height > 0 else {
+            return nil
+        }
+
+        return ImportedPhoto(
+            id: id,
+            filename: url.lastPathComponent,
+            pixelWidth: width,
+            pixelHeight: height,
+            importedAt: Date(),
+            creationDate: imageCreationDate(from: properties)
+        )
+    }
+
+    private static func imageCreationDate(from properties: [CFString: Any]) -> Date? {
+        let exif = properties[kCGImagePropertyExifDictionary] as? [CFString: Any]
+        let tiff = properties[kCGImagePropertyTIFFDictionary] as? [CFString: Any]
+        guard let value = exif?[kCGImagePropertyExifDateTimeOriginal] as? String
+            ?? tiff?[kCGImagePropertyTIFFDateTime] as? String else {
+            return nil
+        }
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
+        return formatter.date(from: value)
+    }
+
+    private static func decodedImage(at url: URL) -> UIImage? {
+        guard let source = CGImageSourceCreateWithURL(
+            url as CFURL,
+            [kCGImageSourceShouldCache: false] as CFDictionary
+        ),
+              let image = CGImageSourceCreateImageAtIndex(
+                  source,
+                  0,
+                  [kCGImageSourceShouldCacheImmediately: true] as CFDictionary
+              ) else {
+            return nil
+        }
+        return UIImage(cgImage: image)
     }
 }
