@@ -87,6 +87,10 @@ blocker affects only a later boundary.
 
 - Status: Open
 - First recorded: 2026-08-11
+- Evidence: `devicectl` and `xctrace` list only simulated iPads. The paired
+  physical devices are an Apple Vision Pro and an iPhone 17 Pro Max; neither is
+  a valid destination for the iPad-only FrameWink target. No physical iPad or
+  licensed human-labelled evaluation set is available in this workspace.
 - Impact: public Vision enrichment, the 100-photo and 1,000/5,000-album
   time/memory gates, real PhotoKit authorization/Limited/iCloud/change behavior,
   thermal behavior, and the human-labelled 80% displayability gate cannot yet
@@ -101,6 +105,8 @@ blocker affects only a later boundary.
 
 - Status: Open
 - First recorded: 2026-08-11
+- Evidence: the connected-device inventory contains no physical iPad, and no
+  mounted test location, charger/cable, or unattended-run record is assigned.
 - Impact: actual Auto-Lock prevention/restoration, brightness appearance,
   Guided Access status changes, thermal/charging behavior, mount safety, and the
   seven-day unattended run cannot yet receive physical evidence.
