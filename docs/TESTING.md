@@ -189,17 +189,21 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
 
 ### Paid-scope completion verification record — 2026-08-12
 
-- Full shared-scheme Simulator suite: 87 tests passed with zero failures, skips, expected
+- Full shared-scheme Simulator suite: 93 tests passed with zero failures, skips, expected
   failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
 - The final unsigned generic-device Release build and Xcode static analysis
   both complete without diagnostics after the paid-scope changes.
-- Three `AlbumSyncServiceTests` cover hidden/screenshot filtering, Strict
-  Offline cloud-only behavior, stable-ID replacement, persisted burst metadata,
-  and removal of cache files for deleted assets.
+- Five `AlbumSyncServiceTests` cover hidden/screenshot filtering, Strict
+  Offline cloud-only behavior, preservation of a last-good copy when a changed
+  asset is unavailable offline, stable-ID replacement, persisted burst
+  metadata, removal of cache files for deleted assets, and transactional image
+  rollback when metadata persistence fails.
 - Three `LocalAlbumSourceStoreTests` cover configuration/record persistence,
   orphan pruning, corrupt metadata recovery, and cache-only deletion.
-- Three `AutomaticAlbumControllerTests` cover entitlement gating, explicit
-  authorization, sync/curation, PhotoKit-change refresh, and revocation.
+- Eight `AutomaticAlbumControllerTests` cover entitlement gating, explicit
+  authorization, denied and Limited state handling, sync/curation,
+  PhotoKit-change refresh, revocation, and transactional album/setting writes
+  that preserve the active configuration and reel after persistence failure.
 - Paid-pipeline and curator tests prove candidates beyond the free 100 limit are
   analyzed, local display history persists without per-slide write churn, and
   recently/repeatedly shown candidates receive a repeat penalty. A 5,000-photo
@@ -234,12 +238,12 @@ Recovery status for the current MVP:
 |---|---|---|
 | Picker cancellation | Automated cleanup test plus isolated XCUI flow that opens and cancels PHPicker | Exercise a real provider item on physical iPad |
 | Partial/cloud-provider failure | Successful items persist and failure is retryable | Exercise an iCloud-only selection offline/online |
-| Permission denial / revocation | Controller falls back from automatic display and preserves free content | Exercise real prompt/settings transitions |
-| Limited Photos | Limited status is treated as readable and album fetch stays scoped by PhotoKit | Verify selected-album visibility on physical iPad |
-| Automatic album cloud-only/partial failure | Strict Offline skips cloud-only items; prior usable copies survive refresh failure | Exercise real iCloud residency online/offline |
+| Permission denial / revocation | Automated controller tests fall back from automatic display, preserve cached state, and recover after restored access | Exercise real prompt/settings transitions |
+| Limited Photos | Automated controller test treats Limited as readable without another prompt and displays a configured visible album | Verify selected-album visibility on physical iPad |
+| Automatic album cloud-only/partial failure | Strict Offline skips cloud-only items; an unavailable changed asset retains its exact prior record and cache file | Exercise real iCloud residency online/offline |
 | Deleted automatic-album asset | Sync prunes its metadata and only its app-controlled cache file | Verify real PhotoKit change notification |
 | Imported file deleted outside the manifest | Manifest is pruned and repaired by test | None for app-owned files |
-| Full disk / failed persistence | Fault-injected manifest failure rolls back the committed image, preserves prior imports, and surfaces the item for retry | Trigger storage exhaustion on a disposable device |
+| Full disk / failed persistence | Fault-injected free import and paid album metadata failures roll back new images; failed album/setting writes retain the active durable configuration, options, cache, and reel | Trigger storage exhaustion on a disposable device |
 | Corrupt disposable cache/reel | Invalid cache is discarded or rebuilt by test | None |
 | Corrupt durable exclusions | Error remains visible rather than silently forgetting `Never Show Again`; separate Free and automatic-album reset actions overwrite only the local veto list and rebuild suggestions without deleting photos | None for app-controlled storage |
 | Memory pressure / thermal | Bounded thumbnails, eager decode, cancellation, thermal fallback | Physical memory warning, Instruments, and thermal run |

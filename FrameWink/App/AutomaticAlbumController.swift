@@ -173,13 +173,15 @@ final class AutomaticAlbumController: ObservableObject {
 
     func selectAlbum(_ album: PhotoLibraryAlbum) {
         let isSwitchingAlbums = configuration.albumIdentifier != album.id
-        if isSwitchingAlbums {
-            smartReel = nil
-        }
-        configuration.albumIdentifier = album.id
-        configuration.albumTitle = album.title
+        var updatedConfiguration = configuration
+        updatedConfiguration.albumIdentifier = album.id
+        updatedConfiguration.albumTitle = album.title
         do {
-            try store.saveConfiguration(configuration)
+            try store.saveConfiguration(updatedConfiguration)
+            configuration = updatedConfiguration
+            if isSwitchingAlbums {
+                smartReel = nil
+            }
             refresh()
             startObservingIfNeeded()
         } catch {
@@ -188,8 +190,10 @@ final class AutomaticAlbumController: ObservableObject {
     }
 
     func setAutomaticRefresh(_ enabled: Bool) {
-        configuration.automaticRefresh = enabled
-        persistConfiguration()
+        guard configuration.automaticRefresh != enabled else { return }
+        var updatedConfiguration = configuration
+        updatedConfiguration.automaticRefresh = enabled
+        guard persistConfiguration(updatedConfiguration) else { return }
         if enabled {
             startObservingIfNeeded()
         } else {
@@ -199,8 +203,10 @@ final class AutomaticAlbumController: ObservableObject {
     }
 
     func setStrictOffline(_ enabled: Bool) {
-        configuration.strictOffline = enabled
-        persistConfiguration()
+        guard configuration.strictOffline != enabled else { return }
+        var updatedConfiguration = configuration
+        updatedConfiguration.strictOffline = enabled
+        _ = persistConfiguration(updatedConfiguration)
     }
 
     func refresh() {
@@ -356,11 +362,17 @@ final class AutomaticAlbumController: ObservableObject {
         self.phase = phase(progress)
     }
 
-    private func persistConfiguration() {
+    @discardableResult
+    private func persistConfiguration(
+        _ updatedConfiguration: AutomaticAlbumConfiguration
+    ) -> Bool {
         do {
-            try store.saveConfiguration(configuration)
+            try store.saveConfiguration(updatedConfiguration)
+            configuration = updatedConfiguration
+            return true
         } catch {
             phase = .failed(error.localizedDescription)
+            return false
         }
     }
 

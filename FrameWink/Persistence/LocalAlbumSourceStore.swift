@@ -95,7 +95,12 @@ final class LocalAlbumSourceStore: AlbumSourceStoring {
         }) {
             removeImage(filename: filename)
         }
-        try removeOrphanedImages(keeping: Set(ordered.map(\.photo.filename)))
+        // The atomic metadata write above is the commit point. Cleanup after
+        // that point is deliberately best-effort: reporting a failure would
+        // make the synchronizer roll back newly committed images even though
+        // the durable records already reference them. A later load retries
+        // orphan cleanup safely.
+        try? removeOrphanedImages(keeping: Set(ordered.map(\.photo.filename)))
     }
 
     func temporaryURL(pathExtension: String) throws -> URL {

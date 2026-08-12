@@ -21,6 +21,44 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertEqual(controller.authorization, .authorized)
     }
 
+    func testLimitedAuthorizationLoadsVisibleAlbumsAndPermitsConfiguredDisplay() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .limited)
+        client.albumsValue = [
+            PhotoLibraryAlbum(id: "visible", title: "Visible Album", photoCount: 2)
+        ]
+        let store = ControllerAlbumStore()
+        let controller = makeController(client: client, store: store)
+
+        controller.setEntitled(true)
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { controller.albums.count == 1 }
+        controller.selectAlbum(client.albumsValue[0])
+        try await waitUntil { controller.canDisplay }
+
+        XCTAssertEqual(client.authorizationRequestCount, 0)
+        XCTAssertEqual(controller.authorization, .limited)
+        XCTAssertEqual(controller.selectedAlbumTitle, "Visible Album")
+        XCTAssertTrue(controller.canDisplay)
+    }
+
+    func testDeniedAuthorizationLeavesAutomaticSourceUnavailableAndRecoverable() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .notDetermined)
+        client.authorizationAfterRequest = .denied
+        client.albumsValue = [
+            PhotoLibraryAlbum(id: "hidden", title: "Hidden Album", photoCount: 2)
+        ]
+        let controller = makeController(client: client, store: ControllerAlbumStore())
+
+        controller.setEntitled(true)
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { controller.phase == .accessDenied }
+
+        XCTAssertEqual(client.authorizationRequestCount, 1)
+        XCTAssertEqual(controller.authorization, .denied)
+        XCTAssertTrue(controller.albums.isEmpty)
+        XCTAssertFalse(controller.canDisplay)
+    }
+
     func testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         client.albumsValue = [PhotoLibraryAlbum(id: "family", title: "Family", photoCount: 2)]
@@ -139,6 +177,51 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertTrue(controller.canDisplay)
     }
 
+    func testAlbumSelectionWriteFailurePreservesActiveConfigurationAndReel() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        let synchronizer = ControllerAlbumSynchronizer()
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: ControllerSmartReelBuilder(),
+            changeRefreshDelayNanoseconds: 1
+        )
+        controller.setEntitled(true)
+        try await waitUntil { controller.canDisplay }
+        let priorSelections = try XCTUnwrap(controller.smartReel?.selections)
+        store.configurationSaveError = ControllerStoreError.expectedFailure
+
+        controller.selectAlbum(
+            PhotoLibraryAlbum(id: "travel", title: "Travel", photoCount: 2)
+        )
+
+        XCTAssertEqual(controller.configuration.albumIdentifier, "family")
+        XCTAssertEqual(controller.selectedAlbumTitle, "Family")
+        XCTAssertEqual(controller.smartReel?.selections, priorSelections)
+        XCTAssertTrue(controller.canDisplay)
+        XCTAssertEqual(synchronizer.syncCount, 1)
+        XCTAssertEqual(controller.phase, .failed("Expected configuration write failure"))
+    }
+
+    func testSettingWriteFailureKeepsLastPersistedAutomaticAlbumOptions() {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        let controller = makeController(client: client, store: store)
+        store.configurationSaveError = ControllerStoreError.expectedFailure
+
+        controller.setAutomaticRefresh(false)
+        controller.setStrictOffline(false)
+
+        XCTAssertTrue(controller.configuration.automaticRefresh)
+        XCTAssertTrue(controller.configuration.strictOffline)
+        XCTAssertEqual(controller.configuration, store.configuration)
+        XCTAssertEqual(controller.phase, .failed("Expected configuration write failure"))
+    }
+
     private func makeController(
         client: ControllerPhotoLibraryClient,
         store: ControllerAlbumStore
@@ -167,6 +250,7 @@ final class AutomaticAlbumControllerTests: XCTestCase {
 @MainActor
 private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     var authorization: PhotoLibraryAuthorizationState
+    var authorizationAfterRequest: PhotoLibraryAuthorizationState = .authorized
     var authorizationRequestCount = 0
     var albumsValue: [PhotoLibraryAlbum] = []
     private var changeContinuation: AsyncStream<Void>.Continuation?
@@ -179,7 +263,7 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
 
     func requestAuthorization() async -> PhotoLibraryAuthorizationState {
         authorizationRequestCount += 1
-        authorization = .authorized
+        authorization = authorizationAfterRequest
         return authorization
     }
 
@@ -203,12 +287,22 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     }
 }
 
+private enum ControllerStoreError: LocalizedError {
+    case expectedFailure
+
+    var errorDescription: String? { "Expected configuration write failure" }
+}
+
 private final class ControllerAlbumStore: AlbumSourceStoring {
     var configuration = AutomaticAlbumConfiguration.defaultConfiguration
     var records: [CachedAlbumAsset] = []
+    var configurationSaveError: Error?
 
     func loadConfiguration() -> AutomaticAlbumConfiguration { configuration }
     func saveConfiguration(_ configuration: AutomaticAlbumConfiguration) throws {
+        if let configurationSaveError = configurationSaveError {
+            throw configurationSaveError
+        }
         self.configuration = configuration
     }
     func loadRecords() throws -> [CachedAlbumAsset] { records }

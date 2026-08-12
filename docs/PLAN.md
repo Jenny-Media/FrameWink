@@ -165,8 +165,11 @@ locally. Production ID and Family Sharing remain blocker B-006.
 - [ ] No visible slideshow hitching while background analysis is active.
 - [x] Accessibility labels, Dynamic Type where appropriate, contrast, and Reduce
       Motion are reviewed.
-- [ ] Permission denial, Limited Photos, cloud-only, deleted asset, full disk,
-      memory warning, thermal, and corrupted cache states are recoverable.
+- [x] Fault-injected local seams recover from denied/Limited authorization
+      states, cloud-only and deleted assets, failed persistence, and corrupted
+      caches without losing the last durable photo/configuration state.
+- [ ] Real-device Limited Photos, iCloud residency, storage exhaustion, memory
+      warning, and thermal transitions are recoverable.
 - [x] App privacy responses and privacy policy match the implementation.
 - [x] App Store screenshots distinguish free and paid behavior.
 - [x] App Review notes explain Photos permissions and Wall Mode unlock.
@@ -178,7 +181,7 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 87 shared-scheme tests pass. Xcode static analysis completes
+acceptance remains open. All 93 shared-scheme tests pass. Xcode static analysis completes
 without warnings after excluding the StoreKit test bundle from the Analyze
 action, and an unsigned Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
@@ -214,6 +217,15 @@ persistence have automated recovery coverage. Actual Limited Photos behavior,
 iCloud download behavior, large-album performance, change delivery,
 memory-pressure behavior, thermal response, and slideshow smoothness during
 real Vision work still require physical hardware.
+
+Automatic-album configuration writes are transactional. Selecting a different
+album or changing automatic-refresh/Strict Offline settings updates live state
+only after the durable configuration succeeds, so a storage/write failure keeps
+the active album, options, and reel usable. Album image refresh follows the same
+rule: a changed cloud-only asset keeps its last good copy, metadata-write
+failure removes newly committed images and preserves the prior cache, and
+best-effort orphan cleanup cannot invalidate an already committed metadata
+transaction.
 
 Durable Never Show corruption now has an explicit non-destructive recovery in
 both Free Smart Reel and paid automatic albums: reset only the local veto list,
