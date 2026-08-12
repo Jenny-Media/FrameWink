@@ -28,6 +28,10 @@ required-reason API, tracking, or tracking-domain declarations. Re-run the Xcode
 privacy report before submission and change both the manifest and App Store
 answers if implementation changes.
 
+`Info.plist` declares `ITSAppUsesNonExemptEncryption = false`. FrameWink uses no
+custom or non-exempt encryption; Apple system services such as StoreKit and
+PhotoKit are the only relevant transport surfaces.
+
 ## Published privacy policy
 
 - Privacy policy URL:
@@ -198,5 +202,16 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   `https://github.com/Jenny-Media/FrameWink/blob/main/PRIVACY.md`
 - Paid Apps and Free Apps agreements: active for all regions
 - Banking, U.S. W-9, and Digital Services Act compliance: active
+- Primary category: Photo & Video
+- Subtitle: `Private photo frame for iPad`
+- App base price: free in all 175 current and future regions
+- Apple Silicon Mac availability: disabled; the app remains iPad-only
+- Product-page copy: promotional text, description, keywords, support,
+  marketing, and copyright saved
+- App Store screenshots: all ten accepted for the 13-inch iPad slot and ordered
+  `01` through `10`; Apple will reuse them for all iPad display sizes and the
+  current English (U.S.) localization
 - Beta App Review contact: intentionally blank until Jenny Media LLC supplies
   a real phone number; do not use placeholder contact data.
+- App Review submission still requires publisher-owned content-rights and age
+  rating declarations; see B-011 in `docs/DISTRIBUTION.md`.

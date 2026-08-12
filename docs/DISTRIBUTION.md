@@ -178,6 +178,23 @@ blocker affects only a later boundary.
   physical-device discovery, or commits.
 - Needed from owner: explicitly confirm the Xcode Cloud repository-access grant.
 
+### B-011 — App Store declarations need owner-supplied answers
+
+- Status: Open
+- First recorded: 2026-08-12
+- Evidence: mutable product-page metadata, screenshots, category, pricing, and
+  availability are configured, but App Store Connect still requires the age
+  rating questionnaire, content-rights declaration, and a real App Review
+  contact phone number. These are publisher attestations or facts that cannot
+  be inferred safely from the source tree.
+- Impact: version 1.0 cannot be submitted to App Review until the declarations
+  and contact record are complete.
+- Does not block: Xcode Cloud setup, internal TestFlight builds, local
+  validation, or repository work.
+- Needed from owner: complete or supply answers for content rights and the age
+  rating questionnaire, and provide Jenny Media LLC's App Review contact phone
+  number.
+
 ## App Store Connect readiness snapshot
 
 - The `Jenny Media Internal` TestFlight group exists with no invited testers
@@ -193,6 +210,13 @@ blocker affects only a later boundary.
 - Jenny Media LLC's Paid Apps Agreement and Free Apps Agreement are active for
   all regions. Its configured bank account, U.S. W-9, and Digital Services Act
   compliance record are also active.
+- The app is free in all 175 current regions and configured for all future
+  regions; Wall Mode remains a separate $9.99 lifetime IAP. Apple Silicon Mac
+  availability is disabled to preserve the iPad-only product contract.
+- The English (U.S.) product page has a private-photo-frame subtitle,
+  Photo & Video primary category, promotional text, description, keywords,
+  marketing/support URLs, and all ten accepted 13-inch iPad screenshots in the
+  documented Free-then-Paid order.
 
 ## Committed Xcode Cloud guardrail
 
@@ -210,6 +234,7 @@ without preventing Build, Analyze, or Test workflows.
   explicitly assigned to this group.
 - Complete the owner-only App Privacy attestation under B-009.
 - Confirm the Xcode Cloud repository-access grant under B-010.
+- Complete the publisher declarations and contact data under B-011.
 
 ## Local debugger tooling note
 
