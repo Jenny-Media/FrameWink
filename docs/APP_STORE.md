@@ -147,6 +147,8 @@ Create two workflows:
 1. **FrameWink Validation**
    - Start on pull-request updates and pushes to the chosen main branch.
    - Actions: Analyze (FrameWink, iOS) and Test (FrameWink, iPad Simulator).
+     The shared scheme's Test action includes both `FrameWinkTests` and the
+     first-launch/privacy `FrameWinkUITests` bundle.
    - Deployment preparation: none.
 2. **FrameWink Internal TestFlight**
    - Start manually and on the chosen release branch or tag.

@@ -189,7 +189,7 @@ paid-scope completion record below supersedes its planned-feature paywall copy.
 
 ### Paid-scope completion verification record — 2026-08-12
 
-- Full Simulator suite: 86 tests passed with zero failures, skips, expected
+- Full shared-scheme Simulator suite: 87 tests passed with zero failures, skips, expected
   failures, or runtime warnings on the iOS 27 `iPad (A16)` Simulator.
 - The final unsigned generic-device Release build and Xcode static analysis
   both complete without diagnostics after the paid-scope changes.
@@ -232,7 +232,7 @@ Recovery status for the current MVP:
 
 | Scenario | Local evidence | Remaining check |
 |---|---|---|
-| Picker cancellation | Automated cleanup test | Repeat on physical iPad |
+| Picker cancellation | Automated cleanup test plus isolated XCUI flow that opens and cancels PHPicker | Exercise a real provider item on physical iPad |
 | Partial/cloud-provider failure | Successful items persist and failure is retryable | Exercise an iCloud-only selection offline/online |
 | Permission denial / revocation | Controller falls back from automatic display and preserves free content | Exercise real prompt/settings transitions |
 | Limited Photos | Limited status is treated as readable and album fetch stays scoped by PhotoKit | Verify selected-album visibility on physical iPad |
@@ -248,6 +248,12 @@ Imported photo copies, automatic-album caches, and their derived analysis data
 are excluded from device backup. Unit tests verify the exclusion resource flag
 on both local storage trees; small wall and saved-frame settings remain eligible
 for normal device backup.
+
+The shared scheme now includes `FrameWinkUITests`. Its isolated first-launch
+flow verifies Sample Mode appears without a Photos authorization alert, opens
+PHPicker only after `Choose My Photos`, cancels the system picker, and returns
+to Sample Mode. This closes the local picker-cancellation rerun; real provider,
+iCloud, and permission-transition behavior remains physical-device work.
 
 The local release packet now includes the App Privacy answer and policy draft,
 App Review notes, a six-shot Free/Paid screenshot plan, localized TestFlight

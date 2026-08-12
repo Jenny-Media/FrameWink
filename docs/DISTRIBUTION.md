@@ -5,6 +5,7 @@
 - Product: `FrameWink`
 - App bundle identifier: `media.jenny.FrameWink`
 - Unit-test bundle identifier: `media.jenny.FrameWinkTests`
+- UI-test bundle identifier: `media.jenny.FrameWinkUITests`
 - Apple Developer team: Jenny Media LLC (`5736QK4NZX`)
 - Signing style: automatic
 
@@ -17,7 +18,7 @@ procedure.
 The first cloud workflow should:
 
 1. Start on updates to the release branch and allow manual runs.
-2. Build and run the unit-test target on an iPad Simulator.
+2. Build and run the shared unit- and UI-test targets on an iPad Simulator.
 3. Analyze the app target.
 4. Perform a clean archive for distribution.
 5. Use a TestFlight post-action to distribute successful builds to Jenny Media
@@ -67,7 +68,8 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current full suite passes all 86 tests.
+  was installed and launched; the current shared scheme passes all 87 unit and
+  UI tests.
 
 ### B-004 — Physical curation-validation hardware and labelled set are missing
 
@@ -135,7 +137,7 @@ blocker affects only a later boundary.
   mutation, curates its full eligible candidate pool, caches display-sized
   copies with Strict Offline behavior, reduces repeats from local display
   history, adds Mosaic, and persists multiple album-aware frame configurations.
-  The paywall and release copy now describe the included scope. The 86-test
+  The paywall and release copy now describe the included scope. The 87-test
   Simulator suite covers local synchronization, corrupt-cache cleanup, change
   refresh, entitlement/revocation, unbounded input, repeat ranking, layouts, and
   saved configurations.

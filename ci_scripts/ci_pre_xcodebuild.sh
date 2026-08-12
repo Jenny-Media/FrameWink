@@ -38,6 +38,20 @@ development_team=$(read_build_setting DEVELOPMENT_TEAM)
 device_family=$(read_build_setting TARGETED_DEVICE_FAMILY)
 minimum_os=$(read_build_setting IPHONEOS_DEPLOYMENT_TARGET)
 wall_mode_product_id=$(read_build_setting FRAMEWINK_WALL_MODE_PRODUCT_ID)
+unit_test_bundle_identifier=$(xcodebuild \
+    -project "$project_path" \
+    -target FrameWinkTests \
+    -configuration Release \
+    -sdk iphoneos \
+    -showBuildSettings \
+    | awk -F ' = ' '$1 ~ "^[[:space:]]*PRODUCT_BUNDLE_IDENTIFIER$" { print $2; exit }')
+ui_test_bundle_identifier=$(xcodebuild \
+    -project "$project_path" \
+    -target FrameWinkUITests \
+    -configuration Release \
+    -sdk iphoneos \
+    -showBuildSettings \
+    | awk -F ' = ' '$1 ~ "^[[:space:]]*PRODUCT_BUNDLE_IDENTIFIER$" { print $2; exit }')
 
 [ "$bundle_identifier" = "media.jenny.FrameWink" ] \
     || fail "Release bundle identifier is '$bundle_identifier', expected media.jenny.FrameWink."
@@ -47,6 +61,10 @@ wall_mode_product_id=$(read_build_setting FRAMEWINK_WALL_MODE_PRODUCT_ID)
     || fail "Release target must remain iPad-only (TARGETED_DEVICE_FAMILY = 2)."
 [ "$minimum_os" = "15.0" ] \
     || fail "Release deployment target is '$minimum_os', expected iPadOS 15.0."
+[ "$unit_test_bundle_identifier" = "media.jenny.FrameWinkTests" ] \
+    || fail "Unit-test bundle identifier is '$unit_test_bundle_identifier', expected media.jenny.FrameWinkTests."
+[ "$ui_test_bundle_identifier" = "media.jenny.FrameWinkUITests" ] \
+    || fail "UI-test bundle identifier is '$ui_test_bundle_identifier', expected media.jenny.FrameWinkUITests."
 
 if [ "${CI_XCODEBUILD_ACTION:-}" = "archive" ]; then
     [ "${CI_BUNDLE_ID:-$bundle_identifier}" = "media.jenny.FrameWink" ] \

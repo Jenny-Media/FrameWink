@@ -178,7 +178,7 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 86 tests pass. Xcode static analysis completes
+acceptance remains open. All 87 shared-scheme tests pass. Xcode static analysis completes
 without warnings after excluding the StoreKit test bundle from the Analyze
 action, and an unsigned Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
@@ -223,6 +223,12 @@ the source retryable. Photo copies, automatic-album caches, and derived analysis
 data are excluded from device backup and the resource flags are covered by
 tests.
 
+The shared scheme also runs an iPad UI test target with bundle identifier
+`media.jenny.FrameWinkUITests`. It isolates launch state, proves Sample Mode
+does not request Photos authorization, opens PHPicker only from the explicit
+photo action, cancels the picker, and returns safely. The same target will run
+inside Xcode Cloud's Test action.
+
 The paid analysis cache now keys persisted signals to the asset content
 revision, archives reusable Vision feature prints, skips image decode and Vision
 for unchanged assets, uses bounded checkpoint frequency, and throttles paid
@@ -254,7 +260,8 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 ## Current risks and blockers
 
 - Product name `FrameWink`, app identifier `media.jenny.FrameWink`, test
-  identifier `media.jenny.FrameWinkTests`, and Jenny Media LLC team
+  identifiers `media.jenny.FrameWinkTests` and `media.jenny.FrameWinkUITests`,
+  and Jenny Media LLC team
   `5736QK4NZX` are confirmed and configured.
 - Production StoreKit product identifier is undecided.
 - Family Sharing for the production non-consumable is undecided. The local test

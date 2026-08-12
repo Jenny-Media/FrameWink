@@ -14,11 +14,19 @@
 			remoteGlobalIDString = A00000000000000000000001;
 			remoteInfo = FrameWink;
 		};
+		A00000000000000000000039 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000010 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A00000000000000000000001;
+			remoteInfo = FrameWink;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A00000000000000000000011 /* FrameWink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameWink.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A00000000000000000000012 /* FrameWinkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrameWinkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000033 /* FrameWinkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrameWinkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -53,6 +61,15 @@
 			path = FrameWinkTests;
 			sourceTree = "<group>";
 		};
+		A00000000000000000000034 /* FrameWinkUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = FrameWinkUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +87,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A00000000000000000000035 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +102,7 @@
 			children = (
 				A00000000000000000000013 /* FrameWink */,
 				A00000000000000000000014 /* FrameWinkTests */,
+				A00000000000000000000034 /* FrameWinkUITests */,
 				A00000000000000000000018 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,6 +112,7 @@
 			children = (
 				A00000000000000000000011 /* FrameWink.app */,
 				A00000000000000000000012 /* FrameWinkTests.xctest */,
+				A00000000000000000000033 /* FrameWinkUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -139,6 +165,29 @@
 			productReference = A00000000000000000000012 /* FrameWinkTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		A00000000000000000000003 /* FrameWinkUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A0000000000000000000003A /* Build configuration list for PBXNativeTarget "FrameWinkUITests" */;
+			buildPhases = (
+				A00000000000000000000036 /* Sources */,
+				A00000000000000000000035 /* Frameworks */,
+				A00000000000000000000037 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A00000000000000000000038 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A00000000000000000000034 /* FrameWinkUITests */,
+			);
+			name = FrameWinkUITests;
+			packageProductDependencies = (
+			);
+			productName = FrameWinkUITests;
+			productReference = A00000000000000000000033 /* FrameWinkUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -153,6 +202,10 @@
 						CreatedOnToolsVersion = 27.0;
 					};
 					A00000000000000000000002 = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = A00000000000000000000001;
+					};
+					A00000000000000000000003 = {
 						CreatedOnToolsVersion = 27.0;
 						TestTargetID = A00000000000000000000001;
 					};
@@ -174,6 +227,7 @@
 			targets = (
 				A00000000000000000000001 /* FrameWink */,
 				A00000000000000000000002 /* FrameWinkTests */,
+				A00000000000000000000003 /* FrameWinkUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -187,6 +241,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A0000000000000000000001E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000037 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -210,6 +271,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A00000000000000000000036 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -217,6 +285,11 @@
 			isa = PBXTargetDependency;
 			target = A00000000000000000000001 /* FrameWink */;
 			targetProxy = A00000000000000000000031 /* PBXContainerItemProxy */;
+		};
+		A00000000000000000000038 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A00000000000000000000001 /* FrameWink */;
+			targetProxy = A00000000000000000000039 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -445,6 +518,54 @@
 			};
 			name = Release;
 		};
+		A0000000000000000000003B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5736QK4NZX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = media.jenny.FrameWinkUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_TARGET_NAME = FrameWink;
+			};
+			name = Debug;
+		};
+		A0000000000000000000003C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5736QK4NZX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = media.jenny.FrameWinkUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_TARGET_NAME = FrameWink;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -471,6 +592,15 @@
 			buildConfigurations = (
 				A00000000000000000000020 /* Debug */,
 				A00000000000000000000021 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A0000000000000000000003A /* Build configuration list for PBXNativeTarget "FrameWinkUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0000000000000000000003B /* Debug */,
+				A0000000000000000000003C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
