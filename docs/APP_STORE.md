@@ -51,7 +51,7 @@ or other personal data to Jenny Media LLC. It does not use advertising,
 tracking, or third-party analytics SDKs.
 
 The system photo picker gives FrameWink only the free-mode photos the user
-chooses. After a Wall Mode purchase, a user may explicitly authorize Photos and
+chooses. After a FrameWink Lifetime purchase, a user may explicitly authorize Photos and
 select an album for automatic refresh. FrameWink lists album names and photo
 counts for that chooser, reads photo content only from the selected album,
 filters hidden photos and screenshots, and never edits the Photos library.
@@ -62,9 +62,9 @@ and derived curation data are excluded from device backup. `Delete Imported
 Photos` and `Delete Automatic Album Cache` remove the corresponding
 app-controlled copies and derived records without deleting or changing the
 originals in Apple Photos.
-Apple Photos may download an iCloud item when Strict Offline is disabled; that
-is Apple Photos behavior, not a FrameWink upload. Strict Offline keeps network
-access disabled for automatic-album image requests.
+Apple Photos may download an iCloud item when an automatic album needs it; that
+is Apple Photos behavior, not a FrameWink upload or a connection to Jenny Media
+LLC.
 
 Wall Mode purchases use Apple's StoreKit and App Store services. Jenny Media LLC
 does not receive payment-card details through FrameWink. Apple's own processing
@@ -78,11 +78,11 @@ support endpoint. Privacy questions and support mail go to
 
 FrameWink is iPad-only and requires iPadOS 15 or later.
 
-On first launch, the app immediately plays three bundled example photos and does
-not request Photos authorization. `Choose My Photos` opens Apple's PHPicker with
+On first launch, the app immediately shows three bundled example photos and does
+not request Photos authorization. `Choose Photos` opens Apple's PHPicker with
 a 100-item limit. The target includes `NSPhotoLibraryUsageDescription`, but the
-full PhotoKit prompt appears only after a verified Wall Mode entitlement and the
-user taps `Choose Automatic Album`. Display-sized copies and all analysis remain
+full PhotoKit prompt appears only after a verified FrameWink Lifetime entitlement and the
+user taps `Choose an Album`. Display-sized copies and all analysis remain
 in the app container. The app suppresses iOS's automatic Limited-access alert so
 later prompts remain tied to explicit album-management actions.
 
@@ -90,17 +90,18 @@ The free experience includes local Smart Reel curation, review, Never Show
 Again, Fit/Fill and portrait pairing, timing, pause/navigation, unlimited
 replay, and Delete Imported Photos.
 
-To review the non-consumable Wall Mode purchase, tap `Unlock Wall Mode` on the
-main screen. The paywall includes `Restore Purchases`. A verified entitlement
+To review the non-consumable purchase, open `More Frame Features` from the main
+screen. The FrameWink Lifetime paywall includes `Restore Purchases`. A verified entitlement
 unlocks automatic refresh for an explicitly selected Photos album, curation of
 all eligible album candidates without the free 100-candidate input limit,
-long-term repeat reduction, a Mosaic layout, multiple saved frame
-configurations, foreground-only Auto-Lock prevention, visual dim/blackout
+long-term repeat reduction, a Mosaic layout, a persisted active frame
+configuration, foreground-only Auto-Lock prevention, visual dim/blackout
 schedules, and the wall commissioning checklist.
 
-For automatic albums, try both Strict Offline states, change the selected album
-in Photos, return to FrameWink, review the regenerated suggestions, and use
-`Delete Automatic Album Cache`. FrameWink never creates a PhotoKit change
+For automatic albums, include an iCloud-backed item and confirm preparation
+continues while Apple Photos downloads it. Change the selected album in Photos,
+return to FrameWink, review the regenerated suggestions, and use `Remove
+Downloaded Album Photos`. FrameWink never creates a PhotoKit change
 request and does not edit or delete originals.
 
 Consumer Guided Access must be started manually in iPadOS. FrameWink does not
@@ -111,8 +112,9 @@ The production non-consumable identifier is
 `media.jenny.FrameWink.wallmode`, with Family Sharing enabled. No reviewer test
 account is required; App Review should use its StoreKit sandbox environment.
 
-The App Store Connect product is Apple ID `6800849862`, localized as `Wall Mode
-Lifetime`, priced at a $9.99 U.S. base across all available storefronts, and has
+The App Store Connect product is Apple ID `6800849862`. Its shipping user-facing
+localization should be `FrameWink Lifetime`; it is priced at a $9.99 U.S. base
+across all available storefronts and has
 Family Sharing permanently enabled.
 
 ## Screenshot plan
@@ -128,10 +130,10 @@ set. Do not use private tester photos.
    layout and visible navigation/timing controls.
 4. **A one-time wall upgrade — Paid:** the $9.99 non-consumable paywall with the
    full Free Smart Reel comparison and Restore Purchases.
-5. **Fresh from your album — Paid:** the selected-album refresh controls with
-   Strict Offline and on-device privacy wording visible.
-6. **A frame for each room — Paid:** saved configurations and the four-photo
-   Mosaic layout.
+5. **Fresh from your album — Paid:** the simple selected-album status with
+   automatic iCloud preparation and on-device privacy wording visible.
+6. **Made for every photo — Paid:** Automatic and four-photo Mosaic layout
+   choices in the compact Frame Settings screen.
 7. **Quiet at night — Paid:** Wall Mode schedule controls with foreground-only
    language visible.
 8. **Mount it honestly — Paid:** the power, ventilation, Guided Access, and
@@ -146,8 +148,8 @@ Ten native, upload-ready 13-inch iPad screenshots are committed under
 `AppStore/Screenshots/Submission/iPad-13-inch/`. They are 2064 x 2752 JPEGs
 without alpha and cover three Free Smart Reel screens followed by seven Paid
 Wall Mode screens. The paid sequence includes the `$9.99` one-time purchase and
-Restore Purchases, automatic-album/Strict Offline setup, saved configurations,
-Mosaic Frame Mode, night scheduling, commissioning guidance, and the feature
+Restore Purchases, automatic-album setup, Frame Settings, Mosaic playback,
+night scheduling, mounted-iPad guidance, and the feature
 overview. They use only bundled project-owned media. Run
 `scripts/capture_app_store_submission_screenshots.sh` to regenerate and validate
 the set. Marketing caption overlays are optional rather than a submission gate.

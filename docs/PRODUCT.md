@@ -8,7 +8,7 @@ while retaining its own identity rather than copying Apple Photos.
 
 ## Positioning
 
-> Automatically turn a compatible older iPad into a safe, curated wall display.
+> Turn a compatible older iPad into a private, beautifully curated photo frame.
 
 Supporting message:
 
@@ -40,25 +40,30 @@ preloaded gifts, family contributions, and remote administration.
 ## Product principles
 
 - Demonstrate value before asking for permission or payment.
-- Smart curation wins the first five minutes; reliable Wall Mode earns the
-  purchase.
+- Smart curation wins the first five minutes; dependable automatic albums and
+  display behavior earn the purchase.
 - Start from photos the user chose, not an unrestricted whole library.
 - Make algorithmic mistakes easy to review and reverse.
 - Prefer a small number of excellent defaults over a settings dashboard.
 - State platform limitations honestly.
-- Keep the app useful without network access.
+- Keep picker-selected frames useful without network access, while allowing
+  Apple Photos to fetch iCloud-backed album items when needed.
 
 ## First-run journey
 
-1. `See a Sample` displays bundled photos without requesting permission.
-2. `Make My Smart Reel` opens PHPicker for up to 100 candidates.
-3. The app imports display-sized local copies and shows progress.
-4. The curator generates 30 suggestions.
-5. A review grid lets the user remove unwanted selections.
-6. Frame playback begins with tap/swipe, pause, interval, and layout controls.
-7. The Wall Mode upgrade is offered after the user has seen personal value.
-8. Full PhotoKit authorization is requested only if the user chooses an
-   automatically updating album after purchase.
+1. Bundled sample photos appear immediately without a Photos prompt.
+2. One prominent `Choose Photos` action opens PHPicker for up to 100 candidates;
+   `Start Sample Frame` remains available as the secondary action.
+3. The app imports display-sized local copies, curates them, and changes the
+   primary action to `Start Frame`.
+4. Frame playback begins directly. Previous, pause/play, next, and a single
+   `More` menu provide the essential controls.
+5. Review, deletion, privacy, source switching, and frame settings remain
+   available through progressive disclosure rather than a button dashboard.
+6. FrameWink Lifetime is offered when a user chooses an automatic album or
+   another paid frame feature.
+7. Full PhotoKit authorization is requested only after the user explicitly
+   chooses an automatic album.
 
 ## Free Smart Reel
 
@@ -74,11 +79,11 @@ preloaded gifts, family contributions, and remote administration.
 - Review Suggestions and Never Show Again.
 - Delete Imported Photos.
 
-## Paid Wall Mode
+## FrameWink Lifetime
 
 - Unlimited supported candidates and albums.
 - Automatic refresh as a selected PhotoKit album changes.
-- Multiple reels/configurations.
+- One clear active frame configuration that updates in place.
 - Continuous regeneration and long-term repeat avoidance.
 - Additional layouts.
 - Dimming and blackout schedules while the app remains active.
@@ -93,8 +98,9 @@ Preferred claim:
 > display happen on this iPad.
 
 Do not claim that Apple Photos itself is always offline. If iCloud Photos and
-Optimize Storage are enabled, Apple Photos may need to download an asset. A
-strict-offline mode may skip unavailable cloud-only assets.
+Optimize Storage are enabled, Apple Photos may need to download an asset for an
+automatic album. This normal Apple Photos behavior is explained contextually,
+not exposed as a persistent technical mode.
 
 ## Truthful platform boundaries
 
@@ -126,7 +132,7 @@ strict-offline mode may skip unavailable cloud-only assets.
 
 - One App Store listing.
 - Free Smart Reel preview.
-- One $9.99 non-consumable Wall Mode unlock.
+- One $9.99 non-consumable FrameWink Lifetime unlock.
 - No subscription, advertising, account, or tip jar in MVP.
 - Evaluate pricing using D35 proceeds per download, not conversion alone.
 

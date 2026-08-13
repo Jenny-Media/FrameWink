@@ -39,7 +39,7 @@ struct AutomaticAlbumConfiguration: Codable, Equatable {
         albumIdentifier: nil,
         albumTitle: nil,
         automaticRefresh: true,
-        strictOffline: true
+        strictOffline: false
     )
 
     var isConfigured: Bool {

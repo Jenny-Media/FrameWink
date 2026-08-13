@@ -95,3 +95,17 @@ date; do not silently rewrite historical decisions during implementation.
   but are not the release-upload procedure.
 - **Reason:** Keeps signing and distribution reproducible in Jenny Media's
   managed CI/CD path and avoids dependence on one developer Mac.
+
+## D-014 — The app shell is content-first, not mode-first
+
+- **Decision:** The main experience has one prominent next action, at most one
+  contextual secondary action, and one `More` menu. `Wall Mode` and `Strict
+  Offline` are no longer user-facing modes. The paid product is presented as
+  `FrameWink Lifetime`; its automatic album and mounted-iPad capabilities are
+  features of the same frame experience. Album choice persists across launch,
+  and iCloud-backed album items may download normally through Apple Photos.
+- **Reason:** Physical testing showed that mode terminology, eight visible
+  controls, a technical offline policy, and a configuration-heavy setup screen
+  obscured where to start. A Photos-like choose-then-play path better serves the
+  product's simple-frame goal without removing review, privacy, or advanced
+  controls.

@@ -26,11 +26,11 @@ enum PhotoLibraryClientError: LocalizedError, Equatable {
         case .accessDenied:
             return "Photo access is not available. You can keep using Free Smart Reel or change access in iPad Settings."
         case .albumUnavailable:
-            return "That album is no longer available. Choose another album in Wall Mode Setup."
+            return "That album is no longer available. Choose another album."
         case .assetUnavailable:
             return "A photo in this album is no longer available."
         case .cloudAssetUnavailable:
-            return "A photo is stored only in iCloud and Strict Offline is enabled."
+            return "This photo needs to download from iCloud."
         case .imageDataUnavailable:
             return "Photos could not provide image data for this item."
         }

@@ -10,12 +10,12 @@
       "localizations" : [
         {
           "description" : "Unlock foreground wall schedules, continuous display, and wall setup assistance for this iPad.",
-          "displayName" : "Wall Mode Lifetime",
+          "displayName" : "FrameWink Lifetime",
           "locale" : "en_US"
         }
       ],
       "productID" : "media.jenny.FrameWink.wallmode.local",
-      "referenceName" : "Wall Mode Lifetime (Local Test)",
+      "referenceName" : "FrameWink Lifetime (Local Test)",
       "type" : "NonConsumable"
     }
   ],

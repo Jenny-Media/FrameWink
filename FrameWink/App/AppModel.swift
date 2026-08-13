@@ -127,8 +127,8 @@ final class AppModel: ObservableObject {
             return selections.map { photo, importantRects in
                 DisplaySlide(
                     id: photo.id.uuidString,
-                    title: "Smart Reel selection",
-                    caption: "Curated privately on this iPad",
+                    title: "My Photos",
+                    caption: "Selected privately on this iPad",
                     accessibilityLabel: "A photo selected for your Smart Reel",
                     source: .imported(photo),
                     importantRects: importantRects

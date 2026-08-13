@@ -74,4 +74,37 @@ final class FrameConfigurationControllerTests: XCTestCase {
         XCTAssertNil(controller.activeConfigurationID)
         XCTAssertTrue(FileManager.default.fileExists(atPath: otherSetting.path))
     }
+
+    func testSaveCurrentCreatesOneSimpleFrameAndUpdatesItInPlace() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("FrameWinkSimpleSettingsTests-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = LocalFrameConfigurationStore(directory: root)
+        let controller = FrameConfigurationController(store: store)
+        controller.setEntitled(true)
+
+        controller.saveCurrent(
+            source: .automaticAlbum,
+            albumIdentifier: "family",
+            albumTitle: "Family",
+            layoutPreference: .automatic,
+            interval: 10
+        )
+        let originalID = try XCTUnwrap(controller.activeConfigurationID)
+
+        controller.saveCurrent(
+            source: .freeSmartReel,
+            layoutPreference: .fit,
+            interval: 30
+        )
+
+        XCTAssertEqual(controller.configurations.count, 1)
+        XCTAssertEqual(controller.activeConfigurationID, originalID)
+        XCTAssertEqual(controller.activeConfiguration?.name, "My Frame")
+        XCTAssertEqual(controller.activeConfiguration?.source, .freeSmartReel)
+        XCTAssertNil(controller.activeConfiguration?.albumIdentifier)
+        XCTAssertNil(controller.activeConfiguration?.albumTitle)
+        XCTAssertEqual(controller.activeConfiguration?.layoutPreference, .fit)
+        XCTAssertEqual(controller.activeConfiguration?.interval, 30)
+    }
 }

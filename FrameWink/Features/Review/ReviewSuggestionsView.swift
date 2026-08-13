@@ -29,7 +29,7 @@ struct ReviewSuggestionsView: View {
                 } else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 18) {
-                            Text("Only these locally curated photos will play. Remove anything you don’t want appearing in Frame Mode.")
+                            Text("Only these locally curated photos will play. Remove anything you don’t want appearing in your frame.")
                                 .foregroundColor(.secondary)
 
                             LazyVGrid(columns: columns, spacing: 16) {

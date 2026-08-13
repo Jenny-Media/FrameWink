@@ -11,14 +11,14 @@ tracking, or third-party analytics SDKs.
 ## Photos
 
 The system photo picker gives FrameWink only the free-mode photos the user
-chooses. After a Wall Mode purchase, a user may explicitly authorize Photos and
+chooses. After a FrameWink Lifetime purchase, a user may explicitly authorize Photos and
 select an album for automatic refresh. FrameWink lists album names and photo
 counts for that chooser, reads photo content only from the selected album,
 filters hidden photos and screenshots, and never edits the Photos library.
 
-Apple Photos may download an iCloud item when Strict Offline is disabled. That
-is Apple Photos behavior, not a FrameWink upload. Strict Offline keeps network
-access disabled for automatic-album image requests.
+Apple Photos may download an iCloud item when an automatic album needs it. That
+is Apple Photos behavior, not a FrameWink upload or a connection to Jenny Media
+LLC.
 
 ## Local storage and deletion
 
@@ -31,7 +31,7 @@ changing the originals in Apple Photos.
 
 ## Purchases and Family Sharing
 
-Wall Mode purchases, restoration, and Family Sharing use Apple's StoreKit and
+FrameWink Lifetime purchases, restoration, and Family Sharing use Apple's StoreKit and
 App Store services. Jenny Media LLC does not receive payment-card details
 through FrameWink. Apple's processing is governed by Apple's privacy policy.
 

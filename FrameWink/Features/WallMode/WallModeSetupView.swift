@@ -6,358 +6,111 @@ struct WallModeSetupView: View {
     @ObservedObject var wallMode: WallModeController
     @ObservedObject var automaticAlbum: AutomaticAlbumController
     @ObservedObject var frameConfigurations: FrameConfigurationController
+    @Binding var currentPhotoMode: PhotoCollectionMode
     @Environment(\.presentationMode) private var presentationMode
     @State private var draft: WallModeConfiguration
+    @State private var layoutPreference: FrameLayoutPreference
+    @State private var interval: TimeInterval
     @State private var guidedAccessIsEnabled = UIAccessibility.isGuidedAccessEnabled
     @State private var showAlbumPicker = false
+    @State private var showReview = false
     @State private var showDeleteAlbumConfirmation = false
     @State private var showResetNeverShowConfirmation = false
-    @State private var newConfigurationName = "My Frame"
-    @State private var newConfigurationSource = FrameConfigurationSource.samples
-    @State private var newConfigurationLayout = FrameLayoutPreference.automatic
-    @State private var newConfigurationInterval: TimeInterval = 10
+    @State private var showMountedTips = false
     let initialSection: WallModeSetupInitialSection?
 
     init(
         wallMode: WallModeController,
         automaticAlbum: AutomaticAlbumController,
         frameConfigurations: FrameConfigurationController,
+        currentPhotoMode: Binding<PhotoCollectionMode>,
         initialSection: WallModeSetupInitialSection? = nil
     ) {
         self.wallMode = wallMode
         self.automaticAlbum = automaticAlbum
         self.frameConfigurations = frameConfigurations
+        _currentPhotoMode = currentPhotoMode
         self.initialSection = initialSection
         _draft = State(initialValue: wallMode.configuration)
+        _layoutPreference = State(
+            initialValue: frameConfigurations.activeConfiguration?.layoutPreference ?? .automatic
+        )
+        _interval = State(
+            initialValue: frameConfigurations.activeConfiguration?.interval ?? 10
+        )
     }
 
     var body: some View {
         NavigationView {
             ScrollViewReader { proxy in
                 Form {
-                Section {
-                    Label("Wall Mode Lifetime", systemImage: "checkmark.seal.fill")
-                        .foregroundColor(.accentColor)
-                    Text("Your one-time Wall Mode unlock is active. These settings stay on this iPad and never upload your photos or configuration.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
+                    photosSection
+                        .id(WallModeSetupInitialSection.automaticAlbum)
+
+                    slideshowSection
+                        .id(WallModeSetupInitialSection.savedConfigurations)
+
+                    displaySection
+                        .id(WallModeSetupInitialSection.schedule)
+
+                    mountedTipsSection
+                        .id(WallModeSetupInitialSection.checklist)
+
+                    maintenanceSection
                 }
-
-                Section("Automatic Photos album") {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(automaticAlbum.selectedAlbumTitle)
-                                .font(.headline)
-                            Text(automaticAlbumStatus)
-                                .font(.footnote)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                        Button(
-                            automaticAlbum.configuration.isConfigured
-                                ? "Change Album"
-                                : "Choose Album"
-                        ) {
-                            automaticAlbum.requestAccessAndLoadAlbums()
-                            showAlbumPicker = true
-                        }
-                    }
-
-                    Toggle(
-                        "Refresh when the selected album changes",
-                        isOn: Binding(
-                            get: { automaticAlbum.configuration.automaticRefresh },
-                            set: automaticAlbum.setAutomaticRefresh
-                        )
-                    )
-                    .disabled(!automaticAlbum.configuration.isConfigured)
-
-                    Toggle(
-                        "Strict Offline",
-                        isOn: Binding(
-                            get: { automaticAlbum.configuration.strictOffline },
-                            set: automaticAlbum.setStrictOffline
-                        )
-                    )
-                    .disabled(!automaticAlbum.configuration.isConfigured)
-
-                    Text("Strict Offline skips album photos that Apple Photos has not downloaded to this iPad. Turn it off to let Apple Photos fetch selected-album items from iCloud during refresh. FrameWink never uploads them.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-
-                    if automaticAlbum.configuration.isConfigured {
-                        HStack {
-                            Button("Refresh Now") {
-                                automaticAlbum.refresh()
-                            }
-                            .disabled(isAlbumBusy)
-
-                            Spacer()
-
-                            Button("Delete Automatic Album Cache", role: .destructive) {
-                                showDeleteAlbumConfirmation = true
-                            }
-                        }
-
-                        Button("Reset Automatic Never Show Choices") {
-                            showResetNeverShowConfirmation = true
-                        }
-                        .disabled(isAlbumBusy)
-                    }
-
-                    if let report = automaticAlbum.lastSyncReport,
-                       report.hasPartialFailure {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text(partialReport(report))
-                                .font(.footnote)
-                                .foregroundColor(.orange)
-
-                            if report.cloudOnlyCount > 0,
-                               automaticAlbum.configuration.strictOffline {
-                                Button("Allow iCloud Downloads and Refresh") {
-                                    automaticAlbum.setStrictOffline(false)
-                                }
-                                .buttonStyle(.borderedProminent)
-                                .disabled(isAlbumBusy)
-                                .accessibilityIdentifier("allow-icloud-downloads")
-                            }
-                        }
-                    }
-                }
-                .id(WallModeSetupInitialSection.automaticAlbum)
-
-                Section("Saved frame configurations") {
-                    if frameConfigurations.configurations.isEmpty {
-                        Text("Save different photo sources, layouts, and timing for quick reuse.")
-                            .font(.footnote)
-                            .foregroundColor(.secondary)
-                    } else {
-                        ForEach(frameConfigurations.configurations) { configuration in
-                            HStack {
-                                Button {
-                                    frameConfigurations.activate(configuration.id)
-                                } label: {
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        HStack {
-                                            Text(configuration.name)
-                                                .foregroundColor(.primary)
-                                            if frameConfigurations.activeConfigurationID
-                                                == configuration.id {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .foregroundColor(.green)
-                                            }
-                                        }
-                                        Text(
-                                            configurationSummary(configuration)
-                                        )
-                                        .font(.footnote)
-                                        .foregroundColor(.secondary)
-                                    }
-                                }
-                                .buttonStyle(.plain)
-
-                                Spacer()
-
-                                Button(role: .destructive) {
-                                    frameConfigurations.delete(configuration.id)
-                                } label: {
-                                    Image(systemName: "trash")
-                                }
-                                .accessibilityLabel(
-                                    "Delete \(configuration.name) configuration"
-                                )
-                            }
-                        }
-                    }
-
-                    TextField("Configuration name", text: $newConfigurationName)
-
-                    Picker("Photo source", selection: $newConfigurationSource) {
-                        ForEach(FrameConfigurationSource.allCases) { source in
-                            Text(source.title).tag(source)
-                        }
-                    }
-
-                    Picker("Layout", selection: $newConfigurationLayout) {
-                        ForEach(frameConfigurations.availableLayoutPreferences) { layout in
-                            Text(layout.title).tag(layout)
-                        }
-                    }
-
-                    Picker("Photo interval", selection: $newConfigurationInterval) {
-                        ForEach([5.0, 10.0, 30.0, 60.0], id: \.self) { interval in
-                            Text("\(Int(interval)) sec").tag(interval)
-                        }
-                    }
-
-                    Button("Save and Activate Configuration") {
-                        frameConfigurations.create(
-                            name: newConfigurationName,
-                            source: newConfigurationSource,
-                            albumIdentifier: automaticAlbum.configuration.albumIdentifier,
-                            albumTitle: automaticAlbum.configuration.albumTitle,
-                            layoutPreference: newConfigurationLayout,
-                            interval: newConfigurationInterval
-                        )
-                        newConfigurationName = "My Frame \(frameConfigurations.configurations.count + 1)"
-                    }
-
-                    Text("Mosaic is a paid four-photo layout. A configuration whose source is not ready falls back to Sample Photos until that source becomes available.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-
-                    if let error = frameConfigurations.persistenceError {
-                        Label(error, systemImage: "exclamationmark.triangle.fill")
-                            .foregroundColor(.orange)
-                    }
-                }
-                .id(WallModeSetupInitialSection.savedConfigurations)
-
-                Section("Foreground display schedule") {
-                    Toggle("Use dimming and blackout schedule", isOn: $draft.scheduleEnabled)
-
-                    DatePicker(
-                        "Begin dimming",
-                        selection: minuteBinding(\.dimStartMinute),
-                        displayedComponents: .hourAndMinute
-                    )
-                    .disabled(!draft.scheduleEnabled)
-
-                    DatePicker(
-                        "Begin blackout",
-                        selection: minuteBinding(\.blackoutStartMinute),
-                        displayedComponents: .hourAndMinute
-                    )
-                    .disabled(!draft.scheduleEnabled)
-
-                    DatePicker(
-                        "End blackout",
-                        selection: minuteBinding(\.blackoutEndMinute),
-                        displayedComponents: .hourAndMinute
-                    )
-                    .disabled(!draft.scheduleEnabled)
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Dimming strength: \(Int(draft.dimOpacity * 100))%")
-                        Slider(value: $draft.dimOpacity, in: 0.15...0.9)
-                            .disabled(!draft.scheduleEnabled)
-                    }
-
-                    Text("The schedule is a black visual overlay only while FrameWink is visible in the foreground. It does not change system brightness, lock the iPad, wake a suspended app, or relaunch after a restart.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-                .id(WallModeSetupInitialSection.schedule)
-
-                Section("Guided Access") {
-                    HStack {
-                        Label(
-                            guidedAccessIsEnabled ? "Guided Access is active" : "Guided Access is not active",
-                            systemImage: guidedAccessIsEnabled ? "checkmark.shield.fill" : "shield"
-                        )
-                        .foregroundColor(guidedAccessIsEnabled ? .green : .secondary)
-                        Spacer()
-                    }
-
-                    Text("Start Frame Mode, then use the iPad’s configured Accessibility Shortcut to begin Guided Access. FrameWink can report the public status but cannot switch consumer Guided Access on for you.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-
-                Section("Wall commissioning checklist") {
-                    ForEach(WallChecklistItem.allCases) { item in
-                        Button {
-                            toggle(item)
-                        } label: {
-                            HStack(alignment: .top, spacing: 12) {
-                                Image(
-                                    systemName: draft.completedChecklistItems.contains(item)
-                                        ? "checkmark.circle.fill"
-                                        : "circle"
-                                )
-                                .foregroundColor(
-                                    draft.completedChecklistItems.contains(item)
-                                        ? .green
-                                        : .secondary
-                                )
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(item.title)
-                                        .foregroundColor(.primary)
-                                    Text(item.detail)
-                                        .font(.footnote)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(item.title)
-                        .accessibilityValue(
-                            draft.completedChecklistItems.contains(item)
-                                ? "Completed"
-                                : "Not completed"
-                        )
-                    }
-                }
-                .id(WallModeSetupInitialSection.checklist)
-
-                if let error = wallMode.configurationError {
-                    Section {
-                        Label(error, systemImage: "exclamationmark.triangle.fill")
-                            .foregroundColor(.orange)
-                    }
-                }
-            }
                 .onAppear {
                     guard let initialSection else { return }
+                    if initialSection == .checklist {
+                        showMountedTips = true
+                    }
                     DispatchQueue.main.async {
                         proxy.scrollTo(initialSection, anchor: .top)
                     }
                 }
             }
-            .navigationTitle("Wall Mode Setup")
+            .navigationTitle("Frame Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
-                    }
-                }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        wallMode.updateConfiguration(draft)
-                        if wallMode.configurationError == nil {
-                            presentationMode.wrappedValue.dismiss()
-                        }
+                    Button("Done") {
+                        saveAndDismiss()
                     }
                 }
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
         .sheet(isPresented: $showAlbumPicker) {
-            AlbumPickerView(controller: automaticAlbum)
+            AlbumPickerView(controller: automaticAlbum) { _ in
+                currentPhotoMode = .automaticAlbum
+            }
+        }
+        .sheet(isPresented: $showReview) {
+            AutomaticAlbumReviewView(controller: automaticAlbum)
         }
         .alert(
-            "Delete Automatic Album Cache?",
+            "Remove Downloaded Album Photos?",
             isPresented: $showDeleteAlbumConfirmation
         ) {
-            Button("Delete Cache", role: .destructive) {
+            Button("Remove Downloads", role: .destructive) {
                 automaticAlbum.deleteCachedAlbum()
+                if currentPhotoMode == .automaticAlbum {
+                    currentPhotoMode = .samples
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This removes FrameWink’s display-sized automatic-album copies, derived records, and current automatic source. It never changes any album or original in Apple Photos. A saved automatic configuration can rebuild the cache when you activate it again.")
+            Text("This removes only FrameWink’s copies and analysis. It never changes Apple Photos.")
         }
         .alert(
-            "Reset Automatic Never Show Choices?",
+            "Reset Hidden Photos?",
             isPresented: $showResetNeverShowConfirmation
         ) {
-            Button("Reset and Refresh") {
+            Button("Reset") {
                 automaticAlbum.resetNeverShowChoices()
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This clears only FrameWink’s local Never Show choices for automatic albums and refreshes suggestions. Cached photo copies and Apple Photos stay unchanged.")
+            Text("Photos you previously chose to never show may appear again. Apple Photos is unchanged.")
         }
         .onAppear {
             guidedAccessIsEnabled = UIAccessibility.isGuidedAccessEnabled
@@ -371,13 +124,257 @@ struct WallModeSetupView: View {
         }
     }
 
+    private var photosSection: some View {
+        Section("Photos") {
+            HStack(spacing: 12) {
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.title2)
+                    .foregroundColor(.accentColor)
+                    .frame(width: 34)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(automaticAlbum.selectedAlbumTitle)
+                        .font(.headline)
+                    Text(automaticAlbumStatus)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+            }
+
+            Button(
+                automaticAlbum.configuration.isConfigured ? "Change Album" : "Choose an Album"
+            ) {
+                automaticAlbum.requestAccessAndLoadAlbums()
+                showAlbumPicker = true
+            }
+            .accessibilityIdentifier("choose-album")
+
+            if isAlbumBusy {
+                ProgressView(value: albumProgress)
+                    .accessibilityLabel("Preparing album photos")
+            }
+
+            if let report = automaticAlbum.lastSyncReport,
+               report.hasPartialFailure {
+                Label(partialReport(report), systemImage: "exclamationmark.icloud")
+                    .font(.footnote)
+                    .foregroundColor(.orange)
+            }
+
+            Text("Album changes refresh automatically. Photos may download from iCloud when needed, just like in Photos.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    private var slideshowSection: some View {
+        Section("Slideshow") {
+            Picker("Display Style", selection: $layoutPreference) {
+                ForEach(frameConfigurations.availableLayoutPreferences) { layout in
+                    Text(layout.title).tag(layout)
+                }
+            }
+
+            Picker("Speed", selection: $interval) {
+                ForEach([5.0, 10.0, 30.0, 60.0], id: \.self) { value in
+                    Text(intervalTitle(value)).tag(value)
+                }
+            }
+
+            Text("Automatic style works well for most photos and handles portrait pairs for you.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    private var displaySection: some View {
+        Section("Display") {
+            Label("Stays awake while the frame is playing", systemImage: "sun.max.fill")
+
+            Toggle("Night Schedule", isOn: $draft.scheduleEnabled)
+
+            if draft.scheduleEnabled {
+                DatePicker(
+                    "Begin dimming",
+                    selection: minuteBinding(\.dimStartMinute),
+                    displayedComponents: .hourAndMinute
+                )
+                DatePicker(
+                    "Screen goes dark",
+                    selection: minuteBinding(\.blackoutStartMinute),
+                    displayedComponents: .hourAndMinute
+                )
+                DatePicker(
+                    "Resume display",
+                    selection: minuteBinding(\.blackoutEndMinute),
+                    displayedComponents: .hourAndMinute
+                )
+            }
+
+            Text("The night schedule applies while FrameWink is open. It cannot relaunch the app after an iPad restart.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    private var mountedTipsSection: some View {
+        Section {
+            DisclosureGroup("Mounted iPad Tips", isExpanded: $showMountedTips) {
+                Label(
+                    guidedAccessIsEnabled ? "Guided Access is on" : "Guided Access is off",
+                    systemImage: guidedAccessIsEnabled ? "checkmark.shield.fill" : "shield"
+                )
+                .foregroundColor(guidedAccessIsEnabled ? .green : .secondary)
+
+                Text("Guided Access is optional. Start it with the iPad’s Accessibility Shortcut after the frame is playing.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+
+                ForEach(WallChecklistItem.allCases) { item in
+                    Button {
+                        toggle(item)
+                    } label: {
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(
+                                systemName: draft.completedChecklistItems.contains(item)
+                                    ? "checkmark.circle.fill"
+                                    : "circle"
+                            )
+                            .foregroundColor(
+                                draft.completedChecklistItems.contains(item) ? .green : .secondary
+                            )
+
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(item.title)
+                                    .foregroundColor(.primary)
+                                Text(item.detail)
+                                    .font(.footnote)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var maintenanceSection: some View {
+        Section("More Options") {
+            if automaticAlbum.smartReel != nil {
+                Button("Review Photos") {
+                    showReview = true
+                }
+            }
+
+            if automaticAlbum.configuration.isConfigured {
+                Button("Refresh Album Now") {
+                    automaticAlbum.refresh()
+                }
+                .disabled(isAlbumBusy)
+
+                Button("Reset Hidden Photos") {
+                    showResetNeverShowConfirmation = true
+                }
+                .disabled(isAlbumBusy)
+
+                Button("Remove Downloaded Album Photos", role: .destructive) {
+                    showDeleteAlbumConfirmation = true
+                }
+            }
+
+            if let error = wallMode.configurationError
+                ?? frameConfigurations.persistenceError {
+                Label(error, systemImage: "exclamationmark.triangle.fill")
+                    .foregroundColor(.orange)
+            }
+        }
+    }
+
+    private var isAlbumBusy: Bool {
+        switch automaticAlbum.phase {
+        case .loadingAlbums, .syncing, .curating:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private var albumProgress: Double? {
+        switch automaticAlbum.phase {
+        case .syncing(let progress), .curating(let progress):
+            return progress.fractionCompleted
+        default:
+            return nil
+        }
+    }
+
+    private var automaticAlbumStatus: String {
+        switch automaticAlbum.phase {
+        case .idle:
+            return automaticAlbum.configuration.isConfigured ? "Ready" : "No album selected"
+        case .loadingAlbums:
+            return "Loading albums…"
+        case .syncing(let progress):
+            return "Preparing \(progress.completedCount) of \(progress.totalCount)…"
+        case .curating(let progress):
+            return "Choosing \(progress.completedCount) of \(progress.totalCount)…"
+        case .ready(_, let suggestionCount):
+            return suggestionCount == 1 ? "1 photo ready" : "\(suggestionCount) photos ready"
+        case .accessDenied:
+            return "Photos access is unavailable"
+        case .failed(let message):
+            return message
+        }
+    }
+
+    private func partialReport(_ report: AlbumSyncReport) -> String {
+        if !report.failures.isEmpty {
+            return "Some photos could not be prepared. Your existing frame is still available."
+        }
+        return "Some photos still need to download from iCloud. FrameWink will try again."
+    }
+
+    private func intervalTitle(_ value: TimeInterval) -> String {
+        switch Int(value) {
+        case 5: return "Fast · 5 seconds"
+        case 10: return "Normal · 10 seconds"
+        case 30: return "Relaxed · 30 seconds"
+        default: return "Slow · 1 minute"
+        }
+    }
+
+    private func saveAndDismiss() {
+        wallMode.updateConfiguration(draft)
+        frameConfigurations.saveCurrent(
+            source: frameSource,
+            albumIdentifier: automaticAlbum.configuration.albumIdentifier,
+            albumTitle: automaticAlbum.configuration.albumTitle,
+            layoutPreference: layoutPreference,
+            interval: interval
+        )
+        guard wallMode.configurationError == nil,
+              frameConfigurations.persistenceError == nil else {
+            return
+        }
+        presentationMode.wrappedValue.dismiss()
+    }
+
+    private var frameSource: FrameConfigurationSource {
+        switch currentPhotoMode {
+        case .samples: return .samples
+        case .personal: return .freeSmartReel
+        case .automaticAlbum: return .automaticAlbum
+        }
+    }
+
     private func minuteBinding(
         _ keyPath: WritableKeyPath<WallModeConfiguration, Int>
     ) -> Binding<Date> {
         Binding(
-            get: {
-                date(for: draft[keyPath: keyPath])
-            },
+            get: { date(for: draft[keyPath: keyPath]) },
             set: { date in
                 let components = Calendar.current.dateComponents([.hour, .minute], from: date)
                 draft[keyPath: keyPath] = (components.hour ?? 0) * 60 + (components.minute ?? 0)
@@ -397,93 +394,43 @@ struct WallModeSetupView: View {
             draft.completedChecklistItems.insert(item)
         }
     }
-
-    private var isAlbumBusy: Bool {
-        switch automaticAlbum.phase {
-        case .loadingAlbums, .syncing, .curating:
-            return true
-        default:
-            return false
-        }
-    }
-
-    private var automaticAlbumStatus: String {
-        switch automaticAlbum.phase {
-        case .idle:
-            return automaticAlbum.configuration.isConfigured
-                ? "Ready to refresh"
-                : "Optional paid source; access is requested only when you choose it"
-        case .loadingAlbums:
-            return "Loading authorized albums…"
-        case .syncing(let progress):
-            return "Preparing \(progress.completedCount) of \(progress.totalCount)…"
-        case .curating(let progress):
-            return "Curating \(progress.completedCount) of \(progress.totalCount)…"
-        case .ready(let photoCount, let suggestionCount):
-            return "\(suggestionCount) suggestions from \(photoCount) locally cached photos"
-        case .accessDenied:
-            return "Photos access is denied or restricted; Free Smart Reel still works"
-        case .failed(let message):
-            return message
-        }
-    }
-
-    private func partialReport(_ report: AlbumSyncReport) -> String {
-        let cloud = report.cloudOnlyCount > 0
-            ? "\(report.cloudOnlyCount) photo(s) need an iCloud download and were skipped while Strict Offline is on. "
-            : ""
-        let failures = report.failures.isEmpty
-            ? ""
-            : "\(report.failures.count) photo(s) could not be prepared. "
-        return cloud + failures + "Existing local selections remain usable."
-    }
-
-    private func configurationSummary(
-        _ configuration: SavedFrameConfiguration
-    ) -> String {
-        let source = configuration.source == .automaticAlbum
-            ? (configuration.albumTitle ?? configuration.source.title)
-            : configuration.source.title
-        return "\(source) · \(configuration.layoutPreference.title) · \(Int(configuration.interval)) sec"
-    }
 }
 
-private struct AlbumPickerView: View {
+struct AlbumPickerView: View {
     @ObservedObject var controller: AutomaticAlbumController
+    let onSelect: (PhotoLibraryAlbum) -> Void
     @Environment(\.presentationMode) private var presentationMode
+
+    init(
+        controller: AutomaticAlbumController,
+        onSelect: @escaping (PhotoLibraryAlbum) -> Void = { _ in }
+    ) {
+        self.controller = controller
+        self.onSelect = onSelect
+    }
 
     var body: some View {
         NavigationView {
             Group {
                 if controller.authorization == .denied
                     || controller.authorization == .restricted {
-                    VStack(spacing: 14) {
-                        Image(systemName: "lock.slash")
-                            .font(.system(size: 44))
-                            .foregroundColor(.secondary)
-                        Text("Photos access is unavailable")
-                            .font(.title2.weight(.semibold))
-                        Text("Free Smart Reel needs no broad permission. To use an automatic album, allow Photos access for FrameWink in iPad Settings, then try again.")
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(32)
+                    emptyState(
+                        icon: "lock.slash",
+                        title: "Photos access is unavailable",
+                        detail: "Allow Photos access for FrameWink in iPad Settings, then try again."
+                    )
                 } else if case .failed(let message) = controller.phase {
                     VStack(spacing: 14) {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 44))
-                            .foregroundColor(.secondary)
-                        Text("Albums couldn’t be loaded")
-                            .font(.title2.weight(.semibold))
-                        Text(message)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.secondary)
+                        emptyState(
+                            icon: "exclamationmark.triangle",
+                            title: "Albums couldn’t be loaded",
+                            detail: LocalizedStringKey(message)
+                        )
                         Button("Try Again") {
                             controller.requestAccessAndLoadAlbums()
                         }
                         .buttonStyle(.borderedProminent)
                     }
-                    .padding(32)
                     .accessibilityIdentifier("album-picker-error")
                 } else if controller.phase == .loadingAlbums {
                     VStack(spacing: 14) {
@@ -494,28 +441,27 @@ private struct AlbumPickerView: View {
                     .accessibilityIdentifier("album-picker-loading")
                 } else if controller.albums.isEmpty {
                     VStack(spacing: 14) {
-                        Image(systemName: "photo.on.rectangle.angled")
-                            .font(.system(size: 44))
-                            .foregroundColor(.secondary)
-                        Text("No albums available")
-                            .font(.title2.weight(.semibold))
-                        Text("Create an album in Photos or change FrameWink’s Photos access, then try again.")
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.secondary)
+                        emptyState(
+                            icon: "photo.on.rectangle.angled",
+                            title: "No albums available",
+                            detail: "Create an album in Photos or change Photos access, then try again."
+                        )
                         Button("Try Again") {
                             controller.requestAccessAndLoadAlbums()
                         }
                         .buttonStyle(.borderedProminent)
                     }
-                    .padding(32)
                     .accessibilityIdentifier("album-picker-empty")
                 } else {
                     List(controller.albums) { album in
                         Button {
                             controller.selectAlbum(album)
+                            onSelect(album)
                             presentationMode.wrappedValue.dismiss()
                         } label: {
                             HStack {
+                                Image(systemName: "photo.on.rectangle.angled")
+                                    .foregroundColor(.accentColor)
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(album.title)
                                         .foregroundColor(.primary)
@@ -534,7 +480,7 @@ private struct AlbumPickerView: View {
                     .accessibilityIdentifier("album-picker-list")
                 }
             }
-            .navigationTitle("Choose Automatic Album")
+            .navigationTitle("Choose an Album")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -547,8 +493,26 @@ private struct AlbumPickerView: View {
         .navigationViewStyle(StackNavigationViewStyle())
     }
 
+    private func emptyState(
+        icon: String,
+        title: LocalizedStringKey,
+        detail: LocalizedStringKey
+    ) -> some View {
+        VStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 44))
+                .foregroundColor(.secondary)
+            Text(title)
+                .font(.title2.weight(.semibold))
+            Text(detail)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.secondary)
+        }
+        .padding(32)
+    }
+
     private func albumCountDescription(_ photoCount: Int?) -> String {
-        guard let photoCount = photoCount else { return "Photo album" }
-        return photoCount == 1 ? "1 item" : "\(photoCount) items"
+        guard let photoCount else { return "Photo album" }
+        return photoCount == 1 ? "1 photo" : "\(photoCount) photos"
     }
 }

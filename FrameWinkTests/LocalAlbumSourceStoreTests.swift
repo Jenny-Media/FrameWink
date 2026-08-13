@@ -18,7 +18,7 @@ final class LocalAlbumSourceStoreTests: XCTestCase {
         testRoot = nil
     }
 
-    func testConfigurationPersistsAndDefaultsToStrictOffline() throws {
+    func testConfigurationPersistsAndAllowsNeededICloudDownloadsByDefault() throws {
         XCTAssertEqual(store.loadConfiguration(), .defaultConfiguration)
         var configuration = AutomaticAlbumConfiguration.defaultConfiguration
         configuration.albumIdentifier = "album-id"
@@ -28,7 +28,7 @@ final class LocalAlbumSourceStoreTests: XCTestCase {
 
         let reopened = LocalAlbumSourceStore(baseURL: testRoot)
         XCTAssertEqual(reopened.loadConfiguration(), configuration)
-        XCTAssertTrue(reopened.loadConfiguration().strictOffline)
+        XCTAssertFalse(reopened.loadConfiguration().strictOffline)
     }
 
     func testCorruptRecordsAreDiscardedWithOrphanedImages() throws {

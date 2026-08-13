@@ -2,10 +2,11 @@ import SwiftUI
 
 private enum SheetDestination: String, Identifiable {
     case photoPicker
+    case albumPicker
     case privacy
     case reviewSuggestions
     case automaticAlbumReview
-    case wallModeSetup
+    case frameSettings
     case wallModePaywall
 
     var id: String { rawValue }
@@ -21,9 +22,9 @@ struct RootView: View {
 
     @State private var presentedSheet: SheetDestination?
     @State private var showDeleteConfirmation = false
-    @State private var showResetNeverShowConfirmation = false
     @State private var isFrameMode = false
     @State private var didApplyInitialPresentation = false
+    @AppStorage("preferredPhotoCollectionMode") private var preferredPhotoMode = ""
 
     init(
         model: AppModel,
@@ -94,17 +95,22 @@ struct RootView: View {
                     model.importSelectedItems(items)
                 }
                 .ignoresSafeArea()
+            case .albumPicker:
+                AlbumPickerView(controller: automaticAlbum) { _ in
+                    selectPhotoMode(.automaticAlbum)
+                }
             case .privacy:
                 PrivacySheet()
             case .reviewSuggestions:
                 ReviewSuggestionsView(model: model)
             case .automaticAlbumReview:
                 AutomaticAlbumReviewView(controller: automaticAlbum)
-            case .wallModeSetup:
+            case .frameSettings:
                 WallModeSetupView(
                     wallMode: wallMode,
                     automaticAlbum: automaticAlbum,
                     frameConfigurations: frameConfigurations,
+                    currentPhotoMode: $model.collectionMode,
                     initialSection: initialPresentation.wallModeSetupSection
                 )
             case .wallModePaywall:
@@ -118,30 +124,12 @@ struct RootView: View {
         .alert("Delete Imported Photos?", isPresented: $showDeleteConfirmation) {
             Button("Delete All Imported Photos", role: .destructive) {
                 model.deleteImportedPhotos()
+                selectPhotoMode(.samples)
             }
             .accessibilityIdentifier("confirm-delete-imported-photos")
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This removes every app-controlled photo copy and its derived records. Your Apple Photos library is never changed.")
-        }
-        .alert("Reset Never Show Choices?", isPresented: $showResetNeverShowConfirmation) {
-            Button("Reset and Rebuild") {
-                model.resetNeverShowChoices()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This clears only FrameWink’s local Never Show choices and rebuilds the Smart Reel. Your imported photo copies and Apple Photos library stay unchanged.")
-        }
-        .onChange(of: model.curationPhase) { phase in
-            if case .ready = phase {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    guard presentedSheet == nil,
-                          case .ready = model.curationPhase else {
-                        return
-                    }
-                    presentedSheet = .reviewSuggestions
-                }
-            }
         }
         .onChange(of: isFrameMode) { isActive in
             wallMode.setFrameModeActive(isActive)
@@ -149,14 +137,8 @@ struct RootView: View {
             PhysicalAcceptanceRecorder.shared.recordStateChange()
 #endif
         }
-        .onChange(of: automaticAlbum.canDisplay) { canDisplay in
-            if canDisplay,
-               frameConfigurations.activeConfiguration?.source == .automaticAlbum {
-                model.collectionMode = .automaticAlbum
-            } else if !canDisplay, model.collectionMode == .automaticAlbum {
-                model.collectionMode = model.importedPhotos.isEmpty ? .samples : .personal
-                isFrameMode = false
-            }
+        .onChange(of: model.collectionMode) { mode in
+            preferredPhotoMode = mode.rawValue
         }
         .onChange(of: frameConfigurations.activeConfiguration) { _ in
             applyActiveFrameConfiguration()
@@ -164,6 +146,9 @@ struct RootView: View {
         .onAppear {
             wallMode.setFrameModeActive(isFrameMode)
             applyActiveFrameConfiguration()
+            if initialPresentation == nil {
+                restorePreferredPhotoMode()
+            }
             applyInitialPresentationIfNeeded()
         }
         .onDisappear {
@@ -178,17 +163,7 @@ struct RootView: View {
 
                 Spacer()
 
-                if availableCollectionModes.count > 1 {
-                    Picker("Displayed photos", selection: $model.collectionMode) {
-                        ForEach(availableCollectionModes) { mode in
-                            Text(mode.title).tag(mode)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 280)
-                    .padding(6)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
-                }
+                homeMenu
             }
             .padding(.horizontal, 26)
             .padding(.top, 18)
@@ -201,10 +176,77 @@ struct RootView: View {
         }
     }
 
+    private var homeMenu: some View {
+        Menu {
+            Section("Photos") {
+                if automaticAlbum.canDisplay {
+                    Button(automaticAlbum.selectedAlbumTitle) {
+                        selectPhotoMode(.automaticAlbum)
+                    }
+                }
+                if !model.importedPhotos.isEmpty {
+                    Button("My Selected Photos") {
+                        selectPhotoMode(.personal)
+                    }
+                }
+                Button("Sample Photos") {
+                    selectPhotoMode(.samples)
+                }
+                Button("Choose an Album…") {
+                    chooseAlbum()
+                }
+                Button(model.importedPhotos.isEmpty ? "Choose Individual Photos…" : "Add Individual Photos…") {
+                    presentedSheet = .photoPicker
+                }
+            }
+
+            if model.collectionMode == .automaticAlbum,
+               automaticAlbum.smartReel != nil {
+                Button("Review Photos") {
+                    presentedSheet = .automaticAlbumReview
+                }
+            } else if model.collectionMode == .personal,
+                      model.smartReel != nil {
+                Button("Review Photos") {
+                    presentedSheet = .reviewSuggestions
+                }
+            }
+
+            Divider()
+
+            Button(purchases.isWallModeUnlocked ? "Frame Settings" : "More Frame Features") {
+                presentedSheet = purchases.isWallModeUnlocked
+                    ? .frameSettings
+                    : .wallModePaywall
+            }
+            Button("Privacy") {
+                presentedSheet = .privacy
+            }
+
+            if !model.importedPhotos.isEmpty {
+                Divider()
+                Button("Delete Imported Photos", role: .destructive) {
+                    showDeleteConfirmation = true
+                }
+                .accessibilityIdentifier("delete-imported-photos")
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle.fill")
+                .font(.system(size: 34))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundColor(.white)
+                .shadow(color: .black.opacity(0.5), radius: 6)
+                .frame(width: 52, height: 52)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel("More")
+        .accessibilityHint("Change photos, review selections, or open settings")
+    }
+
     @ViewBuilder
     private var sampleBadge: some View {
         if model.collectionMode == .samples {
-            Label("SAMPLE PHOTOS", systemImage: "sparkles")
+            Label("Sample Photos", systemImage: "sparkles")
                 .font(.caption.weight(.bold))
                 .foregroundColor(.white)
                 .padding(.horizontal, 14)
@@ -215,10 +257,10 @@ struct RootView: View {
     }
 
     private var setupCard: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 7) {
                 Text(setupTitle)
-                    .font(.title3.weight(.semibold))
+                    .font(.title2.weight(.semibold))
                     .foregroundColor(.primary)
 
                 if model.collectionMode == .automaticAlbum {
@@ -230,8 +272,8 @@ struct RootView: View {
                     } else if case .curating(let progress) = automaticAlbum.phase {
                         automaticAlbumProgress(progress, label: "Automatic album curation progress")
                     }
-                } else if model.importedPhotos.isEmpty {
-                    Text("Choose up to 100 photos. FrameWink keeps only display-sized copies on this iPad.")
+                } else if model.collectionMode == .samples {
+                    Text(sampleSetupDescription)
                         .foregroundColor(.secondary)
                 } else {
                     Text(curationStatus)
@@ -245,107 +287,34 @@ struct RootView: View {
                 }
             }
 
-            VStack(alignment: .trailing, spacing: 10) {
-                HStack {
-                    Button("Privacy") {
-                        presentedSheet = .privacy
-                    }
-                    .buttonStyle(.bordered)
-
-                    Button(purchases.isWallModeUnlocked ? "Wall Mode Setup" : "Unlock Wall Mode") {
-                        presentedSheet = purchases.isWallModeUnlocked
-                            ? .wallModeSetup
-                            : .wallModePaywall
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityHint(
-                        purchases.isWallModeUnlocked
-                            ? "Opens Wall Mode commissioning and schedule settings"
-                            : "Shows the one-time Wall Mode purchase"
-                    )
-
-                    Button(model.importedPhotos.isEmpty ? "Choose My Photos" : "Add Photos") {
-                        presentedSheet = .photoPicker
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .accessibilityHint("Opens the system photo picker with a 100-photo limit")
-                }
-
+            HStack(spacing: 12) {
                 Button {
-                    isFrameMode = true
+                    primaryAction()
                 } label: {
-                    Label("Play Full Screen", systemImage: "play.fill")
+                    Label(primaryActionTitle, systemImage: primaryActionIcon)
+                        .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
-                .accessibilityHint("Starts the full-screen photo frame with playback controls")
-                .disabled(
-                    displayedSlides.isEmpty
-                        || (model.collectionMode == .personal
-                            && !model.importedPhotos.isEmpty
-                            && model.smartReel == nil)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .disabled(primaryActionIsDisabled)
+                .accessibilityIdentifier(
+                    primaryActionTitle == "Choose an Album"
+                        ? "album-picker-action"
+                        : "primary-frame-action"
                 )
 
-                if model.collectionMode == .automaticAlbum {
-                    HStack {
-                        Button("Review Automatic Suggestions") {
-                            presentedSheet = .automaticAlbumReview
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(automaticAlbum.smartReel == nil)
-
-                        Button("Refresh Album") {
-                            automaticAlbum.refresh()
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                } else if !model.importedPhotos.isEmpty {
-                    HStack {
-                        Button("Review Suggestions") {
-                            presentedSheet = .reviewSuggestions
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(model.smartReel == nil)
-
-                        if model.isCurating {
-                            Button("Stop Curating", role: .cancel) {
-                                model.cancelCuration()
-                            }
-                            .buttonStyle(.bordered)
-                        } else {
-                            Button("Refresh Smart Reel") {
-                                model.refreshSmartReel()
-                            }
-                            .buttonStyle(.bordered)
-                        }
-                    }
-
-                    Button(role: .destructive) {
-                        showDeleteConfirmation = true
-                    } label: {
-                        Text("Delete Imported Photos")
-                            .frame(minHeight: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .font(.footnote.weight(.semibold))
-                    .buttonStyle(.bordered)
-                    .controlSize(.regular)
-                    .accessibilityIdentifier("delete-imported-photos")
-
-                    Button {
-                        showResetNeverShowConfirmation = true
-                    } label: {
-                        Text("Reset Never Show Choices")
-                            .frame(minHeight: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .font(.footnote.weight(.semibold))
-                    .buttonStyle(.bordered)
-                    .controlSize(.regular)
-                    .disabled(model.isCurating)
+                Button(secondaryActionTitle) {
+                    secondaryAction()
                 }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .frame(maxWidth: .infinity)
+                .accessibilityIdentifier(
+                    model.collectionMode == .automaticAlbum
+                        ? "album-picker-action"
+                        : "secondary-photo-action"
+                )
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .padding(22)
         .frame(maxWidth: 860)
@@ -357,59 +326,191 @@ struct RootView: View {
     private var curationStatus: String {
         switch model.curationPhase {
         case .idle:
-            return "\(model.importedPhotos.count) imported photos are ready offline."
+            return "\(model.importedPhotos.count) photos are ready."
         case .analyzing(let progress):
-            return "Curating \(progress.completedCount) of \(progress.totalCount) photos on this iPad."
+            return "Finding your best photos — \(progress.completedCount) of \(progress.totalCount)…"
         case .ready(let count):
-            return "\(count) Smart Reel suggestions are ready to review."
+            return count == 1 ? "1 photo is ready." : "\(count) photos are ready."
         case .cancelled:
-            return "Curation stopped. Saved analysis will be reused when you resume."
+            return "Photo preparation paused."
         case .failed:
-            return "Smart Reel needs another try; your imported photos are still available."
+            return "Your photos are safe, but preparation needs another try."
         }
-    }
-
-    private var availableCollectionModes: [PhotoCollectionMode] {
-        var modes: [PhotoCollectionMode] = [.samples]
-        if !model.importedPhotos.isEmpty {
-            modes.append(.personal)
-        }
-        if automaticAlbum.canDisplay {
-            modes.append(.automaticAlbum)
-        }
-        return modes
     }
 
     private var displayedSlides: [DisplaySlide] {
         if model.collectionMode == .automaticAlbum {
-            return automaticAlbum.slides
+            let albumSlides = automaticAlbum.slides
+            return albumSlides.isEmpty ? model.slides : albumSlides
         }
         return model.slides
     }
 
     private var setupTitle: String {
-        if model.collectionMode == .automaticAlbum {
+        switch model.collectionMode {
+        case .automaticAlbum:
             return automaticAlbum.selectedAlbumTitle
+        case .personal:
+            return "My Photos"
+        case .samples:
+            return model.importedPhotos.isEmpty ? "Make this frame yours" : "Sample Photos"
         }
-        return model.importedPhotos.isEmpty ? "Make it yours" : "Your private reel"
+    }
+
+    private var sampleSetupDescription: String {
+        if !model.importedPhotos.isEmpty {
+            return "Enjoy the examples, or switch back to your selected photos."
+        }
+        if purchases.isWallModeUnlocked {
+            return "Choose a Photos album and FrameWink will quietly find the best photos for your frame."
+        }
+        return "Choose a few favorites and FrameWink will quietly prepare them for your frame."
     }
 
     private var automaticAlbumStatus: String {
         switch automaticAlbum.phase {
         case .idle:
-            return "Choose and refresh an album from Wall Mode Setup."
+            return automaticAlbum.configuration.isConfigured
+                ? "This album will update automatically."
+                : "Choose a Photos album to begin."
         case .loadingAlbums:
-            return "Loading the albums you authorized…"
+            return "Loading your albums…"
         case .syncing(let progress):
-            return "Preparing \(progress.completedCount) of \(progress.totalCount) album photos on this iPad."
+            return "Preparing \(progress.completedCount) of \(progress.totalCount) photos…"
         case .curating(let progress):
-            return "Curating \(progress.completedCount) of \(progress.totalCount) cached photos."
+            return "Finding your best photos — \(progress.completedCount) of \(progress.totalCount)…"
         case .ready(let photoCount, let suggestionCount):
-            return "\(suggestionCount) suggestions from \(photoCount) cached album photos are ready offline."
+            if suggestionCount == 1 { return "1 photo is ready from \(photoCount) album item(s)." }
+            return "\(suggestionCount) photos are ready."
         case .accessDenied:
-            return "Album access is unavailable. Free Smart Reel is unchanged."
+            return "Allow Photos access in Settings to use this album."
         case .failed(let message):
             return message
+        }
+    }
+
+    private var primaryActionTitle: String {
+        switch model.collectionMode {
+        case .samples where model.importedPhotos.isEmpty
+            && !automaticAlbum.configuration.isConfigured:
+            return purchases.isWallModeUnlocked ? "Choose an Album" : "Choose Photos"
+        default:
+            return isPreparingCurrentSource ? "Preparing Photos…" : "Start Frame"
+        }
+    }
+
+    private var primaryActionIcon: String {
+        if primaryActionTitle == "Choose an Album" { return "photo.on.rectangle.angled" }
+        if primaryActionTitle == "Choose Photos" { return "photo.badge.plus" }
+        return "play.fill"
+    }
+
+    private var primaryActionIsDisabled: Bool {
+        if primaryActionTitle == "Choose an Album" || primaryActionTitle == "Choose Photos" {
+            return false
+        }
+        return isPreparingCurrentSource || displayedSlides.isEmpty
+    }
+
+    private var secondaryActionTitle: String {
+        switch model.collectionMode {
+        case .automaticAlbum:
+            return automaticAlbum.configuration.isConfigured ? "Change Album" : "Choose Photos"
+        case .personal:
+            return "Add Photos"
+        case .samples:
+            if model.importedPhotos.isEmpty {
+                return purchases.isWallModeUnlocked ? "Choose Photos" : "Start Sample Frame"
+            }
+            return "My Photos"
+        }
+    }
+
+    private var isPreparingCurrentSource: Bool {
+        switch model.collectionMode {
+        case .automaticAlbum:
+            switch automaticAlbum.phase {
+            case .loadingAlbums, .syncing, .curating: return true
+            default: return !automaticAlbum.canDisplay
+            }
+        case .personal:
+            return model.smartReel == nil && !model.importedPhotos.isEmpty
+        case .samples:
+            return false
+        }
+    }
+
+    private func primaryAction() {
+        if primaryActionTitle == "Choose an Album" {
+            chooseAlbum()
+        } else if primaryActionTitle == "Choose Photos" {
+            presentedSheet = .photoPicker
+        } else {
+            isFrameMode = true
+        }
+    }
+
+    private func secondaryAction() {
+        switch model.collectionMode {
+        case .automaticAlbum:
+            automaticAlbum.configuration.isConfigured
+                ? chooseAlbum()
+                : (presentedSheet = .photoPicker)
+        case .personal:
+            presentedSheet = .photoPicker
+        case .samples:
+            if model.importedPhotos.isEmpty {
+                if purchases.isWallModeUnlocked {
+                    presentedSheet = .photoPicker
+                } else {
+                    isFrameMode = true
+                }
+            } else {
+                selectPhotoMode(.personal)
+            }
+        }
+    }
+
+    private func chooseAlbum() {
+        guard purchases.isWallModeUnlocked else {
+            presentedSheet = .wallModePaywall
+            return
+        }
+        automaticAlbum.requestAccessAndLoadAlbums()
+        presentedSheet = .albumPicker
+    }
+
+    private func selectPhotoMode(_ mode: PhotoCollectionMode) {
+        model.collectionMode = mode
+        preferredPhotoMode = mode.rawValue
+    }
+
+    private func restorePreferredPhotoMode() {
+#if DEBUG
+        if DebugScreenshotScenario.current != nil { return }
+#endif
+        if let preferred = PhotoCollectionMode(rawValue: preferredPhotoMode) {
+            switch preferred {
+            case .automaticAlbum where automaticAlbum.configuration.isConfigured:
+                model.collectionMode = .automaticAlbum
+                return
+            case .personal where !model.importedPhotos.isEmpty:
+                model.collectionMode = .personal
+                return
+            case .samples:
+                model.collectionMode = .samples
+                return
+            default:
+                break
+            }
+        }
+
+        if automaticAlbum.configuration.isConfigured {
+            model.collectionMode = .automaticAlbum
+        } else if !model.importedPhotos.isEmpty {
+            model.collectionMode = .personal
+        } else {
+            model.collectionMode = .samples
         }
     }
 
@@ -457,7 +558,7 @@ struct RootView: View {
                     )
                 )
             }
-            model.collectionMode = automaticAlbum.canDisplay ? .automaticAlbum : .samples
+            model.collectionMode = .automaticAlbum
         }
     }
 
@@ -470,7 +571,7 @@ struct RootView: View {
         case .wallModePaywallFeatures, .wallModePaywallPurchase:
             presentedSheet = .wallModePaywall
         case .wallModeSetup:
-            presentedSheet = .wallModeSetup
+            presentedSheet = .frameSettings
         case .automaticAlbumReview:
             presentedSheet = .automaticAlbumReview
         case .freeReview:
@@ -521,7 +622,7 @@ private struct PrivacySheet: View {
                     privacyPoint(
                         icon: "trash",
                         title: "Delete whenever you want",
-                        detail: "Delete Imported Photos and Delete Automatic Album Cache remove app-controlled copies and derived records without changing Apple Photos."
+                        detail: "Delete Imported Photos and Remove Downloaded Album Photos erase app-controlled copies and derived records without changing Apple Photos."
                     )
                 }
                 .frame(maxWidth: 640, alignment: .leading)

@@ -26,7 +26,7 @@ final class StoreKitConfigurationTests: XCTestCase {
         let product = try XCTUnwrap(products.first)
 
         XCTAssertEqual(product.type, .nonConsumable)
-        XCTAssertEqual(product.displayName, "Wall Mode Lifetime")
+        XCTAssertEqual(product.displayName, "FrameWink Lifetime")
         XCTAssertTrue(product.isFamilyShareable)
     }
 

@@ -200,9 +200,6 @@ struct FrameWinkApp: App {
 
     private var initialPresentation: RootInitialPresentation? {
 #if DEBUG
-        if DebugPhysicalAcceptanceMode.isEnabled {
-            return .wallModeSetup(.automaticAlbum)
-        }
         return DebugScreenshotScenario.current?.initialPresentation
 #else
         return nil

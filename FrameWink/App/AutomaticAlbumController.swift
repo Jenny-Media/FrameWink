@@ -24,6 +24,7 @@ final class AutomaticAlbumController: ObservableObject {
     private var debounceTask: Task<Void, Never>?
     private var generation = UUID()
     private var lastProgressUpdate = Date.distantPast
+    private var isRefreshInProgress = false
 
     init(
         client: PhotoLibraryClient,
@@ -40,7 +41,12 @@ final class AutomaticAlbumController: ObservableObject {
         self.displayHistoryStore = displayHistoryStore
         self.changeRefreshDelayNanoseconds = changeRefreshDelayNanoseconds
         authorization = client.authorizationState()
-        configuration = store.loadConfiguration()
+        var loadedConfiguration = store.loadConfiguration()
+        if loadedConfiguration.strictOffline {
+            loadedConfiguration.strictOffline = false
+            try? store.saveConfiguration(loadedConfiguration)
+        }
+        configuration = loadedConfiguration
         records = (try? store.loadRecords()) ?? []
         if let saved = try? smartReelBuilder.loadSavedReel() {
             let availableIDs = Set(records.map(\.photo.id))
@@ -92,14 +98,12 @@ final class AutomaticAlbumController: ObservableObject {
         let recordsByID = Dictionary(
             uniqueKeysWithValues: records.map { ($0.photo.id, $0) }
         )
-        return smartReel.selections.compactMap { selection in
+        return smartReel.selections.compactMap { selection -> DisplaySlide? in
             guard let record = recordsByID[selection.candidateID] else { return nil }
             return DisplaySlide(
                 id: "album-" + record.photo.id.uuidString,
-                title: "Automatic album selection",
-                caption: LocalizedStringKey(
-                    "Refreshed privately from \(selectedAlbumTitle)"
-                ),
+                title: LocalizedStringKey(selectedAlbumTitle),
+                caption: "Selected privately on this iPad",
                 accessibilityLabel: "A photo selected from your automatic album",
                 source: .automaticAlbum(record.photo),
                 importantRects: selection.importantRects
@@ -119,6 +123,8 @@ final class AutomaticAlbumController: ObservableObject {
         } else {
             generation = UUID()
             syncTask?.cancel()
+            syncTask = nil
+            isRefreshInProgress = false
             debounceTask?.cancel()
             observationTask?.cancel()
             observationTask = nil
@@ -137,6 +143,8 @@ final class AutomaticAlbumController: ObservableObject {
         } else if configuration.isConfigured {
             generation = UUID()
             syncTask?.cancel()
+            syncTask = nil
+            isRefreshInProgress = false
             debounceTask?.cancel()
             observationTask?.cancel()
             observationTask = nil
@@ -224,9 +232,16 @@ final class AutomaticAlbumController: ObservableObject {
         generation = UUID()
         let currentGeneration = generation
         lastProgressUpdate = .distantPast
+        isRefreshInProgress = true
         phase = .syncing(ImportProgress(completedCount: 0, totalCount: 0))
         syncTask = Task { [weak self] in
             guard let self = self else { return }
+            defer {
+                if generation == currentGeneration {
+                    isRefreshInProgress = false
+                    syncTask = nil
+                }
+            }
             do {
                 let report = try await synchronizer.synchronize(
                     albumIdentifier: albumIdentifier,
@@ -295,6 +310,8 @@ final class AutomaticAlbumController: ObservableObject {
     func deleteCachedAlbum() {
         generation = UUID()
         syncTask?.cancel()
+        syncTask = nil
+        isRefreshInProgress = false
         debounceTask?.cancel()
         do {
             try store.deleteAllCachedData()
@@ -314,9 +331,7 @@ final class AutomaticAlbumController: ObservableObject {
     private func curate(currentGeneration: UUID) async throws {
         guard !records.isEmpty else {
             smartReel = nil
-            phase = .failed(
-                "No locally available photos were found in this album. If Strict Offline is on, make photos available on this iPad or allow iCloud downloads."
-            )
+            phase = .failed("No usable photos were found in this album. Choose another album or try again.")
             return
         }
         let recordsByID = Dictionary(
@@ -401,6 +416,7 @@ final class AutomaticAlbumController: ObservableObject {
             guard let self = self else { return }
             try? await Task.sleep(nanoseconds: self.changeRefreshDelayNanoseconds)
             guard !Task.isCancelled else { return }
+            guard !self.isRefreshInProgress else { return }
             self.refresh()
         }
     }

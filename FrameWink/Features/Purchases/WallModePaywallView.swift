@@ -27,7 +27,7 @@ struct WallModePaywallView: View {
                             Text("Make this iPad a dependable frame")
                                 .font(.largeTitle.bold())
 
-                            Text("Wall Mode Lifetime is one non-consumable purchase—no subscription, account, ads, or photo upload.")
+                            Text("FrameWink Lifetime is one purchase—no subscription, account, ads, or photo upload.")
                                 .font(.title3)
                                 .foregroundColor(.secondary)
                         }
@@ -40,8 +40,8 @@ struct WallModePaywallView: View {
                             )
                             paidPoint(
                                 icon: "rectangle.grid.2x2.fill",
-                                title: "Mosaic and saved frames",
-                                detail: "Save multiple source, layout, and timing configurations—including a four-photo Mosaic layout."
+                                title: "More display styles",
+                                detail: "Add Mosaic and choose the look and timing that fit your space."
                             )
                             paidPoint(
                                 icon: "arrow.triangle.2.circlepath",
@@ -56,12 +56,12 @@ struct WallModePaywallView: View {
                             paidPoint(
                                 icon: "display",
                                 title: "Continuous foreground display",
-                                detail: "Prevent Auto-Lock only during active, foreground Frame Mode."
+                                detail: "Prevent Auto-Lock only while the frame is playing in the foreground."
                             )
                             paidPoint(
                                 icon: "checklist",
-                                title: "Wall setup assistance",
-                                detail: "Commission power, ventilation, cable routing, orientation, Guided Access, and restart recovery."
+                                title: "Mounted iPad tips",
+                                detail: "Get optional guidance for power, ventilation, orientation, Guided Access, and restart recovery."
                             )
                         }
 
@@ -73,7 +73,7 @@ struct WallModePaywallView: View {
                         }
 
                         if purchases.isWallModeUnlocked {
-                            Label("Wall Mode is unlocked", systemImage: "checkmark.circle.fill")
+                            Label("FrameWink Lifetime is unlocked", systemImage: "checkmark.circle.fill")
                                 .font(.title3.weight(.semibold))
                                 .foregroundColor(.green)
 
@@ -87,7 +87,7 @@ struct WallModePaywallView: View {
                                 .id("purchase-controls")
                         }
 
-                        Text("Automatic albums request Photos access only after you choose that feature. FrameWink reads the selected album, keeps display-sized copies on this iPad, never changes your Photos library, and offers a Strict Offline option that avoids iCloud downloads.")
+                        Text("Automatic albums request Photos access only after you choose that feature. FrameWink reads the selected album, keeps display-sized copies on this iPad, and never changes your Photos library.")
                             .font(.footnote)
                             .foregroundColor(.secondary)
                     }
@@ -101,7 +101,7 @@ struct WallModePaywallView: View {
                     }
                 }
             }
-            .navigationTitle("Wall Mode")
+            .navigationTitle("FrameWink Lifetime")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -146,7 +146,7 @@ struct WallModePaywallView: View {
         if let product = purchases.product {
             return "Unlock for \(product.displayPrice)"
         }
-        return "Wall Mode unavailable"
+        return "Purchase unavailable"
     }
 
     @ViewBuilder
@@ -158,10 +158,10 @@ struct WallModePaywallView: View {
             Text("Contacting the App Store…")
                 .foregroundColor(.secondary)
         case .purchased, .restored:
-            Label("Wall Mode unlocked", systemImage: "checkmark.circle.fill")
+            Label("FrameWink Lifetime unlocked", systemImage: "checkmark.circle.fill")
                 .foregroundColor(.green)
         case .nothingToRestore:
-            Text("No previous Wall Mode purchase was found. Your free Smart Reel is unchanged.")
+            Text("No previous purchase was found. Your free Smart Reel is unchanged.")
                 .foregroundColor(.secondary)
         case .cancelled:
             Text("Purchase cancelled. Your free Smart Reel is unchanged.")

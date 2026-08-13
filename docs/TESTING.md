@@ -404,12 +404,13 @@ Provisional gates:
 - First launch produces no Photos authorization prompt.
 - Sample Mode works with networking disabled.
 - Imported Smart Reel works in Airplane Mode.
-- Paid automatic albums prompt only after the explicit `Choose Automatic Album`
+- Paid automatic albums prompt only after the explicit `Choose an Album`
   action; denial does not affect Sample Mode or Free Smart Reel.
 - `PHPhotoLibraryPreventAutomaticLimitedAccessAlert` prevents iOS from showing
   its own recurring Limited-access alert at launch.
-- Strict Offline automatic albums request no network access. With it disabled,
-  Apple Photos—not a FrameWink endpoint—may download an iCloud original.
+- Apple Photos—not a FrameWink endpoint—may download an iCloud original needed
+  by an automatic album. Download-driven PhotoKit notifications must not restart
+  preparation already in progress.
 - Hidden photos and screenshots are excluded from automatic selection, and the
   app issues no PhotoKit mutation request.
 - No developer-controlled endpoint or third-party SDK exists in the binary.
@@ -556,3 +557,27 @@ shows the exact count plus **Allow iCloud Downloads and Refresh**, and refreshes
 immediately when Strict Offline is disabled. The same physical album now shows
 325 iCloud downloads needed rather than generic failures. Actually downloading
 those private originals remains an explicit owner action.
+
+## Content-first refinement verification — 2026-08-12
+
+- The complete iOS 27 `iPad (A16)` Simulator scheme passes 110 tests: 105 unit
+  tests and five UI tests, with zero failures, expected failures, or runtime
+  warnings. The sixth UI test is the intentional physical-only PhotoKit check
+  and skips on Simulator.
+- UI automation proves the sample home has one primary action and one
+  contextual secondary action, maintenance is behind More, Frame Settings has
+  no user-facing Wall Mode or Strict Offline control, picker cancellation stays
+  permission-safe, local playback/deletion works after relaunch, and frame
+  navigation survives landscape/portrait rotation.
+- Unit coverage proves a legacy Strict Offline preference migrates to normal
+  iCloud-capable behavior, the simple active frame configuration updates in
+  place, and PhotoKit change notifications cannot restart an album preparation
+  already in progress. A genuine change delivered after preparation becomes
+  idle still triggers automatic refresh.
+- Full-screen playback no longer displays technical source captions; its
+  visible chrome is close, previous, pause/play, next, and More. Home and Frame
+  Settings continue to expose source/status context before playback.
+- The signed replacement build installed on the connected iPad Pro 12.9-inch
+  (3rd generation). iPadOS denied only the foreground launch because the device
+  auto-locked, so the same 326-photo album still needs an unlocked physical
+  progress sample before B-015 can close.

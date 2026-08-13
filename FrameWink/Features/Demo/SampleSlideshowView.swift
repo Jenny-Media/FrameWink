@@ -49,7 +49,8 @@ struct SampleSlideshowView: View {
                         .id(page.id)
                         .transition(reduceMotion ? .identity : .opacity)
 
-                    if let slide = slidesByID[page.placements.first?.photoID ?? ""] {
+                    if !isFrameMode,
+                       let slide = slidesByID[page.placements.first?.photoID ?? ""] {
                         caption(for: slide)
                             .id(slide.id)
                             .transition(.identity)
@@ -286,23 +287,16 @@ struct SampleSlideshowView: View {
                 Button {
                     isFrameMode = false
                 } label: {
-                    Label("Exit Frame Mode", systemImage: "xmark")
-                        .font(.subheadline.weight(.semibold))
+                    Image(systemName: "xmark")
+                        .font(.headline.weight(.semibold))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(.black.opacity(0.55), in: Capsule())
+                        .frame(width: 44, height: 44)
+                        .background(.black.opacity(0.55), in: Circle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Close frame")
 
                 Spacer()
-
-                Text("FRAME MODE")
-                    .font(.caption.weight(.bold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(.black.opacity(0.45), in: Capsule())
             }
 
             Spacer()
@@ -335,42 +329,42 @@ struct SampleSlideshowView: View {
                     .overlay(Color.white.opacity(0.35))
 
                 Menu {
-                    ForEach(availableLayoutPreferences) { preference in
-                        Button {
-                            layoutPreference = preference
-                            presentationDidChange(preference, session.interval)
-                            revealControls()
-                        } label: {
-                            if layoutPreference == preference {
-                                Label(preference.title, systemImage: "checkmark")
-                            } else {
-                                Text(preference.title)
+                    Menu("Display Style") {
+                        ForEach(availableLayoutPreferences) { preference in
+                            Button {
+                                layoutPreference = preference
+                                presentationDidChange(preference, session.interval)
+                                revealControls()
+                            } label: {
+                                if layoutPreference == preference {
+                                    Label(preference.title, systemImage: "checkmark")
+                                } else {
+                                    Text(preference.title)
+                                }
                             }
                         }
                     }
-                } label: {
-                    Label(layoutPreference.title, systemImage: "rectangle.split.2x1")
-                }
-                .accessibilityLabel("Layout: \(layoutPreference.title)")
 
-                Menu {
-                    ForEach(availableIntervals, id: \.self) { interval in
-                        Button {
-                            session.setInterval(interval, at: Date())
-                            presentationDidChange(layoutPreference, interval)
-                            revealControls()
-                        } label: {
-                            if session.interval == interval {
-                                Label(intervalTitle(interval), systemImage: "checkmark")
-                            } else {
-                                Text(intervalTitle(interval))
+                    Menu("Slideshow Speed") {
+                        ForEach(availableIntervals, id: \.self) { interval in
+                            Button {
+                                session.setInterval(interval, at: Date())
+                                presentationDidChange(layoutPreference, interval)
+                                revealControls()
+                            } label: {
+                                if session.interval == interval {
+                                    Label(intervalTitle(interval), systemImage: "checkmark")
+                                } else {
+                                    Text(intervalTitle(interval))
+                                }
                             }
                         }
                     }
                 } label: {
-                    Label(intervalTitle(session.interval), systemImage: "timer")
+                    Image(systemName: "ellipsis")
+                        .frame(width: 32, height: 32)
                 }
-                .accessibilityLabel("Photo interval: \(intervalTitle(session.interval))")
+                .accessibilityLabel("More playback options")
             }
             .font(.title3.weight(.semibold))
             .foregroundColor(.white)
@@ -412,7 +406,7 @@ struct SampleSlideshowView: View {
             Color.black
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
-                .accessibilityLabel("Scheduled Wall Mode blackout")
+                .accessibilityLabel("Scheduled frame blackout")
         }
     }
 

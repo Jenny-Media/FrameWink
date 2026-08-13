@@ -65,9 +65,9 @@ blocker affects only a later boundary.
 - Does not block: generic Simulator builds, build-for-testing, implementation,
   or documentation.
 - Resolution: the installed iOS 27 `iPad (A16)` Simulator was booted. FrameWink
-  was installed and launched; the current shared scheme passes all 102 unit
-  tests and three runnable Simulator UI tests. The fourth UI test is explicitly
-  physical-only and skips on Simulator.
+  was installed and launched. Later verification counts are recorded in
+  `docs/TESTING.md`; the real-PhotoKit UI test remains physical-only and skips
+  on Simulator.
 
 ### B-004 — Physical curation validation is incomplete
 
@@ -93,14 +93,14 @@ blocker affects only a later boundary.
   fixture-driven duplicate/date/layout tests, review UI, persistence, Wall Mode,
   purchases, cloud-readiness work, or local checkpoint commits.
 - Automation ready: `scripts/physical_acceptance.sh prepare` launches an
-  explicitly test-only Wall Mode entitlement with the real PhotoKit client;
+  explicitly test-only FrameWink Lifetime entitlement with the real PhotoKit client;
   `sample` records device/app evidence. Owner actions and acceptance criteria
   are in `docs/PHYSICAL_ACCEPTANCE.md`.
 - Harness execution: the first automated `prepare` run on 2026-08-12 built and
   installed successfully, but iPadOS rejected foreground launch while locked.
   After the owner unlocked the device, `prepare` launched successfully and the
-  monitor verified a live process plus a real Wall Mode Setup screenshot with
-  no Photos prompt before `Choose Album`. The baseline heartbeat reported the
+  monitor verified a live process plus the real setup experience with no Photos
+  prompt before the explicit album action. The baseline heartbeat reported the
   app active, nominal thermal state, 95% battery while charging, idle-timer
   ownership off outside Frame Mode, and Guided Access off. The remaining
   permission scope and album choice are intentionally tester-owned.
@@ -136,7 +136,7 @@ blocker affects only a later boundary.
   `media.jenny.FrameWink.wallmode` and enabled Family Sharing. Release now uses
   that production identifier, and the Debug StoreKit product mirrors the
   Family Sharing policy.
-- App Store Connect completion: the `Wall Mode Lifetime` non-consumable was
+- App Store Connect completion: the lifetime non-consumable was
   created as Apple ID `6800849862`, Family Sharing was permanently enabled,
   the U.S. base price is $9.99 with Apple's comparable storefront prices, all
   175 current storefronts plus future storefronts are selected, and English
@@ -162,7 +162,7 @@ blocker affects only a later boundary.
 - Resolution: the paid implementation now requests PhotoKit authorization only
   from the explicit album action, reads and observes a selected album without
   mutation, curates its full eligible candidate pool, caches display-sized
-  copies with Strict Offline behavior, reduces repeats from local display
+  copies with normal iCloud-capable behavior, reduces repeats from local display
   history, adds Mosaic, and persists multiple album-aware frame configurations.
   The paywall and release copy now describe the included scope. The Simulator
   suite covers local synchronization, corrupt-cache cleanup, change
@@ -266,11 +266,12 @@ blocker affects only a later boundary.
   XCTest result, always relaunches the interactive Debug physical-acceptance
   harness, and only then reports pass or failure. An end-to-end rerun passed
   album discovery and finished with one live FrameWink process on the visible
-  **Wall Mode Setup** screen.
+  simplified FrameWink home screen.
 
 ### B-014 — Cloud-only album items were reported as generic failures
 
-- Status: Partially resolved; owner-authorized download retest pending
+- Status: Superseded by the simplified iCloud behavior; full device retest is
+  tracked by B-015
 - First recorded: 2026-08-12
 - Evidence: repeated physical album trials appeared to produce only one
   selected photo. Count-only private metadata and the visible setup status
@@ -280,18 +281,44 @@ blocker affects only a later boundary.
   before FrameWink classified the request as an iCloud-only skip. The UI
   therefore gave a generic failure count, and changing Strict Offline did not
   automatically refresh the album.
-- Resolution implemented: classify PhotoKit network-required responses as
-  cloud-only when network access is disabled, show an explicit **Allow iCloud
-  Downloads and Refresh** recovery action, and refresh immediately when Strict
-  Offline changes.
+- Resolution implemented: PhotoKit network-required responses are classified
+  correctly. The subsequent UX refinement removed the user-facing Strict
+  Offline mode and lets Apple Photos fetch needed iCloud originals by default.
 - Physical retest: the replacement build reran the same 326-image album with
   Strict Offline and now reports that 325 photos need an iCloud download,
   retains the one local selection, and presents the recovery button. It no
   longer labels these items as unexplained preparation failures.
-- Remaining resolution gate: the owner must explicitly authorize iCloud
-  downloads by using the recovery button; then confirm that more than one item
-  prepares and curates. The agent does not initiate potentially large private
-  photo downloads without that consent.
+- Owner authorization: the owner approved the refinement and iCloud-backed
+  preparation. The remaining refresh-loop observation is separated below.
+
+### B-015 — iCloud downloads restarted active album preparation
+
+- Status: Fix implemented and unit-tested; physical retest pending
+- First recorded: 2026-08-12
+- Evidence: after the approved iCloud preparation reached 13 of 326 photos, a
+  later physical sample showed 0 of 0. The existing cached photo remained
+  visible, but the new preparation had restarted.
+- Cause: each Apple Photos iCloud download can emit a PhotoKit library-change
+  notification. The automatic-refresh debounce called `refresh()` even while
+  the same album synchronization was active, cancelling useful progress.
+- Resolution implemented: the controller now tracks active preparation and
+  ignores change-driven refresh requests until it is idle. A regression test
+  proves a change event cannot restart active synchronization and that a later
+  genuine library change still refreshes normally.
+- Remaining gate: reinstall this build on the connected iPad and confirm the
+  326-photo preparation count advances without resetting.
+
+### B-016 — Simulator debugger integration cannot locate Xcode
+
+- Status: Open, non-blocking tooling issue
+- First recorded: 2026-08-12
+- Evidence: the dedicated Simulator debugger integration reports that
+  `xcodebuild` is missing from its PATH even though Xcode beta is installed.
+- Workaround: builds, tests, Simulator launches, screenshots, and physical
+  installs continue through repository scripts and explicit
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer` commands.
+- Impact: none on the app binary or release path; only the debugger-specific
+  convenience integration is unavailable.
 
 ## App Store Connect readiness snapshot
 

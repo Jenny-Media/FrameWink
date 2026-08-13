@@ -125,7 +125,7 @@ extension DebugScreenshotScenario {
                 albumIdentifier: "screenshot-family-favorites",
                 albumTitle: "Family Favorites",
                 automaticRefresh: true,
-                strictOffline: true
+                strictOffline: false
             )
         )
 
@@ -224,8 +224,8 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
     func loadProduct() async throws -> PurchaseProductInfo? {
         PurchaseProductInfo(
             id: ProductConfiguration.localWallModeProductID,
-            displayName: "Wall Mode Lifetime",
-            description: "One-time Wall Mode unlock",
+            displayName: "FrameWink Lifetime",
+            description: "One-time FrameWink feature unlock",
             displayPrice: "$9.99",
             isFamilyShareable: true
         )

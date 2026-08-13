@@ -18,9 +18,9 @@ enum PurchaseClientError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .productIdentifierMissing:
-            return "Wall Mode purchasing is not configured for this build."
+            return "Purchasing is not configured for this build."
         case .productUnavailable:
-            return "Wall Mode is temporarily unavailable from the App Store."
+            return "FrameWink Lifetime is temporarily unavailable from the App Store."
         case .unverifiedTransaction:
             return "The App Store transaction could not be verified. No paid access was granted."
         }

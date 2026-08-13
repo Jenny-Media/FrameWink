@@ -159,7 +159,7 @@ final class PurchaseControllerTests: XCTestCase {
 private final class FakePurchaseClient: PurchaseClient {
     var product = PurchaseProductInfo(
         id: ProductConfiguration.localWallModeProductID,
-        displayName: "Wall Mode Lifetime",
+        displayName: "FrameWink Lifetime",
         description: "Local test product",
         displayPrice: "$9.99",
         isFamilyShareable: false

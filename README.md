@@ -6,8 +6,8 @@ the durable product context, implementation, tests, and release plan for a
 
 The product name is `FrameWink`. The app uses bundle identifier
 `media.jenny.FrameWink`, the unit tests use `media.jenny.FrameWinkTests`, and
-both targets use the Jenny Media LLC Apple Developer team. Wall Mode is a
-Family Sharing-enabled non-consumable with production identifier
+both targets use the Jenny Media LLC Apple Developer team. FrameWink Lifetime
+is a Family Sharing-enabled non-consumable with production identifier
 `media.jenny.FrameWink.wallmode`.
 
 The public [privacy policy](PRIVACY.md) and
@@ -83,7 +83,7 @@ review, screenshot, and Xcode Cloud inputs are in `docs/APP_STORE.md`, and the
 localized internal-beta checklist is in `TestFlight/WhatToTest.en-US.txt`.
 
 Physical Photos/iCloud, TestFlight sandbox-purchase, Guided Access, Auto-Lock,
-and unattended Wall Mode acceptance are guided by
+and unattended frame acceptance are guided by
 [`docs/PHYSICAL_ACCEPTANCE.md`](docs/PHYSICAL_ACCEPTANCE.md). The accompanying
 `scripts/physical_acceptance.sh` command builds the Debug real-PhotoKit harness,
 verifies authorized album discovery, and captures ignored, device-local

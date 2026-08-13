@@ -21,6 +21,17 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertEqual(controller.authorization, .authorized)
     }
 
+    func testLegacyStrictOfflinePreferenceMigratesToNormalICloudBehavior() {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.strictOffline = true
+
+        let controller = makeController(client: client, store: store)
+
+        XCTAssertFalse(controller.configuration.strictOffline)
+        XCTAssertFalse(store.configuration.strictOffline)
+    }
+
     func testLimitedAuthorizationLoadsVisibleAlbumsAndPermitsConfiguredDisplay() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .limited)
         client.albumsValue = [
@@ -104,7 +115,7 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         }
 
         XCTAssertEqual(synchronizer.syncCount, 1)
-        XCTAssertEqual(synchronizer.lastStrictOffline, true)
+        XCTAssertEqual(synchronizer.lastStrictOffline, false)
         XCTAssertEqual(controller.reviewPhotos.count, 2)
         XCTAssertEqual(controller.slides.count, 2)
         XCTAssertTrue(controller.canDisplay)
@@ -122,6 +133,39 @@ final class AutomaticAlbumControllerTests: XCTestCase {
 
         client.sendChange()
         try await waitUntil { synchronizer.syncCount == 3 }
+    }
+
+    func testLibraryChangesDoNotRestartActiveICloudPreparation() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        let synchronizer = ControllerAlbumSynchronizer()
+        synchronizer.delayNanoseconds = 200_000_000
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: ControllerSmartReelBuilder(),
+            changeRefreshDelayNanoseconds: 1_000_000
+        )
+
+        controller.setEntitled(true)
+        try await waitUntil { synchronizer.syncCount == 1 }
+        try await Task.sleep(nanoseconds: 20_000_000)
+
+        client.sendChange()
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        XCTAssertEqual(synchronizer.syncCount, 1)
+        try await waitUntil {
+            if case .ready = controller.phase { return true }
+            return false
+        }
+
+        synchronizer.delayNanoseconds = 0
+        client.sendChange()
+        try await waitUntil { synchronizer.syncCount == 2 }
     }
 
     func testNeverShowPersistsAsHardVetoAndRevocationHidesPaidSource() async throws {
@@ -235,15 +279,15 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         store.configurationSaveError = ControllerStoreError.expectedFailure
 
         controller.setAutomaticRefresh(false)
-        controller.setStrictOffline(false)
+        controller.setStrictOffline(true)
 
         XCTAssertTrue(controller.configuration.automaticRefresh)
-        XCTAssertTrue(controller.configuration.strictOffline)
+        XCTAssertFalse(controller.configuration.strictOffline)
         XCTAssertEqual(controller.configuration, store.configuration)
         XCTAssertEqual(controller.phase, .failed("Expected configuration write failure"))
     }
 
-    func testTurningOffStrictOfflineImmediatelyRefreshesConfiguredAlbum() async throws {
+    func testChangingDownloadPolicyImmediatelyRefreshesConfiguredAlbum() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         let store = ControllerAlbumStore()
         store.configuration.albumIdentifier = "family"
@@ -260,11 +304,11 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         controller.setEntitled(true)
         try await waitUntil { synchronizer.syncCount == 1 }
 
-        controller.setStrictOffline(false)
+        controller.setStrictOffline(true)
         try await waitUntil { synchronizer.syncCount == 2 }
 
-        XCTAssertFalse(controller.configuration.strictOffline)
-        XCTAssertEqual(synchronizer.lastStrictOffline, false)
+        XCTAssertTrue(controller.configuration.strictOffline)
+        XCTAssertEqual(synchronizer.lastStrictOffline, true)
     }
 
     private func makeController(
@@ -388,6 +432,7 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
     var syncCount = 0
     var lastAlbumIdentifier: String?
     var lastStrictOffline: Bool?
+    var delayNanoseconds: UInt64 = 0
 
     func synchronize(
         albumIdentifier: String,
@@ -398,6 +443,9 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
         lastAlbumIdentifier = albumIdentifier
         lastStrictOffline = strictOffline
         await progress(ImportProgress(completedCount: 0, totalCount: 2))
+        if delayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: delayNanoseconds)
+        }
         let records = [0, 1].map { index in
             let id = UUID(uuidString: index == 0
                 ? "00000000-0000-0000-0000-000000000001"

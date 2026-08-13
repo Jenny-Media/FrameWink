@@ -155,7 +155,7 @@ prepare() {
 
     echo
     echo "FrameWink is open in the Debug physical-acceptance harness."
-    echo "It grants Wall Mode locally but uses the real Photos library."
+    echo "It grants FrameWink Lifetime locally but uses the real Photos library."
     echo "Follow docs/PHYSICAL_ACCEPTANCE.md, then run:"
     echo "  scripts/physical_acceptance.sh sample"
 }

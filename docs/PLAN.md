@@ -8,13 +8,13 @@ time rather than unattended calendar time.
 | Milestone | Budget | Actual | Status |
 |---|---:|---:|---|
 | 0. Contract and scaffold | 2 h | 1.5 h | Complete |
-| 1. Zero-permission preview | 5 h | 3.75 h | In progress — picker/offline checks pending |
+| 1. Zero-permission preview | 5 h | 4.25 h | In progress — physical offline check pending |
 | 2. Frame engine | 6 h | 3 h | Complete |
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
-| 4. Wall Mode | 5 h | 3 h | Implementation complete — physical soak pending |
+| 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 8 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **29 h** | **In progress** |
+| 6. Hardening and release | 8 h | 8.5 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **30.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -219,11 +219,11 @@ memory and smoothness gates under concurrent real Vision analysis.
 
 The original paid-scope mismatch is resolved locally. A verified entitlement
 now unlocks selected-album PhotoKit refresh, an unlimited eligible input pool,
-display-history repeat reduction, a four-photo Mosaic layout, and multiple
-album-aware saved configurations. Automatic album images are downsampled to
+display-history repeat reduction, a four-photo Mosaic layout, and a durable
+active frame configuration. Automatic album images are downsampled to
 2,560 pixels, cached separately, refreshed from PhotoKit change notifications,
-and never mutate the Photos library. Strict Offline disables network access for
-image requests; failed/cloud-only items preserve a prior usable local copy.
+and never mutate the Photos library. Apple Photos can fetch iCloud originals
+when needed; failed items preserve a prior usable local copy.
 
 Permission denial, revocation, partial automatic-album failure, corrupt album
 metadata, deleted assets, display-history persistence, and configuration
@@ -233,7 +233,7 @@ memory-pressure behavior, thermal response, and slideshow smoothness during
 real Vision work still require physical hardware.
 
 Automatic-album configuration writes are transactional. Selecting a different
-album or changing automatic-refresh/Strict Offline settings updates live state
+album or changing the automatic refresh policy updates live state
 only after the durable configuration succeeds, so a storage/write failure keeps
 the active album, options, and reel usable. Album image refresh follows the same
 rule: a changed cloud-only asset keeps its last good copy, metadata-write
@@ -273,9 +273,9 @@ A Debug-only screenshot harness now isolates its fixture state from normal app
 data. It produces an upload-ready set of ten native 13-inch iPad JPEGs at 2064 x
 2752 without alpha, plus an eleven-image source library, using bundled
 project-owned media. The submission set explicitly orders three Free Smart Reel
-screens before seven Paid Wall Mode screens covering purchase/restore,
-automatic-album privacy, saved configurations, Mosaic, night scheduling, and
-honest commissioning guidance. Release builds ignore the harness. Marketing
+screens before seven paid screens covering purchase/restore, automatic-album
+privacy, Frame Settings, Mosaic, night scheduling, and honest mounted-iPad
+guidance. Release builds ignore the harness. Marketing
 caption overlays remain optional polish rather than a release gate.
 
 ## Current build and test commands
@@ -343,6 +343,15 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - PHPicker cancellation and delete-all are covered in isolated Simulator UI
   flows. Large/iCloud-backed selections and physical Airplane Mode behavior
   remain real-device interaction checks.
+- The content-first refinement replaces the mode dashboard with one primary
+  action, one contextual secondary action, and one More menu. Frame playback
+  hides captions and keeps only previous, pause/play, next, and More controls.
+  The compact Frame Settings screen persists one active configuration, hides
+  legacy Wall Mode/Strict Offline terminology, and keeps mounted-iPad guidance
+  collapsed. The full Simulator suite passes 105 unit tests and five runnable
+  UI tests; one real-PhotoKit UI test skips by design. The replacement build is
+  installed on the physical iPad, but the device auto-locked before launch, so
+  B-015's iCloud-progress retest remains open.
 
 ## Timebox rule
 

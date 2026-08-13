@@ -7,8 +7,8 @@ confusing local test doubles with TestFlight or App Store evidence.
 
 `scripts/physical_acceptance.sh` safely discovers exactly one connected
 physical iPad, builds and installs a signed Debug build, opens a real-PhotoKit
-acceptance harness, and captures timestamped evidence. The harness unlocks Wall
-Mode only for this explicitly launched Debug process; it still uses the real
+acceptance harness, and captures timestamped evidence. The harness unlocks
+FrameWink Lifetime only for this explicitly launched Debug process; it still uses the real
 Photos library and does not change Release or TestFlight entitlement behavior.
 
 The monitor records whether the iPad is reachable, whether FrameWink is still
@@ -53,13 +53,14 @@ Prepare a test album in Apple Photos. Use non-private images that Jenny Media
 LLC owns or is licensed to test. Include at least one screenshot, one duplicate,
 one intentionally blurred image, and one item that is iCloud-only if available.
 
-1. Run `prepare`. It opens Wall Mode Setup at the real automatic-album section.
-2. Tap **Choose Album**. This is the only action that should trigger the broad
+1. Run `prepare`. It opens the real simplified FrameWink home screen.
+2. Tap **Choose an Album** (or **Change Album** if one is already configured).
+   This is the only action that should trigger the broad
    Photos prompt. Choose **Limited Access** first and select only the test album
    photos. If the installed OS offers different wording, choose its limited
    equivalent.
-3. Select the test album. Wait for the suggestion count, inspect **Review
-   Automatic Suggestions**, and record a `sample`.
+3. Select the test album. Wait for **Start Frame** to become available, inspect
+   **Review Photos** from More, and record a `sample`.
 4. Confirm screenshots are absent from suggestions and compare the strongest
    selections against the labelled fixture sheet described below.
 5. In Photos, add and remove one test image. Return to FrameWink and confirm the
@@ -77,10 +78,10 @@ album list to replace the loading state within ten seconds. Simulator runs skip
 this check by design. XCTest temporarily shows iPadOS's automation indicator;
 the command always relaunches the interactive FrameWink harness afterward,
 whether the test passes or fails.
-6. Enable **Strict Offline**, make the iCloud-only item unavailable locally,
-   refresh, and confirm the UI reports it as skipped while cached selections
-   remain usable. Disable Strict Offline, reconnect, refresh, and confirm Apple
-   Photos can fetch it. FrameWink has no developer endpoint.
+6. With an iCloud-only item in the album, confirm Apple Photos can fetch it and
+   that the preparation count advances without resetting to zero. Disconnect
+   networking and confirm already prepared photos remain usable. FrameWink has
+   no developer endpoint.
 7. In Settings, deny Photos access. Return to FrameWink and confirm Sample Mode
    and any free imported reel still work. Restore Limited, then Full Access,
    confirming the automatic album recovers after each foreground return.
@@ -111,9 +112,9 @@ the release gate should use the exact TestFlight binary.
 3. Follow Apple's current TestFlight sandbox sign-in instructions on the iPad.
    Keep credentials in Apple's UI; never place them in scripts, Git, or Codex
    output.
-4. Open **Unlock Wall Mode** and confirm `Wall Mode Lifetime`, `$9.99`, the
+4. Open **More Frame Features** and confirm `FrameWink Lifetime`, `$9.99`, the
    one-time-purchase wording, and Family Sharing metadata. Complete the sandbox
-   purchase and verify Wall Mode unlocks. No real charge should occur in
+   purchase and verify the paid frame features unlock. No real charge should occur in
    sandbox.
 5. Force-quit and relaunch offline. Confirm the verified entitlement remains
    usable. Reconnect and tap **Restore Purchases**; it must remain unlocked.
@@ -137,13 +138,13 @@ dissipate. Physically inspect these; software cannot certify mounting or battery
 safety.
 
 1. In the Debug acceptance harness, select a prepared local reel or automatic
-   album, enter **Play Full Screen**, and run `sample`. The heartbeat should show
+   album, tap **Start Frame**, and run `sample`. The heartbeat should show
    `idleTimerDisabled: true` while Frame Mode is active.
 2. Wait longer than the iPad's configured Auto-Lock interval. Confirm the screen
    remains on. Exit Frame Mode, run another sample, and confirm
    `idleTimerDisabled: false`; then verify normal Auto-Lock resumes.
-3. Enter Frame Mode and start Guided Access with the configured Accessibility
-   Shortcut. Return to Wall Mode Setup if needed and confirm it reports active;
+3. Start the frame and enable Guided Access with the configured Accessibility
+   Shortcut. Return to **Frame Settings → Mounted iPad Tips** if needed and confirm it reports active;
    the heartbeat also records `guidedAccessEnabled: true`. Consumer Guided
    Access must be started manually by design.
 4. Set dim and blackout times a few minutes ahead and visually confirm both

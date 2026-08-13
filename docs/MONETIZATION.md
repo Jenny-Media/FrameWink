@@ -3,7 +3,7 @@
 ## Product
 
 - Type: non-consumable In-App Purchase.
-- Working reference name: `Wall Mode Lifetime`.
+- User-facing name: `FrameWink Lifetime`.
 - Planned US price: $9.99.
 - Confirmed identifier: `media.jenny.FrameWink.wallmode`.
 - Family Sharing is enabled for the production non-consumable.
@@ -25,8 +25,8 @@ The current paywall may promise the implemented Wall Mode behavior:
   input limit.
 - Automatic change refresh after a user-initiated PhotoKit authorization flow.
 - On-device display history that reduces long-term repeats.
-- A four-photo Mosaic layout and multiple saved source/layout/timing
-  configurations.
+- A four-photo Mosaic layout and a persisted active source/layout/timing
+  configuration.
 - Dimming/blackout schedules.
 - Auto-Lock prevention only during foreground Frame Mode.
 - Wall and Guided Access setup assistance.

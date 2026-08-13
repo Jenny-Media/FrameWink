@@ -77,6 +77,41 @@ final class FrameConfigurationController: ObservableObject {
         persist()
     }
 
+    func saveCurrent(
+        source: FrameConfigurationSource,
+        albumIdentifier: String? = nil,
+        albumTitle: String? = nil,
+        layoutPreference: FrameLayoutPreference,
+        interval: TimeInterval
+    ) {
+        guard isEntitled else { return }
+        if let id = activeConfigurationID,
+           let index = configurations.firstIndex(where: { $0.id == id }) {
+            configurations[index].source = source
+            configurations[index].albumIdentifier = source == .automaticAlbum
+                ? albumIdentifier
+                : nil
+            configurations[index].albumTitle = source == .automaticAlbum ? albumTitle : nil
+            configurations[index].layoutPreference = layoutPreference
+            configurations[index].interval = interval
+            configurations[index].normalize()
+        } else {
+            var configuration = SavedFrameConfiguration(
+                id: UUID(),
+                name: "My Frame",
+                source: source,
+                albumIdentifier: source == .automaticAlbum ? albumIdentifier : nil,
+                albumTitle: source == .automaticAlbum ? albumTitle : nil,
+                layoutPreference: layoutPreference,
+                interval: interval
+            )
+            configuration.normalize()
+            configurations.append(configuration)
+            activeConfigurationID = configuration.id
+        }
+        persist()
+    }
+
     func delete(_ id: UUID) {
         guard isEntitled else { return }
         configurations.removeAll { $0.id == id }

@@ -19,7 +19,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(
             app.staticTexts["Bundled sample photos"].waitForExistence(timeout: 8)
         )
-        let choosePhotos = app.buttons["Choose My Photos"]
+        let choosePhotos = app.buttons["Choose Photos"]
         XCTAssertTrue(choosePhotos.waitForExistence(timeout: 8))
 
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
@@ -39,25 +39,28 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
     func testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples() {
         launch(scenario: "personal-reel")
 
-        let myPhotos = app.buttons["My Photos"]
-        XCTAssertTrue(myPhotos.waitForExistence(timeout: 8))
-        XCTAssertTrue(myPhotos.isSelected)
         XCTAssertTrue(
-            app.staticTexts["3 Smart Reel suggestions are ready to review."]
+            app.staticTexts["3 photos are ready."]
                 .waitForExistence(timeout: 8)
         )
 
-        let playFullScreen = app.buttons["Play Full Screen"]
-        XCTAssertTrue(playFullScreen.waitForExistence(timeout: 8))
-        playFullScreen.tap()
+        let startFrame = app.buttons["Start Frame"]
+        XCTAssertTrue(startFrame.waitForExistence(timeout: 8))
+        startFrame.tap()
+        let firstPhoto = app.descendants(matching: .any)[
+            "frame-photo-78F4585F-54C5-4360-9C36-34E2C3F82BC4"
+        ].firstMatch
         XCTAssertTrue(
-            app.staticTexts["Curated privately on this iPad"]
-                .waitForExistence(timeout: 8)
+            firstPhoto.waitForExistence(timeout: 8)
         )
+        XCTAssertFalse(app.staticTexts["Selected privately on this iPad"].exists)
 
         app.terminate()
         launch(scenario: "personal-reel")
 
+        let more = app.buttons["More"]
+        XCTAssertTrue(more.waitForExistence(timeout: 8))
+        more.tap()
         let deleteImportedPhotos = app.buttons["delete-imported-photos"]
         XCTAssertTrue(deleteImportedPhotos.waitForExistence(timeout: 8))
         deleteImportedPhotos.tap()
@@ -69,7 +72,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(
             app.staticTexts["Bundled sample photos"].waitForExistence(timeout: 8)
         )
-        XCTAssertTrue(app.buttons["Choose My Photos"].exists)
+        XCTAssertTrue(app.buttons["Choose Photos"].exists)
         XCTAssertFalse(app.buttons["Delete Imported Photos"].exists)
     }
 
@@ -79,9 +82,9 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         XCTAssertTrue(waitForLandscape())
 
-        let playFullScreen = app.buttons["Play Full Screen"]
-        XCTAssertTrue(playFullScreen.waitForExistence(timeout: 8))
-        playFullScreen.tap()
+        let startFrame = app.buttons["Start Frame"]
+        XCTAssertTrue(startFrame.waitForExistence(timeout: 8))
+        startFrame.tap()
 
         let firstPhoto = app.descendants(matching: .any)[
             "frame-photo-78F4585F-54C5-4360-9C36-34E2C3F82BC4"
@@ -108,7 +111,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         app.launchEnvironment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] = "1"
         app.launch()
 
-        let chooseAlbum = app.buttons["Choose Album"]
+        let chooseAlbum = app.buttons["album-picker-action"]
         XCTAssertTrue(chooseAlbum.waitForExistence(timeout: 8))
 
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
@@ -127,6 +130,34 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any)["album-picker-error"].exists)
         XCTAssertFalse(app.descendants(matching: .any)["album-picker-empty"].exists)
 #endif
+    }
+
+    func testHomeUsesOnePrimaryActionAndMovesMaintenanceBehindMore() {
+        launch(scenario: "sample")
+
+        XCTAssertTrue(app.buttons["Choose Photos"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["Start Sample Frame"].exists)
+        XCTAssertTrue(app.buttons["More"].exists)
+        XCTAssertFalse(app.buttons["Wall Mode Setup"].exists)
+        XCTAssertFalse(app.buttons["Privacy"].exists)
+        XCTAssertFalse(app.buttons["Review Suggestions"].exists)
+
+        app.buttons["More"].tap()
+
+        XCTAssertTrue(app.buttons["Privacy"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["More Frame Features"].exists)
+    }
+
+    func testFrameSettingsHidesLegacyWallModeAndStrictOfflineControls() {
+        launch(scenario: "wall-mode-setup")
+
+        XCTAssertTrue(app.navigationBars["Frame Settings"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Photos"].exists)
+        XCTAssertTrue(app.staticTexts["Slideshow"].exists)
+        XCTAssertTrue(app.switches["Night Schedule"].exists)
+        XCTAssertFalse(app.navigationBars["Wall Mode Setup"].exists)
+        XCTAssertFalse(app.switches["Strict Offline"].exists)
+        XCTAssertFalse(app.staticTexts["Saved frame configurations"].exists)
     }
 
     private func launch(scenario: String) {
