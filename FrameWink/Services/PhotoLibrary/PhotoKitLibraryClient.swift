@@ -1,8 +1,11 @@
 import Foundation
 import Photos
+import UIKit
 
 @MainActor
 final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
+    private static let displayCacheMaxPixelDimension: CGFloat = 2_560
+
     private let photoLibrary: PHPhotoLibrary
     private let imageManager: PHImageManager
     private var changeContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
@@ -182,15 +185,21 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         let options = PHImageRequestOptions()
         options.version = .current
         options.deliveryMode = .highQualityFormat
+        options.resizeMode = .exact
         options.isNetworkAccessAllowed = networkAccessAllowed
         let requestState = PhotoKitImageRequestState()
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
                 requestState.install(continuation: continuation)
-                let requestID = imageManager.requestImageDataAndOrientation(
+                let requestID = imageManager.requestImage(
                     for: asset,
+                    targetSize: CGSize(
+                        width: Self.displayCacheMaxPixelDimension,
+                        height: Self.displayCacheMaxPixelDimension
+                    ),
+                    contentMode: .aspectFit,
                     options: options
-                ) { data, _, _, info in
+                ) { image, info in
                     if (info?[PHImageCancelledKey] as? Bool) == true {
                         requestState.finish(.failure(CancellationError()))
                     } else if let failure = Self.exportFailure(
@@ -199,13 +208,14 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
                         networkAccessAllowed: networkAccessAllowed
                     ) {
                         requestState.finish(.failure(failure))
-                    } else if let data = data {
-                        do {
-                            try data.write(to: destinationURL, options: .atomic)
-                            requestState.finish(.success(()))
-                        } catch {
-                            requestState.finish(.failure(error))
-                        }
+                    } else if (info?[PHImageResultIsDegradedKey] as? Bool) == true {
+                        return
+                    } else if let image = image {
+                        Self.writeDisplayImage(
+                            image,
+                            to: destinationURL,
+                            requestState: requestState
+                        )
                     } else {
                         requestState.finish(
                             .failure(PhotoLibraryClientError.imageDataUnavailable)
@@ -216,6 +226,31 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
             }
         } onCancel: {
             requestState.cancel(manager: imageManager)
+        }
+    }
+
+    nonisolated private static func writeDisplayImage(
+        _ image: UIImage,
+        to destinationURL: URL,
+        requestState: PhotoKitImageRequestState
+    ) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            autoreleasepool {
+                guard let data = image.jpegData(
+                    compressionQuality: 0.96
+                ) else {
+                    requestState.finish(
+                        .failure(PhotoLibraryClientError.imageDataUnavailable)
+                    )
+                    return
+                }
+                do {
+                    try data.write(to: destinationURL, options: .atomic)
+                    requestState.finish(.success(()))
+                } catch {
+                    requestState.finish(.failure(error))
+                }
+            }
         }
     }
 

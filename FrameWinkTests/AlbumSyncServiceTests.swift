@@ -188,6 +188,52 @@ final class AlbumSyncServiceTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: originalURL.path))
     }
 
+    func testLargeSyncPrioritizesARepresentativeBatchAndPersistsCheckpoints() async throws {
+        client.fixtureAssets = (0..<65).map { index in
+            asset(String(format: "asset-%03d", index))
+        }
+        var checkpointRecordCounts: [Int] = []
+        var preparedRecordCounts: [Int] = []
+        var durableRecordCounts: [Int] = []
+
+        let report = try await service.synchronize(
+            albumIdentifier: "album",
+            strictOffline: false,
+            progress: { _ in },
+            checkpoint: { checkpoint in
+                checkpointRecordCounts.append(checkpoint.records.count)
+                preparedRecordCounts.append(checkpoint.preparedRecords.count)
+                durableRecordCounts.append((try? self.store.loadRecords().count) ?? -1)
+            }
+        )
+
+        XCTAssertEqual(checkpointRecordCounts, [30, 60])
+        XCTAssertEqual(preparedRecordCounts, [30, 60])
+        XCTAssertEqual(durableRecordCounts, [30, 60])
+        XCTAssertEqual(report.records.count, 65)
+        XCTAssertEqual(try store.loadRecords().count, 65)
+        XCTAssertEqual(client.requestedAssetIDs.first, "asset-000")
+        XCTAssertEqual(client.requestedAssetIDs[29], "asset-064")
+        XCTAssertEqual(Set(client.requestedAssetIDs).count, 65)
+
+        var reusedCheckpointCounts: [(durable: Int, prepared: Int)] = []
+        client.requestedAssetIDs = []
+        _ = try await service.synchronize(
+            albumIdentifier: "album",
+            strictOffline: false,
+            progress: { _ in },
+            checkpoint: { checkpoint in
+                reusedCheckpointCounts.append(
+                    (checkpoint.records.count, checkpoint.preparedRecords.count)
+                )
+            }
+        )
+
+        XCTAssertEqual(reusedCheckpointCounts.map { $0.durable }, [65, 65])
+        XCTAssertEqual(reusedCheckpointCounts.map { $0.prepared }, [30, 60])
+        XCTAssertTrue(client.requestedAssetIDs.isEmpty)
+    }
+
     func testMetadataWriteFailureRollsBackNewImagesAndPreservesPriorCache() async throws {
         client.fixtureAssets = [asset("one")]
         let first = try await service.synchronize(
@@ -306,6 +352,7 @@ private final class FixturePhotoLibraryClient: PhotoLibraryClient {
     var fixtureAssets: [PhotoLibraryAsset] = []
     var cloudOnlyAssetIDs: Set<String> = []
     var requestedNetworkAccess: [String: Bool] = [:]
+    var requestedAssetIDs: [String] = []
     var exportCount = 0
 
     func authorizationState() -> PhotoLibraryAuthorizationState { .authorized }
@@ -321,6 +368,7 @@ private final class FixturePhotoLibraryClient: PhotoLibraryClient {
         networkAccessAllowed: Bool
     ) async throws {
         requestedNetworkAccess[assetIdentifier] = networkAccessAllowed
+        requestedAssetIDs.append(assetIdentifier)
         exportCount += 1
         if cloudOnlyAssetIDs.contains(assetIdentifier), !networkAccessAllowed {
             throw PhotoLibraryClientError.cloudAssetUnavailable

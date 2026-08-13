@@ -76,6 +76,26 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Delete Imported Photos"].exists)
     }
 
+    func testReadyHomePreviewCanSwipeBeforeStartingFrame() {
+        launch(scenario: "personal-reel")
+
+        let firstPhoto = app.descendants(matching: .any)[
+            "frame-photo-78F4585F-54C5-4360-9C36-34E2C3F82BC4"
+        ].firstMatch
+        XCTAssertTrue(firstPhoto.waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["Start Frame"].exists)
+
+        app.swipeLeft()
+
+        let secondPhoto = app.descendants(matching: .any)[
+            "frame-photo-5255CD65-7C11-4EEB-B7F5-85FC76A4D11B"
+        ].firstMatch
+        XCTAssertTrue(secondPhoto.waitForExistence(timeout: 4))
+        XCTAssertFalse(firstPhoto.exists)
+        XCTAssertTrue(app.buttons["Start Frame"].exists)
+        XCTAssertFalse(app.buttons["frame-close-control"].exists)
+    }
+
     func testInitialPersonalImportUsesNeutralPreparationInsteadOfSamples() {
         launch(scenario: "personal-import")
 
@@ -83,6 +103,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             app.staticTexts["Preparing My Photos on this iPad"]
                 .waitForExistence(timeout: 8)
         )
+        XCTAssertTrue(app.staticTexts["Preparing 0 of 3 selected photos…"].exists)
         XCTAssertFalse(app.staticTexts["Bundled sample photos"].exists)
         XCTAssertFalse(
             app.descendants(matching: .any)["frame-photo-sample-lakeside"].exists

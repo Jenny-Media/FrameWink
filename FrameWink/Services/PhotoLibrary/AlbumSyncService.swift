@@ -4,8 +4,30 @@ protocol AlbumSynchronizing {
     func synchronize(
         albumIdentifier: String,
         strictOffline: Bool,
-        progress: @escaping @MainActor (ImportProgress) -> Void
+        progress: @escaping @MainActor (ImportProgress) -> Void,
+        checkpoint: @escaping @MainActor (AlbumSyncCheckpoint) async -> Void
     ) async throws -> AlbumSyncReport
+}
+
+extension AlbumSynchronizing {
+    func synchronize(
+        albumIdentifier: String,
+        strictOffline: Bool,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> AlbumSyncReport {
+        try await synchronize(
+            albumIdentifier: albumIdentifier,
+            strictOffline: strictOffline,
+            progress: progress,
+            checkpoint: { _ in }
+        )
+    }
+}
+
+struct AlbumSyncCheckpoint: Equatable {
+    let records: [CachedAlbumAsset]
+    let preparedRecords: [CachedAlbumAsset]
+    let progress: ImportProgress
 }
 
 final class AlbumSyncService: AlbumSynchronizing {
@@ -14,28 +36,36 @@ final class AlbumSyncService: AlbumSynchronizing {
     private let downsampler: ImageDownsampling
     private let now: () -> Date
     private let makeID: () -> UUID
+    private let checkpointInterval: Int
 
     init(
         client: PhotoLibraryClient,
         store: AlbumSourceStoring,
         downsampler: ImageDownsampling,
         now: @escaping () -> Date = Date.init,
-        makeID: @escaping () -> UUID = UUID.init
+        makeID: @escaping () -> UUID = UUID.init,
+        checkpointInterval: Int = 30
     ) {
         self.client = client
         self.store = store
         self.downsampler = downsampler
         self.now = now
         self.makeID = makeID
+        self.checkpointInterval = max(checkpointInterval, 1)
     }
 
     func synchronize(
         albumIdentifier: String,
         strictOffline: Bool,
-        progress: @escaping @MainActor (ImportProgress) -> Void
+        progress: @escaping @MainActor (ImportProgress) -> Void,
+        checkpoint: @escaping @MainActor (AlbumSyncCheckpoint) async -> Void
     ) async throws -> AlbumSyncReport {
         let allAssets = try await client.assets(in: albumIdentifier)
         let assets = allAssets.filter { !$0.isHidden && !$0.isScreenshot }
+        let processingOrder = Self.prioritizedAssets(
+            assets,
+            initialCount: checkpointInterval
+        )
         var existingByAsset = Dictionary(
             uniqueKeysWithValues: try store.loadRecords().map {
                 ($0.assetIdentifier, $0)
@@ -54,11 +84,11 @@ final class AlbumSyncService: AlbumSynchronizing {
         var cloudOnlyCount = 0
         var failures: [String] = []
         var newlyCommittedFilenames: [String] = []
-        var supersededFilenames: [String] = []
+        var filenamesPendingRemoval = stale.map(\.photo.filename)
         await progress(ImportProgress(completedCount: 0, totalCount: assets.count))
 
         do {
-            for (index, asset) in assets.enumerated() {
+            for (index, asset) in processingOrder.enumerated() {
                 try Task.checkCancellation()
                 let existing = existingByAsset[asset.id]
                 let needsRefresh = existing == nil
@@ -91,7 +121,9 @@ final class AlbumSyncService: AlbumSynchronizing {
                                 filename: replacementFilename
                             )
                             newlyCommittedFilenames.append(replacementFilename)
-                            supersededFilenames.append(existing?.photo.filename ?? "")
+                            if let existingFilename = existing?.photo.filename {
+                                filenamesPendingRemoval.append(existingFilename)
+                            }
                             existingByAsset[asset.id] = CachedAlbumAsset(
                                 assetIdentifier: asset.id,
                                 assetModificationDate: asset.modificationDate,
@@ -146,15 +178,38 @@ final class AlbumSyncService: AlbumSynchronizing {
                         totalCount: assets.count
                     )
                 )
+
+                let completedCount = index + 1
+                if completedCount.isMultiple(of: checkpointInterval),
+                   completedCount < processingOrder.count {
+                    let checkpointRecords = Self.orderedRecords(existingByAsset)
+                    try store.replaceRecords(
+                        checkpointRecords,
+                        removingFilenames: filenamesPendingRemoval
+                    )
+                    newlyCommittedFilenames.removeAll(keepingCapacity: true)
+                    filenamesPendingRemoval.removeAll(keepingCapacity: true)
+                    await checkpoint(
+                        AlbumSyncCheckpoint(
+                            records: checkpointRecords,
+                            preparedRecords: processingOrder
+                                .prefix(completedCount)
+                                .compactMap { existingByAsset[$0.id] },
+                            progress: ImportProgress(
+                                completedCount: completedCount,
+                                totalCount: assets.count
+                            )
+                        )
+                    )
+                    try Task.checkCancellation()
+                }
             }
 
             try Task.checkCancellation()
-            let records = existingByAsset.values.sorted {
-                $0.assetIdentifier < $1.assetIdentifier
-            }
+            let records = Self.orderedRecords(existingByAsset)
             try store.replaceRecords(
                 records,
-                removingFilenames: stale.map(\.photo.filename) + supersededFilenames
+                removingFilenames: filenamesPendingRemoval
             )
             return AlbumSyncReport(
                 records: records,
@@ -170,5 +225,30 @@ final class AlbumSyncService: AlbumSynchronizing {
             }
             throw error
         }
+    }
+
+    nonisolated static func prioritizedAssets(
+        _ assets: [PhotoLibraryAsset],
+        initialCount: Int
+    ) -> [PhotoLibraryAsset] {
+        let boundedCount = min(max(initialCount, 1), assets.count)
+        guard boundedCount > 1, boundedCount < assets.count else { return assets }
+
+        let lastIndex = assets.count - 1
+        let divisor = boundedCount - 1
+        let initialIndices = (0..<boundedCount).map { position in
+            Int((Double(position) * Double(lastIndex) / Double(divisor)).rounded())
+        }
+        let initialIndexSet = Set(initialIndices)
+        return initialIndices.map { assets[$0] }
+            + assets.indices.compactMap { index in
+                initialIndexSet.contains(index) ? nil : assets[index]
+            }
+    }
+
+    private static func orderedRecords(
+        _ recordsByAsset: [String: CachedAlbumAsset]
+    ) -> [CachedAlbumAsset] {
+        recordsByAsset.values.sorted { $0.assetIdentifier < $1.assetIdentifier }
     }
 }

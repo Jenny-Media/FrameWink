@@ -59,8 +59,12 @@ one intentionally blurred image, and one item that is iCloud-only if available.
    Photos prompt. Choose **Limited Access** first and select only the test album
    photos. If the installed OS offers different wording, choose its limited
    equivalent.
-3. Select the test album. Wait for **Start Frame** to become available, inspect
-   **Review Photos** from More, and record a `sample`.
+3. Select the test album. The neutral preparation screen should show live
+   counts. After the representative first batch is curated, **Start Frame**
+   should become available while the status says that FrameWink is adding more
+   photos or improving the reel. Inspect **Review Photos** from More and record
+   a `sample`; interrupt and relaunch once to confirm checkpointed progress is
+   retained.
 4. Confirm screenshots are absent from suggestions and compare the strongest
    selections against the labelled fixture sheet described below.
 5. In Photos, add and remove one test image. Return to FrameWink and confirm the

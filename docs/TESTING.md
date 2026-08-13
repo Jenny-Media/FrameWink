@@ -627,13 +627,45 @@ explicit owner approval.
   active photo, and tapping during scheduled blackout reveals the escape
   control.
 - The physical iPad mini 6 is connected and recognized as `iPad14,1` on iPadOS
-  27. Its first build was attempted, but signing stopped before install because
-  the current development profile does not include the device; Xcode
-  command-line automatic provisioning also reported no usable account. This is
-  a provisioning boundary, not an app test failure. The iPad Pro remains
-  available for the large-window physical smoke.
+  27. It is registered to the Jenny Media LLC development team; the signed
+  physical-acceptance build installs, launches, and retains a live process at
+  nominal thermal state.
 - The signed replacement build installed and launched on the iPad Pro
   12.9-inch. A host sample found the process running, charging, and nominal
   thermal. While its real 1,925-item album refreshed, the preparation screen
   retained an actual cached album photo rather than showing bundled sample
   imagery.
+
+## Progressive large-album verification — 2026-08-13
+
+- The complete iOS 27 `iPad (A16)` Simulator scheme passes 131 tests with zero
+  failures, expected failures, or runtime warnings. The one skipped test is the
+  intentional physical-only PhotoKit album-discovery check. The only build
+  warning remains the deprecation inside Apple's StoreKitTest SDK header. An
+  unsigned generic-device Release build also succeeds.
+- A new XCUI regression launches a three-photo durable reel, swipes the ready
+  home preview before **Start Frame**, observes the exact next photo, and
+  confirms that the app remains on the setup screen rather than entering Frame
+  Mode.
+- Unit coverage verifies that a large sync requests a deterministic,
+  date-spanning first batch, commits durable metadata at 30-item intervals,
+  distinguishes the early prepared subset from a larger reusable cache, and
+  exposes a playable initial reel while the final synchronization is still
+  active. A later full pass replaces the provisional reel normally.
+- The real PhotoKit export now requests a high-quality 2,560-pixel
+  representation rather than the largest current image. On the physical iPad
+  Pro, progress moved from 29 to 243 of 1,925 in 36 seconds and later to 1,497;
+  on the iPad mini 6 it moved from 87 to 336 of 653 in 37 seconds. This is
+  approximately 5–7 prepared photos per second on both devices, with each
+  process live and thermal state nominal.
+- The mini completed its 653-item album and retained immediate playback after
+  reinstall. The Pro durably committed all 1,925 display copies, then a relaunch
+  of the progressive build exposed a representative 30-photo reel with **Start
+  Frame** enabled within seconds while the status visibly continued
+  `improving your reel` through the remaining analysis. The final pass replaced
+  that provisional result with 100 ready photos without a crash or thermal
+  warning.
+- These results prove target-sized real PhotoKit retrieval, progressive
+  usability, resumable local checkpoints, and real-device lifecycle health.
+  They do not replace the oldest-supported 2 GB device gate, a human-labelled
+  curation review, Airplane Mode playback, or the seven-day wall soak.

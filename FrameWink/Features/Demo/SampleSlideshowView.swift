@@ -82,6 +82,8 @@ struct SampleSlideshowView: View {
                         frameControls(isCompact: proxy.size.width < 600)
                             .transition(reduceMotion ? .identity : .opacity)
                     }
+                } else if pages.count > 1 {
+                    previewNavigationLayer
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
@@ -298,20 +300,34 @@ struct SampleSlideshowView: View {
             .gesture(
                 DragGesture(minimumDistance: 30)
                     .onEnded { value in
-                        guard abs(value.translation.width) > abs(value.translation.height) else {
-                            return
-                        }
-                        if value.translation.width < 0 {
-                            showNextPage()
-                        } else {
-                            showPreviousPage()
-                        }
+                        navigate(with: value)
                         if controlsVisible {
                             scheduleControlsToRecede()
                         }
                     }
             )
             .accessibilityHidden(true)
+    }
+
+    private var previewNavigationLayer: some View {
+        Color.clear
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 30)
+                    .onEnded(navigate)
+            )
+            .accessibilityHidden(true)
+    }
+
+    private func navigate(with value: DragGesture.Value) {
+        guard abs(value.translation.width) > abs(value.translation.height) else {
+            return
+        }
+        if value.translation.width < 0 {
+            showNextPage()
+        } else {
+            showPreviousPage()
+        }
     }
 
     private func frameControls(isCompact: Bool) -> some View {

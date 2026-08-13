@@ -168,6 +168,33 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         try await waitUntil { synchronizer.syncCount == 2 }
     }
 
+    func testInitialCheckpointAllowsPlaybackBeforeFullSyncFinishes() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        let synchronizer = ControllerAlbumSynchronizer()
+        synchronizer.emitsCheckpoint = true
+        synchronizer.delayNanoseconds = 500_000_000
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: ControllerSmartReelBuilder(),
+            changeRefreshDelayNanoseconds: 1
+        )
+
+        controller.setEntitled(true)
+        try await waitUntil { controller.canDisplay }
+
+        XCTAssertTrue(synchronizer.isSynchronizing)
+        XCTAssertEqual(controller.smartReel?.selections.count, 12)
+        XCTAssertEqual(controller.slides.count, 12)
+
+        try await waitUntil(timeout: 1) { !synchronizer.isSynchronizing }
+        XCTAssertTrue(controller.canDisplay)
+    }
+
     func testNeverShowPersistsAsHardVetoAndRevocationHidesPaidSource() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         let store = ControllerAlbumStore()
@@ -433,23 +460,25 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
     var lastAlbumIdentifier: String?
     var lastStrictOffline: Bool?
     var delayNanoseconds: UInt64 = 0
+    var emitsCheckpoint = false
+    var isSynchronizing = false
 
     func synchronize(
         albumIdentifier: String,
         strictOffline: Bool,
-        progress: @escaping @MainActor (ImportProgress) -> Void
+        progress: @escaping @MainActor (ImportProgress) -> Void,
+        checkpoint: @escaping @MainActor (AlbumSyncCheckpoint) async -> Void
     ) async throws -> AlbumSyncReport {
+        isSynchronizing = true
+        defer { isSynchronizing = false }
         syncCount += 1
         lastAlbumIdentifier = albumIdentifier
         lastStrictOffline = strictOffline
-        await progress(ImportProgress(completedCount: 0, totalCount: 2))
-        if delayNanoseconds > 0 {
-            try await Task.sleep(nanoseconds: delayNanoseconds)
-        }
-        let records = [0, 1].map { index in
-            let id = UUID(uuidString: index == 0
-                ? "00000000-0000-0000-0000-000000000001"
-                : "00000000-0000-0000-0000-000000000002")!
+        let recordCount = emitsCheckpoint ? 12 : 2
+        await progress(ImportProgress(completedCount: 0, totalCount: recordCount))
+        let records = (0..<recordCount).map { index in
+            let suffix = String(format: "%012d", index + 1)
+            let id = UUID(uuidString: "00000000-0000-0000-0000-\(suffix)")!
             return CachedAlbumAsset(
                 assetIdentifier: "asset-\(index)",
                 assetModificationDate: Date(timeIntervalSince1970: 100),
@@ -462,10 +491,27 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
                 )
             )
         }
-        await progress(ImportProgress(completedCount: 2, totalCount: 2))
+        if emitsCheckpoint {
+            await checkpoint(
+                AlbumSyncCheckpoint(
+                    records: records,
+                    preparedRecords: records,
+                    progress: ImportProgress(
+                        completedCount: recordCount,
+                        totalCount: recordCount
+                    )
+                )
+            )
+        }
+        if delayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: delayNanoseconds)
+        }
+        await progress(
+            ImportProgress(completedCount: recordCount, totalCount: recordCount)
+        )
         return AlbumSyncReport(
             records: records,
-            importedCount: 2,
+            importedCount: recordCount,
             refreshedCount: 0,
             removedCount: 0,
             cloudOnlyCount: 0,

@@ -412,10 +412,92 @@ struct RootView: View {
                 Text("Preparing \(setupTitle) on this iPad")
                     .font(.headline)
                     .foregroundColor(.white.opacity(0.86))
+
+                if let progress = currentPreparationProgress {
+                    Group {
+                        if progress.totalCount > 0 {
+                            ProgressView(value: progress.fractionCompleted)
+                                .accessibilityValue(
+                                    "\(progress.completedCount) of \(progress.totalCount)"
+                                )
+                        } else {
+                            ProgressView()
+                        }
+                    }
+                    .progressViewStyle(.linear)
+                    .tint(.white)
+                    .frame(maxWidth: 360)
+                    .accessibilityLabel(currentPreparationAccessibilityLabel)
+
+                    Text(currentPreparationDetail)
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.72))
+                }
             }
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 28)
             .padding(.bottom, 110)
         }
         .allowsHitTesting(false)
+    }
+
+    private var currentPreparationProgress: ImportProgress? {
+        if isInitialPersonalImport {
+            switch model.importPhase {
+            case .importing(let progress), .cancelling(let progress):
+                return progress
+            case .idle, .finished, .deletionFailed:
+                return nil
+            }
+        }
+        switch model.collectionMode {
+        case .automaticAlbum:
+            switch automaticAlbum.phase {
+            case .syncing(let progress), .curating(let progress):
+                return progress
+            default:
+                return nil
+            }
+        case .personal:
+            if case .analyzing(let progress) = model.curationPhase {
+                return progress
+            }
+            if case .importing(let progress) = model.importPhase {
+                return progress
+            }
+            if case .cancelling(let progress) = model.importPhase {
+                return progress
+            }
+            return nil
+        case .samples:
+            return nil
+        }
+    }
+
+    private var currentPreparationDetail: String {
+        if model.collectionMode == .automaticAlbum {
+            return automaticAlbumStatus
+        }
+        switch model.importPhase {
+        case .importing(let progress):
+            return "Preparing \(progress.completedCount) of \(progress.totalCount) selected photos…"
+        case .cancelling:
+            return "Stopping after the current photo…"
+        case .idle, .finished, .deletionFailed:
+            break
+        }
+        return curationStatus
+    }
+
+    private var currentPreparationAccessibilityLabel: String {
+        if model.collectionMode == .automaticAlbum,
+           case .curating = automaticAlbum.phase {
+            return "Automatic album curation progress"
+        }
+        if model.collectionMode == .automaticAlbum {
+            return "Automatic album sync progress"
+        }
+        return "Photo preparation progress"
     }
 
     private var curationStatus: String {
@@ -480,8 +562,16 @@ struct RootView: View {
         case .loadingAlbums:
             return "Loading your albums…"
         case .syncing(let progress):
+            if let readyCount = automaticAlbum.smartReel?.selections.count,
+               readyCount > 0 {
+                return "\(readyCount) photos ready — adding more (\(progress.completedCount) of \(progress.totalCount))…"
+            }
             return "Preparing \(progress.completedCount) of \(progress.totalCount) photos…"
         case .curating(let progress):
+            if let readyCount = automaticAlbum.smartReel?.selections.count,
+               readyCount > 0 {
+                return "\(readyCount) photos ready — improving your reel (\(progress.completedCount) of \(progress.totalCount))…"
+            }
             return "Finding your best photos — \(progress.completedCount) of \(progress.totalCount)…"
         case .ready(let photoCount, let suggestionCount):
             if suggestionCount == 1 { return "1 photo is ready from \(photoCount) album item(s)." }
@@ -534,6 +624,7 @@ struct RootView: View {
         if isInitialPersonalImport { return true }
         switch model.collectionMode {
         case .automaticAlbum:
+            if automaticAlbum.canDisplay { return false }
             switch automaticAlbum.phase {
             case .loadingAlbums, .syncing, .curating: return true
             default: return !automaticAlbum.canDisplay

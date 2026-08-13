@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 8.5 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **30.5 h** | **In progress** |
+| 6. Hardening and release | 8 h | 9.25 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **31.25 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -283,6 +283,17 @@ pipeline with 5,000 candidates. Xcode Cloud's pre-build archive guard is also
 committed and validates the confirmed production IAP identifier before a
 TestFlight archive.
 
+Large automatic albums now become useful progressively instead of blocking on
+the full candidate pool. PhotoKit requests the 2,560-pixel representation used
+by FrameWink's display cache, the synchronizer prioritizes a date-spanning
+30-photo batch, and durable records are checkpointed every 30 items so an
+interruption resumes from app-controlled copies instead of starting over. The
+initial batch produces a playable reel while the complete album continues to
+download and improve recommendations. A ready home preview also accepts
+horizontal swipes before Frame Mode. The complete Simulator scheme passes 131
+runnable tests plus one intentional physical-only skip with zero failures or
+runtime warnings after these changes.
+
 A Debug-only screenshot harness now isolates its fixture state from normal app
 data. It produces an upload-ready set of ten native 13-inch iPad JPEGs at 2064 x
 2752 without alpha, plus an eleven-image source library, using bundled
@@ -316,12 +327,10 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - A physical iPad Pro 12.9-inch (3rd generation) on iPadOS 26.6 is now connected
   and has physical install/launch plus partial automated-test evidence. Older
   deployment-target coverage and the broader legacy-device matrix remain open.
-- An iPad mini (6th generation) on iPadOS 27 is connected and detected. Its
-  first signed install is currently blocked at Apple's provisioning boundary:
-  the local team profile does not yet include the device, and command-line
-  Xcode reports no usable Apple account for automatic registration. Simulator
-  compact-layout coverage is unaffected; rerun the physical acceptance harness
-  after adding the mini to the Jenny Media LLC development profile.
+- An iPad mini (6th generation) on iPadOS 27 is connected, registered to the
+  Jenny Media LLC development team, signed, installed, and running the physical
+  acceptance harness. Its real 653-item album prepared successfully and the
+  process remained live at nominal thermal state.
 - Milestone 3 now has on-device Vision and curator performance evidence, but
   real Photos/iCloud behavior, oldest-device coverage, and human-labelled
   displayability acceptance remain open as blocker B-004.
@@ -376,6 +385,13 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   replacement build is installed on the physical iPad. The 326-photo
   iCloud-backed preparation and corrected 86-photo curated result now both have
   physical evidence.
+- A second large-album physical pass resolved the remaining latency/interaction
+  defect under B-018. The target-sized PhotoKit path sustained roughly 5–7
+  prepared photos per second on the connected Pro and mini. The Pro exposed an
+  initial 30-photo reel and enabled **Start Frame** while its full 1,925-item
+  analysis continued; progress is visible on both the neutral backdrop and
+  setup card, durable sync checkpoints survive relaunch, and the ready preview
+  is swipeable before Frame Mode.
 
 ## Timebox rule
 

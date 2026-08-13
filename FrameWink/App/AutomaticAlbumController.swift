@@ -4,6 +4,8 @@ import UIKit
 
 @MainActor
 final class AutomaticAlbumController: ObservableObject {
+    private static let minimumInitialCandidateCount = 12
+
     @Published private(set) var authorization: PhotoLibraryAuthorizationState
     @Published private(set) var albums: [PhotoLibraryAlbum] = []
     @Published private(set) var configuration: AutomaticAlbumConfiguration
@@ -251,6 +253,26 @@ final class AutomaticAlbumController: ObservableObject {
                         return
                     }
                     self.publishProgress(progress, phase: AutomaticAlbumPhase.syncing)
+                } checkpoint: { [weak self] checkpoint in
+                    guard let self = self,
+                          self.generation == currentGeneration,
+                          self.smartReel == nil,
+                          checkpoint.preparedRecords.count
+                            >= Self.minimumInitialCandidateCount else {
+                        return
+                    }
+                    self.records = checkpoint.records
+                    do {
+                        try await self.curate(
+                            currentGeneration: currentGeneration,
+                            candidateRecords: checkpoint.preparedRecords
+                        )
+                    } catch is CancellationError {
+                        return
+                    } catch {
+                        // Keep synchronizing. A later checkpoint or the final
+                        // complete album can still produce the first reel.
+                    }
                 }
                 try Task.checkCancellation()
                 guard generation == currentGeneration else { return }
@@ -328,18 +350,22 @@ final class AutomaticAlbumController: ObservableObject {
         }
     }
 
-    private func curate(currentGeneration: UUID) async throws {
-        guard !records.isEmpty else {
+    private func curate(
+        currentGeneration: UUID,
+        candidateRecords: [CachedAlbumAsset]? = nil
+    ) async throws {
+        let recordsToCurate = candidateRecords ?? records
+        guard !recordsToCurate.isEmpty else {
             smartReel = nil
             phase = .failed("No usable photos were found in this album. Choose another album or try again.")
             return
         }
         let recordsByID = Dictionary(
-            uniqueKeysWithValues: records.map { ($0.photo.id, $0) }
+            uniqueKeysWithValues: recordsToCurate.map { ($0.photo.id, $0) }
         )
         let reel = try await smartReelBuilder.buildUnbounded(
-            candidates: records.map { $0.candidate() },
-            maximumSelectionCount: min(max(records.count, 30), 100),
+            candidates: recordsToCurate.map { $0.candidate() },
+            maximumSelectionCount: min(max(recordsToCurate.count, 30), 100),
             imageProvider: { [store] id in
                 guard let record = recordsByID[id] else { return nil }
                 return await store.image(for: record.photo)

@@ -329,6 +329,39 @@ blocker affects only a later boundary.
   ready photos with **Start Frame** enabled. The physical process remained live,
   charging, and nominal-thermal.
 
+### B-018 — First album preparation is slow and the ready preview appears stuck
+
+- Status: Resolved on 2026-08-13
+- First recorded: 2026-08-13
+- Evidence: on the connected iPad Pro, a newly selected 160-item album was
+  still preparing at 116 items and took several minutes to become usable. It
+  ultimately produced 69 recommendations, but horizontal swipes on the ready
+  home preview did nothing until **Start Frame** was tapped. The connected iPad
+  mini 6 remained on the preparation screen longer still. Both processes stayed
+  live at nominal thermal state, so this is latency and interaction feedback,
+  not a crash or one-photo curation result.
+- Cause found in code: the real PhotoKit path requests each full current image
+  sequentially and only then downsamples it to the 2,560-pixel display cache.
+  The home slideshow also installs its swipe gesture only after Frame Mode
+  starts, even though a ready photo is already visible behind the setup card.
+- Does not block: cached-album playback, deterministic curation, Simulator
+  verification, or release-document work.
+- Resolution: PhotoKit now returns a high-quality 2,560-pixel representation
+  instead of transferring the largest current image before downsampling. Album
+  synchronization processes a date-spanning 30-item batch first, commits a
+  resumable metadata checkpoint every 30 items, and publishes an initial reel
+  while the remaining album continues in the foreground. The preparation
+  backdrop shows live transfer/analysis counts, the ready card keeps **Start
+  Frame** enabled during refinement, and its visible preview accepts horizontal
+  navigation before Frame Mode.
+- Verification: the optimized physical build sustained roughly 5–7 prepared
+  photos per second while the iPad Pro processed a 1,925-item album and the iPad
+  mini 6 processed a 653-item album; both remained live at nominal thermal
+  state. After relaunch, the Pro exposed a 30-photo playable reel within seconds
+  while the complete 1,925-item analysis continued. Simulator coverage proves
+  representative checkpoint ordering, durable resume records, early playback
+  before final synchronization, and swipe navigation on the ready home preview.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue
