@@ -590,3 +590,50 @@ explicit owner approval.
   duplicate cutoff. Curation revision 3 removes that scaling, and a regression
   test covers the normalization. Reinstalling over the same data rebuilt the
   album to 86 ready photos with **Start Frame** enabled; B-017 records the fix.
+
+## Responsive Frame refinement verification — 2026-08-12
+
+- Focused simulator coverage passes 32 tests with zero failures: content source
+  selection and preparation presentation, layout selection and motion safety,
+  photo-anchor reflow, session timing, and overlay visibility policy.
+- The complete iOS 27 `iPad (A16)` Simulator scheme passes 128 tests with zero
+  failures, expected failures, or runtime warnings; the one skipped test is the
+  intentional physical-only real-PhotoKit album-discovery check. An unsigned
+  generic-device Release build and the Xcode Cloud archive identity/privacy
+  guard both pass. The only build warning is a deprecation inside Apple's
+  StoreKitTest SDK header, not FrameWink source.
+- Automatic-album preparation is explicitly tested to return an empty chosen
+  source rather than falling back to a bundled sample. The UI renders a neutral
+  on-device preparation backdrop until real selected-source slides are ready.
+  First-time individual-photo import uses the same honest presentation and
+  suppresses both sample imagery and sample-labeled home chrome.
+- Layout tests cover compact single-photo fallback, bounded lookahead for
+  compatible wide portrait pairs, tall landscape stacks, a mostly-single
+  composition balance, entitlement-gated event-bound Mosaic, crop bounds, and
+  preservation of the featured photo across reflow.
+- Session tests prove that a resize-driven page remap does not reset the
+  playback deadline and that an interactive resize preserves the exact
+  remaining interval. Coordinator coverage drives repeated geometry remaps
+  through begin/end resize and verifies the photo anchor, play state, timer,
+  and display-history boundary together.
+- The iOS 27 `iPad (A16)` Simulator built and launched the deterministic local
+  reel. Portrait home remained readable with a single primary and contextual
+  secondary action. Direct Frame Mode rendered edge-to-edge with no status or
+  multitasking chrome and settled to a clean photo-only screen after controls
+  and the temporary tap/swipe hint receded.
+- UI automation verifies the complete playback-chrome lifecycle: guidance and
+  controls recede independently, tap restores the controls, pausing keeps them
+  visible, a swipe advances without reopening chrome, rotation preserves the
+  active photo, and tapping during scheduled blackout reveals the escape
+  control.
+- The physical iPad mini 6 is connected and recognized as `iPad14,1` on iPadOS
+  27. Its first build was attempted, but signing stopped before install because
+  the current development profile does not include the device; Xcode
+  command-line automatic provisioning also reported no usable account. This is
+  a provisioning boundary, not an app test failure. The iPad Pro remains
+  available for the large-window physical smoke.
+- The signed replacement build installed and launched on the iPad Pro
+  12.9-inch. A host sample found the process running, charging, and nominal
+  thermal. While its real 1,925-item album refreshed, the preparation screen
+  retained an actual cached album photo rather than showing bundled sample
+  imagery.

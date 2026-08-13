@@ -10,7 +10,8 @@ one into active work without an explicit decision and revised time budget.
 - Richer feedback such as `Show More Like This`.
 - Better event clustering and nostalgia/recency controls.
 - Optional semantic category balance.
-- Additional collage layouts.
+- Additional collage templates beyond the responsive pair/stack and bounded
+  four-photo Mosaic.
 
 ## Sources and integrations
 
@@ -27,7 +28,8 @@ one into active work without an explicit decision and revised time budget.
 - Music.
 - Clock/calendar overlays.
 - Optional weather, with an explicit privacy/network tradeoff.
-- Additional transitions and themes.
+- Additional transitions and themes beyond the restrained dissolve and subtle
+  single-photo motion used by the default frame.
 - Photographer color-management options.
 
 ## Operations

@@ -130,6 +130,8 @@ struct FrameWinkApp: App {
 #if DEBUG
         if screenshotScenario == .personalReel {
             appModel.collectionMode = .personal
+        } else if screenshotScenario == .personalImport {
+            appModel.debugBeginInitialPersonalImport()
         }
 #endif
         _model = StateObject(wrappedValue: appModel)

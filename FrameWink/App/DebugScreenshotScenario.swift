@@ -38,6 +38,8 @@ enum DebugScreenshotScenario: String {
     case mosaicFrame = "mosaic-frame"
     case freeReview = "free-review-grid"
     case personalReel = "personal-reel"
+    case personalImport = "personal-import"
+    case blackoutFrame = "blackout-frame"
 
     static var current: Self? {
         guard let value = ProcessInfo.processInfo.environment[
@@ -50,9 +52,9 @@ enum DebugScreenshotScenario: String {
 
     var initialPresentation: RootInitialPresentation? {
         switch self {
-        case .sample, .personalReel:
+        case .sample, .personalReel, .personalImport:
             return nil
-        case .smartFrame:
+        case .smartFrame, .blackoutFrame:
             return .frameMode
         case .paywall:
             return .wallModePaywallPurchase
@@ -78,7 +80,7 @@ enum DebugScreenshotScenario: String {
     var requiresWallModeEntitlement: Bool {
         switch self {
         case .wallModeSetup, .savedConfigurations, .wallSchedule, .wallChecklist,
-                .automaticAlbumReview, .mosaicFrame:
+                .automaticAlbumReview, .mosaicFrame, .blackoutFrame:
             return true
         default:
             return false
@@ -101,16 +103,45 @@ extension DebugScreenshotScenario {
     ) {
         if self == .freeReview || self == .personalReel {
             seedFreeReview(importedStore: importedStore)
+            if self == .personalReel {
+                let configurationID = UUID(
+                    uuidString: "B6E10F2B-9C8F-4AE6-B697-ED5AF43F5F11"
+                )!
+                try? frameConfigurationStore.saveArchive(
+                    FrameConfigurationArchive(
+                        configurations: [
+                            SavedFrameConfiguration(
+                                id: configurationID,
+                                name: "Personal Reel",
+                                source: .freeSmartReel,
+                                albumIdentifier: nil,
+                                albumTitle: nil,
+                                layoutPreference: .automatic,
+                                interval: 60
+                            ),
+                        ],
+                        activeConfigurationID: configurationID
+                    )
+                )
+            }
             return
         }
         guard requiresWallModeEntitlement else { return }
 
+        let nowComponents = Calendar.current.dateComponents([.hour, .minute], from: Date())
+        let currentMinute = (nowComponents.hour ?? 0) * 60 + (nowComponents.minute ?? 0)
         try? wallModeStore.saveConfiguration(
             WallModeConfiguration(
                 scheduleEnabled: true,
-                dimStartMinute: 20 * 60,
-                blackoutStartMinute: 23 * 60,
-                blackoutEndMinute: 7 * 60,
+                dimStartMinute: self == .blackoutFrame
+                    ? (currentMinute + 1_438) % 1_440
+                    : 20 * 60,
+                blackoutStartMinute: self == .blackoutFrame
+                    ? (currentMinute + 1_439) % 1_440
+                    : 23 * 60,
+                blackoutEndMinute: self == .blackoutFrame
+                    ? (currentMinute + 2) % 1_440
+                    : 7 * 60,
                 dimOpacity: 0.58,
                 completedChecklistItems: [
                     .compatibleOS,

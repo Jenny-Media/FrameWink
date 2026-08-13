@@ -4,53 +4,147 @@ protocol FrameLayoutChoosing {
     func pages(
         for items: [FrameLayoutItem],
         viewport: PixelSize,
-        preference: FrameLayoutPreference
+        preference: FrameLayoutPreference,
+        allowsAutomaticMosaic: Bool
     ) -> [FramePage]
 }
 
-struct FrameLayoutChooser: FrameLayoutChoosing {
+extension FrameLayoutChoosing {
     func pages(
         for items: [FrameLayoutItem],
         viewport: PixelSize,
         preference: FrameLayoutPreference
     ) -> [FramePage] {
+        pages(
+            for: items,
+            viewport: viewport,
+            preference: preference,
+            allowsAutomaticMosaic: false
+        )
+    }
+}
+
+struct FrameLayoutChooser: FrameLayoutChoosing {
+    private let compactMinimumWidth = 560
+    private let compactMinimumHeight = 500
+    private let largeMinimumDimension = 900
+    private let compatibilityLookahead = 4
+    private let nearbyEventInterval: TimeInterval = 12 * 60 * 60
+
+    func pages(
+        for items: [FrameLayoutItem],
+        viewport: PixelSize,
+        preference: FrameLayoutPreference,
+        allowsAutomaticMosaic: Bool = false
+    ) -> [FramePage] {
         guard viewport.width > 0, viewport.height > 0 else { return [] }
 
-        var result: [FramePage] = []
-        var index = 0
-
-        while index < items.count {
-            if preference == .mosaic {
-                let end = min(index + 4, items.count)
-                result.append(
-                    mosaicPage(
-                        items: Array(items[index..<end]),
-                        viewport: viewport
-                    )
+        let isCompact = viewport.width < compactMinimumWidth
+            || viewport.height < compactMinimumHeight
+        if preference == .mosaic, !isCompact {
+            return stride(from: 0, to: items.count, by: 4).map { index in
+                mosaicPage(
+                    items: Array(items[index..<min(index + 4, items.count)]),
+                    viewport: viewport
                 )
-                index = end
-            } else if preference == .automatic,
-               index + 1 < items.count,
-               let pair = pairedPage(
-                   first: items[index],
-                   second: items[index + 1],
-                   viewport: viewport
-               ) {
-                result.append(pair)
-                index += 2
-            } else {
-                result.append(
-                    singlePage(
-                        item: items[index],
-                        viewport: viewport,
-                        preference: preference
-                    )
-                )
-                index += 1
             }
         }
 
+        var result: [FramePage] = []
+        var remaining = items
+        let singlePreference: FrameLayoutPreference = preference == .mosaic
+            ? .automatic
+            : preference
+
+        while let first = remaining.first {
+            if preference == .automatic,
+               allowsAutomaticMosaic,
+               min(viewport.width, viewport.height) >= largeMinimumDimension,
+               result.count % 20 == 12,
+               let group = nearbyMosaicGroup(in: remaining) {
+                result.append(mosaicPage(items: group, viewport: viewport))
+                let groupIDs = Set(group.map(\.id))
+                remaining.removeAll(where: { groupIDs.contains($0.id) })
+                continue
+            }
+
+            if preference == .automatic, !isCompact,
+               (items.count <= 4 || result.count % 5 == 1),
+               let matchIndex = compatibleMatchIndex(
+                   for: first,
+                   in: remaining,
+                   viewport: viewport
+               ) {
+                let second = remaining[matchIndex]
+                if let page = pairedPage(
+                    first: first,
+                    second: second,
+                    viewport: viewport
+                ) ?? stackedPage(
+                    first: first,
+                    second: second,
+                    viewport: viewport
+                ) {
+                    result.append(page)
+                    remaining.remove(at: matchIndex)
+                    remaining.removeFirst()
+                    continue
+                }
+            }
+
+            result.append(
+                singlePage(
+                    item: first,
+                    viewport: viewport,
+                    preference: singlePreference
+                )
+            )
+            remaining.removeFirst()
+        }
+
         return result
+    }
+
+    private func compatibleMatchIndex(
+        for first: FrameLayoutItem,
+        in items: [FrameLayoutItem],
+        viewport: PixelSize
+    ) -> Int? {
+        guard items.count > 1 else { return nil }
+        let upperBound = min(items.count - 1, compatibilityLookahead)
+        return (1...upperBound).first { index in
+            let candidate = items[index]
+            guard belongsToNearbyEvent(first, candidate) else { return false }
+            return pairedPage(first: first, second: candidate, viewport: viewport) != nil
+                || stackedPage(first: first, second: candidate, viewport: viewport) != nil
+        }
+    }
+
+    private func nearbyMosaicGroup(in items: [FrameLayoutItem]) -> [FrameLayoutItem]? {
+        guard items.count >= 3, let first = items.first, first.creationDate != nil else {
+            return nil
+        }
+        var group = [first]
+        for candidate in items.dropFirst().prefix(compatibilityLookahead + 1)
+            where belongsToNearbyEvent(first, candidate) {
+            group.append(candidate)
+            if group.count == 4 { break }
+        }
+        return group.count >= 3 ? group : nil
+    }
+
+    private func belongsToNearbyEvent(
+        _ first: FrameLayoutItem,
+        _ second: FrameLayoutItem
+    ) -> Bool {
+        switch (first.creationDate, second.creationDate) {
+        case let (firstDate?, secondDate?):
+            return abs(firstDate.timeIntervalSince(secondDate)) <= nearbyEventInterval
+        case (nil, nil):
+            return true
+        default:
+            return false
+        }
     }
 
     private func mosaicPage(
@@ -131,7 +225,7 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
         second: FrameLayoutItem,
         viewport: PixelSize
     ) -> FramePage? {
-        guard viewport.aspectRatio >= 1.2,
+        guard viewport.aspectRatio >= 1.18,
               first.pixelSize.aspectRatio > 0,
               second.pixelSize.aspectRatio > 0,
               first.pixelSize.aspectRatio <= 0.9,
@@ -139,9 +233,9 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
             return nil
         }
 
-        let halfViewportAspect = (Double(viewport.width) / 2) / Double(viewport.height)
-        guard let firstCrop = safeCrop(for: first, targetAspectRatio: halfViewportAspect),
-              let secondCrop = safeCrop(for: second, targetAspectRatio: halfViewportAspect) else {
+        let cellAspect = (Double(viewport.width) / 2) / Double(viewport.height)
+        guard let firstCrop = safeCrop(for: first, targetAspectRatio: cellAspect),
+              let secondCrop = safeCrop(for: second, targetAspectRatio: cellAspect) else {
             return nil
         }
 
@@ -160,6 +254,45 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
                     id: "pair-right:\(second.id)",
                     photoID: second.id,
                     screenFrame: NormalizedRect(x: 0.5, y: 0, width: 0.5, height: 1),
+                    sourceCrop: secondCrop,
+                    contentMode: .crop
+                ),
+            ]
+        )
+    }
+
+    private func stackedPage(
+        first: FrameLayoutItem,
+        second: FrameLayoutItem,
+        viewport: PixelSize
+    ) -> FramePage? {
+        guard viewport.aspectRatio <= 0.85,
+              first.pixelSize.aspectRatio >= 1.15,
+              second.pixelSize.aspectRatio >= 1.15 else {
+            return nil
+        }
+
+        let cellAspect = Double(viewport.width) / (Double(viewport.height) / 2)
+        guard let firstCrop = safeCrop(for: first, targetAspectRatio: cellAspect),
+              let secondCrop = safeCrop(for: second, targetAspectRatio: cellAspect) else {
+            return nil
+        }
+
+        return FramePage(
+            id: "stack:\(first.id):\(second.id)",
+            kind: .stackedLandscapes,
+            placements: [
+                FrameLayoutPlacement(
+                    id: "stack-top:\(first.id)",
+                    photoID: first.id,
+                    screenFrame: NormalizedRect(x: 0, y: 0, width: 1, height: 0.5),
+                    sourceCrop: firstCrop,
+                    contentMode: .crop
+                ),
+                FrameLayoutPlacement(
+                    id: "stack-bottom:\(second.id)",
+                    photoID: second.id,
+                    screenFrame: NormalizedRect(x: 0, y: 0.5, width: 1, height: 0.5),
                     sourceCrop: secondCrop,
                     contentMode: .crop
                 ),

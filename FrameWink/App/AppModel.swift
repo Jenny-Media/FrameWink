@@ -263,6 +263,15 @@ final class AppModel: ObservableObject {
         retryItems = []
     }
 
+#if DEBUG
+    func debugBeginInitialPersonalImport() {
+        guard importedPhotos.isEmpty else { return }
+        importPhase = .importing(
+            ImportProgress(completedCount: 0, totalCount: 3)
+        )
+    }
+#endif
+
     func deleteImportedPhotos() {
         importTask?.cancel()
         curationTask?.cancel()

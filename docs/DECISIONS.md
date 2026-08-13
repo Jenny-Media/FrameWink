@@ -109,3 +109,17 @@ date; do not silently rewrite historical decisions during implementation.
   obscured where to start. A Photos-like choose-then-play path better serves the
   product's simple-frame goal without removing review, privacy, or advanced
   controls.
+
+## D-015 — Frame playback responds to the window without becoming a dashboard
+
+- **Decision:** Keep iPad window resizing supported. FrameWink uses the current
+  scene geometry to reflow the current photo into a compact single-photo page,
+  an occasional compatible wide/tall pair, or an entitled large-window Mosaic.
+  Reflow preserves a stable photo anchor, playback state, remaining interval,
+  and display history. Frame Mode asks iPadOS to hide system chrome, shows its
+  gesture hint only briefly, and uses restrained dissolves plus subtle
+  single-photo motion that respects Reduce Motion.
+- **Reason:** iPad multitasking is a platform behavior and a useful frame
+  capability. A geometry-driven presentation feels native and predictable;
+  preserving the current photo avoids treating a resize as navigation or
+  forcing the user to prepare photos again.

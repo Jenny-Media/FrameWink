@@ -61,18 +61,27 @@ verification remain pending.
 - [x] Full-screen controls recede without making navigation undiscoverable.
 - [x] Reduce Motion is respected.
 - [x] Pure layout-selection tests cover faces and awkward aspect ratios.
+- [x] Album preparation never substitutes bundled samples for the chosen source.
+- [x] Compact, wide, tall, and entitled large-window layouts respond to live
+      geometry without adding settings.
+- [x] Window reflow preserves a stable photo anchor, playback state, remaining
+      interval, and display-history semantics.
+- [x] System chrome and gesture guidance recede in Frame Mode; single-photo
+      motion pauses during resize and respects Reduce Motion.
 
 Acceptance: a 30-photo fixture reel plays repeatedly without incorrect bounds,
 stuck timers, or losing manual navigation.
 
 Status: complete. The deterministic layout chooser produces bounded Fit, Fill,
-face-safe fallback, portrait-pair, and rotated layouts. The pure frame-session
+face-safe fallback, occasional portrait-pair/landscape-stack, compact single,
+entitlement-gated event Mosaic, and rotated/resized layouts. The pure frame-session
 controller replays a 30-page fixture, wraps manual navigation, changes timing,
-and pauses/resumes without timer drift. Frame Mode was visually exercised in
-portrait and landscape on the iOS 27 `iPad (A16)` Simulator; controls recede to
-an interaction hint and manual next navigation wraps correctly. All 18 project
-tests pass. Real-device touch gestures, rotation, and long-running playback
-remain release checks rather than blockers to the pure frame engine.
+and pauses/resumes without timer drift, including an interactive-resize hold
+that preserves the remaining interval. Frame Mode was visually exercised in
+portrait on the iOS 27 `iPad (A16)` Simulator with system chrome absent and a
+clean photo-only state after both controls and guidance receded. Real-device
+window resizing and long-running playback remain release checks rather than
+blockers to the pure frame engine.
 
 ## Milestone 3 — Smart Reel curator
 
@@ -185,9 +194,14 @@ Acceptance: release checklist passes with no critical known defect and no claim
 contradicts `docs/PRODUCT.md`.
 
 Status: local hardening is complete; physical-device and cloud-boundary
-acceptance remains open. All 100 shared-scheme tests pass. Xcode static analysis completes
-without warnings after excluding the StoreKit test bundle from the Analyze
-action, and an unsigned Release device build succeeds. The built product is
+acceptance remains open. The current iOS 27 iPad Simulator scheme passes 128
+tests with one intentional physical-only PhotoKit test skipped, zero failures,
+and zero runtime warnings. Coverage includes honest automatic-album and initial
+personal-import preparation, responsive single/pair/stack/Mosaic layout,
+resize anchor/timer/history continuity, immersive overlay behavior, and
+blackout escape. Xcode static analysis completes without warnings after
+excluding the StoreKit test bundle from the Analyze action, and an unsigned
+Release device build succeeds. The built product is
 iPad-only with a 15.0 minimum, contains the opaque AppIcon and root privacy
 manifest, contains no third-party framework or StoreKit test configuration, and
 contains the production Wall Mode product ID and non-exempt-encryption
@@ -302,6 +316,12 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
 - A physical iPad Pro 12.9-inch (3rd generation) on iPadOS 26.6 is now connected
   and has physical install/launch plus partial automated-test evidence. Older
   deployment-target coverage and the broader legacy-device matrix remain open.
+- An iPad mini (6th generation) on iPadOS 27 is connected and detected. Its
+  first signed install is currently blocked at Apple's provisioning boundary:
+  the local team profile does not yet include the device, and command-line
+  Xcode reports no usable Apple account for automatic registration. Simulator
+  compact-layout coverage is unaffected; rerun the physical acceptance harness
+  after adding the mini to the Jenny Media LLC development profile.
 - Milestone 3 now has on-device Vision and curator performance evidence, but
   real Photos/iCloud behavior, oldest-device coverage, and human-labelled
   displayability acceptance remain open as blocker B-004.
@@ -349,10 +369,13 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   hides captions and keeps only previous, pause/play, next, and More controls.
   The compact Frame Settings screen persists one active configuration, hides
   legacy Wall Mode/Strict Offline terminology, and keeps mounted-iPad guidance
-  collapsed. The full Simulator suite passes 106 unit tests and five runnable
-  UI tests; one real-PhotoKit UI test skips by design. The replacement build is
-  installed on the physical iPad. The 326-photo iCloud-backed preparation and
-  corrected 86-photo curated result now both have physical evidence.
+  collapsed. The current full Simulator suite passes 128 tests with one
+  real-PhotoKit UI test skipped by design, covering honest preparation,
+  responsive composition/resize continuity, the independent hint/control
+  lifecycle, deterministic swipe navigation, and blackout escape. The
+  replacement build is installed on the physical iPad. The 326-photo
+  iCloud-backed preparation and corrected 86-photo curated result now both have
+  physical evidence.
 
 ## Timebox rule
 

@@ -1,11 +1,98 @@
 import Foundation
 
+enum FrameOverlayVisibilityPolicy {
+    static func shouldAutomaticallyHideControls(
+        isFrameMode: Bool,
+        isPlaying: Bool,
+        voiceOverEnabled: Bool
+    ) -> Bool {
+        isFrameMode && isPlaying && !voiceOverEnabled
+    }
+}
+
+struct FramePlaybackCoordinator: Equatable {
+    private(set) var session: FrameSessionController
+    private(set) var featuredPhotoID: String?
+    private(set) var pageLayoutSignature = ""
+    private(set) var isInteractingWithResize = false
+
+    init(session: FrameSessionController = FrameSessionController()) {
+        self.session = session
+    }
+
+    var currentPageIndex: Int { session.currentPageIndex }
+    var isPlaying: Bool { session.isPlaying }
+    var interval: TimeInterval { session.interval }
+
+    func activePage(in pages: [FramePage]) -> FramePage? {
+        guard !pages.isEmpty else { return nil }
+        return pages[min(session.currentPageIndex, pages.count - 1)]
+    }
+
+    mutating func synchronizePages(_ pages: [FramePage], signature: String) {
+        guard pageLayoutSignature != signature else { return }
+        let oldIndex = session.currentPageIndex
+        session.updatePageCount(pages.count)
+        session.selectPage(
+            FramePageAnchorResolver.index(
+                preserving: featuredPhotoID,
+                in: pages,
+                fallbackIndex: oldIndex
+            )
+        )
+        pageLayoutSignature = signature
+
+        guard let page = activePage(in: pages) else {
+            featuredPhotoID = nil
+            return
+        }
+        if featuredPhotoID == nil
+            || !page.placements.contains(where: { $0.photoID == featuredPhotoID }) {
+            featuredPhotoID = page.placements.first?.photoID
+        }
+    }
+
+    mutating func pageChangeRequiringHistory(in pages: [FramePage]) -> FramePage? {
+        guard let page = activePage(in: pages) else { return nil }
+        let preservesAnchor = featuredPhotoID.map { photoID in
+            page.placements.contains(where: { $0.photoID == photoID })
+        } ?? false
+        guard !preservesAnchor else { return nil }
+        featuredPhotoID = page.placements.first?.photoID
+        return page
+    }
+
+    mutating func setInteractiveResize(_ isResizing: Bool, at date: Date) {
+        guard isInteractingWithResize != isResizing else { return }
+        isInteractingWithResize = isResizing
+        if isResizing {
+            session.suspendAdvancement(at: date)
+        } else {
+            session.resumeAdvancement(at: date)
+        }
+    }
+
+    @discardableResult
+    mutating func tick(at date: Date) -> Bool {
+        guard !isInteractingWithResize else { return false }
+        return session.tick(at: date)
+    }
+
+    mutating func next(at date: Date) { session.next(at: date) }
+    mutating func previous(at date: Date) { session.previous(at: date) }
+    mutating func togglePlayback(at date: Date) { session.togglePlayback(at: date) }
+    mutating func setInterval(_ interval: TimeInterval, at date: Date) {
+        session.setInterval(interval, at: date)
+    }
+}
+
 struct FrameSessionController: Equatable {
     private(set) var pageCount: Int
     private(set) var currentPageIndex: Int
     private(set) var isPlaying: Bool
     private(set) var interval: TimeInterval
     private var lastAdvanceDate: Date?
+    private var advancementSuspendedAt: Date?
 
     init(
         pageCount: Int = 0,
@@ -30,9 +117,19 @@ struct FrameSessionController: Equatable {
             : 0
     }
 
+    mutating func selectPage(_ index: Int) {
+        guard pageCount > 0 else {
+            currentPageIndex = 0
+            return
+        }
+        currentPageIndex = min(max(index, 0), pageCount - 1)
+    }
+
     @discardableResult
     mutating func tick(at date: Date) -> Bool {
-        guard isPlaying, pageCount > 0 else { return false }
+        guard isPlaying, advancementSuspendedAt == nil, pageCount > 0 else {
+            return false
+        }
         guard let lastAdvanceDate = lastAdvanceDate else {
             self.lastAdvanceDate = date
             return false
@@ -66,11 +163,13 @@ struct FrameSessionController: Equatable {
     mutating func pause() {
         isPlaying = false
         lastAdvanceDate = nil
+        advancementSuspendedAt = nil
     }
 
     mutating func resume(at date: Date) {
         isPlaying = true
         lastAdvanceDate = date
+        advancementSuspendedAt = nil
     }
 
     mutating func togglePlayback(at date: Date) {
@@ -80,5 +179,21 @@ struct FrameSessionController: Equatable {
     mutating func setInterval(_ newInterval: TimeInterval, at date: Date) {
         interval = min(max(newInterval, 1), 3_600)
         lastAdvanceDate = isPlaying ? date : nil
+        advancementSuspendedAt = nil
+    }
+
+    mutating func suspendAdvancement(at date: Date) {
+        guard isPlaying, advancementSuspendedAt == nil else { return }
+        advancementSuspendedAt = date
+    }
+
+    mutating func resumeAdvancement(at date: Date) {
+        guard let advancementSuspendedAt else { return }
+        if let lastAdvanceDate {
+            self.lastAdvanceDate = lastAdvanceDate.addingTimeInterval(
+                max(date.timeIntervalSince(advancementSuspendedAt), 0)
+            )
+        }
+        self.advancementSuspendedAt = nil
     }
 }

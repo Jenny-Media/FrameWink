@@ -12,6 +12,41 @@ private enum SheetDestination: String, Identifiable {
     var id: String { rawValue }
 }
 
+enum FrameContentSelector {
+    static func slides(
+        for mode: PhotoCollectionMode,
+        standardSlides: [DisplaySlide],
+        automaticAlbumSlides: [DisplaySlide],
+        isInitialPersonalImport: Bool = false
+    ) -> [DisplaySlide] {
+        if isInitialPersonalImport { return [] }
+        return mode == .automaticAlbum ? automaticAlbumSlides : standardSlides
+    }
+}
+
+enum FramePreparationPresentation {
+    static func isInitialPersonalImport(
+        phase: ImportPhase,
+        importedPhotoCount: Int
+    ) -> Bool {
+        guard importedPhotoCount == 0 else { return false }
+        switch phase {
+        case .importing, .cancelling:
+            return true
+        case .idle, .finished, .deletionFailed:
+            return false
+        }
+    }
+
+    static func showsBackdrop(
+        hasSlides: Bool,
+        isPreparing: Bool,
+        isFrameMode: Bool
+    ) -> Bool {
+        !hasSlides && isPreparing && !isFrameMode
+    }
+}
+
 struct RootView: View {
     @ObservedObject var model: AppModel
     @ObservedObject var wallMode: WallModeController
@@ -44,50 +79,65 @@ struct RootView: View {
 
     var body: some View {
         NavigationView {
-            ZStack {
-                SampleSlideshowView(
-                    slides: displayedSlides,
-                    loadImportedImage: { photo in
-                        await model.image(for: photo)
-                    },
-                    loadAutomaticAlbumImage: { photo in
-                        await automaticAlbum.image(for: photo)
-                    },
-                    automaticAlbumPhotoDidDisplay: { photo in
-                        automaticAlbum.recordDisplayed(photo)
-                    },
-                    preferredLayoutPreference: activeLayoutPreference,
-                    preferredInterval: activeInterval,
-                    availableLayoutPreferences: availableLayoutPreferences,
-                    presentationDidChange: frameConfigurations.updateActive,
-                    isFrameMode: $isFrameMode,
-                    wallVisualState: wallMode.visualState,
-                    refreshWallSchedule: wallMode.refresh
-                )
-                .ignoresSafeArea()
+            GeometryReader { proxy in
+                let isCompact = proxy.size.width < 700 || proxy.size.height < 620
 
-                if !isFrameMode {
-                    chrome
-                }
-
-                if model.importPhase != .idle && !isFrameMode {
-                    Color.black.opacity(0.2)
-                        .ignoresSafeArea()
-                        .transition(.opacity)
-
-                    ImportStatusCard(
-                        phase: model.importPhase,
-                        canRetry: model.canRetryImport,
-                        cancel: model.cancelImport,
-                        retry: model.retryImport,
-                        dismiss: model.dismissImportStatus
+                ZStack {
+                    SampleSlideshowView(
+                        slides: displayedSlides,
+                        loadImportedImage: { photo in
+                            await model.image(for: photo)
+                        },
+                        loadAutomaticAlbumImage: { photo in
+                            await automaticAlbum.image(for: photo)
+                        },
+                        automaticAlbumPhotoDidDisplay: { photo in
+                            automaticAlbum.recordDisplayed(photo)
+                        },
+                        preferredLayoutPreference: activeLayoutPreference,
+                        preferredInterval: activeInterval,
+                        availableLayoutPreferences: availableLayoutPreferences,
+                        presentationDidChange: frameConfigurations.updateActive,
+                        isFrameMode: $isFrameMode,
+                        wallVisualState: wallMode.visualState,
+                        refreshWallSchedule: wallMode.refresh
                     )
-                    .transition(.scale.combined(with: .opacity))
+                    .ignoresSafeArea()
+
+                    if FramePreparationPresentation.showsBackdrop(
+                        hasSlides: !displayedSlides.isEmpty,
+                        isPreparing: isPreparingCurrentSource,
+                        isFrameMode: isFrameMode
+                    ) {
+                        preparationBackdrop
+                            .ignoresSafeArea()
+                    }
+
+                    if !isFrameMode && !isInitialPersonalImport {
+                        chrome(isCompact: isCompact)
+                    }
+
+                    if model.importPhase != .idle && !isFrameMode {
+                        Color.black.opacity(0.2)
+                            .ignoresSafeArea()
+                            .transition(.opacity)
+
+                        ImportStatusCard(
+                            phase: model.importPhase,
+                            canRetry: model.canRetryImport,
+                            cancel: model.cancelImport,
+                            retry: model.retryImport,
+                            dismiss: model.dismissImportStatus
+                        )
+                        .transition(.scale.combined(with: .opacity))
+                    }
                 }
             }
             .navigationBarHidden(true)
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .statusBarHidden(isFrameMode)
+        .framePersistentSystemOverlaysHidden(isFrameMode)
         .sheet(item: $presentedSheet) { destination in
             switch destination {
             case .photoPicker:
@@ -156,8 +206,8 @@ struct RootView: View {
         }
     }
 
-    private var chrome: some View {
-        VStack(spacing: 16) {
+    private func chrome(isCompact: Bool) -> some View {
+        VStack(spacing: isCompact ? 10 : 16) {
             HStack(alignment: .top) {
                 sampleBadge
 
@@ -165,14 +215,14 @@ struct RootView: View {
 
                 homeMenu
             }
-            .padding(.horizontal, 26)
-            .padding(.top, 18)
+            .padding(.horizontal, isCompact ? 16 : 26)
+            .padding(.top, isCompact ? 10 : 18)
 
             Spacer()
 
-            setupCard
-                .padding(.horizontal, 26)
-                .padding(.bottom, 18)
+            setupCard(isCompact: isCompact)
+                .padding(.horizontal, isCompact ? 14 : 26)
+                .padding(.bottom, isCompact ? 10 : 18)
         }
     }
 
@@ -256,11 +306,11 @@ struct RootView: View {
         }
     }
 
-    private var setupCard: some View {
-        VStack(alignment: .leading, spacing: 20) {
+    private func setupCard(isCompact: Bool) -> some View {
+        VStack(alignment: .leading, spacing: isCompact ? 13 : 20) {
             VStack(alignment: .leading, spacing: 7) {
                 Text(setupTitle)
-                    .font(.title2.weight(.semibold))
+                    .font((isCompact ? Font.title3 : Font.title2).weight(.semibold))
                     .foregroundColor(.primary)
 
                 if model.collectionMode == .automaticAlbum {
@@ -287,7 +337,34 @@ struct RootView: View {
                 }
             }
 
+            setupActions(isCompact: isCompact)
+        }
+        .padding(isCompact ? 16 : 22)
+        .frame(maxWidth: 860)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: .black.opacity(0.22), radius: 20, y: 8)
+        .accessibilityElement(children: .contain)
+    }
+
+    @ViewBuilder
+    private func setupActions(isCompact: Bool) -> some View {
+        let actions = Group {
+            primarySetupAction
+            secondarySetupAction
+        }
+
+        if isCompact {
+            VStack(spacing: 10) {
+                actions
+            }
+        } else {
             HStack(spacing: 12) {
+                actions
+            }
+        }
+    }
+
+    private var primarySetupAction: some View {
                 Button {
                     primaryAction()
                 } label: {
@@ -302,7 +379,9 @@ struct RootView: View {
                         ? "album-picker-action"
                         : "primary-frame-action"
                 )
+    }
 
+    private var secondarySetupAction: some View {
                 Button(secondaryActionTitle) {
                     secondaryAction()
                 }
@@ -314,13 +393,29 @@ struct RootView: View {
                         ? "album-picker-action"
                         : "secondary-photo-action"
                 )
+    }
+
+    private var preparationBackdrop: some View {
+        ZStack {
+            LinearGradient(
+                colors: [Color(white: 0.14), Color.black],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            VStack(spacing: 16) {
+                Image(systemName: "photo.stack")
+                    .font(.system(size: 48, weight: .light))
+                    .foregroundColor(.white.opacity(0.72))
+                    .accessibilityHidden(true)
+
+                Text("Preparing \(setupTitle) on this iPad")
+                    .font(.headline)
+                    .foregroundColor(.white.opacity(0.86))
             }
+            .padding(.bottom, 110)
         }
-        .padding(22)
-        .frame(maxWidth: 860)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: .black.opacity(0.22), radius: 20, y: 8)
-        .accessibilityElement(children: .contain)
+        .allowsHitTesting(false)
     }
 
     private var curationStatus: String {
@@ -339,14 +434,23 @@ struct RootView: View {
     }
 
     private var displayedSlides: [DisplaySlide] {
-        if model.collectionMode == .automaticAlbum {
-            let albumSlides = automaticAlbum.slides
-            return albumSlides.isEmpty ? model.slides : albumSlides
-        }
-        return model.slides
+        FrameContentSelector.slides(
+            for: model.collectionMode,
+            standardSlides: model.slides,
+            automaticAlbumSlides: automaticAlbum.slides,
+            isInitialPersonalImport: isInitialPersonalImport
+        )
+    }
+
+    private var isInitialPersonalImport: Bool {
+        FramePreparationPresentation.isInitialPersonalImport(
+            phase: model.importPhase,
+            importedPhotoCount: model.importedPhotos.count
+        )
     }
 
     private var setupTitle: String {
+        if isInitialPersonalImport { return "My Photos" }
         switch model.collectionMode {
         case .automaticAlbum:
             return automaticAlbum.selectedAlbumTitle
@@ -427,6 +531,7 @@ struct RootView: View {
     }
 
     private var isPreparingCurrentSource: Bool {
+        if isInitialPersonalImport { return true }
         switch model.collectionMode {
         case .automaticAlbum:
             switch automaticAlbum.phase {
@@ -578,6 +683,17 @@ struct RootView: View {
             presentedSheet = .reviewSuggestions
         case nil:
             break
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func framePersistentSystemOverlaysHidden(_ hidden: Bool) -> some View {
+        if #available(iOS 16.0, *) {
+            persistentSystemOverlays(hidden ? .hidden : .automatic)
+        } else {
+            self
         }
     }
 }

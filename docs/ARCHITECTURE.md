@@ -23,7 +23,8 @@ Suggested domain types:
 - `PhotoSignals`: quality, face, saliency, similarity, and layout measurements.
 - `CuratedPhoto`: candidate identifier plus algorithm version and final score.
 - `SmartReel`: ordered curated selections and creation metadata.
-- `FrameLayout`: single fit/fill, paired portraits, or four-photo Mosaic.
+- `FrameLayout`: single fit/fill, paired portraits, stacked landscapes, or
+  event-bound Mosaic.
 - `DisplaySchedule`: dim/blackout intervals and preferred intensity.
 - `EntitlementState`: loading, free, purchased, unavailable, or revoked.
 
@@ -74,6 +75,11 @@ Never perform all-pairs similarity comparison across an unbounded library.
 `FrameLayoutChoosing` should be a pure, testable component. Inputs include
 screen aspect ratio, orientation, image dimensions, face/saliency rectangles,
 and nearby candidates. Output includes layout type and crop rectangles.
+
+The display view derives layout from live scene geometry. A stable photo ID is
+the playback anchor across reflow; changing page grouping must not create a
+display-history event or reset the timer. Interactive resize suspends page
+advancement and photo motion while preserving the remaining interval.
 
 ### Display behavior
 

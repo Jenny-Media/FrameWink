@@ -127,6 +127,184 @@ final class FrameLayoutChooserTests: XCTestCase {
         XCTAssertTrue(portraitPages.allSatisfy { $0.kind != .pairedPortraits })
     }
 
+    func testCompactViewportAlwaysUsesSinglePhotoPages() {
+        let items = [
+            fixture(id: "portrait-a", width: 1_000, height: 1_500),
+            fixture(id: "portrait-b", width: 1_000, height: 1_500),
+            fixture(id: "portrait-c", width: 1_000, height: 1_500),
+        ]
+        let compactViewport = PixelSize(width: 520, height: 760)
+
+        let automaticPages = chooser.pages(
+            for: items,
+            viewport: compactViewport,
+            preference: .automatic,
+            allowsAutomaticMosaic: true
+        )
+        let mosaicPages = chooser.pages(
+            for: items,
+            viewport: compactViewport,
+            preference: .mosaic,
+            allowsAutomaticMosaic: true
+        )
+
+        XCTAssertEqual(automaticPages.count, items.count)
+        XCTAssertEqual(mosaicPages.count, items.count)
+        XCTAssertTrue((automaticPages + mosaicPages).allSatisfy {
+            $0.placements.count == 1
+        })
+    }
+
+    func testAutomaticStacksCompatibleLandscapesInTallViewport() throws {
+        let first = fixture(id: "landscape-a", width: 1_600, height: 1_000)
+        let second = fixture(id: "landscape-b", width: 1_800, height: 1_000)
+
+        let page = try XCTUnwrap(
+            chooser.pages(
+                for: [first, second],
+                viewport: PixelSize(width: 820, height: 1_180),
+                preference: .automatic
+            ).first
+        )
+
+        XCTAssertEqual(page.kind, .stackedLandscapes)
+        XCTAssertEqual(page.placements.count, 2)
+        XCTAssertEqual(page.placements[0].screenFrame.maxY, page.placements[1].screenFrame.minY)
+    }
+
+    func testAutomaticFindsACompatiblePhotoWithinBoundedLookahead() throws {
+        let portraitA = fixture(id: "portrait-a", width: 1_000, height: 1_500)
+        let landscape = fixture(id: "landscape", width: 1_600, height: 1_000)
+        let portraitB = fixture(id: "portrait-b", width: 1_000, height: 1_500)
+
+        let pages = chooser.pages(
+            for: [portraitA, landscape, portraitB],
+            viewport: landscapeViewport,
+            preference: .automatic
+        )
+
+        let pair = try XCTUnwrap(pages.first)
+        XCTAssertEqual(pair.kind, .pairedPortraits)
+        XCTAssertEqual(pair.placements.map(\.photoID), ["portrait-a", "portrait-b"])
+        XCTAssertEqual(pages.last?.placements.first?.photoID, "landscape")
+    }
+
+    func testAutomaticMosaicIsRareEntitledAndEventBound() {
+        let eventDate = Date(timeIntervalSince1970: 1_700_000_000)
+        let items = (0..<20).map { index in
+            fixture(
+                id: "photo-\(index)",
+                width: 1_600,
+                height: 1_200,
+                creationDate: eventDate.addingTimeInterval(Double(index))
+            )
+        }
+
+        let freePages = chooser.pages(
+            for: items,
+            viewport: PixelSize(width: 1_200, height: 1_000),
+            preference: .automatic,
+            allowsAutomaticMosaic: false
+        )
+        let entitledPages = chooser.pages(
+            for: items,
+            viewport: PixelSize(width: 1_200, height: 1_000),
+            preference: .automatic,
+            allowsAutomaticMosaic: true
+        )
+
+        XCTAssertFalse(freePages.contains(where: { $0.kind == .mosaic }))
+        XCTAssertEqual(entitledPages.filter { $0.kind == .mosaic }.count, 1)
+        XCTAssertEqual(
+            entitledPages.first(where: { $0.kind == .mosaic })?.placements.count,
+            4
+        )
+    }
+
+    func testAutomaticCompositionRemainsOccasionalInALargePortraitReel() {
+        let items = (0..<30).map { index in
+            fixture(id: "portrait-\(index)", width: 1_000, height: 1_500)
+        }
+
+        let pages = chooser.pages(
+            for: items,
+            viewport: landscapeViewport,
+            preference: .automatic
+        )
+        let pairCount = pages.filter { $0.kind == .pairedPortraits }.count
+
+        XCTAssertGreaterThan(pairCount, 0)
+        XCTAssertLessThanOrEqual(Double(pairCount) / Double(pages.count), 0.25)
+        XCTAssertGreaterThanOrEqual(
+            pages.filter { $0.placements.count == 1 }.count,
+            Int(Double(pages.count) * 0.7)
+        )
+    }
+
+    func testAnchorResolverKeepsTheFeaturedPhotoAcrossReflow() throws {
+        let items = [
+            fixture(id: "portrait-a", width: 1_000, height: 1_500),
+            fixture(id: "portrait-b", width: 1_000, height: 1_500),
+            fixture(id: "portrait-c", width: 1_000, height: 1_500),
+        ]
+        let widePages = chooser.pages(
+            for: items,
+            viewport: landscapeViewport,
+            preference: .automatic
+        )
+        let compactPages = chooser.pages(
+            for: items,
+            viewport: PixelSize(width: 520, height: 760),
+            preference: .automatic
+        )
+
+        let compactIndex = FramePageAnchorResolver.index(
+            preserving: "portrait-b",
+            in: compactPages,
+            fallbackIndex: 0
+        )
+        let wideIndex = FramePageAnchorResolver.index(
+            preserving: "portrait-b",
+            in: widePages,
+            fallbackIndex: compactIndex
+        )
+
+        XCTAssertEqual(compactIndex, 1)
+        XCTAssertTrue(try XCTUnwrap(widePages[safe: wideIndex]).placements.contains {
+            $0.photoID == "portrait-b"
+        })
+    }
+
+    func testMotionZoomRequiresSlackAroundImportantContent() {
+        let crop = NormalizedRect(x: 0.2, y: 0.1, width: 0.6, height: 0.8)
+        let placement = FrameLayoutPlacement(
+            id: "motion",
+            photoID: "photo",
+            screenFrame: .unit,
+            sourceCrop: crop,
+            contentMode: .crop
+        )
+
+        XCTAssertTrue(
+            FrameMotionSafety.canZoom(
+                placement: placement,
+                importantRects: [
+                    NormalizedRect(x: 0.35, y: 0.3, width: 0.2, height: 0.2),
+                ],
+                maximumScale: 1.025
+            )
+        )
+        XCTAssertFalse(
+            FrameMotionSafety.canZoom(
+                placement: placement,
+                importantRects: [
+                    NormalizedRect(x: 0.2, y: 0.3, width: 0.2, height: 0.2),
+                ],
+                maximumScale: 1.025
+            )
+        )
+    }
+
     func testMosaicCreatesBoundedNonOverlappingFourPhotoGrid() throws {
         let items = (1...5).map { index in
             fixture(id: "photo-\(index)", width: 1_600, height: 1_200)
@@ -163,12 +341,20 @@ final class FrameLayoutChooserTests: XCTestCase {
         id: String,
         width: Int,
         height: Int,
-        importantRects: [NormalizedRect] = []
+        importantRects: [NormalizedRect] = [],
+        creationDate: Date? = nil
     ) -> FrameLayoutItem {
         FrameLayoutItem(
             id: id,
             pixelSize: PixelSize(width: width, height: height),
-            importantRects: importantRects
+            importantRects: importantRects,
+            creationDate: creationDate
         )
+    }
+}
+
+private extension Collection {
+    subscript(safe index: Index) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
 }

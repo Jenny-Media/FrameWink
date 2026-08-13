@@ -18,10 +18,12 @@ struct SampleSlideshowView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
-    @State private var session = FrameSessionController()
+    @State private var playback = FramePlaybackCoordinator()
     @State private var layoutPreference: FrameLayoutPreference = .automatic
     @State private var controlsVisible = true
+    @State private var hintVisible = false
     @State private var hideControlsTask: Task<Void, Never>?
+    @State private var hideHintTask: Task<Void, Never>?
     @StateObject private var imageCache = DisplayImageCache()
 
     private let layoutChooser = FrameLayoutChooser()
@@ -37,8 +39,10 @@ struct SampleSlideshowView: View {
             let pages = layoutChooser.pages(
                 for: slides.map(\.frameLayoutItem),
                 viewport: viewport,
-                preference: layoutPreference
+                preference: layoutPreference,
+                allowsAutomaticMosaic: availableLayoutPreferences.contains(.mosaic)
             )
+            let layoutSignature = pages.map(\.id).joined(separator: "|")
             let slidesByID = Dictionary(uniqueKeysWithValues: slides.map { ($0.id, $0) })
 
             ZStack {
@@ -47,7 +51,11 @@ struct SampleSlideshowView: View {
                 if let page = activePage(in: pages) {
                     framePage(page, slidesByID: slidesByID)
                         .id(page.id)
-                        .transition(reduceMotion ? .identity : .opacity)
+                        .transition(
+                            reduceMotion || playback.isInteractingWithResize
+                                ? .identity
+                                : .opacity
+                        )
 
                     if !isFrameMode,
                        let slide = slidesByID[page.placements.first?.photoID ?? ""] {
@@ -65,11 +73,13 @@ struct SampleSlideshowView: View {
                 if isFrameMode {
                     interactionLayer
 
-                    if controlsVisible {
-                        frameControls
-                            .transition(reduceMotion ? .identity : .opacity)
-                    } else if wallVisualState != .blackout {
+                    if hintVisible, wallVisualState != .blackout {
                         controlsHint
+                            .transition(reduceMotion ? .identity : .opacity)
+                    }
+
+                    if controlsVisible {
+                        frameControls(isCompact: proxy.size.width < 600)
                             .transition(reduceMotion ? .identity : .opacity)
                     }
                 }
@@ -77,15 +87,19 @@ struct SampleSlideshowView: View {
             .frame(width: proxy.size.width, height: proxy.size.height)
             .onAppear {
                 applyPreferredPresentation()
-                synchronizePageCount(pages.count)
-                scheduleControlsToRecede()
+                synchronizePages(pages, signature: layoutSignature)
+                if isFrameMode {
+                    showInitialGuidance()
+                }
             }
-            .onChange(of: pages.count) { newCount in
-                synchronizePageCount(newCount)
+            .onChange(of: layoutSignature) { newSignature in
+                synchronizePages(pages, signature: newSignature)
             }
-            .onChange(of: session.currentPageIndex) { _ in
-                guard isFrameMode, let page = activePage(in: pages) else { return }
-                recordAutomaticAlbumPhotos(in: page, slidesByID: slidesByID)
+            .onChange(of: playback.currentPageIndex) { _ in
+                if let page = playback.pageChangeRequiringHistory(in: pages),
+                   isFrameMode {
+                    recordAutomaticAlbumPhotos(in: page, slidesByID: slidesByID)
+                }
             }
             .onChange(of: isFrameMode) { active in
                 guard active, let page = activePage(in: pages) else { return }
@@ -108,15 +122,18 @@ struct SampleSlideshowView: View {
         }
         .background(Color.black)
         .clipped()
+        .onFrameInteractiveResizeChange { isResizing in
+            playback.setInteractiveResize(isResizing, at: Date())
+        }
         .onReceive(timer) { date in
             refreshWallSchedule(date)
-            var updatedSession = session
-            guard updatedSession.tick(at: date) else { return }
+            var updatedPlayback = playback
+            guard updatedPlayback.tick(at: date) else { return }
             if reduceMotion {
-                session = updatedSession
+                playback = updatedPlayback
             } else {
                 withAnimation(.easeInOut(duration: 0.65)) {
-                    session = updatedSession
+                    playback = updatedPlayback
                 }
             }
         }
@@ -128,16 +145,19 @@ struct SampleSlideshowView: View {
             imageCache.removeAllImages()
         }
         .onChange(of: isFrameMode) { isActive in
-            setControlsVisible(true)
             if isActive {
-                scheduleControlsToRecede()
+                showInitialGuidance()
             } else {
                 hideControlsTask?.cancel()
+                hideHintTask?.cancel()
+                hintVisible = false
             }
         }
         .onChange(of: voiceOverEnabled) { isEnabled in
             if isEnabled {
                 hideControlsTask?.cancel()
+                hideHintTask?.cancel()
+                setHintVisible(false)
                 setControlsVisible(true)
             } else {
                 scheduleControlsToRecede()
@@ -145,12 +165,12 @@ struct SampleSlideshowView: View {
         }
         .onDisappear {
             hideControlsTask?.cancel()
+            hideHintTask?.cancel()
         }
     }
 
     private func activePage(in pages: [FramePage]) -> FramePage? {
-        guard !pages.isEmpty else { return nil }
-        return pages[min(session.currentPageIndex, pages.count - 1)]
+        playback.activePage(in: pages)
     }
 
     private func framePage(
@@ -167,7 +187,18 @@ struct SampleSlideshowView: View {
                             initialImage: imageCache.cachedImage(
                                 forKey: slide.imageCacheKey
                             ),
-                            loadImage: cachedImage
+                            loadImage: cachedImage,
+                            motionEnabled: isFrameMode
+                                && playback.isPlaying
+                                && page.placements.count == 1
+                                && FrameMotionSafety.canZoom(
+                                    placement: placement,
+                                    importantRects: slide.importantRects,
+                                    maximumScale: 1.025
+                                )
+                                && !reduceMotion
+                                && !playback.isInteractingWithResize,
+                            motionDuration: max(playback.interval * 1.6, 11)
                         )
                         .frame(
                             width: proxy.size.width * CGFloat(placement.screenFrame.width),
@@ -188,7 +219,7 @@ struct SampleSlideshowView: View {
         slidesByID: [String: DisplaySlide]
     ) -> String? {
         guard pages.count > 1 else { return nil }
-        let page = pages[(session.currentPageIndex + 1) % pages.count]
+        let page = pages[(playback.currentPageIndex + 1) % pages.count]
         let imageRevisions = page.placements.compactMap { placement in
             slidesByID[placement.photoID]?.imageCacheKey
         }
@@ -200,7 +231,7 @@ struct SampleSlideshowView: View {
         slidesByID: [String: DisplaySlide]
     ) async {
         guard pages.count > 1 else { return }
-        let page = pages[(session.currentPageIndex + 1) % pages.count]
+        let page = pages[(playback.currentPageIndex + 1) % pages.count]
         for placement in page.placements {
             guard !Task.isCancelled,
                   let slide = slidesByID[placement.photoID] else {
@@ -275,13 +306,15 @@ struct SampleSlideshowView: View {
                         } else {
                             showPreviousPage()
                         }
-                        revealControls()
+                        if controlsVisible {
+                            scheduleControlsToRecede()
+                        }
                     }
             )
             .accessibilityHidden(true)
     }
 
-    private var frameControls: some View {
+    private func frameControls(isCompact: Bool) -> some View {
         VStack {
             HStack {
                 Button {
@@ -295,32 +328,42 @@ struct SampleSlideshowView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Close frame")
+                .accessibilityIdentifier("frame-close-control")
 
                 Spacer()
             }
 
             Spacer()
 
-            HStack(spacing: 18) {
+            HStack(spacing: isCompact ? 12 : 18) {
                 Button(action: showPreviousPage) {
                     Image(systemName: "backward.fill")
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Previous photo")
 
                 Button {
-                    session.togglePlayback(at: Date())
-                    if session.isPlaying {
+                    playback.togglePlayback(at: Date())
+                    if playback.isPlaying {
                         scheduleControlsToRecede()
                     } else {
                         hideControlsTask?.cancel()
                     }
                 } label: {
-                    Image(systemName: session.isPlaying ? "pause.fill" : "play.fill")
+                    Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill")
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
-                .accessibilityLabel(session.isPlaying ? "Pause slideshow" : "Resume slideshow")
+                .accessibilityLabel(
+                    playback.isPlaying ? "Pause slideshow" : "Resume slideshow"
+                )
+                .accessibilityIdentifier("frame-playback-control")
 
                 Button(action: showNextPage) {
                     Image(systemName: "forward.fill")
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Next photo")
 
@@ -333,7 +376,7 @@ struct SampleSlideshowView: View {
                         ForEach(availableLayoutPreferences) { preference in
                             Button {
                                 layoutPreference = preference
-                                presentationDidChange(preference, session.interval)
+                                presentationDidChange(preference, playback.interval)
                                 revealControls()
                             } label: {
                                 if layoutPreference == preference {
@@ -348,11 +391,11 @@ struct SampleSlideshowView: View {
                     Menu("Slideshow Speed") {
                         ForEach(availableIntervals, id: \.self) { interval in
                             Button {
-                                session.setInterval(interval, at: Date())
+                                playback.setInterval(interval, at: Date())
                                 presentationDidChange(layoutPreference, interval)
                                 revealControls()
                             } label: {
-                                if session.interval == interval {
+                                if playback.interval == interval {
                                     Label(intervalTitle(interval), systemImage: "checkmark")
                                 } else {
                                     Text(intervalTitle(interval))
@@ -362,15 +405,16 @@ struct SampleSlideshowView: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis")
-                        .frame(width: 32, height: 32)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityLabel("More playback options")
             }
             .font(.title3.weight(.semibold))
             .foregroundColor(.white)
             .buttonStyle(.plain)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.horizontal, isCompact ? 18 : 24)
+            .padding(.vertical, isCompact ? 12 : 16)
             .background(.ultraThinMaterial, in: Capsule())
             .shadow(color: .black.opacity(0.28), radius: 16, y: 7)
             .padding(.bottom, 28)
@@ -387,7 +431,7 @@ struct SampleSlideshowView: View {
             .padding(.vertical, 9)
             .background(.black.opacity(0.48), in: Capsule())
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .padding(.bottom, 28)
+            .padding(.bottom, controlsVisible ? 104 : 28)
             .allowsHitTesting(false)
     }
 
@@ -412,13 +456,13 @@ struct SampleSlideshowView: View {
 
     private func showNextPage() {
         performPageChange {
-            session.next(at: Date())
+            playback.next(at: Date())
         }
     }
 
     private func showPreviousPage() {
         performPageChange {
-            session.previous(at: Date())
+            playback.previous(at: Date())
         }
     }
 
@@ -431,19 +475,28 @@ struct SampleSlideshowView: View {
         scheduleControlsToRecede()
     }
 
-    private func synchronizePageCount(_ count: Int) {
-        session.updatePageCount(count)
+    private func synchronizePages(_ pages: [FramePage], signature: String) {
+        playback.synchronizePages(pages, signature: signature)
     }
 
     private func applyPreferredPresentation() {
         layoutPreference = availableLayoutPreferences.contains(preferredLayoutPreference)
             ? preferredLayoutPreference
             : .automatic
-        session.setInterval(preferredInterval, at: Date())
+        playback.setInterval(preferredInterval, at: Date())
     }
 
     private func revealControls() {
+        hideHintTask?.cancel()
+        hintVisible = false
         setControlsVisible(true)
+        scheduleControlsToRecede()
+    }
+
+    private func showInitialGuidance() {
+        setControlsVisible(true)
+        setHintVisible(!voiceOverEnabled)
+        scheduleHintToRecede()
         scheduleControlsToRecede()
     }
 
@@ -457,9 +510,35 @@ struct SampleSlideshowView: View {
         }
     }
 
+    private func setHintVisible(_ visible: Bool) {
+        if reduceMotion {
+            hintVisible = visible
+        } else {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                hintVisible = visible
+            }
+        }
+    }
+
+    private func scheduleHintToRecede() {
+        hideHintTask?.cancel()
+        guard isFrameMode, hintVisible, !voiceOverEnabled else { return }
+        hideHintTask = Task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                setHintVisible(false)
+            }
+        }
+    }
+
     private func scheduleControlsToRecede() {
         hideControlsTask?.cancel()
-        guard isFrameMode, session.isPlaying, !voiceOverEnabled else { return }
+        guard FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
+            isFrameMode: isFrameMode,
+            isPlaying: playback.isPlaying,
+            voiceOverEnabled: voiceOverEnabled
+        ) else { return }
 
         hideControlsTask = Task {
             try? await Task.sleep(nanoseconds: 4_000_000_000)
@@ -489,20 +568,24 @@ private extension DisplaySlide {
 
     var frameLayoutItem: FrameLayoutItem {
         let pixelSize: PixelSize
+        let creationDate: Date?
         switch source {
         case .bundled:
             pixelSize = PixelSize(width: 1_536, height: 1_024)
+            creationDate = nil
         case .imported(let photo), .automaticAlbum(let photo):
             pixelSize = PixelSize(
                 width: photo.pixelWidth,
                 height: photo.pixelHeight
             )
+            creationDate = photo.creationDate
         }
 
         return FrameLayoutItem(
             id: id,
             pixelSize: pixelSize,
-            importantRects: importantRects
+            importantRects: importantRects,
+            creationDate: creationDate
         )
     }
 }
@@ -512,19 +595,27 @@ private struct FramePhotoView: View {
     let placement: FrameLayoutPlacement
     let initialImage: UIImage?
     let loadImage: (DisplaySlide) async -> UIImage?
+    let motionEnabled: Bool
+    let motionDuration: TimeInterval
 
     @State private var image: UIImage?
+    @State private var motionExpanded = false
+    @State private var motionTask: Task<Void, Never>?
 
     init(
         slide: DisplaySlide,
         placement: FrameLayoutPlacement,
         initialImage: UIImage?,
-        loadImage: @escaping (DisplaySlide) async -> UIImage?
+        loadImage: @escaping (DisplaySlide) async -> UIImage?,
+        motionEnabled: Bool,
+        motionDuration: TimeInterval
     ) {
         self.slide = slide
         self.placement = placement
         self.initialImage = initialImage
         self.loadImage = loadImage
+        self.motionEnabled = motionEnabled
+        self.motionDuration = motionDuration
         _image = State(initialValue: initialImage)
     }
 
@@ -533,15 +624,8 @@ private struct FramePhotoView: View {
             Color.black
 
             if let image = image ?? initialImage {
-                switch placement.contentMode {
-                case .fit:
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                case .crop:
-                    croppedImage(image)
-                }
+                photo(image)
+                    .scaleEffect(motionEnabled && motionExpanded ? 1.025 : 1)
             } else {
                 ProgressView()
                     .progressViewStyle(.circular)
@@ -553,8 +637,52 @@ private struct FramePhotoView: View {
         .task(id: slide.imageCacheKey) {
             image = await loadImage(slide)
         }
+        .onAppear(perform: updateMotion)
+        .onChange(of: motionEnabled) { _ in
+            updateMotion()
+        }
+        .onChange(of: motionDuration) { _ in
+            updateMotion()
+        }
+        .onDisappear {
+            motionTask?.cancel()
+        }
         .accessibilityIdentifier("frame-photo-" + slide.id)
         .accessibilityLabel(slide.accessibilityLabel)
+    }
+
+    @ViewBuilder
+    private func photo(_ image: UIImage) -> some View {
+        switch placement.contentMode {
+        case .fit:
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .crop:
+            croppedImage(image)
+        }
+    }
+
+    private func updateMotion() {
+        motionTask?.cancel()
+        guard motionEnabled else {
+            withAnimation(nil) {
+                motionExpanded = false
+            }
+            return
+        }
+
+        motionTask = Task { @MainActor in
+            while !Task.isCancelled {
+                withAnimation(.easeInOut(duration: motionDuration)) {
+                    motionExpanded.toggle()
+                }
+                try? await Task.sleep(
+                    nanoseconds: UInt64(motionDuration * 1_000_000_000)
+                )
+            }
+        }
     }
 
     private func croppedImage(_ image: UIImage) -> some View {
@@ -572,6 +700,19 @@ private struct FramePhotoView: View {
                 )
         }
         .clipped()
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func onFrameInteractiveResizeChange(
+        _ action: @escaping (Bool) -> Void
+    ) -> some View {
+        if #available(iOS 26.0, *) {
+            onInteractiveResizeChange(action)
+        } else {
+            self
+        }
     }
 }
 
