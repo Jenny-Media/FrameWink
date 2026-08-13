@@ -13,6 +13,7 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
     private var albumCoverAssetIdentifiers: [String: [String]] = [:]
     private var preheatedThumbnailAssets: [PHAsset] = []
     private var preheatedThumbnailSize: CGSize?
+    private var albumPreheatTask: Task<Void, Never>?
     private var changeContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
     private var isObservingChanges = false
 
@@ -28,6 +29,7 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
     }
 
     deinit {
+        albumPreheatTask?.cancel()
         if isObservingChanges {
             photoLibrary.unregisterChangeObserver(self)
         }
@@ -209,6 +211,7 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         guard let cachingManager = imageManager as? PHCachingImageManager else {
             return
         }
+        albumPreheatTask?.cancel()
         if let preheatedThumbnailSize, !preheatedThumbnailAssets.isEmpty {
             cachingManager.stopCachingImages(
                 for: preheatedThumbnailAssets,
@@ -218,8 +221,78 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
             )
         }
 
-        let identifiers = albums.prefix(18).compactMap {
-            $0.coverAssetIdentifiers.first
+        let initialAlbums = Array(albums.prefix(18))
+        let identifiers = initialAlbums.compactMap { album in
+            album.coverAssetIdentifiers.first
+                ?? albumCoverAssetIdentifiers[album.id]?.first
+        }
+        let dimension = CGFloat(max(maxPixelDimension, 1))
+        let size = CGSize(width: dimension, height: dimension)
+        startCachingAlbumThumbnails(identifiers: identifiers, size: size)
+
+        let missingAlbumIdentifiers = initialAlbums.compactMap { album -> String? in
+            guard album.coverAssetIdentifiers.isEmpty,
+                  albumCoverAssetIdentifiers[album.id] == nil else {
+                return nil
+            }
+            return album.id
+        }
+        guard !missingAlbumIdentifiers.isEmpty else { return }
+
+        // Album names are already on screen. Fill the caching manager's nearby
+        // window afterward, one lightweight PhotoKit collection scan at a time,
+        // so this work can never put the catalog back behind a loading screen.
+        albumPreheatTask = Task { [weak self] in
+            let discovery = Task.detached(priority: .utility) {
+                var result: [(String, [String])] = []
+                for albumIdentifier in missingAlbumIdentifiers {
+                    try Task.checkCancellation()
+                    let identifiers = try Self.discoverAlbumCoverAssetIdentifiers(
+                        albumIdentifier: albumIdentifier
+                    )
+                    result.append((albumIdentifier, identifiers))
+                }
+                return result
+            }
+            let discovered: [(String, [String])]
+            do {
+                discovered = try await withTaskCancellationHandler {
+                    try await discovery.value
+                } onCancel: {
+                    discovery.cancel()
+                }
+            } catch {
+                return
+            }
+            guard let self, !Task.isCancelled else { return }
+            for (albumIdentifier, identifiers) in discovered {
+                self.albumCoverAssetIdentifiers[albumIdentifier] = identifiers
+            }
+            let refreshedIdentifiers = initialAlbums.compactMap { album in
+                album.coverAssetIdentifiers.first
+                    ?? self.albumCoverAssetIdentifiers[album.id]?.first
+            }
+            self.startCachingAlbumThumbnails(
+                identifiers: refreshedIdentifiers,
+                size: size
+            )
+        }
+    }
+
+    private func startCachingAlbumThumbnails(
+        identifiers: [String],
+        size: CGSize
+    ) {
+        guard let cachingManager = imageManager as? PHCachingImageManager else {
+            return
+        }
+        if let preheatedThumbnailSize, !preheatedThumbnailAssets.isEmpty {
+            cachingManager.stopCachingImages(
+                for: preheatedThumbnailAssets,
+                targetSize: preheatedThumbnailSize,
+                contentMode: .aspectFill,
+                options: Self.thumbnailOptions(networkAccessAllowed: false)
+            )
         }
         let fetched = PHAsset.fetchAssets(
             withLocalIdentifiers: identifiers,
@@ -230,8 +303,6 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
             assetsByIdentifier[asset.localIdentifier] = asset
         }
         let assets = identifiers.compactMap { assetsByIdentifier[$0] }
-        let dimension = CGFloat(max(maxPixelDimension, 1))
-        let size = CGSize(width: dimension, height: dimension)
         preheatedThumbnailAssets = assets
         preheatedThumbnailSize = size
         guard !assets.isEmpty else { return }
@@ -325,15 +396,10 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
             guard !Task.isCancelled else { return nil }
             guard seen.insert(collection.localIdentifier).inserted else { return nil }
             let estimatedCount = collection.estimatedAssetCount
-            let coverAssetIdentifiers = try? discoverAlbumCoverAssetIdentifiers(
-                in: collection,
-                fetchLimit: 24
-            )
             return PhotoLibraryAlbum(
                 id: collection.localIdentifier,
                 title: collection.localizedTitle ?? "Untitled Album",
-                photoCount: estimatedCount == NSNotFound ? nil : estimatedCount,
-                coverAssetIdentifiers: coverAssetIdentifiers ?? []
+                photoCount: estimatedCount == NSNotFound ? nil : estimatedCount
             )
         }
         try Task.checkCancellation()
@@ -351,7 +417,10 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         )
         guard let collection = collections.firstObject else { return [] }
 
-        return try discoverAlbumCoverAssetIdentifiers(in: collection)
+        return try discoverAlbumCoverAssetIdentifiers(
+            in: collection,
+            fetchLimit: 24
+        )
     }
 
     nonisolated private static func discoverAlbumCoverAssetIdentifiers(
@@ -607,7 +676,9 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
 extension PhotoKitLibraryClient: PHPhotoLibraryChangeObserver {
     nonisolated func photoLibraryDidChange(_ changeInstance: PHChange) {
         Task { @MainActor [weak self] in
+            self?.albumPreheatTask?.cancel()
             self?.albumCoverAssetIdentifiers.removeAll()
+            self?.albumThumbnailCache.removeAllObjects()
             if let cachingManager = self?.imageManager as? PHCachingImageManager {
                 cachingManager.stopCachingImagesForAllAssets()
             }

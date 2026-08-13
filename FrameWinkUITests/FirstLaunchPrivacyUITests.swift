@@ -273,7 +273,11 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(playbackOptions.waitForExistence(timeout: 3))
         XCTAssertFalse(
             app.buttons["frame-close-control"].exists,
-            "Exit Frame must not occupy the top-leading window-control area."
+            "The full Exit Frame action belongs inside the controls panel."
+        )
+        XCTAssertTrue(
+            app.buttons["frame-quick-close-control"].isHittable,
+            "Frame playback must expose a direct one-tap exit when controls are visible."
         )
 
         playbackOptions.tap()
@@ -304,6 +308,24 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         add(panelScreenshot)
     }
 
+    func testFrameQuickCloseExitsWithoutOpeningMore() {
+        launch(scenario: "personal-reel")
+
+        let startFrame = app.buttons["Start Frame"]
+        XCTAssertTrue(startFrame.waitForExistence(timeout: 8))
+        startFrame.tap()
+
+        let quickClose = app.buttons["frame-quick-close-control"]
+        XCTAssertTrue(quickClose.waitForExistence(timeout: 3))
+        quickClose.tap()
+
+        XCTAssertTrue(
+            startFrame.waitForExistence(timeout: 3),
+            "The top-right close control must exit Frame Mode directly."
+        )
+        XCTAssertFalse(app.descendants(matching: .any)["frame-controls-panel"].exists)
+    }
+
     func testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker() throws {
 #if targetEnvironment(simulator)
         throw XCTSkip("Real PhotoKit album discovery requires a physical iPad.")
@@ -325,8 +347,8 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         let albumList = app.descendants(matching: .any)["album-picker-list"]
         XCTAssertTrue(
-            albumList.waitForExistence(timeout: 10),
-            "The real PhotoKit album list did not replace the loading state."
+            albumList.waitForExistence(timeout: 3),
+            "Album metadata did not replace the loading state within three seconds."
         )
         XCTAssertFalse(app.descendants(matching: .any)["album-picker-error"].exists)
         XCTAssertFalse(app.descendants(matching: .any)["album-picker-empty"].exists)
@@ -346,7 +368,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         chooseAlbum.tap()
 
         let albumList = app.descendants(matching: .any)["album-picker-list"]
-        XCTAssertTrue(albumList.waitForExistence(timeout: 10))
+        XCTAssertTrue(albumList.waitForExistence(timeout: 3))
         XCTAssertTrue(
             app.buttons["album-cover-ready"].firstMatch.waitForExistence(timeout: 20),
             "No real PhotoKit album cover became visible within twenty seconds."
@@ -367,7 +389,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         chooseAlbum.tap()
 
         let albumList = app.descendants(matching: .any)["album-picker-list"]
-        XCTAssertTrue(albumList.waitForExistence(timeout: 10))
+        XCTAssertTrue(albumList.waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["album-cover-ready"].firstMatch.waitForExistence(timeout: 20))
 
         let cancel = app.buttons["Cancel"]

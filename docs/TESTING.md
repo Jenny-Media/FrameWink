@@ -918,3 +918,56 @@ explicit owner approval.
   previously tracked private iOS 27 beta context-menu hierarchy warnings are
   present; no new runtime warning was introduced. The clean unsigned iPadOS 15
   Release build succeeds.
+
+## Progressive album catalog and direct exit refinement — 2026-08-13
+
+- Removed the eager cover-candidate fetch from `PhotoKitLibraryClient.albums()`.
+  The initial result now contains collection title, identity, and estimated
+  count only, so `AlbumPickerView` replaces its blocking loading state before
+  thumbnails are ready. Visible lazy-grid tiles discover up to six eligible
+  candidates and request local-then-iCloud covers through the existing
+  four-request limiter. Cached cover candidates now participate in reopen
+  preheating, and PhotoKit changes invalidate both candidate and image caches.
+- The real-library album-list acceptance timeout is tightened from ten seconds
+  to three seconds. Cover loading remains a separate progressive assertion with
+  a twenty-second allowance for iCloud, and the reopen path still requires a
+  cached grid and cover in two seconds.
+- Frame Controls hides the compact sheet drag indicator and supplies one system
+  background, eliminating the stacked top edges visible in the owner's iPhone
+  capture. Share is a non-prominent bordered action whose icon is balanced by an
+  equal trailing spacer so its text center matches the sheet center. The new
+  `frame-quick-close-control` exits directly from the top right while playback
+  controls are visible; an isolated UI regression taps it without opening More.
+- `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -project FrameWink.xcodeproj -scheme FrameWink -sdk iphonesimulator
+  -destination 'platform=iOS Simulator,name=iPad (A16),OS=27.0'
+  -derivedDataPath /private/tmp/framewink-derived test` passes 142 unit tests
+  and 16 UI tests, with four real-PhotoKit UI tests skipped intentionally and
+  zero failures: 154 passes, 158 total.
+- A focused temporary iPhone 17 Pro Max Simulator compatibility run of
+  `testFrameControlsPanelOffersDirectSettingsShareAndExit` passes. Its retained
+  screenshot shows a single sheet edge, fully visible controls, and centered
+  Share text. The temporary `TARGETED_DEVICE_FAMILY = 1,2` edit was reverted;
+  the committed application remains iPad-only.
+- The unsigned generic-device Release build and Xcode static analysis succeed.
+  The Xcode Cloud archive guard passes with bundle ID `media.jenny.FrameWink`,
+  Jenny Media LLC team `5736QK4NZX`, iPad family 2, iPadOS 15.0 minimum, and the
+  production Wall Mode product identifier.
+- Existing iOS 27 beta warnings remain: two private UIKit context-menu hierarchy
+  warnings during long-press, plus a post-test diagnostic warning because one
+  Xcode runner invocation did not inherit `DEVELOPER_DIR` for `simctl`. Neither
+  warning caused a test failure. Real-library initial metadata timing and iCloud
+  cover latency still require the connected iPad checks below.
+- The signed refinement build installed and launched over existing data on the
+  connected iPad Pro. A retry of all three real-library checks timed out while
+  iPadOS enabled UI automation, before any test body ran; the harness then
+  relaunched the interactive app. B-021 records this tooling boundary and the
+  short manual metadata/cover timing check that remains.
+- After the final cache-preheat and hit-target hardening, the complete 158-test
+  scheme passed again, as did fresh Xcode static analysis and the unsigned
+  Release build. That exact signed source was reinstalled and launched on the
+  iPad Pro. A temporary iPhone-family compatibility build was also signed,
+  installed, and launched on the paired physical iPhone 17 Pro Max; the project
+  family setting was immediately restored to iPad-only and has no repository
+  diff. The final physical `verify-albums` retry again timed out enabling iPadOS
+  automation before any app assertion, then restored the interactive harness.

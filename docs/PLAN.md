@@ -524,6 +524,33 @@ colors, adapts to a bounded draggable sheet on iOS 16+, and presents Share as a
 full-width prominent direct action. The iPad popover behavior and committed
 iPad-only target remain unchanged.
 
+Owner testing then found that an uncached album catalog could remain behind a
+blank loading state for more than ten seconds. Album discovery now publishes
+only fast collection metadata; cover-candidate scans and screen-sized images
+start lazily for visible tiles through the existing four-request limiter. The
+grid therefore becomes selectable before its covers finish, while in-memory
+covers and candidate identifiers are reused when the picker is reopened and
+invalidated on a real PhotoKit change. PHPicker remains the system UI for Free
+Smart Reel photo selection because it cannot identify a persistent album for
+automatic refresh. The physical regression now requires the first metadata
+grid within three seconds and continues to verify progressive cover and reopen
+cache behavior.
+
+The compact Frame Controls sheet now uses one system-background surface without
+a second grabber band. Share is a softer bordered action with geometrically
+centered text, and a receding top-right close control exits Frame Mode without
+opening More. A temporary iPhone 17 Pro Max compatibility run visually confirms
+the single sheet edge and centered action; its project-family change was
+reverted. The complete iPad Simulator suite passes 154 tests with four
+intentional physical-PhotoKit skips and zero failures (158 total). Active work
+for this refinement was approximately 2 hours. The exact final source is
+installed and open on the physical iPad Pro, and a temporary compatibility
+build is installed and open on the physical iPhone 17 Pro Max; the committed
+release target remains iPad-only. The remaining risk is the
+initial-catalog and cover timing on a large real iCloud Photos library, which
+cannot be represented faithfully in Simulator and is covered by the tightened
+physical acceptance checks.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

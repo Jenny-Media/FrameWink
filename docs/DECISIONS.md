@@ -193,3 +193,28 @@ date; do not silently rewrite historical decisions during implementation.
   little to reduce the remaining iPad release risks. It may still be valuable
   later as a portable frame or companion experience, but that requires its own
   product decision and acceptance matrix.
+
+## D-021 — Automatic albums use progressive PhotoKit browsing
+
+- **Decision:** Publish album names and estimated counts as soon as PhotoKit
+  returns collection metadata. Discover cover candidates only for visible or
+  nearby tiles, then request bounded local thumbnails before allowing an iCloud
+  fallback. Keep PHPicker as the system UI for user-selected individual photos;
+  do not substitute it for automatic-album selection.
+- **Reason:** PHPicker provides a private, familiar photo-selection interface,
+  but it returns the assets a person selected rather than a persistent album
+  source that FrameWink can refresh. Eagerly scanning cover candidates for every
+  PhotoKit collection delayed the entire custom browser. Separating metadata
+  from covers makes the catalog useful first and lets imagery fill in
+  progressively without widening access or inventing a private Photos link.
+
+## D-022 — Frame playback has a receding one-tap exit
+
+- **Decision:** When playback controls are visible, include a compact top-right
+  close button that exits Frame Mode directly. It follows the existing control
+  visibility timer and disappears while the Frame Controls panel is open. Keep
+  the labelled Exit Frame action in that panel as the explicit alternative.
+- **Reason:** Requiring a user to discover More and then Exit Frame makes the
+  most important escape path unnecessarily obscure. A transient top-right
+  control is familiar on compact devices, remains quiet during playback, and
+  avoids the iPad's top-leading window-control region.

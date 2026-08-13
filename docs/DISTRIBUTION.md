@@ -424,14 +424,24 @@ blocker affects only a later boundary.
   closing and reopening the picker. iPadOS timed out while enabling XCTest
   automation before any test body ran, and the harness restored the interactive
   FrameWink app successfully.
+- Latest retry: after separating fast collection metadata from lazy cover scans,
+  the replacement build installed and launched on the same iPad Pro. The first
+  album-grid assertion was tightened from ten seconds to three seconds; cover
+  and reopen-cache checks remain separate. iPadOS again timed out enabling
+  automation before the test body, so this run neither passed nor failed the
+  app-level timing thresholds. A second retry after the final background
+  preheat hardening failed at the same iPadOS automation-mode boundary after 65
+  seconds; the interactive harness was restored again.
 - Impact: the cache path is covered by controller and Simulator UI tests, but
   its two-second real-library target has not been measured automatically.
 - Does not block: the implementation, Simulator verification, Release build,
   archive guard, or manual album-picker use.
-- Needed from owner: after the updated physical build is installed, close and
-  reopen **Choose Album** once and confirm the existing grid and visible covers
-  return immediately. Retry `scripts/physical_acceptance.sh verify-albums` when
-  iPadOS automation mode is stable.
+- Needed from owner: in the installed build, open **Choose Album** and confirm
+  the named album grid replaces **Loading albums…** within roughly three
+  seconds even if covers are still filling in. Then close and reopen it once and
+  confirm the existing grid and visible covers return immediately. Retry
+  `scripts/physical_acceptance.sh verify-albums` when iPadOS automation mode is
+  stable.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 

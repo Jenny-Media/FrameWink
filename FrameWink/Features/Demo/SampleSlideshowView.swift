@@ -109,6 +109,11 @@ struct SampleSlideshowView: View {
                             slidesByID: slidesByID
                         )
                             .transition(reduceMotion ? .identity : .opacity)
+
+                        if !isShowingFrameControls {
+                            quickExitControl
+                                .transition(reduceMotion ? .identity : .opacity)
+                        }
                     }
                 } else if pages.count > 1,
                           let page = activePage(in: pages) {
@@ -598,6 +603,35 @@ struct SampleSlideshowView: View {
         .padding(.horizontal, 26)
     }
 
+    private var quickExitControl: some View {
+        VStack {
+            HStack {
+                Spacer()
+
+                Button {
+                    hideControlsTask?.cancel()
+                    isFrameMode = false
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.body.weight(.bold))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(.white)
+                .background(.ultraThinMaterial, in: Circle())
+                .shadow(color: .black.opacity(0.28), radius: 12, y: 5)
+                .accessibilityLabel("Exit Frame")
+                .accessibilityHint("Return to FrameWink")
+                .accessibilityIdentifier("frame-quick-close-control")
+            }
+
+            Spacer()
+        }
+        .padding(.top, 18)
+        .padding(.trailing, 20)
+    }
+
     private func shareableSlides(
         pages: [FramePage],
         slidesByID: [String: DisplaySlide]
@@ -854,13 +888,21 @@ private struct FrameControlsPanel: View {
                     Button {
                         share(featuredSlide)
                     } label: {
-                        Label(
-                            slides.count == 1 ? "Share Photo" : "Share Featured",
-                            systemImage: "square.and.arrow.up"
-                        )
-                        .frame(maxWidth: .infinity)
+                        HStack(spacing: 0) {
+                            Image(systemName: "square.and.arrow.up")
+                                .frame(width: 28)
+                            Text(slides.count == 1 ? "Share Photo" : "Share Featured")
+                                .frame(maxWidth: .infinity, alignment: .center)
+                            Color.clear
+                                .frame(width: 28, height: 1)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 38)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.bordered)
+                    .tint(.accentColor)
+                    .accessibilityLabel(
+                        slides.count == 1 ? "Share Photo" : "Share Featured"
+                    )
                     .accessibilityIdentifier("frame-share-current-photo")
                 }
 
@@ -962,13 +1004,14 @@ private extension View {
     func frameControlsPresentation() -> some View {
         if #available(iOS 16.4, *) {
             self
-                .presentationDetents([.height(500)])
-                .presentationDragIndicator(.visible)
+                .presentationDetents([.height(480)])
+                .presentationDragIndicator(.hidden)
                 .presentationCompactAdaptation(.sheet)
+                .presentationBackground(Color(uiColor: .systemBackground))
         } else if #available(iOS 16.0, *) {
             self
-                .presentationDetents([.height(500)])
-                .presentationDragIndicator(.visible)
+                .presentationDetents([.height(480)])
+                .presentationDragIndicator(.hidden)
         } else {
             self
         }
