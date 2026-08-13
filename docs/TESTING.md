@@ -896,3 +896,25 @@ explicit owner approval.
   device process checks reported one running FrameWink process after launch.
 - The repository remains `TARGETED_DEVICE_FAMILY = 2`; iPhone is explicitly a
   post-MVP evaluation, not an untested widening of this release.
+
+## Compact Frame Controls correction — 2026-08-13
+
+- An owner screenshot from the temporary physical-iPhone build revealed that
+  compact popover adaptation used a nearly full-height sheet and inherited the
+  playback capsule's white foreground. The white-on-white inheritance hid the
+  title, close button, and bordered Share action even though accessibility
+  still exposed the controls.
+- Frame Controls now resets to system semantic foreground/background colors,
+  requests a 500-point draggable sheet when popovers adapt on iOS 16+, and
+  renders Share Photo/Share Featured as the full-width prominent action above
+  Exit Frame. iPad retains the anchored popover.
+- The direct-controls regression passes on both the iPad (A16) and a temporary
+  iPhone 17 Pro Max Simulator compatibility build. The iPhone capture visibly
+  includes the title, close button, style/speed controls, prominent Share Photo,
+  and Exit Frame without clipping. The temporary project-family edit used for
+  that compact test was reverted; the repository remains iPad-only.
+- The complete iPad Simulator scheme passes 153 tests with four intentional
+  physical-PhotoKit skips and zero failures after the correction. The same two
+  previously tracked private iOS 27 beta context-menu hierarchy warnings are
+  present; no new runtime warning was introduced. The clean unsigned iPadOS 15
+  Release build succeeds.

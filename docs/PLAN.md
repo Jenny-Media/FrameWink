@@ -517,6 +517,13 @@ failures. The clean unsigned iPadOS 15 Release build succeeds. One Jenny Media
 LLC-signed Debug artifact was installed and launched over existing data on both
 the iPad Pro 12.9-inch (3rd generation) and iPad mini 6.
 
+Compact-width inspection on the temporary iPhone compatibility build exposed
+that the popover's adaptive sheet inherited the playback bar's white foreground
+and defaulted to an oversized modal. The panel now establishes system semantic
+colors, adapts to a bounded draggable sheet on iOS 16+, and presents Share as a
+full-width prominent direct action. The iPad popover behavior and committed
+iPad-only target remain unchanged.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

@@ -281,6 +281,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             app.descendants(matching: .any)["frame-controls-panel"]
                 .waitForExistence(timeout: 3)
         )
+        XCTAssertTrue(app.staticTexts["Frame Controls"].isHittable)
         XCTAssertTrue(app.buttons["frame-close-control"].waitForExistence(timeout: 3))
         let sharePhoto = app.buttons["Share Photo"]
         let shareFeaturedPhoto = app.buttons["Share Featured"]
@@ -288,10 +289,19 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             sharePhoto.exists || shareFeaturedPhoto.exists,
             "Frame Controls must expose sharing for the current scene."
         )
+        XCTAssertTrue(
+            sharePhoto.isHittable || shareFeaturedPhoto.isHittable,
+            "The direct Share action must be visibly reachable in Frame Controls."
+        )
         XCTAssertTrue(app.buttons["frame-speed-5"].exists)
         XCTAssertTrue(app.buttons["frame-speed-60"].exists)
         XCTAssertTrue(app.buttons["frame-layout-fit"].exists)
         XCTAssertTrue(app.buttons["frame-layout-fill"].exists)
+
+        let panelScreenshot = XCTAttachment(screenshot: app.screenshot())
+        panelScreenshot.name = "Frame Controls panel"
+        panelScreenshot.lifetime = .keepAlways
+        add(panelScreenshot)
     }
 
     func testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker() throws {

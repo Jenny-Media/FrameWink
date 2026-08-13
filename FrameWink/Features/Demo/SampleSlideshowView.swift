@@ -583,6 +583,7 @@ struct SampleSlideshowView: View {
                             isShowingFrameControls = false
                         }
                     )
+                    .frameControlsPresentation()
                 }
             }
             .font(.title3.weight(.semibold))
@@ -859,7 +860,7 @@ private struct FrameControlsPanel: View {
                         )
                         .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.borderedProminent)
                     .accessibilityIdentifier("frame-share-current-photo")
                 }
 
@@ -891,7 +892,9 @@ private struct FrameControlsPanel: View {
             .accessibilityIdentifier("frame-close-control")
         }
         .padding(20)
-        .frame(idealWidth: 410)
+        .frame(idealWidth: 410, maxWidth: 460, alignment: .leading)
+        .foregroundColor(.primary)
+        .background(Color(uiColor: .systemBackground))
     }
 
     @ViewBuilder
@@ -951,6 +954,24 @@ private struct FrameControlsPanel: View {
 
     private func intervalTitle(_ interval: TimeInterval) -> String {
         "\(Int(interval))s"
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func frameControlsPresentation() -> some View {
+        if #available(iOS 16.4, *) {
+            self
+                .presentationDetents([.height(500)])
+                .presentationDragIndicator(.visible)
+                .presentationCompactAdaptation(.sheet)
+        } else if #available(iOS 16.0, *) {
+            self
+                .presentationDetents([.height(500)])
+                .presentationDragIndicator(.visible)
+        } else {
+            self
+        }
     }
 }
 
