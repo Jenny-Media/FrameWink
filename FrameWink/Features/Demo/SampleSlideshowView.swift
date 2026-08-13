@@ -25,6 +25,7 @@ struct SampleSlideshowView: View {
     @State private var hideControlsTask: Task<Void, Never>?
     @State private var hideHintTask: Task<Void, Never>?
     @State private var pageTransitionDirection: FramePageTransitionDirection = .dissolve
+    @State private var isShowingFrameControls = false
     @State private var sharePreparationID: String?
     @State private var shareTask: Task<Void, Never>?
     @State private var sharedPhoto: SharedFramePhoto?
@@ -197,6 +198,7 @@ struct SampleSlideshowView: View {
             if isActive {
                 showInitialGuidance()
             } else {
+                isShowingFrameControls = false
                 hideControlsTask?.cancel()
                 hideHintTask?.cancel()
                 hintVisible = false
@@ -209,6 +211,13 @@ struct SampleSlideshowView: View {
                 setHintVisible(false)
                 setControlsVisible(true)
             } else {
+                scheduleControlsToRecede()
+            }
+        }
+        .onChange(of: isShowingFrameControls) { isShowing in
+            if isShowing {
+                hideControlsTask?.cancel()
+            } else if isFrameMode {
                 scheduleControlsToRecede()
             }
         }
@@ -541,66 +550,40 @@ struct SampleSlideshowView: View {
                     .frame(height: 26)
                     .overlay(Color.white.opacity(0.35))
 
-                Menu {
-                    shareActions(
-                        pages: pages,
-                        slidesByID: slidesByID
-                    )
-
-                    Divider()
-
-                    Menu("Display Style") {
-                        ForEach(availableLayoutPreferences) { preference in
-                            Button {
-                                layoutPreference = preference
-                                presentationDidChange(preference, playback.interval)
-                                revealControls()
-                            } label: {
-                                if layoutPreference == preference {
-                                    Label(preference.title, systemImage: "checkmark")
-                                } else {
-                                    Text(preference.title)
-                                }
-                            }
-                            .accessibilityIdentifier(
-                                "frame-layout-" + preference.rawValue
-                            )
-                        }
-                    }
-
-                    Menu("Slideshow Speed") {
-                        ForEach(availableIntervals, id: \.self) { interval in
-                            Button {
-                                playback.setInterval(interval, at: Date())
-                                presentationDidChange(layoutPreference, interval)
-                                revealControls()
-                            } label: {
-                                if playback.interval == interval {
-                                    Label(intervalTitle(interval), systemImage: "checkmark")
-                                } else {
-                                    Text(intervalTitle(interval))
-                                }
-                            }
-                            .accessibilityIdentifier(
-                                "frame-speed-\(Int(interval))"
-                            )
-                        }
-                    }
-
-                    Divider()
-
-                    Button {
-                        isFrameMode = false
-                    } label: {
-                        Label("Exit Frame", systemImage: "xmark.circle")
-                    }
-                    .accessibilityIdentifier("frame-close-control")
+                Button {
+                    hideControlsTask?.cancel()
+                    isShowingFrameControls = true
                 } label: {
                     Image(systemName: "ellipsis")
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
                 .accessibilityLabel("More playback options")
+                .popover(
+                    isPresented: $isShowingFrameControls,
+                    attachmentAnchor: .rect(.bounds)
+                ) {
+                    FrameControlsPanel(
+                        layoutPreference: layoutPreference,
+                        availableLayoutPreferences: availableLayoutPreferences,
+                        interval: playback.interval,
+                        availableIntervals: availableIntervals,
+                        slides: shareableSlides(
+                            pages: pages,
+                            slidesByID: slidesByID
+                        ),
+                        selectLayout: selectLayout,
+                        selectInterval: selectInterval,
+                        share: shareFromFrameControls,
+                        exitFrame: {
+                            isShowingFrameControls = false
+                            isFrameMode = false
+                        },
+                        dismiss: {
+                            isShowingFrameControls = false
+                        }
+                    )
+                }
             }
             .font(.title3.weight(.semibold))
             .foregroundColor(.white)
@@ -614,41 +597,28 @@ struct SampleSlideshowView: View {
         .padding(.horizontal, 26)
     }
 
-    @ViewBuilder
-    private func shareActions(
+    private func shareableSlides(
         pages: [FramePage],
         slidesByID: [String: DisplaySlide]
-    ) -> some View {
-        let slides = activePage(in: pages)?.placements.compactMap {
+    ) -> [DisplaySlide] {
+        activePage(in: pages)?.placements.compactMap {
             slidesByID[$0.photoID]
         } ?? []
+    }
 
-        if let slide = slides.first {
-            Button {
-                prepareToShare(slide)
-            } label: {
-                Label(
-                    slides.count == 1 ? "Share Photo" : "Share Featured Photo",
-                    systemImage: "square.and.arrow.up"
-                )
-            }
-            .accessibilityIdentifier("frame-share-current-photo")
-        }
+    private func selectLayout(_ preference: FrameLayoutPreference) {
+        layoutPreference = preference
+        presentationDidChange(preference, playback.interval)
+    }
 
-        if slides.count > 1 {
-            Menu("Share Another Photo") {
-                ForEach(slides.indices.dropFirst(), id: \.self) { index in
-                    let slide = slides[index]
-                    Button {
-                        prepareToShare(slide)
-                    } label: {
-                        Label("Photo \(index + 1)", systemImage: "square.and.arrow.up")
-                    }
-                    .accessibilityIdentifier("frame-share-photo-" + slide.id)
-                }
-            }
-            .accessibilityIdentifier("frame-share-photo-menu")
-        }
+    private func selectInterval(_ interval: TimeInterval) {
+        playback.setInterval(interval, at: Date())
+        presentationDidChange(layoutPreference, interval)
+    }
+
+    private func shareFromFrameControls(_ slide: DisplaySlide) {
+        isShowingFrameControls = false
+        prepareToShare(slide)
     }
 
     private var controlsHint: some View {
@@ -814,6 +784,173 @@ struct SampleSlideshowView: View {
         guard !pages.isEmpty else { return "No photos" }
         let position = min(playback.currentPageIndex, pages.count - 1) + 1
         return "Photo \(position) of \(pages.count)"
+    }
+}
+
+private struct FrameControlsPanel: View {
+    let layoutPreference: FrameLayoutPreference
+    let availableLayoutPreferences: [FrameLayoutPreference]
+    let interval: TimeInterval
+    let availableIntervals: [TimeInterval]
+    let slides: [DisplaySlide]
+    let selectLayout: (FrameLayoutPreference) -> Void
+    let selectInterval: (TimeInterval) -> Void
+    let share: (DisplaySlide) -> Void
+    let exitFrame: () -> Void
+    let dismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack {
+                Text("Frame Controls")
+                    .font(.headline)
+                    .accessibilityIdentifier("frame-controls-panel")
+
+                Spacer()
+
+                Button(action: dismiss) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Close Frame Controls")
+                .accessibilityIdentifier("close-frame-controls")
+            }
+
+            controlSection(title: "Display Style") {
+                selectionGrid(columns: 3) {
+                    ForEach(availableLayoutPreferences) { preference in
+                        selectionButton(
+                            title: preference.title,
+                            isSelected: layoutPreference == preference,
+                            accessibilityIdentifier: "frame-layout-" + preference.rawValue
+                        ) {
+                            selectLayout(preference)
+                        }
+                    }
+                }
+            }
+
+            controlSection(title: "Slideshow Speed") {
+                selectionGrid(columns: 4) {
+                    ForEach(availableIntervals, id: \.self) { candidate in
+                        selectionButton(
+                            title: intervalTitle(candidate),
+                            isSelected: interval == candidate,
+                            accessibilityIdentifier: "frame-speed-\(Int(candidate))"
+                        ) {
+                            selectInterval(candidate)
+                        }
+                    }
+                }
+            }
+
+            Divider()
+
+            HStack(spacing: 10) {
+                if let featuredSlide = slides.first {
+                    Button {
+                        share(featuredSlide)
+                    } label: {
+                        Label(
+                            slides.count == 1 ? "Share Photo" : "Share Featured",
+                            systemImage: "square.and.arrow.up"
+                        )
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("frame-share-current-photo")
+                }
+
+                if slides.count > 1 {
+                    Menu {
+                        ForEach(slides.indices.dropFirst(), id: \.self) { index in
+                            Button("Photo \(index + 1)") {
+                                share(slides[index])
+                            }
+                            .accessibilityIdentifier(
+                                "frame-share-photo-" + slides[index].id
+                            )
+                        }
+                    } label: {
+                        Label("Other Photos", systemImage: "photo.on.rectangle.angled")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("frame-share-photo-menu")
+                }
+            }
+
+            Button(action: exitFrame) {
+                Label("Exit Frame", systemImage: "xmark.circle")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .tint(.red)
+            .accessibilityIdentifier("frame-close-control")
+        }
+        .padding(20)
+        .frame(idealWidth: 410)
+    }
+
+    @ViewBuilder
+    private func controlSection<Content: View>(
+        title: LocalizedStringKey,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(.secondary)
+            content()
+        }
+    }
+
+    @ViewBuilder
+    private func selectionGrid<Content: View>(
+        columns: Int,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        LazyVGrid(
+            columns: Array(
+                repeating: GridItem(.flexible(), spacing: 8),
+                count: columns
+            ),
+            spacing: 8
+        ) {
+            content()
+        }
+    }
+
+    private func selectionButton(
+        title: String,
+        isSelected: Bool,
+        accessibilityIdentifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 5) {
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.caption.weight(.bold))
+                }
+                Text(title)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .font(.subheadline.weight(.semibold))
+            .frame(maxWidth: .infinity, minHeight: 38)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.bordered)
+        .tint(isSelected ? .accentColor : .secondary)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityIdentifier(accessibilityIdentifier)
+    }
+
+    private func intervalTitle(_ interval: TimeInterval) -> String {
+        "\(Int(interval))s"
     }
 }
 

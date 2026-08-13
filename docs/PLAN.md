@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 11.5 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **34.5 h** | **In progress** |
+| 6. Hardening and release | 8 h | 12.25 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **35.25 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -503,6 +503,19 @@ hierarchy warnings during the long-press UI test. The new real-library
 close/reopen two-second timing regression is installed on the connected iPad
 Pro, but iPadOS timed out enabling UI automation before the tests ran; B-021
 records that non-blocking device-runner boundary.
+
+Playback `More` now opens an anchored Frame Controls popover instead of a
+cascading command menu. Display Style and Slideshow Speed are visible as direct
+selection grids, the panel remains open while either setting changes, and Share
+plus Exit Frame remain in the same surface. Focused UI regressions cover panel
+reachability, direct Fit/5-second changes without a photo-source regression,
+and blackout escape. The first release remains iPad-only; an iPhone adaptation
+is recorded as a separate post-MVP product decision rather than widening the
+release matrix during hardening. The final iOS 27 `iPad (A16)` Simulator scheme
+passes 153 tests with four intentional physical-PhotoKit skips and zero
+failures. The clean unsigned iPadOS 15 Release build succeeds. One Jenny Media
+LLC-signed Debug artifact was installed and launched over existing data on both
+the iPad Pro 12.9-inch (3rd generation) and iPad mini 6.
 
 ## Timebox rule
 

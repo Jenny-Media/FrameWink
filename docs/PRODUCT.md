@@ -57,8 +57,10 @@ preloaded gifts, family contributions, and remote administration.
 3. The app imports display-sized local copies, curates them, and changes the
    primary action to `Start Frame`.
 4. Frame playback begins directly. Previous, pause/play, next, and a single
-   `More` menu provide the essential controls. A short tap/swipe hint recedes
-   with the controls; tapping the photo brings controls back.
+   `More` button provide the essential controls. `More` opens one compact Frame
+   Controls panel where display style and speed can be changed directly, while
+   sharing and Exit Frame remain nearby. A short tap/swipe hint recedes with the
+   controls; tapping the photo brings controls back.
 5. Review, deletion, privacy, source switching, and frame settings remain
    available through progressive disclosure rather than a button dashboard.
 6. FrameWink Lifetime is offered when a user chooses an automatic album or

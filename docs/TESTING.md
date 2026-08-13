@@ -869,3 +869,30 @@ explicit owner approval.
   out enabling XCTest automation before the test body; the script relaunched
   the interactive acceptance harness. Manual timing and a later automation
   retry remain under B-021.
+
+## Direct Frame Controls panel — 2026-08-13
+
+- Playback `More` opens a native anchored popover rather than cascading menus.
+  Auto/Fit/Fill/Mosaic (when entitled) and 5/10/30/60-second timing choices are
+  visible together; selecting one does not close the panel. Share and Exit
+  Frame remain direct actions, while an optional list is used only to target a
+  non-featured photo in a collage.
+- Focused iPad Simulator UI tests cover opening the panel, finding each direct
+  control, changing speed and layout without reactivating bundled samples, and
+  reaching Exit Frame during a scheduled blackout. The initial run exposed an
+  accessibility-container identifier that masked child buttons; scoping it to
+  the panel title fixed the hierarchy without changing the visible UI.
+- The complete scheme passes 153 tests with four intentional physical-PhotoKit
+  skips and zero failures on the iOS 27 `iPad (A16)` Simulator. A first complete
+  run hit four transient StoreKit `productUnavailable` results; the StoreKit
+  suite then passed 4/4 in isolation and the clean complete rerun passed. The
+  two recorded runtime warnings are the previously documented private iOS 27
+  beta UIKit context-menu hierarchy warnings. The generic unsigned Release
+  build succeeds with `MinimumOSVersion` 15.0 and iPad-only device family 2;
+  the archive-mode Xcode Cloud identity, privacy, and production-product guard
+  passes.
+- The same Jenny Media LLC-signed Debug app was installed without uninstalling
+  on the physical iPad Pro 12.9-inch (3rd generation) and iPad mini 6. Both
+  device process checks reported one running FrameWink process after launch.
+- The repository remains `TARGETED_DEVICE_FAMILY = 2`; iPhone is explicitly a
+  post-MVP evaluation, not an untested widening of this release.

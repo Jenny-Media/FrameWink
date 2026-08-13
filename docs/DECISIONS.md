@@ -168,3 +168,28 @@ date; do not silently rewrite historical decisions during implementation.
   large black bands, but subject preservation is more important than forcing a
   layout. System sharing is familiar, available on iPadOS 15, and avoids a
   brittle private Photos deep link.
+
+## D-019 — Frame controls use one direct, anchored panel
+
+- **Decision:** The playback `More` button opens a native Frame Controls
+  popover with directly visible display-style and slideshow-speed choices.
+  The panel stays open after either choice so a user can make several related
+  adjustments, and keeps Share and Exit Frame nearby. Only the secondary list
+  of other photos in a collage remains nested.
+- **Reason:** A cascading menu makes common adjustments require repeated taps
+  and hides the current selections. One small anchored panel preserves the
+  quiet frame surface while making the useful advanced controls scannable and
+  adjustable in a single tap.
+
+## D-020 — The MVP and first release remain iPad-only
+
+- **Decision:** Keep device family 2 and the iPad-focused product contract for
+  the MVP and first App Store release. Evaluate an iPhone adaptation after the
+  iPad experience and release path are validated; do not silently widen the
+  current target.
+- **Reason:** FrameWink is positioned around reusing an idle iPad as a mounted
+  or tabletop frame. iPhone support would add narrow-screen interaction,
+  collage, permission, purchase, screenshot, and device-test work while doing
+  little to reduce the remaining iPad release risks. It may still be valuable
+  later as a portable frame or companion experience, but that requires its own
+  product decision and acceptance matrix.

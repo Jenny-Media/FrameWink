@@ -144,8 +144,11 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let playbackOptions = app.buttons["More playback options"]
         XCTAssertTrue(playbackOptions.waitForExistence(timeout: 3))
         playbackOptions.tap()
-        app.buttons["Slideshow Speed"].tap()
-        let fastSpeed = app.buttons["5 sec"].firstMatch
+        XCTAssertTrue(
+            app.descendants(matching: .any)["frame-controls-panel"]
+                .waitForExistence(timeout: 3)
+        )
+        let fastSpeed = app.buttons["frame-speed-5"]
         XCTAssertTrue(fastSpeed.waitForExistence(timeout: 3))
         fastSpeed.tap()
 
@@ -155,9 +158,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             "Changing speed must not reactivate a stale saved sample source."
         )
 
-        playbackOptions.tap()
-        app.buttons["Display Style"].tap()
-        let fitStyle = app.buttons["Fit"].firstMatch
+        let fitStyle = app.buttons["frame-layout-fit"]
         XCTAssertTrue(fitStyle.waitForExistence(timeout: 3))
         fitStyle.tap()
 
@@ -261,7 +262,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         )
     }
 
-    func testPlaybackMenuOffersShareAndExitWithoutTopCornerControls() {
+    func testFrameControlsPanelOffersDirectSettingsShareAndExit() {
         launch(scenario: "personal-reel")
 
         let startFrame = app.buttons["Start Frame"]
@@ -276,13 +277,21 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         )
 
         playbackOptions.tap()
+        XCTAssertTrue(
+            app.descendants(matching: .any)["frame-controls-panel"]
+                .waitForExistence(timeout: 3)
+        )
         XCTAssertTrue(app.buttons["frame-close-control"].waitForExistence(timeout: 3))
         let sharePhoto = app.buttons["Share Photo"]
-        let shareFeaturedPhoto = app.buttons["Share Featured Photo"]
+        let shareFeaturedPhoto = app.buttons["Share Featured"]
         XCTAssertTrue(
             sharePhoto.exists || shareFeaturedPhoto.exists,
-            "The normal playback menu must expose sharing for the current scene."
+            "Frame Controls must expose sharing for the current scene."
         )
+        XCTAssertTrue(app.buttons["frame-speed-5"].exists)
+        XCTAssertTrue(app.buttons["frame-speed-60"].exists)
+        XCTAssertTrue(app.buttons["frame-layout-fit"].exists)
+        XCTAssertTrue(app.buttons["frame-layout-fill"].exists)
     }
 
     func testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker() throws {
