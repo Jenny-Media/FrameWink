@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 9.25 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **31.25 h** | **In progress** |
+| 6. Hardening and release | 8 h | 9.75 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **31.75 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -294,6 +294,15 @@ horizontal swipes before Frame Mode. The complete Simulator scheme passes 131
 runnable tests plus one intentional physical-only skip with zero failures or
 runtime warnings after these changes.
 
+Immediate playback from that provisional reel now also repairs a stale internal
+page count even when the responsive layout signature already matches. Manual
+advance updates the stable photo anchor atomically so a simultaneous Frame Mode
+geometry reflow cannot restore the prior page. The final complete Simulator
+scheme passes 132 tests with two intentional real-PhotoKit physical-only skips,
+zero failures, and zero runtime warnings. A configured-real-album regression on
+the connected iPad Pro proves both the Next control and a subsequent swipe show
+distinct cached photos from the current 30-photo reel.
+
 A Debug-only screenshot harness now isolates its fixture state from normal app
 data. It produces an upload-ready set of ten native 13-inch iPad JPEGs at 2064 x
 2752 without alpha, plus an eleven-image source library, using bundled
@@ -392,6 +401,11 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   analysis continued; progress is visible on both the neutral backdrop and
   setup card, durable sync checkpoints survive relaunch, and the ready preview
   is swipeable before Frame Mode.
+- B-019 is resolved on the connected iPad Pro. Count-only inspection confirmed
+  30 unique selections and distinct cached images, then instrumented physical
+  UI testing found and repaired the matching-signature/zero-page playback race.
+  The configured real album now advances to a distinct photo with Next and to
+  another distinct page with a swipe immediately after entering Frame Mode.
 
 ## Timebox rule
 

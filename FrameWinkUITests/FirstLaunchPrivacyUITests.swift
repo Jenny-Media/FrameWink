@@ -130,6 +130,14 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         ].firstMatch
         XCTAssertTrue(firstPhoto.waitForExistence(timeout: 8))
 
+        let secondPhoto = app.descendants(matching: .any)[
+            "frame-photo-5255CD65-7C11-4EEB-B7F5-85FC76A4D11B"
+        ].firstMatch
+        app.buttons["Next photo"].tap()
+        XCTAssertTrue(secondPhoto.waitForExistence(timeout: 4))
+        app.buttons["Previous photo"].tap()
+        XCTAssertTrue(firstPhoto.waitForExistence(timeout: 4))
+
         let closeControl = app.buttons["frame-close-control"]
         XCTAssertTrue(closeControl.waitForExistence(timeout: 2))
         RunLoop.current.run(until: Date().addingTimeInterval(5))
@@ -140,9 +148,6 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(waitForNonexistence(closeControl, timeout: 2))
         app.swipeLeft()
 
-        let secondPhoto = app.descendants(matching: .any)[
-            "frame-photo-5255CD65-7C11-4EEB-B7F5-85FC76A4D11B"
-        ].firstMatch
         XCTAssertTrue(secondPhoto.waitForExistence(timeout: 4))
         XCTAssertFalse(firstPhoto.exists, "One swipe must leave the original page.")
         XCTAssertFalse(closeControl.exists, "Swipe navigation must keep playback chrome hidden.")
@@ -150,17 +155,19 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         app.tap()
         XCTAssertTrue(closeControl.waitForExistence(timeout: 2))
         XCTAssertTrue(playbackControl.waitForExistence(timeout: 2))
+
+        XCUIDevice.shared.orientation = .portrait
+        XCTAssertTrue(waitForPortrait())
+        XCTAssertTrue(
+            secondPhoto.waitForExistence(timeout: 4),
+            "The active photo must survive the physical orientation transition."
+        )
+
         playbackControl.tap()
         XCTAssertTrue(
             waitForNonexistence(closeControl, timeout: 7),
             "Playing controls must recede automatically."
         )
-        app.tap()
-        XCTAssertTrue(closeControl.waitForExistence(timeout: 2))
-
-        XCUIDevice.shared.orientation = .portrait
-        XCTAssertTrue(waitForPortrait())
-        XCTAssertTrue(secondPhoto.exists)
     }
 
     func testBlackoutTapRevealsEscapeControl() {
@@ -203,6 +210,61 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         )
         XCTAssertFalse(app.descendants(matching: .any)["album-picker-error"].exists)
         XCTAssertFalse(app.descendants(matching: .any)["album-picker-empty"].exists)
+#endif
+    }
+
+    func testConfiguredPhysicalAlbumFrameNavigatesBetweenDistinctPhotos() throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("A configured real PhotoKit album requires a physical iPad.")
+#else
+        app = XCUIApplication()
+        app.launchEnvironment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] = "1"
+        app.launch()
+
+        let startFrame = app.buttons["Start Frame"]
+        XCTAssertTrue(
+            startFrame.waitForExistence(timeout: 8),
+            "Configure and prepare a real automatic album before this check."
+        )
+        startFrame.tap()
+
+        let albumPhotos = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'frame-photo-album-'")
+        )
+        let firstPhoto = albumPhotos.firstMatch
+        XCTAssertTrue(firstPhoto.waitForExistence(timeout: 8))
+        let firstIdentifier = firstPhoto.identifier
+        XCTAssertFalse(firstIdentifier.isEmpty)
+
+        let next = app.buttons["Next photo"]
+        XCTAssertTrue(next.waitForExistence(timeout: 2))
+        XCTAssertTrue(next.isHittable, "The visible Next control must accept touches.")
+        let firstPosition = next.value as? String
+        XCTAssertNotNil(firstPosition)
+        next.tap()
+        XCTAssertTrue(
+            waitForValueContaining(next, text: "Photo 2 of", timeout: 3),
+            "Next must advance from \(firstPosition ?? "unknown")."
+        )
+
+        let nextPhoto = albumPhotos.matching(
+            NSPredicate(format: "identifier != %@", firstIdentifier)
+        ).firstMatch
+        XCTAssertTrue(nextPhoto.waitForExistence(timeout: 4))
+        XCTAssertNotEqual(nextPhoto.identifier, firstIdentifier)
+
+        let secondPageIdentifiers = albumPhotos.allElementsBoundByIndex.map(\.identifier)
+        app.swipeLeft()
+        let thirdPagePhoto = albumPhotos.matching(
+            NSPredicate(
+                format: "NOT (identifier IN %@)",
+                [firstIdentifier] + secondPageIdentifiers
+            )
+        ).firstMatch
+        XCTAssertTrue(
+            thirdPagePhoto.waitForExistence(timeout: 4),
+            "A swipe must replace every photo from the preceding real-album page."
+        )
 #endif
     }
 
@@ -266,6 +328,18 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
     ) -> Bool {
         let expectation = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "exists == false"),
+            object: element
+        )
+        return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    private func waitForValueContaining(
+        _ element: XCUIElement,
+        text: String,
+        timeout: TimeInterval
+    ) -> Bool {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value CONTAINS %@", text),
             object: element
         )
         return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed

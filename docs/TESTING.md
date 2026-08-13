@@ -669,3 +669,36 @@ explicit owner approval.
   usability, resumable local checkpoints, and real-device lifecycle health.
   They do not replace the oldest-supported 2 GB device gate, a human-labelled
   curation review, Airplane Mode playback, or the seven-day wall soak.
+
+## Immediate real-album playback correction — 2026-08-13
+
+- The owner reproduced a critical playback defect on the connected iPad Pro:
+  after **30 photos ready**, **Start Frame** displayed one photo but immediate
+  swipes and arrow controls did not change it. The app process remained live,
+  charging, and nominal-thermal.
+- Non-photo inspection found 30 unique reel selections mapped to 30 durable
+  records. Sampled first/second cache files had different SHA-256 hashes and
+  visibly different content, proving that import and curation had prepared more
+  than one playable photo.
+- Debug accessibility instrumentation isolated an inconsistent state: the
+  responsive view had 27 pages after portrait pairing, while the playback
+  session still held zero pages. Its stored layout signature already matched,
+  so the old synchronization guard skipped page-count repair. The temporary
+  diagnostics were removed after verification.
+- Synchronization now compares both signature and page count. Arrow, swipe,
+  and timer paths reconcile current pages before advancing, and a manual page
+  change updates its stable photo anchor and display-history decision in the
+  same state mutation. Arrow controls expose `Photo n of m` to VoiceOver.
+- `FrameSessionControllerTests` now recreates a matching-signature/zero-page
+  session for a 30-page reel, advances immediately, and proves the new photo
+  anchor survives a responsive reflow. All 14 focused tests pass.
+- The complete iOS 27 `iPad (A16)` Simulator scheme passes 132 tests with zero
+  failures, expected failures, or runtime warnings. Two physical-only real-
+  PhotoKit checks skip intentionally. The unsigned generic iPadOS Release build
+  succeeds.
+- On the physical iPad Pro, the local three-photo UI flow passed Next,
+  Previous, swipe, pause/resume, and rotation. The new configured-real-album
+  test then entered the current configured 30-photo reel: Next changed both the
+  accessible position and actual display to the distinct second cache file, and
+  a subsequent swipe displayed a page containing none of the prior page's
+  photos. This closes B-019 for the reported device and source.

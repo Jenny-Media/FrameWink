@@ -71,7 +71,11 @@ struct SampleSlideshowView: View {
                 wallScheduleOverlay
 
                 if isFrameMode {
-                    interactionLayer
+                    interactionLayer(
+                        pages: pages,
+                        signature: layoutSignature,
+                        slidesByID: slidesByID
+                    )
 
                     if hintVisible, wallVisualState != .blackout {
                         controlsHint
@@ -79,11 +83,20 @@ struct SampleSlideshowView: View {
                     }
 
                     if controlsVisible {
-                        frameControls(isCompact: proxy.size.width < 600)
+                        frameControls(
+                            isCompact: proxy.size.width < 600,
+                            pages: pages,
+                            signature: layoutSignature,
+                            slidesByID: slidesByID
+                        )
                             .transition(reduceMotion ? .identity : .opacity)
                     }
                 } else if pages.count > 1 {
-                    previewNavigationLayer
+                    previewNavigationLayer(
+                        pages: pages,
+                        signature: layoutSignature,
+                        slidesByID: slidesByID
+                    )
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
@@ -96,12 +109,6 @@ struct SampleSlideshowView: View {
             }
             .onChange(of: layoutSignature) { newSignature in
                 synchronizePages(pages, signature: newSignature)
-            }
-            .onChange(of: playback.currentPageIndex) { _ in
-                if let page = playback.pageChangeRequiringHistory(in: pages),
-                   isFrameMode {
-                    recordAutomaticAlbumPhotos(in: page, slidesByID: slidesByID)
-                }
             }
             .onChange(of: isFrameMode) { active in
                 guard active, let page = activePage(in: pages) else { return }
@@ -118,6 +125,37 @@ struct SampleSlideshowView: View {
                     layoutPreference = .automatic
                 }
             }
+            .onReceive(timer) { date in
+                refreshWallSchedule(date)
+                var updatedPlayback = playback
+                let didAdvance = updatedPlayback.tick(
+                    in: pages,
+                    signature: layoutSignature,
+                    at: date
+                )
+                guard didAdvance else {
+                    if updatedPlayback != playback {
+                        playback = updatedPlayback
+                    }
+                    return
+                }
+                let displayedPage = updatedPlayback.pageChangeRequiringHistory(
+                    in: pages
+                )
+                if reduceMotion {
+                    playback = updatedPlayback
+                } else {
+                    withAnimation(.easeInOut(duration: 0.65)) {
+                        playback = updatedPlayback
+                    }
+                }
+                if isFrameMode, let displayedPage {
+                    recordAutomaticAlbumPhotos(
+                        in: displayedPage,
+                        slidesByID: slidesByID
+                    )
+                }
+            }
             .task(id: nextPagePreloadID(in: pages, slidesByID: slidesByID)) {
                 await preloadNextPage(in: pages, slidesByID: slidesByID)
             }
@@ -126,18 +164,6 @@ struct SampleSlideshowView: View {
         .clipped()
         .onFrameInteractiveResizeChange { isResizing in
             playback.setInteractiveResize(isResizing, at: Date())
-        }
-        .onReceive(timer) { date in
-            refreshWallSchedule(date)
-            var updatedPlayback = playback
-            guard updatedPlayback.tick(at: date) else { return }
-            if reduceMotion {
-                playback = updatedPlayback
-            } else {
-                withAnimation(.easeInOut(duration: 0.65)) {
-                    playback = updatedPlayback
-                }
-            }
         }
         .onReceive(
             NotificationCenter.default.publisher(
@@ -286,7 +312,11 @@ struct SampleSlideshowView: View {
         .allowsHitTesting(false)
     }
 
-    private var interactionLayer: some View {
+    private func interactionLayer(
+        pages: [FramePage],
+        signature: String,
+        slidesByID: [String: DisplaySlide]
+    ) -> some View {
         Color.clear
             .contentShape(Rectangle())
             .onTapGesture {
@@ -300,7 +330,12 @@ struct SampleSlideshowView: View {
             .gesture(
                 DragGesture(minimumDistance: 30)
                     .onEnded { value in
-                        navigate(with: value)
+                        navigate(
+                            with: value,
+                            pages: pages,
+                            signature: signature,
+                            slidesByID: slidesByID
+                        )
                         if controlsVisible {
                             scheduleControlsToRecede()
                         }
@@ -309,28 +344,57 @@ struct SampleSlideshowView: View {
             .accessibilityHidden(true)
     }
 
-    private var previewNavigationLayer: some View {
+    private func previewNavigationLayer(
+        pages: [FramePage],
+        signature: String,
+        slidesByID: [String: DisplaySlide]
+    ) -> some View {
         Color.clear
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 30)
-                    .onEnded(navigate)
+                    .onEnded { value in
+                        navigate(
+                            with: value,
+                            pages: pages,
+                            signature: signature,
+                            slidesByID: slidesByID
+                        )
+                    }
             )
             .accessibilityHidden(true)
     }
 
-    private func navigate(with value: DragGesture.Value) {
+    private func navigate(
+        with value: DragGesture.Value,
+        pages: [FramePage],
+        signature: String,
+        slidesByID: [String: DisplaySlide]
+    ) {
         guard abs(value.translation.width) > abs(value.translation.height) else {
             return
         }
         if value.translation.width < 0 {
-            showNextPage()
+            showNextPage(
+                in: pages,
+                signature: signature,
+                slidesByID: slidesByID
+            )
         } else {
-            showPreviousPage()
+            showPreviousPage(
+                in: pages,
+                signature: signature,
+                slidesByID: slidesByID
+            )
         }
     }
 
-    private func frameControls(isCompact: Bool) -> some View {
+    private func frameControls(
+        isCompact: Bool,
+        pages: [FramePage],
+        signature: String,
+        slidesByID: [String: DisplaySlide]
+    ) -> some View {
         VStack {
             HStack {
                 Button {
@@ -352,12 +416,19 @@ struct SampleSlideshowView: View {
             Spacer()
 
             HStack(spacing: isCompact ? 12 : 18) {
-                Button(action: showPreviousPage) {
+                Button {
+                    showPreviousPage(
+                        in: pages,
+                        signature: signature,
+                        slidesByID: slidesByID
+                    )
+                } label: {
                     Image(systemName: "backward.fill")
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Previous photo")
+                .accessibilityValue(playbackPosition(in: pages))
 
                 Button {
                     playback.togglePlayback(at: Date())
@@ -376,12 +447,19 @@ struct SampleSlideshowView: View {
                 )
                 .accessibilityIdentifier("frame-playback-control")
 
-                Button(action: showNextPage) {
+                Button {
+                    showNextPage(
+                        in: pages,
+                        signature: signature,
+                        slidesByID: slidesByID
+                    )
+                } label: {
                     Image(systemName: "forward.fill")
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Next photo")
+                .accessibilityValue(playbackPosition(in: pages))
 
                 Divider()
                     .frame(height: 26)
@@ -470,23 +548,44 @@ struct SampleSlideshowView: View {
         }
     }
 
-    private func showNextPage() {
-        performPageChange {
-            playback.next(at: Date())
+    private func showNextPage(
+        in pages: [FramePage],
+        signature: String,
+        slidesByID: [String: DisplaySlide]
+    ) {
+        performPageChange(slidesByID: slidesByID) { updatedPlayback in
+            updatedPlayback.next(in: pages, signature: signature, at: Date())
         }
     }
 
-    private func showPreviousPage() {
-        performPageChange {
-            playback.previous(at: Date())
+    private func showPreviousPage(
+        in pages: [FramePage],
+        signature: String,
+        slidesByID: [String: DisplaySlide]
+    ) {
+        performPageChange(slidesByID: slidesByID) { updatedPlayback in
+            updatedPlayback.previous(in: pages, signature: signature, at: Date())
         }
     }
 
-    private func performPageChange(_ change: () -> Void) {
+    private func performPageChange(
+        slidesByID: [String: DisplaySlide],
+        _ change: (inout FramePlaybackCoordinator) -> FramePage?
+    ) {
+        var updatedPlayback = playback
+        let displayedPage = change(&updatedPlayback)
         if reduceMotion {
-            change()
+            playback = updatedPlayback
         } else {
-            withAnimation(.easeInOut(duration: 0.4), change)
+            withAnimation(.easeInOut(duration: 0.4)) {
+                playback = updatedPlayback
+            }
+        }
+        if isFrameMode, let displayedPage {
+            recordAutomaticAlbumPhotos(
+                in: displayedPage,
+                slidesByID: slidesByID
+            )
         }
         scheduleControlsToRecede()
     }
@@ -567,6 +666,12 @@ struct SampleSlideshowView: View {
 
     private func intervalTitle(_ interval: TimeInterval) -> String {
         "\(Int(interval)) sec"
+    }
+
+    private func playbackPosition(in pages: [FramePage]) -> String {
+        guard !pages.isEmpty else { return "No photos" }
+        let position = min(playback.currentPageIndex, pages.count - 1) + 1
+        return "Photo \(position) of \(pages.count)"
     }
 }
 

@@ -160,6 +160,71 @@ final class FrameSessionControllerTests: XCTestCase {
         XCTAssertEqual(historyPageIDs, ["compact-b"])
     }
 
+    func testProvisionalReelNavigationSynchronizesBeforeViewCallback() {
+        let pages = (0..<30).map { index in
+            FramePage(
+                id: "provisional-\(index)",
+                kind: .singleFit,
+                placements: [
+                    FrameLayoutPlacement(
+                        id: "provisional-placement-\(index)",
+                        photoID: "photo-\(index)",
+                        screenFrame: .unit,
+                        sourceCrop: .unit,
+                        contentMode: .fit
+                    ),
+                ]
+            )
+        }
+        let signature = pages.map(\.id).joined(separator: "|")
+        var manualCoordinator = FramePlaybackCoordinator(
+            session: FrameSessionController(pageCount: 0, startedAt: start)
+        )
+        manualCoordinator.synchronizePages([], signature: signature)
+        XCTAssertEqual(manualCoordinator.pageCount, 0)
+
+        manualCoordinator.next(in: pages, signature: signature, at: start)
+        XCTAssertEqual(manualCoordinator.pageCount, 30)
+        XCTAssertEqual(manualCoordinator.currentPageIndex, 1)
+        XCTAssertEqual(manualCoordinator.featuredPhotoID, "photo-1")
+
+        let reflowedPages = pages.map { page in
+            FramePage(
+                id: "reflowed-" + page.id,
+                kind: .singleFit,
+                placements: page.placements
+            )
+        }
+        manualCoordinator.synchronizePages(
+            reflowedPages,
+            signature: reflowedPages.map(\.id).joined(separator: "|")
+        )
+        XCTAssertEqual(manualCoordinator.currentPageIndex, 1)
+        XCTAssertEqual(
+            manualCoordinator.activePage(in: reflowedPages)?.placements.first?.photoID,
+            "photo-1"
+        )
+
+        manualCoordinator.previous(in: pages, signature: signature, at: start)
+        XCTAssertEqual(manualCoordinator.currentPageIndex, 0)
+
+        var timerCoordinator = FramePlaybackCoordinator(
+            session: FrameSessionController(
+                pageCount: 0,
+                interval: 5,
+                startedAt: start
+            )
+        )
+        XCTAssertTrue(
+            timerCoordinator.tick(
+                in: pages,
+                signature: signature,
+                at: start.addingTimeInterval(5)
+            )
+        )
+        XCTAssertEqual(timerCoordinator.currentPageIndex, 1)
+    }
+
     func testChangingIntervalResetsTheAdvanceDeadline() {
         var controller = FrameSessionController(
             pageCount: 3,

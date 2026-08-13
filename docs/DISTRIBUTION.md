@@ -362,6 +362,40 @@ blocker affects only a later boundary.
   representative checkpoint ordering, durable resume records, early playback
   before final synchronization, and swipe navigation on the ready home preview.
 
+### B-019 — Immediate provisional-reel playback can start with one-page state
+
+- Status: Resolved on 2026-08-13
+- First recorded: 2026-08-13
+- Evidence: on the connected iPad Pro, the owner entered Frame Mode as soon as
+  the progressive status reported 30 photos ready. The first photo displayed,
+  but swipes and the previous/next controls initially did not change it.
+  Count-only inspection found 30 unique reel selections, all 30 mapped to
+  durable records, and three sampled selected cache files contained three
+  distinct images. The process stayed live, charging, and nominal-thermal.
+  A later host sample showed that the timer had advanced to another real photo.
+- Cause: the responsive view had built 27 pages from the 30-photo provisional
+  reel, but the playback session still held a zero-page count. Its stored layout
+  signature already matched the view, so synchronization returned early without
+  repairing the inconsistent count. Immediate Next/Previous/swipe actions were
+  therefore no-ops until a later update recovered the session. A second narrow
+  race left the old stable-photo anchor live until a later SwiftUI callback,
+  allowing a simultaneous geometry reflow to restore the prior page.
+- Resolution: synchronization now validates both the page-layout signature and
+  session page count. Swipe, arrow, and timer paths reconcile the current pages
+  before advancing, and manual advance plus stable-anchor/history update occur
+  in one playback mutation. Arrow controls also expose the accessible position
+  `Photo n of m`.
+- Verification: a deterministic 30-page regression begins with a matching
+  signature and zero-page session, then proves immediate Next/Previous/timer
+  recovery and anchor preservation through reflow. The complete Simulator
+  scheme passes 132 tests with two intentional physical-only skips, zero
+  failures, and zero runtime warnings. On the connected iPad Pro, the existing
+  fixture test passed Next, Previous, swipe, pause/resume, and rotation. A new
+  physical-only test then launched the currently configured 30-photo real
+  album: Next displayed its distinct second cached photo, and a following swipe
+  displayed a page containing none of the preceding page's photos. The final
+  unsigned Release build also succeeds.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue

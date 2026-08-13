@@ -21,6 +21,7 @@ struct FramePlaybackCoordinator: Equatable {
     }
 
     var currentPageIndex: Int { session.currentPageIndex }
+    var pageCount: Int { session.pageCount }
     var isPlaying: Bool { session.isPlaying }
     var interval: TimeInterval { session.interval }
 
@@ -30,7 +31,10 @@ struct FramePlaybackCoordinator: Equatable {
     }
 
     mutating func synchronizePages(_ pages: [FramePage], signature: String) {
-        guard pageLayoutSignature != signature else { return }
+        guard pageLayoutSignature != signature
+            || session.pageCount != pages.count else {
+            return
+        }
         let oldIndex = session.currentPageIndex
         session.updatePageCount(pages.count)
         session.selectPage(
@@ -78,8 +82,41 @@ struct FramePlaybackCoordinator: Equatable {
         return session.tick(at: date)
     }
 
+    @discardableResult
+    mutating func tick(
+        in pages: [FramePage],
+        signature: String,
+        at date: Date
+    ) -> Bool {
+        synchronizePages(pages, signature: signature)
+        return tick(at: date)
+    }
+
     mutating func next(at date: Date) { session.next(at: date) }
     mutating func previous(at date: Date) { session.previous(at: date) }
+
+    @discardableResult
+    mutating func next(
+        in pages: [FramePage],
+        signature: String,
+        at date: Date
+    ) -> FramePage? {
+        synchronizePages(pages, signature: signature)
+        next(at: date)
+        return pageChangeRequiringHistory(in: pages)
+    }
+
+    @discardableResult
+    mutating func previous(
+        in pages: [FramePage],
+        signature: String,
+        at date: Date
+    ) -> FramePage? {
+        synchronizePages(pages, signature: signature)
+        previous(at: date)
+        return pageChangeRequiringHistory(in: pages)
+    }
+
     mutating func togglePlayback(at date: Date) { session.togglePlayback(at: date) }
     mutating func setInterval(_ interval: TimeInterval, at date: Date) {
         session.setInterval(interval, at: date)
