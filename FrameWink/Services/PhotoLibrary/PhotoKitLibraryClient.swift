@@ -84,7 +84,8 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         progress: @escaping (AlbumThumbnailLoadingPhase) -> Void
     ) async -> UIImage? {
         guard authorizationState().permitsReading else { return nil }
-        let cacheKey = "\(album.id)|\(max(maxPixelDimension, 1))" as NSString
+        let coverRevision = album.coverAssetIdentifiers.joined(separator: ",")
+        let cacheKey = "\(album.id)|\(coverRevision)|\(max(maxPixelDimension, 1))" as NSString
         if let cached = albumThumbnailCache.object(forKey: cacheKey) {
             return cached
         }
@@ -606,7 +607,6 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
 extension PhotoKitLibraryClient: PHPhotoLibraryChangeObserver {
     nonisolated func photoLibraryDidChange(_ changeInstance: PHChange) {
         Task { @MainActor [weak self] in
-            self?.albumThumbnailCache.removeAllObjects()
             self?.albumCoverAssetIdentifiers.removeAll()
             if let cachingManager = self?.imageManager as? PHCachingImageManager {
                 cachingManager.stopCachingImagesForAllAssets()

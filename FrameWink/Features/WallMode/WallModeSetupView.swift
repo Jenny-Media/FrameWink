@@ -419,7 +419,8 @@ struct AlbumPickerView: View {
                         title: "Photos access is unavailable",
                         detail: "Allow Photos access for FrameWink in iPad Settings, then try again."
                     )
-                } else if case .failed(let message) = controller.phase {
+                } else if case .failed(let message) = controller.albumCatalogPhase,
+                          controller.albums.isEmpty {
                     VStack(spacing: 14) {
                         emptyState(
                             icon: "exclamationmark.triangle",
@@ -432,7 +433,8 @@ struct AlbumPickerView: View {
                         .buttonStyle(.borderedProminent)
                     }
                     .accessibilityIdentifier("album-picker-error")
-                } else if controller.phase == .loadingAlbums {
+                } else if controller.albumCatalogPhase == .loading,
+                          controller.albums.isEmpty {
                     VStack(spacing: 14) {
                         ProgressView()
                         Text("Loading albums…")
@@ -473,6 +475,11 @@ struct AlbumPickerView: View {
                                             progress: progress
                                         )
                                     },
+                                    preheatThumbnails: { maxPixelDimension in
+                                        controller.preheatAlbumCovers(
+                                            maxPixelDimension: maxPixelDimension
+                                        )
+                                    },
                                     onSelect: {
                                         select(album)
                                     }
@@ -491,6 +498,13 @@ struct AlbumPickerView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         presentationMode.wrappedValue.dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    if controller.albumCatalogPhase == .loading,
+                       !controller.albums.isEmpty {
+                        ProgressView()
+                            .accessibilityLabel("Refreshing albums")
                     }
                 }
             }
@@ -531,6 +545,7 @@ private struct AlbumPickerTile: View {
         Int,
         @escaping (AlbumThumbnailLoadingPhase) -> Void
     ) async -> UIImage?
+    let preheatThumbnails: (Int) -> Void
     let onSelect: () -> Void
 
     @Environment(\.displayScale) private var displayScale
@@ -665,7 +680,10 @@ private struct AlbumPickerTile: View {
     private func updateRequestedPixelDimension(_ pointDimension: CGFloat) {
         let physicalPixels = Int(ceil(pointDimension * displayScale))
         let roundedPixels = ((max(physicalPixels, 1) + 63) / 64) * 64
-        requestedPixelDimension = min(max(roundedPixels, 256), 768)
+        let dimension = min(max(roundedPixels, 256), 768)
+        guard requestedPixelDimension != dimension else { return }
+        preheatThumbnails(dimension)
+        requestedPixelDimension = dimension
     }
 }
 

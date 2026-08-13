@@ -831,3 +831,41 @@ explicit owner approval.
   from a narrow/compact shape to a sufficiently wide or tall shape, and confirm
   the current photo remains anchored while crop/fit changes immediately and a
   compatible pair/stack appears when available.
+
+## Playback-menu, album-cache, and UI/performance audit — 2026-08-13
+
+- Frame Mode keeps Previous, Pause/Play, Next, and More visible when controls
+  are shown, but removes the app-owned top-leading close button. The More menu
+  exposes Share Photo/Share Featured Photo, per-tile choices for other photos
+  in a collage, and Exit Frame. Long-press remains available for an exact tile;
+  the parent swipe gesture is simultaneous so it does not preempt the context
+  menu.
+- Album catalog loading has independent state. Closing and reopening the picker
+  immediately shows the existing catalog and covers while a refresh proceeds,
+  rather than replacing the grid with Loading albums. Cover cache keys include
+  bounded candidate identity, PhotoKit changes no longer flush every decoded
+  cover, and the first eighteen covers are preheated again only when their
+  identity or measured tile dimension changes.
+- Two controller regressions prove cached catalog visibility during delayed
+  refresh and deduplicated measured-size preheating. UI regressions prove the
+  top corner stays free, Share and Exit are available in More, long-press still
+  exposes Share Photo, and blackout tap still reaches Exit Frame.
+- The complete iOS 27 `iPad (A16)` Simulator scheme passes 153 tests with zero
+  failures and four intentional real-PhotoKit physical skips. The iOS 27 beta
+  runner reports two private UIKit context-menu hierarchy warnings only during
+  native long-press menu presentation. The unsigned Release build, Xcode static
+  analysis, and archive guard pass; the built release contains only device
+  family 2 (iPad).
+- A symbolicated single-run ETTrace launch capture on the same Simulator spans
+  13.310 seconds, of which 13.084 seconds is idle and 0.226 seconds is active on
+  the sampled main thread. The largest named FrameWink-specific inclusive stack
+  is `SampleSlideshowView.body` construction at 0.031 seconds. No album or
+  PhotoKit work appears in first-launch stacks. System-framework symbols are
+  incomplete in the current iOS 27 beta runtime, so the trace is directional
+  Simulator evidence, not a physical-device latency claim.
+- The physical `verify-albums` harness now also requires a closed/reopened real
+  picker to restore both its catalog and one visible cover within two seconds.
+  Its connected iPad Pro run built and installed successfully, but iPadOS timed
+  out enabling XCTest automation before the test body; the script relaunched
+  the interactive acceptance harness. Manual timing and a later automation
+  retry remain under B-021.

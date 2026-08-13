@@ -361,7 +361,7 @@ struct SampleSlideshowView: View {
                     revealControls()
                 }
             }
-            .gesture(
+            .simultaneousGesture(
                 DragGesture(minimumDistance: 30)
                     .onEnded { value in
                         navigate(
@@ -489,23 +489,6 @@ struct SampleSlideshowView: View {
         slidesByID: [String: DisplaySlide]
     ) -> some View {
         VStack {
-            HStack {
-                Button {
-                    isFrameMode = false
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.headline.weight(.semibold))
-                        .foregroundColor(.white)
-                        .frame(width: 44, height: 44)
-                        .background(.black.opacity(0.55), in: Circle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Close frame")
-                .accessibilityIdentifier("frame-close-control")
-
-                Spacer()
-            }
-
             Spacer()
 
             HStack(spacing: isCompact ? 12 : 18) {
@@ -559,6 +542,13 @@ struct SampleSlideshowView: View {
                     .overlay(Color.white.opacity(0.35))
 
                 Menu {
+                    shareActions(
+                        pages: pages,
+                        slidesByID: slidesByID
+                    )
+
+                    Divider()
+
                     Menu("Display Style") {
                         ForEach(availableLayoutPreferences) { preference in
                             Button {
@@ -596,6 +586,15 @@ struct SampleSlideshowView: View {
                             )
                         }
                     }
+
+                    Divider()
+
+                    Button {
+                        isFrameMode = false
+                    } label: {
+                        Label("Exit Frame", systemImage: "xmark.circle")
+                    }
+                    .accessibilityIdentifier("frame-close-control")
                 } label: {
                     Image(systemName: "ellipsis")
                         .frame(width: 44, height: 44)
@@ -613,7 +612,43 @@ struct SampleSlideshowView: View {
             .padding(.bottom, 28)
         }
         .padding(.horizontal, 26)
-        .padding(.top, 28)
+    }
+
+    @ViewBuilder
+    private func shareActions(
+        pages: [FramePage],
+        slidesByID: [String: DisplaySlide]
+    ) -> some View {
+        let slides = activePage(in: pages)?.placements.compactMap {
+            slidesByID[$0.photoID]
+        } ?? []
+
+        if let slide = slides.first {
+            Button {
+                prepareToShare(slide)
+            } label: {
+                Label(
+                    slides.count == 1 ? "Share Photo" : "Share Featured Photo",
+                    systemImage: "square.and.arrow.up"
+                )
+            }
+            .accessibilityIdentifier("frame-share-current-photo")
+        }
+
+        if slides.count > 1 {
+            Menu("Share Another Photo") {
+                ForEach(slides.indices.dropFirst(), id: \.self) { index in
+                    let slide = slides[index]
+                    Button {
+                        prepareToShare(slide)
+                    } label: {
+                        Label("Photo \(index + 1)", systemImage: "square.and.arrow.up")
+                    }
+                    .accessibilityIdentifier("frame-share-photo-" + slide.id)
+                }
+            }
+            .accessibilityIdentifier("frame-share-photo-menu")
+        }
     }
 
     private var controlsHint: some View {

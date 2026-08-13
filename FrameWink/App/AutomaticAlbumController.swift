@@ -9,6 +9,7 @@ final class AutomaticAlbumController: ObservableObject {
 
     @Published private(set) var authorization: PhotoLibraryAuthorizationState
     @Published private(set) var albums: [PhotoLibraryAlbum] = []
+    @Published private(set) var albumCatalogPhase: AlbumCatalogLoadingPhase = .idle
     @Published private(set) var configuration: AutomaticAlbumConfiguration
     @Published private(set) var records: [CachedAlbumAsset] = []
     @Published private(set) var smartReel: SmartReel?
@@ -23,6 +24,7 @@ final class AutomaticAlbumController: ObservableObject {
     private let changeRefreshDelayNanoseconds: UInt64
     private var isEntitled = false
     private var syncTask: Task<Void, Never>?
+    private var albumCatalogTask: Task<Void, Never>?
     private var observationTask: Task<Void, Never>?
     private var debounceTask: Task<Void, Never>?
     private var generation = UUID()
@@ -30,6 +32,7 @@ final class AutomaticAlbumController: ObservableObject {
     private var isRefreshInProgress = false
     private var shouldBuildProvisionalReels = false
     private var provisionalCandidateCount = 0
+    private var preheatedAlbumCatalogKey: String?
 
     init(
         client: PhotoLibraryClient,
@@ -75,6 +78,7 @@ final class AutomaticAlbumController: ObservableObject {
 
     deinit {
         syncTask?.cancel()
+        albumCatalogTask?.cancel()
         observationTask?.cancel()
         debounceTask?.cancel()
     }
@@ -127,6 +131,9 @@ final class AutomaticAlbumController: ObservableObject {
             }
         } else {
             generation = UUID()
+            albumCatalogTask?.cancel()
+            albumCatalogTask = nil
+            albumCatalogPhase = .idle
             syncTask?.cancel()
             syncTask = nil
             isRefreshInProgress = false
@@ -159,8 +166,13 @@ final class AutomaticAlbumController: ObservableObject {
 
     func requestAccessAndLoadAlbums() {
         guard isEntitled else { return }
-        phase = .loadingAlbums
-        Task { [weak self] in
+        let hasCachedCatalog = !albums.isEmpty
+        albumCatalogPhase = .loading
+        if !hasCachedCatalog {
+            phase = .loadingAlbums
+        }
+        albumCatalogTask?.cancel()
+        albumCatalogTask = Task { [weak self] in
             guard let self = self else { return }
             var status = client.authorizationState()
             if status == .notDetermined {
@@ -170,22 +182,48 @@ final class AutomaticAlbumController: ObservableObject {
             authorization = status
             guard status.permitsReading else {
                 albums = []
+                albumCatalogPhase = .idle
+                preheatedAlbumCatalogKey = nil
                 phase = .accessDenied
                 return
             }
             do {
-                albums = try await client.albums()
-                phase = currentReadyPhase
+                let discoveredAlbums = try await client.albums()
+                try Task.checkCancellation()
+                albums = discoveredAlbums
+                albumCatalogPhase = .idle
+                if phase == .loadingAlbums {
+                    phase = currentReadyPhase
+                }
                 startObservingIfNeeded()
-                client.preheatAlbumThumbnails(
-                    albums: Array(albums.prefix(18)),
-                    maxPixelDimension: 384
-                )
+                preheatAlbumCovers(maxPixelDimension: 384)
+            } catch is CancellationError {
+                return
             } catch {
-                albums = []
-                phase = .failed(error.localizedDescription)
+                albumCatalogPhase = .failed(error.localizedDescription)
+                if albums.isEmpty {
+                    phase = .failed(error.localizedDescription)
+                } else if phase == .loadingAlbums {
+                    phase = currentReadyPhase
+                }
             }
         }
+    }
+
+    func preheatAlbumCovers(maxPixelDimension: Int) {
+        guard !albums.isEmpty else { return }
+        let dimension = min(max(maxPixelDimension, 1), 768)
+        let initialAlbums = Array(albums.prefix(18))
+        let coverRevision = initialAlbums.flatMap { album in
+            [album.id] + Array(album.coverAssetIdentifiers.prefix(1))
+        }
+        let catalogKey = ([String(dimension)] + coverRevision).joined(separator: "|")
+        guard preheatedAlbumCatalogKey != catalogKey else { return }
+        preheatedAlbumCatalogKey = catalogKey
+        client.preheatAlbumThumbnails(
+            albums: initialAlbums,
+            maxPixelDimension: dimension
+        )
     }
 
     func selectAlbum(_ album: PhotoLibraryAlbum) {
@@ -367,6 +405,8 @@ final class AutomaticAlbumController: ObservableObject {
 
     func deleteCachedAlbum() {
         generation = UUID()
+        albumCatalogTask?.cancel()
+        albumCatalogTask = nil
         syncTask?.cancel()
         syncTask = nil
         isRefreshInProgress = false
@@ -376,6 +416,8 @@ final class AutomaticAlbumController: ObservableObject {
             records = []
             smartReel = nil
             albums = []
+            albumCatalogPhase = .idle
+            preheatedAlbumCatalogKey = nil
             configuration = .defaultConfiguration
             lastSyncReport = nil
             phase = .idle

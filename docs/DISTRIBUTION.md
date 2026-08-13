@@ -414,6 +414,25 @@ blocker affects only a later boundary.
   iPadOS automation mode is stable; compare qualitative time-to-first-visible
   and scrolling behavior after installing this newer cover pipeline.
 
+### B-021 — Physical album-cache timing automation could not enter automation mode
+
+- Status: Open, non-blocking tooling issue
+- First recorded: 2026-08-13
+- Evidence: the album catalog/cache refinement built and installed on the
+  connected iPad Pro. The three-test real-PhotoKit run included a new regression
+  requiring the catalog and a visible cover to return within two seconds after
+  closing and reopening the picker. iPadOS timed out while enabling XCTest
+  automation before any test body ran, and the harness restored the interactive
+  FrameWink app successfully.
+- Impact: the cache path is covered by controller and Simulator UI tests, but
+  its two-second real-library target has not been measured automatically.
+- Does not block: the implementation, Simulator verification, Release build,
+  archive guard, or manual album-picker use.
+- Needed from owner: after the updated physical build is installed, close and
+  reopen **Choose Album** once and confirm the existing grid and visible covers
+  return immediately. Retry `scripts/physical_acceptance.sh verify-albums` when
+  iPadOS automation mode is stable.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue

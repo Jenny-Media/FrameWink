@@ -36,6 +36,12 @@ enum AlbumThumbnailLoadingPhase: Equatable {
     case cloud
 }
 
+enum AlbumCatalogLoadingPhase: Equatable {
+    case idle
+    case loading
+    case failed(String)
+}
+
 struct PhotoLibraryAsset: Identifiable, Equatable, Sendable {
     let id: String
     let pixelWidth: Int

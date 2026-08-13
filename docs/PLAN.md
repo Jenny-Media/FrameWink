@@ -485,6 +485,25 @@ deterministic at 4–7% scale and up to 2.5% pan, reaches an endpoint within the
 slide interval, and is governed by a tested policy that disables it for Reduce
 Motion, resize, pause, preview, and multi-photo scenes.
 
+Frame playback no longer places an app-owned close button in the top-leading
+window-control region. **Share Photo** (or **Share Featured Photo** for a
+multi-photo scene) and **Exit Frame** now live in the existing More menu, while
+long-press remains an exact-tile shortcut and the slideshow swipe recognizer
+coexists with context-menu recognition. The album picker preserves an already
+loaded catalog during background refresh, retains revision-keyed bounded cover
+images across PhotoKit change notifications, and retargets preheating to the
+measured tile pixel size. The complete iOS 27 `iPad (A16)` Simulator scheme
+passes 153 tests with four intentional physical-only skips and zero failures.
+The unsigned Release build, static analysis, and archive guard pass; built
+`UIDeviceFamily` remains `[2]` (iPad only). A symbolicated ETTrace launch capture
+recorded 0.226 seconds of active main-thread work, with about 0.031 seconds in
+the largest FrameWink-specific slideshow construction stack and no album or
+PhotoKit work on first launch. iOS 27 beta emitted two private UIKit context-menu
+hierarchy warnings during the long-press UI test. The new real-library
+close/reopen two-second timing regression is installed on the connected iPad
+Pro, but iPadOS timed out enabling UI automation before the tests ran; B-021
+records that non-blocking device-runner boundary.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

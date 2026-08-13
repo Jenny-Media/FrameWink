@@ -210,22 +210,22 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         app.buttons["Previous photo"].tap()
         XCTAssertTrue(firstPhoto.waitForExistence(timeout: 4))
 
-        let closeControl = app.buttons["frame-close-control"]
-        XCTAssertTrue(closeControl.waitForExistence(timeout: 2))
+        let playbackOptions = app.buttons["More playback options"]
+        XCTAssertTrue(playbackOptions.waitForExistence(timeout: 2))
         RunLoop.current.run(until: Date().addingTimeInterval(5))
-        XCTAssertTrue(closeControl.exists, "Paused playback must keep controls visible.")
+        XCTAssertTrue(playbackOptions.exists, "Paused playback must keep controls visible.")
         XCTAssertFalse(guidance.exists, "Guidance must recede while playback is paused.")
 
         app.tap()
-        XCTAssertTrue(waitForNonexistence(closeControl, timeout: 2))
+        XCTAssertTrue(waitForNonexistence(playbackOptions, timeout: 2))
         app.swipeLeft()
 
         XCTAssertTrue(secondPhoto.waitForExistence(timeout: 4))
         XCTAssertFalse(firstPhoto.exists, "One swipe must leave the original page.")
-        XCTAssertFalse(closeControl.exists, "Swipe navigation must keep playback chrome hidden.")
+        XCTAssertFalse(playbackOptions.exists, "Swipe navigation must keep playback chrome hidden.")
 
         app.tap()
-        XCTAssertTrue(closeControl.waitForExistence(timeout: 2))
+        XCTAssertTrue(playbackOptions.waitForExistence(timeout: 2))
         XCTAssertTrue(playbackControl.waitForExistence(timeout: 2))
 
         XCUIDevice.shared.orientation = .portrait
@@ -237,7 +237,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         playbackControl.tap()
         XCTAssertTrue(
-            waitForNonexistence(closeControl, timeout: 7),
+            waitForNonexistence(playbackOptions, timeout: 7),
             "Playing controls must recede automatically."
         )
     }
@@ -245,14 +245,43 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
     func testBlackoutTapRevealsEscapeControl() {
         launch(scenario: "blackout-frame")
 
-        let closeControl = app.buttons["frame-close-control"]
-        XCTAssertTrue(closeControl.waitForExistence(timeout: 8))
-        XCTAssertTrue(waitForNonexistence(closeControl, timeout: 7))
+        let playbackOptions = app.buttons["More playback options"]
+        XCTAssertTrue(playbackOptions.waitForExistence(timeout: 8))
+        XCTAssertTrue(waitForNonexistence(playbackOptions, timeout: 7))
 
         app.tap()
         XCTAssertTrue(
-            closeControl.waitForExistence(timeout: 3),
-            "A blackout tap must reveal the visible Frame Mode escape control."
+            playbackOptions.waitForExistence(timeout: 3),
+            "A blackout tap must reveal playback controls."
+        )
+        playbackOptions.tap()
+        XCTAssertTrue(
+            app.buttons["frame-close-control"].waitForExistence(timeout: 3),
+            "The playback menu must keep Exit Frame reachable during blackout."
+        )
+    }
+
+    func testPlaybackMenuOffersShareAndExitWithoutTopCornerControls() {
+        launch(scenario: "personal-reel")
+
+        let startFrame = app.buttons["Start Frame"]
+        XCTAssertTrue(startFrame.waitForExistence(timeout: 8))
+        startFrame.tap()
+
+        let playbackOptions = app.buttons["More playback options"]
+        XCTAssertTrue(playbackOptions.waitForExistence(timeout: 3))
+        XCTAssertFalse(
+            app.buttons["frame-close-control"].exists,
+            "Exit Frame must not occupy the top-leading window-control area."
+        )
+
+        playbackOptions.tap()
+        XCTAssertTrue(app.buttons["frame-close-control"].waitForExistence(timeout: 3))
+        let sharePhoto = app.buttons["Share Photo"]
+        let shareFeaturedPhoto = app.buttons["Share Featured Photo"]
+        XCTAssertTrue(
+            sharePhoto.exists || shareFeaturedPhoto.exists,
+            "The normal playback menu must expose sharing for the current scene."
         )
     }
 
@@ -302,6 +331,45 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(
             app.buttons["album-cover-ready"].firstMatch.waitForExistence(timeout: 20),
             "No real PhotoKit album cover became visible within twenty seconds."
+        )
+#endif
+    }
+
+    func testAuthorizedPhysicalPhotoLibraryReopensAlbumPickerFromCache() throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Real PhotoKit album-cover caching requires a physical iPad.")
+#else
+        app = XCUIApplication()
+        app.launchEnvironment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] = "1"
+        app.launch()
+
+        let chooseAlbum = app.buttons["album-picker-action"]
+        XCTAssertTrue(chooseAlbum.waitForExistence(timeout: 8))
+        chooseAlbum.tap()
+
+        let albumList = app.descendants(matching: .any)["album-picker-list"]
+        XCTAssertTrue(albumList.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["album-cover-ready"].firstMatch.waitForExistence(timeout: 20))
+
+        let cancel = app.buttons["Cancel"]
+        XCTAssertTrue(cancel.waitForExistence(timeout: 2))
+        cancel.tap()
+        XCTAssertTrue(chooseAlbum.waitForExistence(timeout: 3))
+
+        let reopenStartedAt = Date()
+        chooseAlbum.tap()
+        XCTAssertTrue(
+            albumList.waitForExistence(timeout: 2),
+            "The cached album catalog did not reappear within two seconds."
+        )
+        XCTAssertTrue(
+            app.buttons["album-cover-ready"].firstMatch.waitForExistence(timeout: 2),
+            "A cached visible cover did not reappear within two seconds."
+        )
+        XCTAssertLessThan(
+            Date().timeIntervalSince(reopenStartedAt),
+            2.5,
+            "Closing and reopening the picker should reuse the in-memory catalog and covers."
         )
 #endif
     }

@@ -123,6 +123,57 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertEqual(client.preheatedPixelDimension, 384)
     }
 
+    func testReopeningAlbumPickerKeepsCachedCatalogVisibleWhileRefreshing() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let cachedAlbum = PhotoLibraryAlbum(
+            id: "family",
+            title: "Family",
+            photoCount: 12,
+            coverAssetIdentifiers: ["cover-1"]
+        )
+        client.albumsValue = [cachedAlbum]
+        let controller = makeController(client: client, store: ControllerAlbumStore())
+
+        controller.setEntitled(true)
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { controller.albums == [cachedAlbum] }
+
+        client.albumsDelayNanoseconds = 200_000_000
+        controller.requestAccessAndLoadAlbums()
+
+        XCTAssertEqual(controller.albums, [cachedAlbum])
+        XCTAssertEqual(controller.albumCatalogPhase, .loading)
+        XCTAssertNotEqual(controller.phase, .loadingAlbums)
+
+        try await waitUntil { client.albumsCallCount == 2 }
+        try await waitUntil { controller.albumCatalogPhase == .idle }
+        XCTAssertEqual(controller.albums, [cachedAlbum])
+    }
+
+    func testMeasuredAlbumCoverPreheatIsDeduplicated() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        client.albumsValue = [
+            PhotoLibraryAlbum(
+                id: "family",
+                title: "Family",
+                photoCount: 12,
+                coverAssetIdentifiers: ["cover-1"]
+            )
+        ]
+        let controller = makeController(client: client, store: ControllerAlbumStore())
+
+        controller.setEntitled(true)
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { controller.albums.count == 1 }
+        XCTAssertEqual(client.preheatCallCount, 1)
+
+        controller.preheatAlbumCovers(maxPixelDimension: 512)
+        controller.preheatAlbumCovers(maxPixelDimension: 512)
+
+        XCTAssertEqual(client.preheatedPixelDimension, 512)
+        XCTAssertEqual(client.preheatCallCount, 2)
+    }
+
     func testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         client.albumsValue = [PhotoLibraryAlbum(id: "family", title: "Family", photoCount: 2)]
@@ -431,6 +482,9 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     var thumbnailRequests: [(albumIdentifier: String, maxPixelDimension: Int)] = []
     var preheatedAlbumIdentifiers: [String] = []
     var preheatedPixelDimension: Int?
+    var preheatCallCount = 0
+    var albumsCallCount = 0
+    var albumsDelayNanoseconds: UInt64 = 0
     private var changeContinuation: AsyncStream<Void>.Continuation?
 
     init(authorization: PhotoLibraryAuthorizationState) {
@@ -446,6 +500,10 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     }
 
     func albums() async throws -> [PhotoLibraryAlbum] {
+        albumsCallCount += 1
+        if albumsDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: albumsDelayNanoseconds)
+        }
         if let albumsError = albumsError { throw albumsError }
         return albumsValue
     }
@@ -462,6 +520,7 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
         albums: [PhotoLibraryAlbum],
         maxPixelDimension: Int
     ) {
+        preheatCallCount += 1
         preheatedAlbumIdentifiers = albums.map(\.id)
         preheatedPixelDimension = maxPixelDimension
     }

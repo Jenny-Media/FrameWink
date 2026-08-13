@@ -172,6 +172,7 @@ verify_albums() {
         -allowProvisioningUpdates \
         -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker \
         -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAuthorizedPhysicalPhotoLibraryLoadsAnAlbumCover \
+        -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAuthorizedPhysicalPhotoLibraryReopensAlbumPickerFromCache \
         test
     FRAMEWINK_VERIFY_ALBUMS_STATUS=$?
     set -e
