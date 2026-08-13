@@ -269,6 +269,27 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 #endif
     }
 
+    func testAuthorizedPhysicalPhotoLibraryLoadsAnAlbumCover() throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Real PhotoKit album covers require a physical iPad.")
+#else
+        app = XCUIApplication()
+        app.launchEnvironment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] = "1"
+        app.launch()
+
+        let chooseAlbum = app.buttons["album-picker-action"]
+        XCTAssertTrue(chooseAlbum.waitForExistence(timeout: 8))
+        chooseAlbum.tap()
+
+        let albumList = app.descendants(matching: .any)["album-picker-list"]
+        XCTAssertTrue(albumList.waitForExistence(timeout: 10))
+        XCTAssertTrue(
+            app.buttons["album-cover-ready"].firstMatch.waitForExistence(timeout: 20),
+            "No real PhotoKit album cover became visible within twenty seconds."
+        )
+#endif
+    }
+
     func testConfiguredPhysicalAlbumFrameNavigatesBetweenDistinctPhotos() throws {
 #if targetEnvironment(simulator)
         throw XCTSkip("A configured real PhotoKit album requires a physical iPad.")

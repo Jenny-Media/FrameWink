@@ -114,7 +114,8 @@ date; do not silently rewrite historical decisions during implementation.
 
 - **Decision:** Keep iPad window resizing supported. FrameWink uses the current
   scene geometry to reflow the current photo into a compact single-photo page,
-  an occasional compatible wide/tall pair, or an entitled large-window Mosaic.
+  an occasional compatible wide pair or adaptive tall stack, or an entitled
+  large-window Mosaic.
   Reflow preserves a stable photo anchor, playback state, remaining interval,
   and display history. Frame Mode asks iPadOS to hide system chrome, shows its
   gesture hint only briefly, and uses restrained dissolves plus subtle
@@ -136,3 +137,20 @@ date; do not silently rewrite historical decisions during implementation.
   duplicate, and pairing decisions, while thirty makes a user wait longer than
   necessary. Ten provides a credible first frame quickly; the later stages
   preserve curation depth without withholding playback.
+
+## D-017 — Motion and tall stacks stay geometry-driven and restrained
+
+- **Decision:** Single cropped photos use a deterministic Living Photo path
+  chosen from face-safe zoom, zoom-out, and subtle pan variants. Motion reaches
+  a meaningful endpoint within the slide interval, stops for pause, Reduce
+  Motion, multi-photo pages, and interactive resize, and never adds a user
+  configuration surface. Automatic page changes dissolve; manual previous and
+  next use a small directional transition. Automatic tall layouts retain two
+  landscapes in ordinary portrait windows, use three only when the viewport is
+  tall enough, and cap exceptionally narrow/tall windows at four with at least
+  220 points of height per photo and safe-crop fallback.
+- **Reason:** The prior 2.5% centered zoom usually ended after the slide had
+  already changed and looked static. Stage Manager can also create much taller
+  aspect ratios than a full-screen iPad. Deterministic bounded motion adds life
+  without becoming a slideshow-effects panel, while adaptive stacks use those
+  unusual windows without producing unreadable postage stamps.

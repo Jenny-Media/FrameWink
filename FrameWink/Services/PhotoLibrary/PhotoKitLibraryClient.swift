@@ -9,12 +9,14 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
     private let photoLibrary: PHPhotoLibrary
     private let imageManager: PHImageManager
     private let albumThumbnailCache = NSCache<NSString, UIImage>()
+    private let albumThumbnailLimiter = AlbumThumbnailRequestLimiter(limit: 4)
+    private var albumCoverAssetIdentifiers: [String: [String]] = [:]
     private var changeContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
     private var isObservingChanges = false
 
     init(
         photoLibrary: PHPhotoLibrary = .shared(),
-        imageManager: PHImageManager = .default()
+        imageManager: PHImageManager = PHCachingImageManager()
     ) {
         self.photoLibrary = photoLibrary
         self.imageManager = imageManager
@@ -69,49 +71,133 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
             return cached
         }
 
-        let discovery = Task.detached(priority: .utility) {
-            try Self.discoverAlbumCoverAssetIdentifier(
-                albumIdentifier: albumIdentifier
-            )
-        }
-        let assetIdentifier: String?
-        do {
-            assetIdentifier = try await withTaskCancellationHandler {
-                try await discovery.value
-            } onCancel: {
-                discovery.cancel()
-            }
-        } catch {
+        let acquiredPermit = await albumThumbnailLimiter.acquire()
+        guard acquiredPermit else { return nil }
+        if Task.isCancelled {
+            await albumThumbnailLimiter.release()
             return nil
         }
-        guard let assetIdentifier,
-              let asset = PHAsset.fetchAssets(
-                withLocalIdentifiers: [assetIdentifier],
-                options: nil
-              ).firstObject else {
+        let image = await loadAlbumThumbnail(
+            albumIdentifier: albumIdentifier,
+            maxPixelDimension: maxPixelDimension
+        )
+        await albumThumbnailLimiter.release()
+        if let image {
+            let cost = image.cgImage.map { $0.bytesPerRow * $0.height } ?? 0
+            albumThumbnailCache.setObject(image, forKey: cacheKey, cost: cost)
+        }
+        return image
+    }
+
+    private func loadAlbumThumbnail(
+        albumIdentifier: String,
+        maxPixelDimension: Int
+    ) async -> UIImage? {
+        let identifiers: [String]
+        if let cachedIdentifiers = albumCoverAssetIdentifiers[albumIdentifier] {
+            identifiers = cachedIdentifiers
+        } else {
+            let discovery = Task.detached(priority: .utility) {
+                try Self.discoverAlbumCoverAssetIdentifiers(
+                    albumIdentifier: albumIdentifier
+                )
+            }
+            do {
+                identifiers = try await withTaskCancellationHandler {
+                    try await discovery.value
+                } onCancel: {
+                    discovery.cancel()
+                }
+            } catch {
+                return nil
+            }
+            albumCoverAssetIdentifiers[albumIdentifier] = identifiers
+        }
+        guard !identifiers.isEmpty else {
             return nil
         }
 
         let dimension = CGFloat(max(maxPixelDimension, 1))
-        let options = PHImageRequestOptions()
-        options.deliveryMode = .fastFormat
-        options.resizeMode = .fast
-        options.isNetworkAccessAllowed = false
+        let targetSize = CGSize(width: dimension, height: dimension)
+        let fetched = PHAsset.fetchAssets(
+            withLocalIdentifiers: identifiers,
+            options: nil
+        )
+        var assetsByIdentifier: [String: PHAsset] = [:]
+        fetched.enumerateObjects { asset, _, _ in
+            assetsByIdentifier[asset.localIdentifier] = asset
+        }
+        let assets = identifiers.compactMap { assetsByIdentifier[$0] }
+        guard !assets.isEmpty else { return nil }
+
+        let cachingManager = imageManager as? PHCachingImageManager
+        let cachingOptions = Self.thumbnailOptions(networkAccessAllowed: false)
+        if let cachingManager {
+            cachingManager.startCachingImages(
+                for: assets,
+                targetSize: targetSize,
+                contentMode: .aspectFill,
+                options: cachingOptions
+            )
+        }
+        defer {
+            cachingManager?.stopCachingImages(
+                for: assets,
+                targetSize: targetSize,
+                contentMode: .aspectFill,
+                options: cachingOptions
+            )
+        }
+
+        for asset in assets {
+            guard !Task.isCancelled else { return nil }
+            if let image = await requestThumbnail(
+                for: asset,
+                targetSize: targetSize,
+                networkAccessAllowed: false
+            ) {
+                return image
+            }
+        }
+
+        // Covers should not remain permanently blank just because the newest
+        // eligible item is managed by iCloud Photos. This request still goes
+        // only through PhotoKit; FrameWink has no network endpoint.
+        guard let preferredAsset = assets.first, !Task.isCancelled else { return nil }
+        return await requestThumbnail(
+            for: preferredAsset,
+            targetSize: targetSize,
+            networkAccessAllowed: true
+        )
+    }
+
+    private func requestThumbnail(
+        for asset: PHAsset,
+        targetSize: CGSize,
+        networkAccessAllowed: Bool
+    ) async -> UIImage? {
         let requestState = PhotoKitThumbnailRequestState()
-        let image = await withTaskCancellationHandler {
+        return await withTaskCancellationHandler {
             await withCheckedContinuation { continuation in
                 requestState.install(continuation: continuation)
                 let requestID = imageManager.requestImage(
                     for: asset,
-                    targetSize: CGSize(width: dimension, height: dimension),
+                    targetSize: targetSize,
                     contentMode: .aspectFill,
-                    options: options
+                    options: Self.thumbnailOptions(
+                        networkAccessAllowed: networkAccessAllowed
+                    )
                 ) { image, info in
                     if (info?[PHImageCancelledKey] as? Bool) == true
                         || info?[PHImageErrorKey] != nil {
                         requestState.finish(nil)
-                    } else {
+                    } else if let image {
                         requestState.finish(image)
+                    } else if networkAccessAllowed,
+                              (info?[PHImageResultIsInCloudKey] as? Bool) == true {
+                        return
+                    } else {
+                        requestState.finish(nil)
                     }
                 }
                 requestState.setRequestID(requestID, manager: imageManager)
@@ -119,11 +205,16 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         } onCancel: {
             requestState.cancel(manager: imageManager)
         }
-        if let image {
-            let cost = image.cgImage.map { $0.bytesPerRow * $0.height } ?? 0
-            albumThumbnailCache.setObject(image, forKey: cacheKey, cost: cost)
-        }
-        return image
+    }
+
+    private static func thumbnailOptions(
+        networkAccessAllowed: Bool
+    ) -> PHImageRequestOptions {
+        let options = PHImageRequestOptions()
+        options.deliveryMode = networkAccessAllowed ? .opportunistic : .fastFormat
+        options.resizeMode = .fast
+        options.isNetworkAccessAllowed = networkAccessAllowed
+        return options
     }
 
     nonisolated private static func discoverAlbums() throws -> [PhotoLibraryAlbum] {
@@ -170,14 +261,14 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         }
     }
 
-    nonisolated private static func discoverAlbumCoverAssetIdentifier(
+    nonisolated private static func discoverAlbumCoverAssetIdentifiers(
         albumIdentifier: String
-    ) throws -> String? {
+    ) throws -> [String] {
         let collections = PHAssetCollection.fetchAssetCollections(
             withLocalIdentifiers: [albumIdentifier],
             options: nil
         )
-        guard let collection = collections.firstObject else { return nil }
+        guard let collection = collections.firstObject else { return [] }
 
         let options = PHFetchOptions()
         options.predicate = NSPredicate(
@@ -188,7 +279,7 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
             NSSortDescriptor(key: "creationDate", ascending: false),
         ]
         let fetched = PHAsset.fetchAssets(in: collection, options: options)
-        var identifier: String?
+        var identifiers: [String] = []
         fetched.enumerateObjects { asset, _, stop in
             guard !Task.isCancelled else {
                 stop.pointee = true
@@ -198,11 +289,13 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
                   !asset.mediaSubtypes.contains(.photoScreenshot) else {
                 return
             }
-            identifier = asset.localIdentifier
-            stop.pointee = true
+            identifiers.append(asset.localIdentifier)
+            if identifiers.count == 6 {
+                stop.pointee = true
+            }
         }
         try Task.checkCancellation()
-        return identifier
+        return identifiers
     }
 
     func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] {
@@ -423,8 +516,57 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
 extension PhotoKitLibraryClient: PHPhotoLibraryChangeObserver {
     nonisolated func photoLibraryDidChange(_ changeInstance: PHChange) {
         Task { @MainActor [weak self] in
+            self?.albumThumbnailCache.removeAllObjects()
+            self?.albumCoverAssetIdentifiers.removeAll()
             self?.changeContinuations.values.forEach { $0.yield(()) }
         }
+    }
+}
+
+private actor AlbumThumbnailRequestLimiter {
+    private struct Waiter {
+        let id: UUID
+        let continuation: CheckedContinuation<Bool, Never>
+    }
+
+    private var availablePermits: Int
+    private var waiters: [Waiter] = []
+
+    init(limit: Int) {
+        availablePermits = max(limit, 1)
+    }
+
+    func acquire() async -> Bool {
+        if availablePermits > 0 {
+            availablePermits -= 1
+            return true
+        }
+        let waiterID = UUID()
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                waiters.append(Waiter(id: waiterID, continuation: continuation))
+                if Task.isCancelled {
+                    cancel(waiterID)
+                }
+            }
+        } onCancel: {
+            Task { await self.cancel(waiterID) }
+        }
+    }
+
+    func release() {
+        if waiters.isEmpty {
+            availablePermits += 1
+        } else {
+            waiters.removeFirst().continuation.resume(returning: true)
+        }
+    }
+
+    private func cancel(_ waiterID: UUID) {
+        guard let index = waiters.firstIndex(where: { $0.id == waiterID }) else {
+            return
+        }
+        waiters.remove(at: index).continuation.resume(returning: false)
     }
 }
 

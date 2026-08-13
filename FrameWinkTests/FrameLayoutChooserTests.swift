@@ -221,6 +221,93 @@ final class FrameLayoutChooserTests: XCTestCase {
         XCTAssertEqual(page.placements[0].screenFrame.maxY, page.placements[1].screenFrame.minY)
     }
 
+    func testVeryTallWindowStacksThreeLandscapesWithoutPostageStampCells() throws {
+        let items = (0..<3).map { index in
+            fixture(id: "landscape-\(index)", width: 1_600, height: 1_000)
+        }
+
+        let page = try XCTUnwrap(
+            chooser.pages(
+                for: items,
+                viewport: PixelSize(width: 500, height: 1_000),
+                preference: .automatic
+            ).first
+        )
+
+        XCTAssertEqual(page.kind, .stackedLandscapes)
+        XCTAssertEqual(page.placements.count, 3)
+        XCTAssertEqual(page.placements.map(\.photoID), items.map(\.id))
+        XCTAssertTrue(page.placements.allSatisfy {
+            $0.screenFrame.height >= 0.33 && $0.sourceCrop.isWithinUnitBounds
+        })
+    }
+
+    func testExtremelyTallWindowCapsLandscapeStackAtFour() throws {
+        let items = (0..<5).map { index in
+            fixture(id: "landscape-\(index)", width: 1_600, height: 1_000)
+        }
+
+        let page = try XCTUnwrap(
+            chooser.pages(
+                for: items,
+                viewport: PixelSize(width: 360, height: 1_024),
+                preference: .automatic
+            ).first
+        )
+
+        XCTAssertEqual(page.kind, .stackedLandscapes)
+        XCTAssertEqual(page.placements.count, 4)
+        XCTAssertEqual(page.placements.map(\.photoID), Array(items.prefix(4)).map(\.id))
+        XCTAssertTrue(page.placements.allSatisfy {
+            $0.screenFrame.height == 0.25 && $0.sourceCrop.isWithinUnitBounds
+        })
+    }
+
+    func testShortNarrowWindowKeepsSinglePhotoInsteadOfTinyStackCells() {
+        let items = (0..<4).map { index in
+            fixture(id: "landscape-\(index)", width: 1_600, height: 1_000)
+        }
+
+        let pages = chooser.pages(
+            for: items,
+            viewport: PixelSize(width: 360, height: 600),
+            preference: .automatic
+        )
+
+        XCTAssertTrue(pages.allSatisfy { $0.placements.count == 1 })
+    }
+
+    func testVeryTallStackFallsBackToSmallerSafeGroupForImportantContent() throws {
+        let anchored = fixture(id: "anchored", width: 1_600, height: 1_000)
+        let unsafeFourth = fixture(
+            id: "unsafe-fourth",
+            width: 1_600,
+            height: 1_000,
+            importantRects: [
+                NormalizedRect(x: 0.05, y: 0.2, width: 0.12, height: 0.2),
+                NormalizedRect(x: 0.83, y: 0.2, width: 0.12, height: 0.2),
+            ]
+        )
+        let items = [
+            anchored,
+            fixture(id: "landscape-1", width: 1_600, height: 1_000),
+            fixture(id: "landscape-2", width: 1_600, height: 1_000),
+            unsafeFourth,
+        ]
+
+        let page = try XCTUnwrap(
+            chooser.pages(
+                for: items,
+                viewport: PixelSize(width: 360, height: 1_024),
+                preference: .automatic
+            ).first
+        )
+
+        XCTAssertEqual(page.placements.count, 3)
+        XCTAssertTrue(page.placements.contains { $0.photoID == anchored.id })
+        XCTAssertTrue(page.placements.allSatisfy { $0.sourceCrop.isWithinUnitBounds })
+    }
+
     func testAutomaticFindsACompatiblePhotoWithinBoundedLookahead() throws {
         let portraitA = fixture(id: "portrait-a", width: 1_000, height: 1_500)
         let landscape = fixture(id: "landscape", width: 1_600, height: 1_000)
@@ -350,6 +437,69 @@ final class FrameLayoutChooserTests: XCTestCase {
                     NormalizedRect(x: 0.2, y: 0.3, width: 0.2, height: 0.2),
                 ],
                 maximumScale: 1.025
+            )
+        )
+    }
+
+    func testLivingPhotoMotionPlanIsDeterministicAndFaceSafe() throws {
+        let crop = NormalizedRect(x: 0.1, y: 0.12, width: 0.8, height: 0.76)
+        let placement = FrameLayoutPlacement(
+            id: "motion",
+            photoID: "photo",
+            screenFrame: .unit,
+            sourceCrop: crop,
+            contentMode: .crop
+        )
+        let importantRects = [
+            NormalizedRect(x: 0.38, y: 0.34, width: 0.18, height: 0.2),
+        ]
+
+        let first = try XCTUnwrap(
+            FramePhotoMotionPlanner.plan(
+                photoID: "stable-photo-id",
+                placement: placement,
+                importantRects: importantRects
+            )
+        )
+        let second = FramePhotoMotionPlanner.plan(
+            photoID: "stable-photo-id",
+            placement: placement,
+            importantRects: importantRects
+        )
+
+        XCTAssertEqual(first, second)
+        XCTAssertTrue(
+            FrameMotionSafety.canApply(
+                state: first.start,
+                placement: placement,
+                importantRects: importantRects
+            )
+        )
+        XCTAssertTrue(
+            FrameMotionSafety.canApply(
+                state: first.end,
+                placement: placement,
+                importantRects: importantRects
+            )
+        )
+        XCTAssertNotEqual(first.start, first.end)
+        XCTAssertGreaterThan(max(first.start.scale, first.end.scale), 1.03)
+    }
+
+    func testLivingPhotoMotionDoesNotAnimateFitPlacement() {
+        let placement = FrameLayoutPlacement(
+            id: "fit",
+            photoID: "photo",
+            screenFrame: .unit,
+            sourceCrop: .unit,
+            contentMode: .fit
+        )
+
+        XCTAssertNil(
+            FramePhotoMotionPlanner.plan(
+                photoID: "photo",
+                placement: placement,
+                importantRects: []
             )
         )
     }

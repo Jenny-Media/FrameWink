@@ -81,7 +81,8 @@ scripts/physical_acceptance.sh verify-albums
 
 The physical-only UI test taps **Choose Album** and requires the real PhotoKit
 album grid to replace the loading state within ten seconds. Simulator runs skip
-this check by design. XCTest temporarily shows iPadOS's automation indicator;
+this check by design. It also waits up to twenty seconds for at least one real
+cover to replace its loading placeholder. XCTest temporarily shows iPadOS's automation indicator;
 the command always relaunches the interactive FrameWink harness afterward,
 whether the test passes or fails.
 6. With an iCloud-only item in the album, confirm Apple Photos can fetch it and

@@ -347,7 +347,7 @@ final class AutomaticAlbumController: ObservableObject {
 
     func thumbnail(
         for album: PhotoLibraryAlbum,
-        maxPixelDimension: Int = 512
+        maxPixelDimension: Int = 384
     ) async -> UIImage? {
         await client.albumThumbnail(
             albumIdentifier: album.id,

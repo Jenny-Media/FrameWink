@@ -9,12 +9,12 @@ time rather than unattended calendar time.
 |---|---:|---:|---|
 | 0. Contract and scaffold | 2 h | 1.5 h | Complete |
 | 1. Zero-permission preview | 5 h | 4.25 h | In progress — physical offline check pending |
-| 2. Frame engine | 6 h | 3 h | Complete |
+| 2. Frame engine | 6 h | 4 h | Complete |
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 10.5 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **32.5 h** | **In progress** |
+| 6. Hardening and release | 8 h | 10.75 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **33.75 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -437,6 +437,29 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   on the connected iPad Pro and iPad mini 6. Human Stage Manager resize
   observation remains a required real-device check because XCTest cannot drag
   the window resize handle.
+
+Album covers now use a bounded four-request PhotoKit queue, request 384-pixel
+tiles through `PHCachingImageManager`, try up to six recent eligible local
+assets before allowing Apple Photos to fetch the preferred iCloud-backed cover,
+and invalidate both cover identity and image caches on library changes. Tiles
+show distinct loading and unavailable states. The real-cover UI regression is
+installed on both connected iPads but iPadOS timed out enabling XCTest
+automation before the test body ran; B-020 records the remaining manual or
+unlocked-device confirmation.
+
+Single-photo playback now uses deterministic 3.5–7% zoom, zoom-out, and up to
+1.8% pan plans that must preserve detected important regions. The movement
+reaches its first endpoint within the active slide interval, pauses with
+playback/resizing, and remains disabled for Reduce Motion and multi-photo
+pages. Manual navigation adds a restrained 32-point directional dissolve.
+Automatic tall layouts remain two-up in ordinary portrait windows, expand to
+three around a 1:2 viewport, cap at four for exceptional tall/narrow geometry,
+retain a 220-point minimum cell height, and retry smaller face-safe groups.
+The complete Simulator scheme passes 145 tests with three intentional
+physical-only skips, zero failures, zero expected failures, and zero runtime
+warnings. A clean unsigned Release build and the archive-mode Xcode Cloud guard
+pass. The signed Debug build is installed and launched on the connected iPad
+Pro and iPad mini 6 without clearing their app data.
 
 ## Timebox rule
 

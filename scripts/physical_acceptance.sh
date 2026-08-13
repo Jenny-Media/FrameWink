@@ -171,6 +171,7 @@ verify_albums() {
         -derivedDataPath "$FRAMEWINK_DERIVED_DATA" \
         -allowProvisioningUpdates \
         -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker \
+        -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAuthorizedPhysicalPhotoLibraryLoadsAnAlbumCover \
         test
     FRAMEWINK_VERIFY_ALBUMS_STATUS=$?
     set -e

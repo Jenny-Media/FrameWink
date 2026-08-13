@@ -527,6 +527,7 @@ private struct AlbumPickerTile: View {
     let onSelect: () -> Void
 
     @State private var thumbnail: UIImage?
+    @State private var isLoadingThumbnail = true
 
     var body: some View {
         Button(action: onSelect) {
@@ -566,12 +567,16 @@ private struct AlbumPickerTile: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(albumCoverAccessibilityIdentifier)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint("Select this album for your frame")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .task(id: album.id) {
+            thumbnail = nil
+            isLoadingThumbnail = true
             thumbnail = await loadThumbnail()
+            isLoadingThumbnail = false
         }
     }
 
@@ -584,9 +589,15 @@ private struct AlbumPickerTile: View {
         } else {
             ZStack {
                 Color(UIColor.secondarySystemBackground)
-                Image(systemName: "photo.on.rectangle.angled")
-                    .font(.system(size: 38, weight: .light))
-                    .foregroundColor(.secondary)
+                if isLoadingThumbnail {
+                    ProgressView()
+                        .accessibilityLabel("Loading album cover")
+                } else {
+                    Image(systemName: "photo.on.rectangle.angled")
+                        .font(.system(size: 38, weight: .light))
+                        .foregroundColor(.secondary)
+                        .accessibilityLabel("Album cover unavailable")
+                }
             }
         }
     }
@@ -599,5 +610,10 @@ private struct AlbumPickerTile: View {
     private var accessibilityLabel: Text {
         let selectedDescription = isSelected ? ", selected" : ""
         return Text("\(album.title), \(albumCountDescription)\(selectedDescription)")
+    }
+
+    private var albumCoverAccessibilityIdentifier: String {
+        if thumbnail != nil { return "album-cover-ready" }
+        return isLoadingThumbnail ? "album-cover-loading" : "album-cover-unavailable"
     }
 }

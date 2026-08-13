@@ -135,27 +135,131 @@ enum FrameMotionSafety {
         importantRects: [NormalizedRect],
         maximumScale: Double
     ) -> Bool {
-        guard placement.contentMode == .crop, maximumScale >= 1 else { return false }
+        canApply(
+            state: FramePhotoMotionState(scale: maximumScale, offsetX: 0, offsetY: 0),
+            placement: placement,
+            importantRects: importantRects
+        )
+    }
+
+    static func canApply(
+        state: FramePhotoMotionState,
+        placement: FrameLayoutPlacement,
+        importantRects: [NormalizedRect]
+    ) -> Bool {
+        guard placement.contentMode == .crop, state.scale >= 1 else { return false }
+        let maximumOffset = (state.scale - 1) / 2
+        let tolerance = 0.000_001
+        guard abs(state.offsetX) <= maximumOffset + tolerance,
+              abs(state.offsetY) <= maximumOffset + tolerance else {
+            return false
+        }
         let protectedRects = importantRects
             .map { $0.clampedToUnitBounds() }
             .filter { $0.width > 0 && $0.height > 0 }
         guard !protectedRects.isEmpty else { return true }
 
         let crop = placement.sourceCrop
-        let visibleWidth = crop.width / maximumScale
-        let visibleHeight = crop.height / maximumScale
+        let visibleWidth = crop.width / state.scale
+        let visibleHeight = crop.height / state.scale
         let visibleCrop = NormalizedRect(
-            x: crop.x + (crop.width - visibleWidth) / 2,
-            y: crop.y + (crop.height - visibleHeight) / 2,
+            x: crop.midX - visibleWidth / 2
+                - state.offsetX * crop.width / state.scale,
+            y: crop.midY - visibleHeight / 2
+                - state.offsetY * crop.height / state.scale,
             width: visibleWidth,
             height: visibleHeight
         )
-        let tolerance = 0.000_001
         return protectedRects.allSatisfy { rect in
             rect.minX >= visibleCrop.minX - tolerance
                 && rect.maxX <= visibleCrop.maxX + tolerance
                 && rect.minY >= visibleCrop.minY - tolerance
                 && rect.maxY <= visibleCrop.maxY + tolerance
+        }
+    }
+}
+
+struct FramePhotoMotionState: Equatable {
+    let scale: Double
+    let offsetX: Double
+    let offsetY: Double
+}
+
+struct FramePhotoMotionPlan: Equatable {
+    let start: FramePhotoMotionState
+    let end: FramePhotoMotionState
+}
+
+enum FramePhotoMotionPlanner {
+    static func plan(
+        photoID: String,
+        placement: FrameLayoutPlacement,
+        importantRects: [NormalizedRect],
+        preferredMaximumScale: Double = 1.07
+    ) -> FramePhotoMotionPlan? {
+        guard placement.contentMode == .crop else { return nil }
+
+        let scaleCandidates = [
+            min(max(preferredMaximumScale, 1.035), 1.08),
+            1.05,
+            1.035,
+        ]
+        let seed = stableHash(photoID)
+
+        for scale in scaleCandidates {
+            let plans = candidatePlans(scale: scale)
+            let startIndex = Int(seed % UInt64(plans.count))
+            for offset in plans.indices {
+                let candidate = plans[(startIndex + offset) % plans.count]
+                if FrameMotionSafety.canApply(
+                    state: candidate.start,
+                    placement: placement,
+                    importantRects: importantRects
+                ), FrameMotionSafety.canApply(
+                    state: candidate.end,
+                    placement: placement,
+                    importantRects: importantRects
+                ) {
+                    return candidate
+                }
+            }
+        }
+        return nil
+    }
+
+    private static func candidatePlans(scale: Double) -> [FramePhotoMotionPlan] {
+        let centered = FramePhotoMotionState(scale: 1, offsetX: 0, offsetY: 0)
+        let zoomed = FramePhotoMotionState(scale: scale, offsetX: 0, offsetY: 0)
+        let pan = min(0.018, (scale - 1) * 0.36)
+        let left = FramePhotoMotionState(scale: scale, offsetX: -pan, offsetY: 0)
+        let right = FramePhotoMotionState(scale: scale, offsetX: pan, offsetY: 0)
+        let up = FramePhotoMotionState(scale: scale, offsetX: 0, offsetY: -pan)
+        let down = FramePhotoMotionState(scale: scale, offsetX: 0, offsetY: pan)
+        let upperLeft = FramePhotoMotionState(
+            scale: scale,
+            offsetX: -pan * 0.75,
+            offsetY: -pan * 0.75
+        )
+        let lowerRight = FramePhotoMotionState(
+            scale: scale,
+            offsetX: pan * 0.75,
+            offsetY: pan * 0.75
+        )
+        return [
+            FramePhotoMotionPlan(start: centered, end: zoomed),
+            FramePhotoMotionPlan(start: zoomed, end: centered),
+            FramePhotoMotionPlan(start: left, end: right),
+            FramePhotoMotionPlan(start: right, end: left),
+            FramePhotoMotionPlan(start: up, end: down),
+            FramePhotoMotionPlan(start: down, end: up),
+            FramePhotoMotionPlan(start: upperLeft, end: lowerRight),
+            FramePhotoMotionPlan(start: lowerRight, end: upperLeft),
+        ]
+    }
+
+    private static func stableHash(_ value: String) -> UInt64 {
+        value.utf8.reduce(UInt64(14_695_981_039_346_656_037)) { hash, byte in
+            (hash ^ UInt64(byte)) &* 1_099_511_628_211
         }
     }
 }

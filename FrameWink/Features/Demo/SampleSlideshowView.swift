@@ -24,6 +24,7 @@ struct SampleSlideshowView: View {
     @State private var hintVisible = false
     @State private var hideControlsTask: Task<Void, Never>?
     @State private var hideHintTask: Task<Void, Never>?
+    @State private var pageTransitionDirection: FramePageTransitionDirection = .dissolve
     @StateObject private var imageCache = DisplayImageCache()
 
     private let layoutChooser = FrameLayoutChooser()
@@ -54,7 +55,7 @@ struct SampleSlideshowView: View {
                         .transition(
                             reduceMotion || playback.isInteractingWithResize
                                 ? .identity
-                                : .opacity
+                                : pageTransitionDirection.transition
                         )
 
                     if !isFrameMode,
@@ -142,6 +143,7 @@ struct SampleSlideshowView: View {
                 let displayedPage = updatedPlayback.pageChangeRequiringHistory(
                     in: pages
                 )
+                pageTransitionDirection = .dissolve
                 if reduceMotion {
                     playback = updatedPlayback
                 } else {
@@ -219,14 +221,9 @@ struct SampleSlideshowView: View {
                             motionEnabled: isFrameMode
                                 && playback.isPlaying
                                 && page.placements.count == 1
-                                && FrameMotionSafety.canZoom(
-                                    placement: placement,
-                                    importantRects: slide.importantRects,
-                                    maximumScale: 1.025
-                                )
                                 && !reduceMotion
                                 && !playback.isInteractingWithResize,
-                            motionDuration: max(playback.interval * 1.6, 11)
+                            motionDuration: max(playback.interval * 0.92, 4.5)
                         )
                         .frame(
                             width: proxy.size.width * CGFloat(placement.screenFrame.width),
@@ -559,7 +556,10 @@ struct SampleSlideshowView: View {
         signature: String,
         slidesByID: [String: DisplaySlide]
     ) {
-        performPageChange(slidesByID: slidesByID) { updatedPlayback in
+        performPageChange(
+            direction: .forward,
+            slidesByID: slidesByID
+        ) { updatedPlayback in
             updatedPlayback.next(in: pages, signature: signature, at: Date())
         }
     }
@@ -569,17 +569,22 @@ struct SampleSlideshowView: View {
         signature: String,
         slidesByID: [String: DisplaySlide]
     ) {
-        performPageChange(slidesByID: slidesByID) { updatedPlayback in
+        performPageChange(
+            direction: .backward,
+            slidesByID: slidesByID
+        ) { updatedPlayback in
             updatedPlayback.previous(in: pages, signature: signature, at: Date())
         }
     }
 
     private func performPageChange(
+        direction: FramePageTransitionDirection,
         slidesByID: [String: DisplaySlide],
         _ change: (inout FramePlaybackCoordinator) -> FramePage?
     ) {
         var updatedPlayback = playback
         let displayedPage = change(&updatedPlayback)
+        pageTransitionDirection = direction
         if reduceMotion {
             playback = updatedPlayback
         } else {
@@ -681,6 +686,62 @@ struct SampleSlideshowView: View {
     }
 }
 
+private enum FramePageTransitionDirection {
+    case dissolve
+    case forward
+    case backward
+
+    var transition: AnyTransition {
+        switch self {
+        case .dissolve:
+            return .opacity
+        case .forward:
+            return directional(insertionOffset: 32, removalOffset: -32)
+        case .backward:
+            return directional(insertionOffset: -32, removalOffset: 32)
+        }
+    }
+
+    private func directional(
+        insertionOffset: CGFloat,
+        removalOffset: CGFloat
+    ) -> AnyTransition {
+        .asymmetric(
+            insertion: .modifier(
+                active: FramePageTransitionModifier(
+                    opacity: 0,
+                    horizontalOffset: insertionOffset
+                ),
+                identity: FramePageTransitionModifier(
+                    opacity: 1,
+                    horizontalOffset: 0
+                )
+            ),
+            removal: .modifier(
+                active: FramePageTransitionModifier(
+                    opacity: 0,
+                    horizontalOffset: removalOffset
+                ),
+                identity: FramePageTransitionModifier(
+                    opacity: 1,
+                    horizontalOffset: 0
+                )
+            )
+        )
+    }
+}
+
+private struct FramePageTransitionModifier: ViewModifier {
+    let opacity: Double
+    let horizontalOffset: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(opacity)
+            .offset(x: horizontalOffset)
+    }
+}
+
 private extension DisplaySlide {
     var imageCacheKey: String {
         switch source {
@@ -726,7 +787,7 @@ private struct FramePhotoView: View {
     let motionDuration: TimeInterval
 
     @State private var image: UIImage?
-    @State private var motionExpanded = false
+    @State private var motionAtEnd = false
     @State private var motionTask: Task<Void, Never>?
 
     init(
@@ -747,17 +808,23 @@ private struct FramePhotoView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color.black
+        GeometryReader { proxy in
+            ZStack {
+                Color.black
 
-            if let image = image ?? initialImage {
-                photo(image)
-                    .scaleEffect(motionEnabled && motionExpanded ? 1.025 : 1)
-            } else {
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .tint(.white)
-                    .accessibilityLabel("Loading photo")
+                if let image = image ?? initialImage {
+                    photo(image)
+                        .scaleEffect(CGFloat(currentMotionState.scale))
+                        .offset(
+                            x: CGFloat(currentMotionState.offsetX) * proxy.size.width,
+                            y: CGFloat(currentMotionState.offsetY) * proxy.size.height
+                        )
+                } else {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white)
+                        .accessibilityLabel("Loading photo")
+                }
             }
         }
         .clipped()
@@ -793,23 +860,57 @@ private struct FramePhotoView: View {
 
     private func updateMotion() {
         motionTask?.cancel()
-        guard motionEnabled else {
+        guard motionEnabled, motionPlan != nil else {
             withAnimation(nil) {
-                motionExpanded = false
+                motionAtEnd = false
             }
             return
         }
 
         motionTask = Task { @MainActor in
-            while !Task.isCancelled {
-                withAnimation(.easeInOut(duration: motionDuration)) {
-                    motionExpanded.toggle()
-                }
-                try? await Task.sleep(
+            withAnimation(nil) {
+                motionAtEnd = false
+            }
+            await Task.yield()
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeInOut(duration: motionDuration)) {
+                motionAtEnd = true
+            }
+            do {
+                try await Task.sleep(
                     nanoseconds: UInt64(motionDuration * 1_000_000_000)
                 )
+            } catch {
+                return
+            }
+            while !Task.isCancelled {
+                withAnimation(.easeInOut(duration: motionDuration)) {
+                    motionAtEnd.toggle()
+                }
+                do {
+                    try await Task.sleep(
+                    nanoseconds: UInt64(motionDuration * 1_000_000_000)
+                    )
+                } catch {
+                    return
+                }
             }
         }
+    }
+
+    private var motionPlan: FramePhotoMotionPlan? {
+        FramePhotoMotionPlanner.plan(
+            photoID: slide.id,
+            placement: placement,
+            importantRects: slide.importantRects
+        )
+    }
+
+    private var currentMotionState: FramePhotoMotionState {
+        guard motionEnabled, let motionPlan else {
+            return FramePhotoMotionState(scale: 1, offsetX: 0, offsetY: 0)
+        }
+        return motionAtEnd ? motionPlan.end : motionPlan.start
     }
 
     private func croppedImage(_ image: UIImage) -> some View {

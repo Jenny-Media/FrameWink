@@ -75,10 +75,12 @@ preloaded gifts, family contributions, and remote administration.
 - Near-duplicate suppression.
 - Face- and saliency-aware layout.
 - Two compatible portraits paired on a landscape display.
-- Responsive compact single-photo playback and occasional wide/tall pairs.
+- Responsive compact single-photo playback, occasional wide pairs, and
+  geometry-driven two-to-four-photo tall stacks where each photo remains large.
 - Fit and Fill.
 - Adjustable interval, tap/swipe previous and next, pause, and replay.
-- Restrained dissolve and subtle single-photo motion with Reduce Motion support.
+- Restrained dissolve/directional transitions and subtle face-safe zoom/pan
+  motion with Reduce Motion support.
 - Review Suggestions and Never Show Again.
 - Delete Imported Photos.
 

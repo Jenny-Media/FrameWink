@@ -68,28 +68,18 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
                 continue
             }
 
-            if preference == .automatic, !isCompact,
+            if preference == .automatic,
+               (!isCompact || stackedPhotoCapacity(for: viewport) >= 3),
                (items.count <= 4 || result.isEmpty || result.count % 5 == 3),
-               let matchIndex = compatibleMatchIndex(
-                   for: first,
+               let page = automaticComposition(
+                   anchoredBy: first,
                    in: remaining,
                    viewport: viewport
                ) {
-                let second = remaining[matchIndex]
-                if let page = pairedPage(
-                    first: first,
-                    second: second,
-                    viewport: viewport
-                ) ?? stackedPage(
-                    first: first,
-                    second: second,
-                    viewport: viewport
-                ) {
                     result.append(page)
-                    remaining.remove(at: matchIndex)
-                    remaining.removeFirst()
+                    let composedIDs = Set(page.placements.map(\.photoID))
+                    remaining.removeAll(where: { composedIDs.contains($0.id) })
                     continue
-                }
             }
 
             result.append(
@@ -105,6 +95,38 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
         return result
     }
 
+    private func automaticComposition(
+        anchoredBy first: FrameLayoutItem,
+        in items: [FrameLayoutItem],
+        viewport: PixelSize
+    ) -> FramePage? {
+        let stackItems = compatibleStackItems(
+            anchoredBy: first,
+            in: items,
+            viewport: viewport
+        )
+        if stackItems.count >= 2 {
+            for groupSize in stride(from: stackItems.count, through: 2, by: -1) {
+                if let stack = stackedPage(
+                    items: Array(stackItems.prefix(groupSize)),
+                    viewport: viewport
+                ) {
+                    return stack
+                }
+            }
+        }
+        guard let matchIndex = compatibleMatchIndex(
+            for: first,
+            in: items,
+            viewport: viewport
+        ) else {
+            return nil
+        }
+        let second = items[matchIndex]
+        return pairedPage(first: first, second: second, viewport: viewport)
+            ?? stackedPage(items: [first, second], viewport: viewport)
+    }
+
     private func compatibleMatchIndex(
         for first: FrameLayoutItem,
         in items: [FrameLayoutItem],
@@ -116,8 +138,37 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
             let candidate = items[index]
             guard belongsToNearbyEvent(first, candidate) else { return false }
             return pairedPage(first: first, second: candidate, viewport: viewport) != nil
-                || stackedPage(first: first, second: candidate, viewport: viewport) != nil
+                || stackedPage(items: [first, candidate], viewport: viewport) != nil
         }
+    }
+
+    private func compatibleStackItems(
+        anchoredBy first: FrameLayoutItem,
+        in items: [FrameLayoutItem],
+        viewport: PixelSize
+    ) -> [FrameLayoutItem] {
+        let capacity = stackedPhotoCapacity(for: viewport)
+        guard capacity > 1,
+              first.pixelSize.aspectRatio >= 1.15 else {
+            return []
+        }
+        var matches = [first]
+        for candidate in items.dropFirst().prefix(compatibilityLookahead + 2) {
+            guard matches.count < capacity else { break }
+            guard belongsToNearbyEvent(first, candidate),
+                  candidate.pixelSize.aspectRatio >= 1.15 else {
+                continue
+            }
+            matches.append(candidate)
+        }
+        return matches.count >= 2 ? matches : []
+    }
+
+    private func stackedPhotoCapacity(for viewport: PixelSize) -> Int {
+        guard viewport.aspectRatio <= 0.85, viewport.height >= 500 else { return 1 }
+        let idealCount = Int((1.5 / viewport.aspectRatio).rounded())
+        let heightBound = max(viewport.height / 220, 1)
+        return min(max(idealCount, 2), min(heightBound, 4))
     }
 
     private func nearbyMosaicGroup(in items: [FrameLayoutItem]) -> [FrameLayoutItem]? {
@@ -262,41 +313,40 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
     }
 
     private func stackedPage(
-        first: FrameLayoutItem,
-        second: FrameLayoutItem,
+        items: [FrameLayoutItem],
         viewport: PixelSize
     ) -> FramePage? {
-        guard viewport.aspectRatio <= 0.85,
-              first.pixelSize.aspectRatio >= 1.15,
-              second.pixelSize.aspectRatio >= 1.15 else {
+        guard items.count >= 2,
+              items.count <= stackedPhotoCapacity(for: viewport),
+              items.allSatisfy({ $0.pixelSize.aspectRatio >= 1.15 }) else {
             return nil
         }
 
-        let cellAspect = Double(viewport.width) / (Double(viewport.height) / 2)
-        guard let firstCrop = safeCrop(for: first, targetAspectRatio: cellAspect),
-              let secondCrop = safeCrop(for: second, targetAspectRatio: cellAspect) else {
+        let count = Double(items.count)
+        let cellAspect = viewport.aspectRatio * count
+        let crops = items.map { safeCrop(for: $0, targetAspectRatio: cellAspect) }
+        guard crops.allSatisfy({ $0 != nil }) else {
             return nil
         }
 
         return FramePage(
-            id: "stack:\(first.id):\(second.id)",
+            id: "stack:" + items.map(\.id).joined(separator: ":"),
             kind: .stackedLandscapes,
-            placements: [
-                FrameLayoutPlacement(
-                    id: "stack-top:\(first.id)",
-                    photoID: first.id,
-                    screenFrame: NormalizedRect(x: 0, y: 0, width: 1, height: 0.5),
-                    sourceCrop: firstCrop,
+            placements: zip(items.indices, zip(items, crops)).map { index, pair in
+                let (item, crop) = pair
+                return FrameLayoutPlacement(
+                    id: "stack-\(index):\(item.id)",
+                    photoID: item.id,
+                    screenFrame: NormalizedRect(
+                        x: 0,
+                        y: Double(index) / count,
+                        width: 1,
+                        height: 1 / count
+                    ),
+                    sourceCrop: crop ?? .unit,
                     contentMode: .crop
-                ),
-                FrameLayoutPlacement(
-                    id: "stack-bottom:\(second.id)",
-                    photoID: second.id,
-                    screenFrame: NormalizedRect(x: 0, y: 0.5, width: 1, height: 0.5),
-                    sourceCrop: secondCrop,
-                    contentMode: .crop
-                ),
-            ]
+                )
+            }
         )
     }
 

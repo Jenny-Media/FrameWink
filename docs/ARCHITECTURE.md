@@ -80,6 +80,10 @@ The display view derives layout from live scene geometry. A stable photo ID is
 the playback anchor across reflow; changing page grouping must not create a
 display-history event or reset the timer. Interactive resize suspends page
 advancement and photo motion while preserving the remaining interval.
+Ordinary portrait windows stack at most two compatible landscapes. Very
+tall/narrow windows may stack three or four only when every cell remains at
+least 220 points high and each face/saliency-aware crop is safe; otherwise the
+chooser retries a smaller group or falls back to a single page.
 
 ### Display behavior
 
@@ -90,6 +94,7 @@ advancement and photo motion while preserving the remaining interval.
 - Saving and restoring app-controlled brightness behavior.
 - A visual dimming/blackout overlay.
 - Reduce Motion behavior.
+- Deterministic single-photo zoom/pan plans that preserve important regions.
 - Guided Access status messaging where public APIs permit it.
 
 It must never promise exact wake from suspension or restart.

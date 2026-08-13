@@ -716,8 +716,9 @@ explicit owner approval.
   Synchronizer tests prove checkpoint durability and representative ordering.
 - The album picker is a lazy adaptive cover grid with stable album identity,
   name/count labels, a selected-album checkmark, VoiceOver labels, placeholders,
-  cancellable local-only cover requests, and a 32 MiB/80-thumbnail cache.
-  Cover availability does not delay the album metadata or empty/error states.
+  cancellable local-first cover requests, and a 32 MiB/80-thumbnail cache.
+  Cover availability does not delay the album metadata or empty/error states;
+  the preferred cover may use Apple Photos' iCloud fetch after local fallbacks.
 - Deterministic screenshots were visually inspected on the iOS 27 `iPad (A16)`
   and `iPad mini (A17 Pro)` Simulators. Both show three clean columns with square
   covers and no clipping; the grid can adapt to narrower resized windows.
@@ -730,6 +731,40 @@ explicit owner approval.
   not delay the ten-second album-grid gate, measure time to the first playable
   ten-candidate reel, observe its live replacement near thirty candidates, and
   verify swipe/arrow playback throughout the remaining large-album preparation.
+
+## Album-cover performance, Living Photo motion, and tall stacks — 2026-08-13
+
+- Album covers now request 384-pixel square thumbnails through a
+  `PHCachingImageManager` and a four-request limiter. Each album tries up to six
+  recent non-hidden, non-screenshot assets locally before allowing Apple Photos
+  to fetch the preferred iCloud-backed cover. The 32 MiB/80-image cache remains
+  bounded and is invalidated with cached cover identifiers after library
+  changes. Loading and unavailable states are visibly distinct.
+- A new physical-only UI regression waits for the album metadata grid and then
+  requires at least one cover within twenty seconds. The signed build installed
+  and launched on both connected iPads, but XCTest timed out enabling iPadOS
+  automation mode on both before the test body ran. B-020 tracks this
+  validation boundary; the script returns the devices to interactive
+  FrameWink after an attempted run.
+- `FramePhotoMotionPlanner` deterministically chooses face-safe zoom-in,
+  zoom-out, horizontal, vertical, or diagonal pan endpoints per photo. Plans
+  use 3.5–7% scale and at most 1.8% offset, fall back to a gentler scale when
+  important content has less slack, and decline unsafe or Fit motion. Reduce
+  Motion, paused playback, multi-photo pages, and interactive resize disable
+  it. Automatic changes dissolve; manual navigation uses a 32-point
+  directional dissolve.
+- Tall automatic layout is no longer fixed at two. Geometry and a 220-point
+  minimum cell height select two for ordinary portrait windows, three at a
+  500×1000-style window, and four at an exceptional 360×1024-style window.
+  Unsafe four-up crops retry a smaller group; short 360×600 windows remain
+  single-photo. Unit tests cover all thresholds, non-overlap, anchor inclusion,
+  deterministic motion, and important-region safety.
+- The complete iOS 27 `iPad (A16)` Simulator scheme passes 145 tests with three
+  intentional physical-only skips, zero failures, zero expected failures, and
+  zero runtime warnings. The clean unsigned generic-device Release build and
+  archive-mode Xcode Cloud identity/privacy guard pass. The signed Debug build
+  is installed and launched over existing data on the iPad Pro 12.9-inch (3rd
+  generation) and iPad mini 6.
 
 ## Source integrity and live-layout audit — 2026-08-13
 
