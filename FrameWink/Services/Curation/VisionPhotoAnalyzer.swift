@@ -65,10 +65,18 @@ final class VisionFeaturePrint: PhotoFeaturePrintDistance {
         var distance: Float = 0
         do {
             try observation.computeDistance(&distance, to: other.observation)
-            return min(max(Double(distance) / 40, 0), 1)
+            return Self.normalized(rawDistance: Double(distance))
         } catch {
             return nil
         }
+    }
+
+    static func normalized(rawDistance: Double) -> Double {
+        // Vision's computed distance is already small for similar images. Scaling
+        // it by an assumed maximum made ordinary family photos fall below the
+        // curator's duplicate threshold and collapsed whole albums into one or
+        // two slides. Clamp only so the shared distance contract stays in 0...1.
+        min(max(rawDistance, 0), 1)
     }
 }
 

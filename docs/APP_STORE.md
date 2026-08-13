@@ -112,10 +112,12 @@ The production non-consumable identifier is
 `media.jenny.FrameWink.wallmode`, with Family Sharing enabled. No reviewer test
 account is required; App Review should use its StoreKit sandbox environment.
 
-The App Store Connect product is Apple ID `6800849862`. Its shipping user-facing
-localization should be `FrameWink Lifetime`; it is priced at a $9.99 U.S. base
-across all available storefronts and has
-Family Sharing permanently enabled.
+The App Store Connect product is Apple ID `6800849862`. Its saved reference and
+English (U.S.) display name are `FrameWink Lifetime`; its saved description is
+`Automatic albums, Mosaic, night schedules, and more.` It is priced at a $9.99
+U.S. base across all available storefronts and has Family Sharing permanently
+enabled. The refined promotional text and full 1.0 product-page description are
+also saved in App Store Connect.
 
 ## Screenshot plan
 

@@ -555,12 +555,13 @@ already resident on the iPad. PhotoKit returned `networkAccessRequired` for the
 other 325 items. FrameWink now classifies that response as an iCloud-only skip,
 shows the exact count plus **Allow iCloud Downloads and Refresh**, and refreshes
 immediately when Strict Offline is disabled. The same physical album now shows
-325 iCloud downloads needed rather than generic failures. Actually downloading
-those private originals remains an explicit owner action.
+325 iCloud downloads needed rather than generic failures. The same physical
+album then downloaded and committed all 326 private display copies after
+explicit owner approval.
 
 ## Content-first refinement verification — 2026-08-12
 
-- The complete iOS 27 `iPad (A16)` Simulator scheme passes 110 tests: 105 unit
+- The complete iOS 27 `iPad (A16)` Simulator scheme passes 111 tests: 106 unit
   tests and five UI tests, with zero failures, expected failures, or runtime
   warnings. The sixth UI test is the intentional physical-only PhotoKit check
   and skips on Simulator.
@@ -578,6 +579,14 @@ those private originals remains an explicit owner action.
   visible chrome is close, previous, pause/play, next, and More. Home and Frame
   Settings continue to expose source/status context before playback.
 - The signed replacement build installed on the connected iPad Pro 12.9-inch
-  (3rd generation). iPadOS denied only the foreground launch because the device
-  auto-locked, so the same 326-photo album still needs an unlocked physical
-  progress sample before B-015 can close.
+  (3rd generation). After unlock, the same 326-photo album advanced through 84,
+  138, 167, 198, and 230 prepared items without resetting, then completed with
+  the process live, charging, and nominal-thermal. This closes B-015.
+- The first completed curation exposed a separate real-device regression: only
+  two of 326 otherwise displayable photos survived duplicate suppression.
+  Private metadata confirmed all 326 records were durable, with zero hidden or
+  screenshot candidates and no hard-quality rejection. Vision feature-print
+  distances had been divided by 40, collapsing ordinary photos under the 0.12
+  duplicate cutoff. Curation revision 3 removes that scaling, and a regression
+  test covers the normalization. Reinstalling over the same data rebuilt the
+  album to 86 ready photos with **Start Frame** enabled; B-017 records the fix.

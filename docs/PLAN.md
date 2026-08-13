@@ -333,10 +333,11 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   Full selected-album synchronization acceptance remains under B-004.
 - Physical count-only diagnostics traced an apparent one-photo album reel to
   Strict Offline: one of 326 originals was local and 325 required iCloud.
-  PhotoKit's network-required result is now classified correctly, the setup UI
-  offers an explicit download-and-refresh recovery action, and toggling Strict
-  Offline refreshes immediately. The owner-authorized network download and
-  post-download curation count remain open under B-014/B-004.
+  PhotoKit's network-required result is classified correctly, the simplified
+  experience allows the owner-authorized iCloud preparation, and the same album
+  completed all 326 durable records without a refresh-loop reset. The completed
+  run exposed and then verified a separate Vision-distance fix: the album now
+  produces 86 ready photos instead of two.
 - Installed Simulator runtimes begin at iOS 27. The app compiles with an
   iPadOS 15 deployment target; the unit-test target uses iOS 17 because the
   XCTest libraries bundled with Xcode 27 no longer link cleanly at 15.0.
@@ -348,10 +349,10 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   hides captions and keeps only previous, pause/play, next, and More controls.
   The compact Frame Settings screen persists one active configuration, hides
   legacy Wall Mode/Strict Offline terminology, and keeps mounted-iPad guidance
-  collapsed. The full Simulator suite passes 105 unit tests and five runnable
+  collapsed. The full Simulator suite passes 106 unit tests and five runnable
   UI tests; one real-PhotoKit UI test skips by design. The replacement build is
-  installed on the physical iPad, but the device auto-locked before launch, so
-  B-015's iCloud-progress retest remains open.
+  installed on the physical iPad. The 326-photo iCloud-backed preparation and
+  corrected 86-photo curated result now both have physical evidence.
 
 ## Timebox rule
 

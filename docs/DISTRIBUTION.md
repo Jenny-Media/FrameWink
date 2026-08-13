@@ -293,7 +293,7 @@ blocker affects only a later boundary.
 
 ### B-015 — iCloud downloads restarted active album preparation
 
-- Status: Fix implemented and unit-tested; physical retest pending
+- Status: Resolved on 2026-08-12
 - First recorded: 2026-08-12
 - Evidence: after the approved iCloud preparation reached 13 of 326 photos, a
   later physical sample showed 0 of 0. The existing cached photo remained
@@ -305,8 +305,29 @@ blocker affects only a later boundary.
   ignores change-driven refresh requests until it is idle. A regression test
   proves a change event cannot restart active synchronization and that a later
   genuine library change still refreshes normally.
-- Remaining gate: reinstall this build on the connected iPad and confirm the
-  326-photo preparation count advances without resetting.
+- Physical resolution evidence: the corrected build prepared the same album
+  monotonically through 84, 138, 167, 198, and 230 of 326 without resetting,
+  then completed. The app stayed active with nominal thermal state while the
+  iPad charged. All 326 private display copies and records were present at the
+  commit point.
+
+### B-017 — Vision duplicate scaling collapsed a real album to two photos
+
+- Status: Resolved on 2026-08-12
+- First recorded: 2026-08-12
+- Evidence: the completed 326-photo physical run initially showed only two
+  ready photos. Inspection of FrameWink's private metadata found 326 durable
+  records, 326 distinct creation timestamps, no hidden items or screenshots,
+  and every analyzed photo above the hard displayability thresholds.
+- Cause: `VNFeaturePrintObservation.computeDistance` was divided by an assumed
+  maximum of 40. That pushed ordinary distances around 0.3–1.3 below the
+  curator's 0.12 near-duplicate cutoff and discarded almost the whole album.
+- Resolution: Vision distances are now clamped to the shared 0...1 contract
+  without rescaling, and curation revision 3 invalidates the bad cached result.
+  A unit regression covers the normalization boundary. The corrected build was
+  installed over the existing app data and reprocessed the same album to 86
+  ready photos with **Start Frame** enabled. The physical process remained live,
+  charging, and nominal-thermal.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 

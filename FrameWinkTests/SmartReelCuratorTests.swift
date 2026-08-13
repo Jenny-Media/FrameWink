@@ -61,6 +61,12 @@ final class SmartReelCuratorTests: XCTestCase {
         XCTAssertEqual(selected, [stronger.candidate.id, burstWinner.candidate.id])
     }
 
+    func testVisionDistanceNormalizationDoesNotCollapseOrdinaryPhotos() {
+        XCTAssertEqual(VisionFeaturePrint.normalized(rawDistance: -0.1), 0)
+        XCTAssertEqual(VisionFeaturePrint.normalized(rawDistance: 0.8), 0.8)
+        XCTAssertEqual(VisionFeaturePrint.normalized(rawDistance: 40), 1)
+    }
+
     func testRankingIsDeterministicForFixedInputRevisionAndIdentity() throws {
         let photos = (1...40).map { index in
             fixture(
