@@ -419,6 +419,24 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   UI testing found and repaired the matching-signature/zero-page playback race.
   The configured real album now advances to a distinct photo with Next and to
   another distinct page with a swipe immediately after entering Frame Mode.
+- The playback/source-state audit is complete. Speed and display-style edits
+  now persist the photo source that is actually on screen and no longer
+  reactivate a stale saved source. Saved-configuration source application is
+  limited to launch and explicit configuration-ID changes; entitlement
+  publication and background personal-photo curation no longer override a
+  later user source choice.
+- Automatic layout now attempts a compatible pair or stack on the anchored
+  first page of a sufficiently large non-compact window, so expanding a live
+  frame produces an immediately visible reflow when the photos support it.
+  Single-photo Fit/Fill crops continue to recompute from live geometry without
+  distortion, and compact windows remain single-photo.
+- The complete iOS 27 `iPad (A16)` Simulator scheme passes 139 tests with two
+  intentional physical-only skips, zero failures, zero expected failures, and
+  zero runtime warnings. The unsigned generic iPadOS Release build succeeds.
+  The signed audited Debug build is installed and launched over existing data
+  on the connected iPad Pro and iPad mini 6. Human Stage Manager resize
+  observation remains a required real-device check because XCTest cannot drag
+  the window resize handle.
 
 ## Timebox rule
 

@@ -479,6 +479,9 @@ struct SampleSlideshowView: View {
                                     Text(preference.title)
                                 }
                             }
+                            .accessibilityIdentifier(
+                                "frame-layout-" + preference.rawValue
+                            )
                         }
                     }
 
@@ -495,6 +498,9 @@ struct SampleSlideshowView: View {
                                     Text(intervalTitle(interval))
                                 }
                             }
+                            .accessibilityIdentifier(
+                                "frame-speed-\(Int(interval))"
+                            )
                         }
                     }
                 } label: {

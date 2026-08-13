@@ -97,7 +97,7 @@ struct RootView: View {
                         preferredLayoutPreference: activeLayoutPreference,
                         preferredInterval: activeInterval,
                         availableLayoutPreferences: availableLayoutPreferences,
-                        presentationDidChange: frameConfigurations.updateActive,
+                        presentationDidChange: saveCurrentPresentation,
                         isFrameMode: $isFrameMode,
                         wallVisualState: wallMode.visualState,
                         refreshWallSchedule: wallMode.refresh
@@ -190,7 +190,7 @@ struct RootView: View {
         .onChange(of: model.collectionMode) { mode in
             preferredPhotoMode = mode.rawValue
         }
-        .onChange(of: frameConfigurations.activeConfiguration) { _ in
+        .onChange(of: frameConfigurations.activeConfigurationID) { _ in
             applyActiveFrameConfiguration()
         }
         .onAppear {
@@ -746,6 +746,27 @@ struct RootView: View {
 
     private var activeInterval: TimeInterval {
         frameConfigurations.activeConfiguration?.interval ?? 7
+    }
+
+    private func saveCurrentPresentation(
+        layoutPreference: FrameLayoutPreference,
+        interval: TimeInterval
+    ) {
+        frameConfigurations.saveCurrent(
+            source: currentFrameSource,
+            albumIdentifier: automaticAlbum.configuration.albumIdentifier,
+            albumTitle: automaticAlbum.configuration.albumTitle,
+            layoutPreference: layoutPreference,
+            interval: interval
+        )
+    }
+
+    private var currentFrameSource: FrameConfigurationSource {
+        switch model.collectionMode {
+        case .samples: return .samples
+        case .personal: return .freeSmartReel
+        case .automaticAlbum: return .automaticAlbum
+        }
     }
 
     private func applyActiveFrameConfiguration() {

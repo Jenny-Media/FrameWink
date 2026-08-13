@@ -127,6 +127,55 @@ final class FrameLayoutChooserTests: XCTestCase {
         XCTAssertTrue(portraitPages.allSatisfy { $0.kind != .pairedPortraits })
     }
 
+    func testWideResizePairsTheAnchoredFirstPhotoInALargeCompatibleReel() throws {
+        let items = (0..<30).map { index in
+            fixture(id: "portrait-\(index)", width: 1_000, height: 1_500)
+        }
+
+        let compactPages = chooser.pages(
+            for: items,
+            viewport: PixelSize(width: 520, height: 760),
+            preference: .automatic
+        )
+        let widePages = chooser.pages(
+            for: items,
+            viewport: landscapeViewport,
+            preference: .automatic
+        )
+
+        XCTAssertEqual(compactPages.first?.placements.map(\.photoID), ["portrait-0"])
+        XCTAssertEqual(widePages.first?.kind, .pairedPortraits)
+        XCTAssertEqual(
+            try XCTUnwrap(widePages.first).placements.map(\.photoID),
+            ["portrait-0", "portrait-1"]
+        )
+    }
+
+    func testFillRecomputesTheCropForTheResizedWindow() throws {
+        let item = fixture(id: "square", width: 1_200, height: 1_200)
+
+        let wideCrop = try XCTUnwrap(
+            chooser.pages(
+                for: [item],
+                viewport: landscapeViewport,
+                preference: .fill
+            ).first?.placements.first?.sourceCrop
+        )
+        let tallCrop = try XCTUnwrap(
+            chooser.pages(
+                for: [item],
+                viewport: PixelSize(width: 700, height: 1_100),
+                preference: .fill
+            ).first?.placements.first?.sourceCrop
+        )
+
+        XCTAssertLessThan(wideCrop.height, 1)
+        XCTAssertEqual(wideCrop.width, 1, accuracy: 0.000_001)
+        XCTAssertLessThan(tallCrop.width, 1)
+        XCTAssertEqual(tallCrop.height, 1, accuracy: 0.000_001)
+        XCTAssertNotEqual(wideCrop, tallCrop)
+    }
+
     func testCompactViewportAlwaysUsesSinglePhotoPages() {
         let items = [
             fixture(id: "portrait-a", width: 1_000, height: 1_500),

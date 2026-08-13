@@ -96,6 +96,62 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.buttons["frame-close-control"].exists)
     }
 
+    func testChangingPlaybackSettingsKeepsTheSelectedPhotoSource() {
+        launch(scenario: "source-integrity")
+
+        XCTAssertTrue(
+            app.staticTexts["Bundled sample photos"].waitForExistence(timeout: 8)
+        )
+        app.buttons["More"].tap()
+        app.buttons["My Selected Photos"].tap()
+
+        let startFrame = app.buttons["Start Frame"]
+        XCTAssertTrue(startFrame.waitForExistence(timeout: 8))
+        startFrame.tap()
+
+        let personalPhotos = app.descendants(matching: .any).matching(
+            NSPredicate(
+                format: "identifier IN %@",
+                [
+                    "frame-photo-78F4585F-54C5-4360-9C36-34E2C3F82BC4",
+                    "frame-photo-5255CD65-7C11-4EEB-B7F5-85FC76A4D11B",
+                    "frame-photo-37D2AC69-E0DE-4F0C-A769-8668CBD07BE6",
+                ]
+            )
+        )
+        XCTAssertTrue(personalPhotos.firstMatch.waitForExistence(timeout: 8))
+
+        let playbackControl = app.buttons["frame-playback-control"]
+        XCTAssertTrue(playbackControl.waitForExistence(timeout: 3))
+        playbackControl.tap()
+
+        let playbackOptions = app.buttons["More playback options"]
+        XCTAssertTrue(playbackOptions.waitForExistence(timeout: 3))
+        playbackOptions.tap()
+        app.buttons["Slideshow Speed"].tap()
+        let fastSpeed = app.buttons["5 sec"].firstMatch
+        XCTAssertTrue(fastSpeed.waitForExistence(timeout: 3))
+        fastSpeed.tap()
+
+        XCTAssertTrue(personalPhotos.firstMatch.waitForExistence(timeout: 4))
+        XCTAssertFalse(
+            app.descendants(matching: .any)["frame-photo-sample-lakeside"].exists,
+            "Changing speed must not reactivate a stale saved sample source."
+        )
+
+        playbackOptions.tap()
+        app.buttons["Display Style"].tap()
+        let fitStyle = app.buttons["Fit"].firstMatch
+        XCTAssertTrue(fitStyle.waitForExistence(timeout: 3))
+        fitStyle.tap()
+
+        XCTAssertTrue(personalPhotos.firstMatch.waitForExistence(timeout: 4))
+        XCTAssertFalse(
+            app.descendants(matching: .any)["frame-photo-sample-lakeside"].exists,
+            "Changing layout must not reactivate a stale saved sample source."
+        )
+    }
+
     func testInitialPersonalImportUsesNeutralPreparationInsteadOfSamples() {
         launch(scenario: "personal-import")
 

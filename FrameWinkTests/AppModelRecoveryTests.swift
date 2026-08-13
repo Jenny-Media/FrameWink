@@ -34,6 +34,33 @@ final class AppModelRecoveryTests: XCTestCase {
         XCTAssertEqual(model.smartReel?.selections.map(\.candidateID), [photo.id])
     }
 
+    func testBackgroundCurationCompletionPreservesTheSelectedPhotoSource() async throws {
+        let photo = ImportedPhoto(
+            id: UUID(),
+            filename: "background.jpg",
+            pixelWidth: 1_200,
+            pixelHeight: 800,
+            importedAt: Date(timeIntervalSince1970: 100)
+        )
+        let builder = DelayedRecoverySmartReelBuilder(photoID: photo.id)
+        let model = AppModel(
+            importer: RecoveryPhotoImporter(photos: [photo]),
+            imageLoader: RecoveryImageLoader(),
+            smartReelBuilder: builder
+        )
+
+        model.collectionMode = .personal
+        model.refreshSmartReel()
+        model.collectionMode = .samples
+
+        try await waitUntil {
+            model.curationPhase == .ready(1)
+        }
+
+        XCTAssertEqual(model.collectionMode, .samples)
+        XCTAssertEqual(model.smartReel?.selections.map(\.candidateID), [photo.id])
+    }
+
     private func waitUntil(
         timeout: TimeInterval = 2,
         condition: @escaping @MainActor () -> Bool
@@ -136,6 +163,66 @@ private final class RecoverySmartReelBuilder: SmartReelBuilding {
     private func reel() -> SmartReel {
         SmartReel(
             id: UUID(uuidString: "06813F9A-BB15-4611-8E30-0CA11AE96854")!,
+            algorithmRevision: SmartReelCurator.algorithmRevision,
+            createdAt: Date(timeIntervalSince1970: 100),
+            selections: [
+                CuratedPhoto(
+                    candidateID: photoID,
+                    algorithmRevision: SmartReelCurator.algorithmRevision,
+                    finalScore: 0.9,
+                    reasons: [.quality]
+                ),
+            ]
+        )
+    }
+}
+
+private final class DelayedRecoverySmartReelBuilder: SmartReelBuilding {
+    let photoID: UUID
+
+    init(photoID: UUID) {
+        self.photoID = photoID
+    }
+
+    func loadSavedReel() throws -> SmartReel? { nil }
+
+    func build(
+        candidates: [PhotoCandidate],
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
+        try await Task.sleep(nanoseconds: 100_000_000)
+        await progress(
+            ImportProgress(
+                completedCount: candidates.count,
+                totalCount: candidates.count
+            )
+        )
+        return reel()
+    }
+
+    func buildUnbounded(
+        candidates: [PhotoCandidate],
+        maximumSelectionCount: Int,
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
+        try await build(
+            candidates: candidates,
+            imageProvider: imageProvider,
+            progress: progress
+        )
+    }
+
+    func exclude(candidateID: UUID, from reel: SmartReel) throws -> SmartReel {
+        reel
+    }
+
+    func resetExclusions() throws {}
+
+    private func reel() -> SmartReel {
+        SmartReel(
+            id: UUID(uuidString: "6B70938D-4CA2-43E4-BBCB-F2C69E2420C8")!,
             algorithmRevision: SmartReelCurator.algorithmRevision,
             createdAt: Date(timeIntervalSince1970: 100),
             selections: [

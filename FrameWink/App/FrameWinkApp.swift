@@ -37,7 +37,9 @@ struct FrameWinkApp: App {
         let curationStore = LocalCurationStore(directory: store.derivedDataDirectory)
         let smartReelBuilder: SmartReelBuilding
 #if DEBUG
-        if screenshotScenario == .freeReview || screenshotScenario == .personalReel {
+        if screenshotScenario == .freeReview
+            || screenshotScenario == .personalReel
+            || screenshotScenario == .sourceIntegrity {
             smartReelBuilder = DebugScreenshotSmartReelBuilder(
                 savedCandidateIDs: DebugScreenshotScenario.importedPhotoFixtureIDs
             )

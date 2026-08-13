@@ -38,6 +38,7 @@ enum DebugScreenshotScenario: String {
     case mosaicFrame = "mosaic-frame"
     case freeReview = "free-review-grid"
     case personalReel = "personal-reel"
+    case sourceIntegrity = "source-integrity"
     case personalImport = "personal-import"
     case blackoutFrame = "blackout-frame"
     case albumPicker = "album-picker"
@@ -53,7 +54,7 @@ enum DebugScreenshotScenario: String {
 
     var initialPresentation: RootInitialPresentation? {
         switch self {
-        case .sample, .personalReel, .personalImport, .albumPicker:
+        case .sample, .personalReel, .sourceIntegrity, .personalImport, .albumPicker:
             return nil
         case .smartFrame, .blackoutFrame:
             return .frameMode
@@ -81,7 +82,8 @@ enum DebugScreenshotScenario: String {
     var requiresWallModeEntitlement: Bool {
         switch self {
         case .wallModeSetup, .savedConfigurations, .wallSchedule, .wallChecklist,
-                .automaticAlbumReview, .mosaicFrame, .blackoutFrame, .albumPicker:
+                .automaticAlbumReview, .mosaicFrame, .blackoutFrame, .albumPicker,
+                .sourceIntegrity:
             return true
         default:
             return false
@@ -102,9 +104,9 @@ extension DebugScreenshotScenario {
         albumStore: AlbumSourceStoring,
         frameConfigurationStore: FrameConfigurationStoring
     ) {
-        if self == .freeReview || self == .personalReel {
+        if self == .freeReview || self == .personalReel || self == .sourceIntegrity {
             seedFreeReview(importedStore: importedStore)
-            if self == .personalReel {
+            if self == .personalReel || self == .sourceIntegrity {
                 let configurationID = UUID(
                     uuidString: "B6E10F2B-9C8F-4AE6-B697-ED5AF43F5F11"
                 )!
@@ -114,7 +116,7 @@ extension DebugScreenshotScenario {
                             SavedFrameConfiguration(
                                 id: configurationID,
                                 name: "Personal Reel",
-                                source: .freeSmartReel,
+                                source: self == .sourceIntegrity ? .samples : .freeSmartReel,
                                 albumIdentifier: nil,
                                 albumTitle: nil,
                                 layoutPreference: .automatic,

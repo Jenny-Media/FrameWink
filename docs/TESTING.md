@@ -730,3 +730,36 @@ explicit owner approval.
   not delay the ten-second album-grid gate, measure time to the first playable
   ten-candidate reel, observe its live replacement near thirty candidates, and
   verify swipe/arrow playback throughout the remaining large-album preparation.
+
+## Source integrity and live-layout audit — 2026-08-13
+
+- A reported speed-change regression was traced to `RootView` observing the
+  complete active saved configuration. Updating only its interval published a
+  new value, and the view incorrectly reapplied that configuration's stale
+  photo source. The observer now reacts only to configuration-ID activation,
+  while playback presentation edits save the source currently on screen.
+- The same audit found two related asynchronous overrides. Making a purchased
+  configuration visible during entitlement restoration could apply its source,
+  and finishing background personal-photo curation always selected My Photos.
+  Both side effects are removed; readiness updates data while explicit user
+  actions retain ownership of source selection.
+- An XCUI regression starts on a deliberately stale saved Samples
+  configuration, switches to My Selected Photos, pauses playback, changes
+  speed to five seconds and style to Fit, and proves a personal photo remains
+  visible with no bundled sample appearing after either edit.
+- Automatic composition previously left the first page single in reels larger
+  than four, making a live resize appear unresponsive even though crop geometry
+  was recalculated. The anchored first page now pairs compatible portraits in
+  a wide window or stacks compatible landscapes in a tall window. The reel
+  remains mostly single-photo, compact windows remain single-photo, and
+  face-safe crop fallback is unchanged.
+- Focused state/configuration/layout tests pass 22 of 22. The complete iOS 27
+  `iPad (A16)` Simulator scheme passes 139 tests with two intentional
+  physical-only PhotoKit skips, zero failures, zero expected failures, and zero
+  runtime warnings. The unsigned generic iPadOS Release build succeeds.
+- The signed audited Debug app is installed and launched on the connected iPad
+  Pro and iPad mini 6 without deleting their existing FrameWink data. Remaining
+  human check: enter Frame Mode with a real album, drag the Stage Manager window
+  from a narrow/compact shape to a sufficiently wide or tall shape, and confirm
+  the current photo remains anchored while crop/fit changes immediately and a
+  compatible pair/stack appears when available.

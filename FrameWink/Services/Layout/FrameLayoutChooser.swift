@@ -69,7 +69,7 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
             }
 
             if preference == .automatic, !isCompact,
-               (items.count <= 4 || result.count % 5 == 1),
+               (items.count <= 4 || result.isEmpty || result.count % 5 == 3),
                let matchIndex = compatibleMatchIndex(
                    for: first,
                    in: remaining,

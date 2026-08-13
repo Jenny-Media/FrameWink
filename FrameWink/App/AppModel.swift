@@ -200,7 +200,6 @@ final class AppModel: ObservableObject {
                 try Task.checkCancellation()
                 guard curationGeneration == generation else { return }
                 smartReel = reel
-                collectionMode = .personal
                 curationPhase = .ready(reel.selections.count)
             } catch is CancellationError {
                 guard curationGeneration == generation else { return }
