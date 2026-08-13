@@ -91,6 +91,18 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertEqual(controller.phase, .idle)
     }
 
+    func testAlbumThumbnailUsesTheRequestedAlbumAndBound() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let controller = makeController(client: client, store: ControllerAlbumStore())
+        let album = PhotoLibraryAlbum(id: "family", title: "Family", photoCount: 12)
+
+        _ = await controller.thumbnail(for: album, maxPixelDimension: 384)
+
+        XCTAssertEqual(client.thumbnailRequests.count, 1)
+        XCTAssertEqual(client.thumbnailRequests.first?.albumIdentifier, "family")
+        XCTAssertEqual(client.thumbnailRequests.first?.maxPixelDimension, 384)
+    }
+
     func testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         client.albumsValue = [PhotoLibraryAlbum(id: "family", title: "Family", photoCount: 2)]
@@ -188,8 +200,34 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         try await waitUntil { controller.canDisplay }
 
         XCTAssertTrue(synchronizer.isSynchronizing)
-        XCTAssertEqual(controller.smartReel?.selections.count, 12)
-        XCTAssertEqual(controller.slides.count, 12)
+        XCTAssertEqual(controller.smartReel?.selections.count, 10)
+        XCTAssertEqual(controller.slides.count, 10)
+
+        try await waitUntil(timeout: 1) { !synchronizer.isSynchronizing }
+        XCTAssertTrue(controller.canDisplay)
+    }
+
+    func testThirtyPhotoCheckpointRefinesPlayableReelBeforeFullSyncFinishes() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        let synchronizer = ControllerAlbumSynchronizer()
+        synchronizer.checkpointRecordCounts = [10, 30]
+        synchronizer.delayNanoseconds = 500_000_000
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: ControllerSmartReelBuilder(),
+            changeRefreshDelayNanoseconds: 1
+        )
+
+        controller.setEntitled(true)
+        try await waitUntil { controller.smartReel?.selections.count == 30 }
+
+        XCTAssertTrue(synchronizer.isSynchronizing)
+        XCTAssertEqual(controller.slides.count, 30)
 
         try await waitUntil(timeout: 1) { !synchronizer.isSynchronizing }
         XCTAssertTrue(controller.canDisplay)
@@ -370,6 +408,7 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     var authorizationRequestCount = 0
     var albumsValue: [PhotoLibraryAlbum] = []
     var albumsError: Error?
+    var thumbnailRequests: [(albumIdentifier: String, maxPixelDimension: Int)] = []
     private var changeContinuation: AsyncStream<Void>.Continuation?
 
     init(authorization: PhotoLibraryAuthorizationState) {
@@ -387,6 +426,14 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     func albums() async throws -> [PhotoLibraryAlbum] {
         if let albumsError = albumsError { throw albumsError }
         return albumsValue
+    }
+
+    func albumThumbnail(
+        albumIdentifier: String,
+        maxPixelDimension: Int
+    ) async -> UIImage? {
+        thumbnailRequests.append((albumIdentifier, maxPixelDimension))
+        return UIImage()
     }
     func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] { [] }
 
@@ -461,6 +508,7 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
     var lastStrictOffline: Bool?
     var delayNanoseconds: UInt64 = 0
     var emitsCheckpoint = false
+    var checkpointRecordCounts: [Int] = []
     var isSynchronizing = false
 
     func synchronize(
@@ -474,7 +522,10 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
         syncCount += 1
         lastAlbumIdentifier = albumIdentifier
         lastStrictOffline = strictOffline
-        let recordCount = emitsCheckpoint ? 12 : 2
+        let requestedCheckpointCounts = checkpointRecordCounts.isEmpty
+            ? (emitsCheckpoint ? [10] : [])
+            : checkpointRecordCounts
+        let recordCount = max(requestedCheckpointCounts.max() ?? 0, 2)
         await progress(ImportProgress(completedCount: 0, totalCount: recordCount))
         let records = (0..<recordCount).map { index in
             let suffix = String(format: "%012d", index + 1)
@@ -491,13 +542,13 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
                 )
             )
         }
-        if emitsCheckpoint {
+        for checkpointRecordCount in requestedCheckpointCounts {
             await checkpoint(
                 AlbumSyncCheckpoint(
-                    records: records,
-                    preparedRecords: records,
+                    records: Array(records.prefix(checkpointRecordCount)),
+                    preparedRecords: Array(records.prefix(checkpointRecordCount)),
                     progress: ImportProgress(
-                        completedCount: recordCount,
+                        completedCount: checkpointRecordCount,
                         totalCount: recordCount
                     )
                 )

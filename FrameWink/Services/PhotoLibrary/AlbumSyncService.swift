@@ -36,6 +36,7 @@ final class AlbumSyncService: AlbumSynchronizing {
     private let downsampler: ImageDownsampling
     private let now: () -> Date
     private let makeID: () -> UUID
+    private let initialCheckpointCount: Int
     private let checkpointInterval: Int
 
     init(
@@ -44,6 +45,7 @@ final class AlbumSyncService: AlbumSynchronizing {
         downsampler: ImageDownsampling,
         now: @escaping () -> Date = Date.init,
         makeID: @escaping () -> UUID = UUID.init,
+        initialCheckpointCount: Int = 10,
         checkpointInterval: Int = 30
     ) {
         self.client = client
@@ -51,6 +53,7 @@ final class AlbumSyncService: AlbumSynchronizing {
         self.downsampler = downsampler
         self.now = now
         self.makeID = makeID
+        self.initialCheckpointCount = max(initialCheckpointCount, 1)
         self.checkpointInterval = max(checkpointInterval, 1)
     }
 
@@ -64,7 +67,7 @@ final class AlbumSyncService: AlbumSynchronizing {
         let assets = allAssets.filter { !$0.isHidden && !$0.isScreenshot }
         let processingOrder = Self.prioritizedAssets(
             assets,
-            initialCount: checkpointInterval
+            initialCount: initialCheckpointCount
         )
         var existingByAsset = Dictionary(
             uniqueKeysWithValues: try store.loadRecords().map {
@@ -85,6 +88,10 @@ final class AlbumSyncService: AlbumSynchronizing {
         var failures: [String] = []
         var newlyCommittedFilenames: [String] = []
         var filenamesPendingRemoval = stale.map(\.photo.filename)
+        let provisionalCheckpointCounts = Array(
+            Set([initialCheckpointCount, checkpointInterval])
+        ).sorted()
+        var nextProvisionalCheckpointIndex = 0
         await progress(ImportProgress(completedCount: 0, totalCount: assets.count))
 
         do {
@@ -180,8 +187,28 @@ final class AlbumSyncService: AlbumSynchronizing {
                 )
 
                 let completedCount = index + 1
-                if completedCount.isMultiple(of: checkpointInterval),
+                let hasPendingProvisionalCheckpoint = nextProvisionalCheckpointIndex
+                    < provisionalCheckpointCounts.count
+                let isRecurringCheckpoint = completedCount.isMultiple(
+                    of: checkpointInterval
+                )
+                if (hasPendingProvisionalCheckpoint || isRecurringCheckpoint),
                    completedCount < processingOrder.count {
+                    let preparedRecords = processingOrder
+                        .prefix(completedCount)
+                        .compactMap { existingByAsset[$0.id] }
+                    let reachedProvisionalCheckpoint = hasPendingProvisionalCheckpoint
+                        && preparedRecords.count
+                            >= provisionalCheckpointCounts[nextProvisionalCheckpointIndex]
+                    guard reachedProvisionalCheckpoint || isRecurringCheckpoint else {
+                        continue
+                    }
+                    while nextProvisionalCheckpointIndex
+                        < provisionalCheckpointCounts.count,
+                        preparedRecords.count
+                            >= provisionalCheckpointCounts[nextProvisionalCheckpointIndex] {
+                        nextProvisionalCheckpointIndex += 1
+                    }
                     let checkpointRecords = Self.orderedRecords(existingByAsset)
                     try store.replaceRecords(
                         checkpointRecords,
@@ -192,9 +219,7 @@ final class AlbumSyncService: AlbumSynchronizing {
                     await checkpoint(
                         AlbumSyncCheckpoint(
                             records: checkpointRecords,
-                            preparedRecords: processingOrder
-                                .prefix(completedCount)
-                                .compactMap { existingByAsset[$0.id] },
+                            preparedRecords: preparedRecords,
                             progress: ImportProgress(
                                 completedCount: completedCount,
                                 totalCount: assets.count

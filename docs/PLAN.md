@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 9.75 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **31.75 h** | **In progress** |
+| 6. Hardening and release | 8 h | 10.5 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **32.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -286,13 +286,26 @@ TestFlight archive.
 Large automatic albums now become useful progressively instead of blocking on
 the full candidate pool. PhotoKit requests the 2,560-pixel representation used
 by FrameWink's display cache, the synchronizer prioritizes a date-spanning
-30-photo batch, and durable records are checkpointed every 30 items so an
-interruption resumes from app-controlled copies instead of starting over. The
-initial batch produces a playable reel while the complete album continues to
-download and improve recommendations. A ready home preview also accepts
+first batch, and durable records are checkpointed so an interruption resumes
+from app-controlled copies instead of starting over. The initial batch produces
+a playable reel while the complete album continues to download and improve
+recommendations. A ready home preview also accepts
 horizontal swipes before Frame Mode. The complete Simulator scheme passes 131
 runnable tests plus one intentional physical-only skip with zero failures or
 runtime warnings after these changes.
+
+The first playable automatic-album stage now begins after ten representative
+candidates instead of thirty, refines again at thirty, and then uses the
+complete-album result. The existing reel remains usable during refinement.
+Album choice is now a responsive Photos-familiar grid with square covers,
+names, counts, and a selected checkmark. Covers use cancellable local PhotoKit
+thumbnail requests and a bounded cache, so the album metadata grid still
+appears independently of cover availability. The complete iPad Simulator
+scheme passes 135 tests with two intentional physical-only skips, zero
+failures, and zero runtime warnings. The grid was visually checked at both
+iPad (A16) and iPad mini Simulator sizes, and the unsigned Release build
+succeeds. Real-library cover behavior and time-to-first ten-photo reel remain
+physical checks under B-004.
 
 Immediate playback from that provisional reel now also repairs a stale internal
 page count even when the responsive layout signature already matches. Manual

@@ -702,3 +702,31 @@ explicit owner approval.
   accessible position and actual display to the distinct second cache file, and
   a subsequent swipe displayed a page containing none of the prior page's
   photos. This closes B-019 for the reported device and source.
+
+## Ten-photo start and visual album grid — 2026-08-13
+
+- Automatic-album synchronization now prioritizes a deterministic,
+  date-spanning ten-item batch, persists checkpoints at 10, 30, 60, and later
+  30-item intervals, and builds provisional reels at ten and thirty candidates
+  before the full-album result. If an export fails, the first stage waits for
+  ten successfully prepared candidates rather than counting the failed item.
+- Controller regressions prove that the ten-photo reel is playable while sync
+  is active, the thirty-photo checkpoint replaces it before the full pass, and
+  album-cover requests preserve the requested album identifier and pixel bound.
+  Synchronizer tests prove checkpoint durability and representative ordering.
+- The album picker is a lazy adaptive cover grid with stable album identity,
+  name/count labels, a selected-album checkmark, VoiceOver labels, placeholders,
+  cancellable local-only cover requests, and a 32 MiB/80-thumbnail cache.
+  Cover availability does not delay the album metadata or empty/error states.
+- Deterministic screenshots were visually inspected on the iOS 27 `iPad (A16)`
+  and `iPad mini (A17 Pro)` Simulators. Both show three clean columns with square
+  covers and no clipping; the grid can adapt to narrower resized windows.
+- Focused `AlbumSyncServiceTests` and `AutomaticAlbumControllerTests` pass. The
+  complete shared scheme passes 135 tests with two intentional real-PhotoKit
+  physical-only skips, zero failures, zero expected failures, and zero runtime
+  warnings. The generic iPad Simulator Debug build and unsigned generic iPadOS
+  Release build both succeed without compiler diagnostics.
+- Still required on a physical iPad: confirm real PhotoKit cover thumbnails do
+  not delay the ten-second album-grid gate, measure time to the first playable
+  ten-candidate reel, observe its live replacement near thirty candidates, and
+  verify swipe/arrow playback throughout the remaining large-album preparation.

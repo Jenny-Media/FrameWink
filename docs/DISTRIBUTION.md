@@ -348,8 +348,8 @@ blocker affects only a later boundary.
   verification, or release-document work.
 - Resolution: PhotoKit now returns a high-quality 2,560-pixel representation
   instead of transferring the largest current image before downsampling. Album
-  synchronization processes a date-spanning 30-item batch first, commits a
-  resumable metadata checkpoint every 30 items, and publishes an initial reel
+  synchronization now processes a date-spanning 10-item batch first, refines
+  at 30, commits resumable metadata checkpoints, and publishes the initial reel
   while the remaining album continues in the foreground. The preparation
   backdrop shows live transfer/analysis counts, the ready card keeps **Start
   Frame** enabled during refinement, and its visible preview accepts horizontal

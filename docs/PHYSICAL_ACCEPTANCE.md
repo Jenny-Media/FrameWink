@@ -59,12 +59,14 @@ one intentionally blurred image, and one item that is iCloud-only if available.
    Photos prompt. Choose **Limited Access** first and select only the test album
    photos. If the installed OS offers different wording, choose its limited
    equivalent.
-3. Select the test album. The neutral preparation screen should show live
-   counts. After the representative first batch is curated, **Start Frame**
-   should become available while the status says that FrameWink is adding more
-   photos or improving the reel. Inspect **Review Photos** from More and record
-   a `sample`; interrupt and relaunch once to confirm checkpointed progress is
-   retained.
+3. Select the test album from the visual cover grid. The neutral preparation
+   screen should show live counts. After ten representative candidates are
+   prepared and curated, **Start Frame** should become available while the
+   status says that FrameWink is adding more photos or improving the reel. The
+   result should refine again around thirty prepared candidates without making
+   the existing reel unavailable. Inspect **Review Photos** from More and
+   record a `sample`; interrupt and relaunch once to confirm checkpointed
+   progress is retained.
 4. Confirm screenshots are absent from suggestions and compare the strongest
    selections against the labelled fixture sheet described below.
 5. In Photos, add and remove one test image. Return to FrameWink and confirm the
@@ -78,7 +80,7 @@ scripts/physical_acceptance.sh verify-albums
 ```
 
 The physical-only UI test taps **Choose Album** and requires the real PhotoKit
-album list to replace the loading state within ten seconds. Simulator runs skip
+album grid to replace the loading state within ten seconds. Simulator runs skip
 this check by design. XCTest temporarily shows iPadOS's automation indicator;
 the command always relaunches the interactive FrameWink harness afterward,
 whether the test passes or fails.

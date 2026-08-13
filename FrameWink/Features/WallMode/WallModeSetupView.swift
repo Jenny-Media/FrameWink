@@ -453,29 +453,30 @@ struct AlbumPickerView: View {
                     }
                     .accessibilityIdentifier("album-picker-empty")
                 } else {
-                    List(controller.albums) { album in
-                        Button {
-                            controller.selectAlbum(album)
-                            onSelect(album)
-                            presentationMode.wrappedValue.dismiss()
-                        } label: {
-                            HStack {
-                                Image(systemName: "photo.on.rectangle.angled")
-                                    .foregroundColor(.accentColor)
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(album.title)
-                                        .foregroundColor(.primary)
-                                    Text(albumCountDescription(album.photoCount))
-                                        .font(.footnote)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                if controller.configuration.albumIdentifier == album.id {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.accentColor)
-                                }
+                    ScrollView {
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.adaptive(minimum: 150), spacing: 18, alignment: .top),
+                            ],
+                            alignment: .leading,
+                            spacing: 24
+                        ) {
+                            ForEach(controller.albums) { album in
+                                AlbumPickerTile(
+                                    album: album,
+                                    isSelected: controller.configuration
+                                        .albumIdentifier == album.id,
+                                    loadThumbnail: {
+                                        await controller.thumbnail(for: album)
+                                    },
+                                    onSelect: {
+                                        select(album)
+                                    }
+                                )
                             }
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 18)
                     }
                     .accessibilityIdentifier("album-picker-list")
                 }
@@ -491,6 +492,12 @@ struct AlbumPickerView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+    }
+
+    private func select(_ album: PhotoLibraryAlbum) {
+        controller.selectAlbum(album)
+        onSelect(album)
+        presentationMode.wrappedValue.dismiss()
     }
 
     private func emptyState(
@@ -511,8 +518,86 @@ struct AlbumPickerView: View {
         .padding(32)
     }
 
-    private func albumCountDescription(_ photoCount: Int?) -> String {
-        guard let photoCount else { return "Photo album" }
+}
+
+private struct AlbumPickerTile: View {
+    let album: PhotoLibraryAlbum
+    let isSelected: Bool
+    let loadThumbnail: () async -> UIImage?
+    let onSelect: () -> Void
+
+    @State private var thumbnail: UIImage?
+
+    var body: some View {
+        Button(action: onSelect) {
+            VStack(alignment: .leading, spacing: 8) {
+                ZStack(alignment: .topTrailing) {
+                    GeometryReader { proxy in
+                        albumCover
+                            .frame(
+                                width: proxy.size.width,
+                                height: proxy.size.width
+                            )
+                            .clipped()
+                    }
+                    .aspectRatio(1, contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title2)
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(Color.white, Color.accentColor)
+                            .padding(8)
+                            .accessibilityHidden(true)
+                    }
+                }
+
+                Text(album.title)
+                    .font(.body.weight(.semibold))
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+
+                Text(albumCountDescription)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityHint("Select this album for your frame")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .task(id: album.id) {
+            thumbnail = await loadThumbnail()
+        }
+    }
+
+    @ViewBuilder
+    private var albumCover: some View {
+        if let thumbnail {
+            Image(uiImage: thumbnail)
+                .resizable()
+                .scaledToFill()
+        } else {
+            ZStack {
+                Color(UIColor.secondarySystemBackground)
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.system(size: 38, weight: .light))
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    private var albumCountDescription: String {
+        guard let photoCount = album.photoCount else { return "Photo album" }
         return photoCount == 1 ? "1 photo" : "\(photoCount) photos"
+    }
+
+    private var accessibilityLabel: Text {
+        let selectedDescription = isSelected ? ", selected" : ""
+        return Text("\(album.title), \(albumCountDescription)\(selectedDescription)")
     }
 }

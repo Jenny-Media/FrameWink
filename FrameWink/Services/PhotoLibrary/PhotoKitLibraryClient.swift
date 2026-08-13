@@ -8,6 +8,7 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
 
     private let photoLibrary: PHPhotoLibrary
     private let imageManager: PHImageManager
+    private let albumThumbnailCache = NSCache<NSString, UIImage>()
     private var changeContinuations: [UUID: AsyncStream<Void>.Continuation] = [:]
     private var isObservingChanges = false
 
@@ -18,6 +19,8 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         self.photoLibrary = photoLibrary
         self.imageManager = imageManager
         super.init()
+        albumThumbnailCache.countLimit = 80
+        albumThumbnailCache.totalCostLimit = 32 * 1_024 * 1_024
     }
 
     deinit {
@@ -54,6 +57,73 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         } onCancel: {
             discovery.cancel()
         }
+    }
+
+    func albumThumbnail(
+        albumIdentifier: String,
+        maxPixelDimension: Int
+    ) async -> UIImage? {
+        guard authorizationState().permitsReading else { return nil }
+        let cacheKey = "\(albumIdentifier)|\(max(maxPixelDimension, 1))" as NSString
+        if let cached = albumThumbnailCache.object(forKey: cacheKey) {
+            return cached
+        }
+
+        let discovery = Task.detached(priority: .utility) {
+            try Self.discoverAlbumCoverAssetIdentifier(
+                albumIdentifier: albumIdentifier
+            )
+        }
+        let assetIdentifier: String?
+        do {
+            assetIdentifier = try await withTaskCancellationHandler {
+                try await discovery.value
+            } onCancel: {
+                discovery.cancel()
+            }
+        } catch {
+            return nil
+        }
+        guard let assetIdentifier,
+              let asset = PHAsset.fetchAssets(
+                withLocalIdentifiers: [assetIdentifier],
+                options: nil
+              ).firstObject else {
+            return nil
+        }
+
+        let dimension = CGFloat(max(maxPixelDimension, 1))
+        let options = PHImageRequestOptions()
+        options.deliveryMode = .fastFormat
+        options.resizeMode = .fast
+        options.isNetworkAccessAllowed = false
+        let requestState = PhotoKitThumbnailRequestState()
+        let image = await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                requestState.install(continuation: continuation)
+                let requestID = imageManager.requestImage(
+                    for: asset,
+                    targetSize: CGSize(width: dimension, height: dimension),
+                    contentMode: .aspectFill,
+                    options: options
+                ) { image, info in
+                    if (info?[PHImageCancelledKey] as? Bool) == true
+                        || info?[PHImageErrorKey] != nil {
+                        requestState.finish(nil)
+                    } else {
+                        requestState.finish(image)
+                    }
+                }
+                requestState.setRequestID(requestID, manager: imageManager)
+            }
+        } onCancel: {
+            requestState.cancel(manager: imageManager)
+        }
+        if let image {
+            let cost = image.cgImage.map { $0.bytesPerRow * $0.height } ?? 0
+            albumThumbnailCache.setObject(image, forKey: cacheKey, cost: cost)
+        }
+        return image
     }
 
     nonisolated private static func discoverAlbums() throws -> [PhotoLibraryAlbum] {
@@ -98,6 +168,41 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         return albums.sorted {
             $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
         }
+    }
+
+    nonisolated private static func discoverAlbumCoverAssetIdentifier(
+        albumIdentifier: String
+    ) throws -> String? {
+        let collections = PHAssetCollection.fetchAssetCollections(
+            withLocalIdentifiers: [albumIdentifier],
+            options: nil
+        )
+        guard let collection = collections.firstObject else { return nil }
+
+        let options = PHFetchOptions()
+        options.predicate = NSPredicate(
+            format: "mediaType == %d",
+            PHAssetMediaType.image.rawValue
+        )
+        options.sortDescriptors = [
+            NSSortDescriptor(key: "creationDate", ascending: false),
+        ]
+        let fetched = PHAsset.fetchAssets(in: collection, options: options)
+        var identifier: String?
+        fetched.enumerateObjects { asset, _, stop in
+            guard !Task.isCancelled else {
+                stop.pointee = true
+                return
+            }
+            guard !asset.isHidden,
+                  !asset.mediaSubtypes.contains(.photoScreenshot) else {
+                return
+            }
+            identifier = asset.localIdentifier
+            stop.pointee = true
+        }
+        try Task.checkCancellation()
+        return identifier
     }
 
     func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] {
@@ -389,5 +494,66 @@ private final class PhotoKitImageRequestState: @unchecked Sendable {
         case .failure(let error):
             continuation?.resume(throwing: error)
         }
+    }
+}
+
+private final class PhotoKitThumbnailRequestState: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<UIImage?, Never>?
+    private var requestID = PHInvalidImageRequestID
+    private var isFinished = false
+
+    func install(continuation: CheckedContinuation<UIImage?, Never>) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard !isFinished else {
+            continuation.resume(returning: nil)
+            return
+        }
+        self.continuation = continuation
+    }
+
+    func setRequestID(_ requestID: PHImageRequestID, manager: PHImageManager) {
+        lock.lock()
+        self.requestID = requestID
+        let shouldCancel = isFinished
+        lock.unlock()
+        if shouldCancel {
+            manager.cancelImageRequest(requestID)
+        }
+    }
+
+    func cancel(manager: PHImageManager) {
+        let continuation: CheckedContinuation<UIImage?, Never>?
+        let requestID: PHImageRequestID
+        lock.lock()
+        guard !isFinished else {
+            lock.unlock()
+            return
+        }
+        isFinished = true
+        continuation = self.continuation
+        self.continuation = nil
+        requestID = self.requestID
+        lock.unlock()
+
+        if requestID != PHInvalidImageRequestID {
+            manager.cancelImageRequest(requestID)
+        }
+        continuation?.resume(returning: nil)
+    }
+
+    func finish(_ image: UIImage?) {
+        let continuation: CheckedContinuation<UIImage?, Never>?
+        lock.lock()
+        guard !isFinished else {
+            lock.unlock()
+            return
+        }
+        isFinished = true
+        continuation = self.continuation
+        self.continuation = nil
+        lock.unlock()
+        continuation?.resume(returning: image)
     }
 }

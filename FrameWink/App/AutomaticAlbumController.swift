@@ -4,7 +4,8 @@ import UIKit
 
 @MainActor
 final class AutomaticAlbumController: ObservableObject {
-    private static let minimumInitialCandidateCount = 12
+    private static let minimumInitialCandidateCount = 10
+    private static let refinedCandidateCount = 30
 
     @Published private(set) var authorization: PhotoLibraryAuthorizationState
     @Published private(set) var albums: [PhotoLibraryAlbum] = []
@@ -27,6 +28,8 @@ final class AutomaticAlbumController: ObservableObject {
     private var generation = UUID()
     private var lastProgressUpdate = Date.distantPast
     private var isRefreshInProgress = false
+    private var shouldBuildProvisionalReels = false
+    private var provisionalCandidateCount = 0
 
     init(
         client: PhotoLibraryClient,
@@ -235,6 +238,8 @@ final class AutomaticAlbumController: ObservableObject {
         let currentGeneration = generation
         lastProgressUpdate = .distantPast
         isRefreshInProgress = true
+        shouldBuildProvisionalReels = smartReel == nil
+        provisionalCandidateCount = 0
         phase = .syncing(ImportProgress(completedCount: 0, totalCount: 0))
         syncTask = Task { [weak self] in
             guard let self = self else { return }
@@ -256,17 +261,31 @@ final class AutomaticAlbumController: ObservableObject {
                 } checkpoint: { [weak self] checkpoint in
                     guard let self = self,
                           self.generation == currentGeneration,
-                          self.smartReel == nil,
+                          self.shouldBuildProvisionalReels,
                           checkpoint.preparedRecords.count
                             >= Self.minimumInitialCandidateCount else {
+                        return
+                    }
+                    let targetCount: Int
+                    if checkpoint.preparedRecords.count >= Self.refinedCandidateCount,
+                       self.provisionalCandidateCount < Self.refinedCandidateCount {
+                        targetCount = Self.refinedCandidateCount
+                    } else if self.provisionalCandidateCount
+                        < Self.minimumInitialCandidateCount {
+                        targetCount = Self.minimumInitialCandidateCount
+                    } else {
                         return
                     }
                     self.records = checkpoint.records
                     do {
                         try await self.curate(
                             currentGeneration: currentGeneration,
-                            candidateRecords: checkpoint.preparedRecords
+                            candidateRecords: Array(
+                                checkpoint.preparedRecords.prefix(targetCount)
+                            )
                         )
+                        guard self.generation == currentGeneration else { return }
+                        self.provisionalCandidateCount = targetCount
                     } catch is CancellationError {
                         return
                     } catch {
@@ -278,6 +297,7 @@ final class AutomaticAlbumController: ObservableObject {
                 guard generation == currentGeneration else { return }
                 records = report.records
                 lastSyncReport = report
+                shouldBuildProvisionalReels = false
                 try await curate(currentGeneration: currentGeneration)
             } catch is CancellationError {
                 return
@@ -323,6 +343,16 @@ final class AutomaticAlbumController: ObservableObject {
 
     func thumbnail(for photo: ImportedPhoto, maxPixelDimension: Int = 640) async -> UIImage? {
         await store.thumbnail(for: photo, maxPixelDimension: maxPixelDimension)
+    }
+
+    func thumbnail(
+        for album: PhotoLibraryAlbum,
+        maxPixelDimension: Int = 512
+    ) async -> UIImage? {
+        await client.albumThumbnail(
+            albumIdentifier: album.id,
+            maxPixelDimension: maxPixelDimension
+        )
     }
 
     func recordDisplayed(_ photo: ImportedPhoto, at date: Date = Date()) {

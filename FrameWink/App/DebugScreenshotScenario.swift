@@ -40,6 +40,7 @@ enum DebugScreenshotScenario: String {
     case personalReel = "personal-reel"
     case personalImport = "personal-import"
     case blackoutFrame = "blackout-frame"
+    case albumPicker = "album-picker"
 
     static var current: Self? {
         guard let value = ProcessInfo.processInfo.environment[
@@ -52,7 +53,7 @@ enum DebugScreenshotScenario: String {
 
     var initialPresentation: RootInitialPresentation? {
         switch self {
-        case .sample, .personalReel, .personalImport:
+        case .sample, .personalReel, .personalImport, .albumPicker:
             return nil
         case .smartFrame, .blackoutFrame:
             return .frameMode
@@ -80,7 +81,7 @@ enum DebugScreenshotScenario: String {
     var requiresWallModeEntitlement: Bool {
         switch self {
         case .wallModeSetup, .savedConfigurations, .wallSchedule, .wallChecklist,
-                .automaticAlbumReview, .mosaicFrame, .blackoutFrame:
+                .automaticAlbumReview, .mosaicFrame, .blackoutFrame, .albumPicker:
             return true
         default:
             return false
@@ -303,7 +304,47 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
                 title: "Family Favorites",
                 photoCount: sampleAssets.count
             ),
+            PhotoLibraryAlbum(
+                id: "screenshot-recently-added",
+                title: "Recently Added",
+                photoCount: 48
+            ),
+            PhotoLibraryAlbum(
+                id: "screenshot-travel",
+                title: "Travel",
+                photoCount: 126
+            ),
+            PhotoLibraryAlbum(
+                id: "screenshot-weekends",
+                title: "Weekends",
+                photoCount: 21
+            ),
+            PhotoLibraryAlbum(
+                id: "screenshot-portraits",
+                title: "Portraits",
+                photoCount: 76
+            ),
+            PhotoLibraryAlbum(
+                id: "screenshot-favorites",
+                title: "Favorites",
+                photoCount: 19
+            ),
         ]
+    }
+
+    func albumThumbnail(
+        albumIdentifier: String,
+        maxPixelDimension: Int
+    ) async -> UIImage? {
+        let resources = ["sample-lakeside", "sample-beach-dog", "sample-kitchen"]
+        let index = abs(albumIdentifier.hashValue) % resources.count
+        guard let url = Bundle.main.url(
+            forResource: resources[index],
+            withExtension: "png"
+        ) else {
+            return nil
+        }
+        return UIImage(contentsOfFile: url.path)
     }
 
     func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] {

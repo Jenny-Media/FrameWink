@@ -201,6 +201,18 @@ struct RootView: View {
             }
             applyInitialPresentationIfNeeded()
         }
+#if DEBUG
+        .onAppear {
+            if DebugScreenshotScenario.current == .albumPicker {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 250_000_000)
+                    automaticAlbum.requestAccessAndLoadAlbums()
+                    try? await Task.sleep(nanoseconds: 250_000_000)
+                    presentedSheet = .albumPicker
+                }
+            }
+        }
+#endif
         .onDisappear {
             wallMode.restoreOwnedDisplayState()
         }

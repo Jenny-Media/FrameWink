@@ -123,3 +123,16 @@ date; do not silently rewrite historical decisions during implementation.
   capability. A geometry-driven presentation feels native and predictable;
   preserving the current photo avoids treating a resize as navigation or
   forcing the user to prepare photos again.
+
+## D-016 — Automatic albums become playable at ten prepared candidates
+
+- **Decision:** A newly selected automatic album prioritizes a date-spanning
+  ten-candidate batch, publishes the curated result immediately, refines it at
+  thirty candidates, and replaces it again after the complete album finishes.
+  Album selection uses a responsive, Photos-familiar cover grid rather than a
+  text-only list. Cover thumbnails load independently and never block album
+  metadata from appearing.
+- **Reason:** Five candidates can collapse to only a few pages after quality,
+  duplicate, and pairing decisions, while thirty makes a user wait longer than
+  necessary. Ten provides a credible first frame quickly; the later stages
+  preserve curation depth without withholding playback.

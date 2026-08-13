@@ -1,10 +1,15 @@
 import Foundation
+import UIKit
 
 @MainActor
 protocol PhotoLibraryClient: AnyObject {
     func authorizationState() -> PhotoLibraryAuthorizationState
     func requestAuthorization() async -> PhotoLibraryAuthorizationState
     func albums() async throws -> [PhotoLibraryAlbum]
+    func albumThumbnail(
+        albumIdentifier: String,
+        maxPixelDimension: Int
+    ) async -> UIImage?
     func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset]
     func exportCurrentImage(
         assetIdentifier: String,
@@ -12,6 +17,15 @@ protocol PhotoLibraryClient: AnyObject {
         networkAccessAllowed: Bool
     ) async throws
     func changeEvents() -> AsyncStream<Void>
+}
+
+extension PhotoLibraryClient {
+    func albumThumbnail(
+        albumIdentifier: String,
+        maxPixelDimension: Int
+    ) async -> UIImage? {
+        nil
+    }
 }
 
 enum PhotoLibraryClientError: LocalizedError, Equatable {
