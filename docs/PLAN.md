@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 10.75 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **33.75 h** | **In progress** |
+| 6. Hardening and release | 8 h | 11.5 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **34.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -460,6 +460,30 @@ physical-only skips, zero failures, zero expected failures, and zero runtime
 warnings. A clean unsigned Release build and the archive-mode Xcode Cloud guard
 pass. The signed Debug build is installed and launched on the connected iPad
 Pro and iPad mini 6 without clearing their app data.
+
+The owner has now manually confirmed on a physical iPad that album covers
+appear progressively, Living Photo motion behaves as intended, 3–4-photo tall
+stacks appear in narrow Stage Manager geometry, and important-content safety is
+preserved. B-020 is resolved by that owner-observed real-library evidence.
+
+Album discovery now returns each album's bounded recent eligible cover
+candidates with its metadata, avoiding a second per-tile collection lookup.
+The first eighteen covers are preheated, on-screen tile requests use the
+measured tile width and display scale, and the existing four-request gate,
+32 MiB cache, local-first policy, alternate-asset fallback, and cancellation
+remain bounded. If no local candidate succeeds, every eligible candidate may
+fall back through PhotoKit's iCloud-enabled request while the tile shows an
+explicit cloud-loading state.
+
+Multi-photo composition now audits visual occupancy. A photo must safely crop
+full-bleed or occupy at least 78% of its tile; otherwise Mosaic retries a smaller
+group and ultimately returns that item to a single-photo page. Pair and stack
+paths continue to require safe full-bleed crops. Long-press targets are scoped
+to each placement and open the native system share sheet for the exact image;
+an equivalent VoiceOver custom action is exposed. Living Photo remains
+deterministic at 4–7% scale and up to 2.5% pan, reaches an endpoint within the
+slide interval, and is governed by a tested policy that disables it for Reduce
+Motion, resize, pause, preview, and multi-photo scenes.
 
 ## Timebox rule
 

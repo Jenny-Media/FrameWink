@@ -112,6 +112,21 @@ struct FramePage: Identifiable, Equatable {
     let placements: [FrameLayoutPlacement]
 }
 
+enum FrameLayoutOccupancy {
+    static let minimumMultiPhotoPhotoFraction = 0.78
+
+    static func fittedPhotoFraction(
+        photoAspectRatio: Double,
+        cellAspectRatio: Double
+    ) -> Double {
+        guard photoAspectRatio > 0, cellAspectRatio > 0 else { return 0 }
+        return min(
+            photoAspectRatio / cellAspectRatio,
+            cellAspectRatio / photoAspectRatio
+        )
+    }
+}
+
 enum FramePageAnchorResolver {
     static func index(
         preserving photoID: String?,
@@ -200,9 +215,9 @@ enum FramePhotoMotionPlanner {
         guard placement.contentMode == .crop else { return nil }
 
         let scaleCandidates = [
-            min(max(preferredMaximumScale, 1.035), 1.08),
-            1.05,
-            1.035,
+            min(max(preferredMaximumScale, 1.04), 1.07),
+            1.055,
+            1.04,
         ]
         let seed = stableHash(photoID)
 
@@ -230,7 +245,7 @@ enum FramePhotoMotionPlanner {
     private static func candidatePlans(scale: Double) -> [FramePhotoMotionPlan] {
         let centered = FramePhotoMotionState(scale: 1, offsetX: 0, offsetY: 0)
         let zoomed = FramePhotoMotionState(scale: scale, offsetX: 0, offsetY: 0)
-        let pan = min(0.018, (scale - 1) * 0.36)
+        let pan = min(0.025, (scale - 1) * 0.36)
         let left = FramePhotoMotionState(scale: scale, offsetX: -pan, offsetY: 0)
         let right = FramePhotoMotionState(scale: scale, offsetX: pan, offsetY: 0)
         let up = FramePhotoMotionState(scale: scale, offsetX: 0, offsetY: -pan)
@@ -261,5 +276,21 @@ enum FramePhotoMotionPlanner {
         value.utf8.reduce(UInt64(14_695_981_039_346_656_037)) { hash, byte in
             (hash ^ UInt64(byte)) &* 1_099_511_628_211
         }
+    }
+}
+
+enum FramePhotoMotionPolicy {
+    static func shouldAnimate(
+        isFrameMode: Bool,
+        isPlaying: Bool,
+        photoCount: Int,
+        reduceMotionEnabled: Bool,
+        isInteractingWithResize: Bool
+    ) -> Bool {
+        isFrameMode
+            && isPlaying
+            && photoCount == 1
+            && !reduceMotionEnabled
+            && !isInteractingWithResize
     }
 }

@@ -327,6 +327,8 @@ external release work.
 - Paired portraits do not overlap and preserve each subject.
 - Faces near every edge remain visible within tolerance.
 - Multi-face photos do not use an unsafe crop.
+- Every multi-photo Fit placement occupies at least 78% of its tile; unsafe
+  low-occupancy Mosaic groups reduce their photo count or become single pages.
 - Screen rotation produces a valid new layout.
 
 ### Frame session
@@ -336,6 +338,8 @@ external release work.
 - Foreground/background transitions do not duplicate timers.
 - End-of-reel behavior is stable.
 - Reduce Motion disables or simplifies motion-heavy transitions.
+- Long-pressing an individual tile exposes `Share Photo`; VoiceOver exposes the
+  same action without requiring a long press.
 
 ### Purchases
 
@@ -765,6 +769,35 @@ explicit owner approval.
   archive-mode Xcode Cloud identity/privacy guard pass. The signed Debug build
   is installed and launched over existing data on the iPad Pro 12.9-inch (3rd
   generation) and iPad mini 6.
+
+## Occupancy-aware collages, sharing, and responsive covers — 2026-08-13
+
+- Owner-observed physical testing confirms real album covers progressively
+  appear, Living Photo motion is visible and restrained, narrow Stage Manager
+  windows can show 3–4 landscape photos, and important regions remain safe.
+- Album metadata now carries a bounded list of recent non-hidden,
+  non-screenshot cover candidates. The first eighteen albums are preheated;
+  each visible lazy-grid tile requests a thumbnail sized from its measured
+  point width and display scale. Local candidates are tried first, then every
+  eligible candidate can use PhotoKit's iCloud-enabled request. Tiles distinguish
+  local loading, cloud downloading, ready, and unavailable states.
+- A four-request limiter, 32 MiB/80-image cache, a 24-asset discovery cap per
+  album, cancellation-aware tile tasks, and bounded preheat keep the grid
+  appropriate for older 2 GB iPads. Manual physical comparison with Photos is
+  still qualitative; exact Photos-app parity is not claimed.
+- Pure layout tests cover low-occupancy Mosaic rejection, the 78% fitted-tile
+  threshold, deterministic motion, and the motion policy's Reduce Motion,
+  resize, and multi-photo branches. A UI regression long-presses an exact local
+  photo tile and requires the `Share Photo` context action.
+- The affected `FrameLayoutChooserTests` and
+  `AutomaticAlbumControllerTests` pass on the iOS 27 iPad mini Simulator. A
+  generic iPadOS 15 device compile succeeds. The long-press UI regression also
+  passes serially on the iPad (A16) Simulator. A combined parallel shared-scheme
+  run passed 122 unit tests after an automatic restart but was marked failed
+  when the Xcode beta UI-test runner was killed before establishing its
+  connection; serial UI execution is the current workaround. Manual physical
+  confirmation of the share sheet remains required. The unsigned Release build
+  and archive-mode Xcode Cloud identity/privacy/product guard both pass.
 
 ## Source integrity and live-layout audit — 2026-08-13
 

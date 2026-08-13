@@ -25,6 +25,9 @@ struct SampleSlideshowView: View {
     @State private var hideControlsTask: Task<Void, Never>?
     @State private var hideHintTask: Task<Void, Never>?
     @State private var pageTransitionDirection: FramePageTransitionDirection = .dissolve
+    @State private var sharePreparationID: String?
+    @State private var shareTask: Task<Void, Never>?
+    @State private var sharedPhoto: SharedFramePhoto?
     @StateObject private var imageCache = DisplayImageCache()
 
     private let layoutChooser = FrameLayoutChooser()
@@ -72,11 +75,25 @@ struct SampleSlideshowView: View {
                 wallScheduleOverlay
 
                 if isFrameMode {
-                    interactionLayer(
-                        pages: pages,
-                        signature: layoutSignature,
-                        slidesByID: slidesByID
-                    )
+                    if let page = activePage(in: pages) {
+                        interactionLayer(
+                            page: page,
+                            pages: pages,
+                            signature: layoutSignature,
+                            slidesByID: slidesByID
+                        )
+                    }
+
+                    if sharePreparationID != nil {
+                        ProgressView("Preparing photo…")
+                            .tint(.white)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 12)
+                            .background(.black.opacity(0.62), in: Capsule())
+                            .allowsHitTesting(false)
+                            .accessibilityIdentifier("share-photo-preparing")
+                    }
 
                     if hintVisible, wallVisualState != .blackout {
                         controlsHint
@@ -92,8 +109,10 @@ struct SampleSlideshowView: View {
                         )
                             .transition(reduceMotion ? .identity : .opacity)
                     }
-                } else if pages.count > 1 {
+                } else if pages.count > 1,
+                          let page = activePage(in: pages) {
                     previewNavigationLayer(
+                        page: page,
                         pages: pages,
                         signature: layoutSignature,
                         slidesByID: slidesByID
@@ -196,6 +215,11 @@ struct SampleSlideshowView: View {
         .onDisappear {
             hideControlsTask?.cancel()
             hideHintTask?.cancel()
+            shareTask?.cancel()
+            sharePreparationID = nil
+        }
+        .sheet(item: $sharedPhoto) { sharedPhoto in
+            SystemPhotoShareSheet(image: sharedPhoto.image)
         }
     }
 
@@ -218,11 +242,13 @@ struct SampleSlideshowView: View {
                                 forKey: slide.imageCacheKey
                             ),
                             loadImage: cachedImage,
-                            motionEnabled: isFrameMode
-                                && playback.isPlaying
-                                && page.placements.count == 1
-                                && !reduceMotion
-                                && !playback.isInteractingWithResize,
+                            motionEnabled: FramePhotoMotionPolicy.shouldAnimate(
+                                isFrameMode: isFrameMode,
+                                isPlaying: playback.isPlaying,
+                                photoCount: page.placements.count,
+                                reduceMotionEnabled: reduceMotion,
+                                isInteractingWithResize: playback.isInteractingWithResize
+                            ),
                             motionDuration: max(playback.interval * 0.92, 4.5)
                         )
                         .frame(
@@ -310,11 +336,22 @@ struct SampleSlideshowView: View {
     }
 
     private func interactionLayer(
+        page: FramePage,
         pages: [FramePage],
         signature: String,
         slidesByID: [String: DisplaySlide]
     ) -> some View {
-        Color.clear
+        GeometryReader { proxy in
+            ZStack(alignment: .topLeading) {
+                Color.clear
+                    .accessibilityHidden(true)
+
+                photoActionTargets(
+                    page: page,
+                    slidesByID: slidesByID,
+                    size: proxy.size
+                )
+            }
             .contentShape(Rectangle())
             .onTapGesture {
                 if controlsVisible {
@@ -338,15 +375,26 @@ struct SampleSlideshowView: View {
                         }
                     }
             )
-            .accessibilityHidden(true)
+        }
     }
 
     private func previewNavigationLayer(
+        page: FramePage,
         pages: [FramePage],
         signature: String,
         slidesByID: [String: DisplaySlide]
     ) -> some View {
-        Color.clear
+        GeometryReader { proxy in
+            ZStack(alignment: .topLeading) {
+                Color.clear
+                    .accessibilityHidden(true)
+
+                photoActionTargets(
+                    page: page,
+                    slidesByID: slidesByID,
+                    size: proxy.size
+                )
+            }
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 30)
@@ -359,7 +407,55 @@ struct SampleSlideshowView: View {
                         )
                     }
             )
-            .accessibilityHidden(true)
+        }
+    }
+
+    @ViewBuilder
+    private func photoActionTargets(
+        page: FramePage,
+        slidesByID: [String: DisplaySlide],
+        size: CGSize
+    ) -> some View {
+        ForEach(page.placements) { placement in
+            if let slide = slidesByID[placement.photoID] {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .frame(
+                        width: size.width * CGFloat(placement.screenFrame.width),
+                        height: size.height * CGFloat(placement.screenFrame.height)
+                    )
+                    .position(
+                        x: size.width * CGFloat(placement.screenFrame.midX),
+                        y: size.height * CGFloat(placement.screenFrame.midY)
+                    )
+                    .contextMenu {
+                        Button {
+                            prepareToShare(slide)
+                        } label: {
+                            Label("Share Photo", systemImage: "square.and.arrow.up")
+                        }
+                        .accessibilityIdentifier("share-photo-action-" + slide.id)
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(slide.accessibilityLabel)
+                    .accessibilityAction(named: Text("Share Photo")) {
+                        prepareToShare(slide)
+                    }
+                    .accessibilityIdentifier("frame-photo-actions-" + slide.id)
+            }
+        }
+    }
+
+    private func prepareToShare(_ slide: DisplaySlide) {
+        shareTask?.cancel()
+        sharePreparationID = slide.id
+        shareTask = Task {
+            let image = await cachedImage(for: slide)
+            guard !Task.isCancelled else { return }
+            sharePreparationID = nil
+            guard let image else { return }
+            sharedPhoto = SharedFramePhoto(image: image)
+        }
     }
 
     private func navigate(
@@ -684,6 +780,27 @@ struct SampleSlideshowView: View {
         let position = min(playback.currentPageIndex, pages.count - 1) + 1
         return "Photo \(position) of \(pages.count)"
     }
+}
+
+private struct SharedFramePhoto: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
+
+private struct SystemPhotoShareSheet: UIViewControllerRepresentable {
+    let image: UIImage
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(
+            activityItems: [image],
+            applicationActivities: nil
+        )
+    }
+
+    func updateUIViewController(
+        _ uiViewController: UIActivityViewController,
+        context: Context
+    ) {}
 }
 
 private enum FramePageTransitionDirection {

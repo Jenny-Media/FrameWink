@@ -10,6 +10,15 @@ protocol PhotoLibraryClient: AnyObject {
         albumIdentifier: String,
         maxPixelDimension: Int
     ) async -> UIImage?
+    func albumThumbnail(
+        album: PhotoLibraryAlbum,
+        maxPixelDimension: Int,
+        progress: @escaping (AlbumThumbnailLoadingPhase) -> Void
+    ) async -> UIImage?
+    func preheatAlbumThumbnails(
+        albums: [PhotoLibraryAlbum],
+        maxPixelDimension: Int
+    )
     func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset]
     func exportCurrentImage(
         assetIdentifier: String,
@@ -26,6 +35,23 @@ extension PhotoLibraryClient {
     ) async -> UIImage? {
         nil
     }
+
+    func albumThumbnail(
+        album: PhotoLibraryAlbum,
+        maxPixelDimension: Int,
+        progress: @escaping (AlbumThumbnailLoadingPhase) -> Void
+    ) async -> UIImage? {
+        progress(.local)
+        return await albumThumbnail(
+            albumIdentifier: album.id,
+            maxPixelDimension: maxPixelDimension
+        )
+    }
+
+    func preheatAlbumThumbnails(
+        albums: [PhotoLibraryAlbum],
+        maxPixelDimension: Int
+    ) {}
 }
 
 enum PhotoLibraryClientError: LocalizedError, Equatable {

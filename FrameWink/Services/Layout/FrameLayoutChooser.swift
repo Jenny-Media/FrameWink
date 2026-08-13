@@ -42,12 +42,7 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
         let isCompact = viewport.width < compactMinimumWidth
             || viewport.height < compactMinimumHeight
         if preference == .mosaic, !isCompact {
-            return stride(from: 0, to: items.count, by: 4).map { index in
-                mosaicPage(
-                    items: Array(items[index..<min(index + 4, items.count)]),
-                    viewport: viewport
-                )
-            }
+            return mosaicPreferredPages(for: items, viewport: viewport)
         }
 
         var result: [FramePage] = []
@@ -61,8 +56,9 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
                allowsAutomaticMosaic,
                min(viewport.width, viewport.height) >= largeMinimumDimension,
                result.count % 20 == 12,
-               let group = nearbyMosaicGroup(in: remaining) {
-                result.append(mosaicPage(items: group, viewport: viewport))
+               let group = nearbyMosaicGroup(in: remaining),
+               let mosaic = mosaicPage(items: group, viewport: viewport) {
+                result.append(mosaic)
                 let groupIDs = Set(group.map(\.id))
                 remaining.removeAll(where: { groupIDs.contains($0.id) })
                 continue
@@ -93,6 +89,44 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
         }
 
         return result
+    }
+
+    private func mosaicPreferredPages(
+        for items: [FrameLayoutItem],
+        viewport: PixelSize
+    ) -> [FramePage] {
+        var pages: [FramePage] = []
+        var remaining = items
+
+        while let first = remaining.first {
+            let largestGroup = min(remaining.count, 4)
+            var composedPage: FramePage?
+            if largestGroup >= 2 {
+                for groupSize in stride(from: largestGroup, through: 2, by: -1) {
+                    let group = Array(remaining.prefix(groupSize))
+                    if let mosaic = mosaicPage(items: group, viewport: viewport) {
+                        composedPage = mosaic
+                        break
+                    }
+                }
+            }
+
+            if let composedPage {
+                pages.append(composedPage)
+                let composedIDs = Set(composedPage.placements.map(\.photoID))
+                remaining.removeAll(where: { composedIDs.contains($0.id) })
+            } else {
+                pages.append(
+                    singlePage(
+                        item: first,
+                        viewport: viewport,
+                        preference: .automatic
+                    )
+                )
+                remaining.removeFirst()
+            }
+        }
+        return pages
     }
 
     private func automaticComposition(
@@ -201,11 +235,10 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
     private func mosaicPage(
         items: [FrameLayoutItem],
         viewport: PixelSize
-    ) -> FramePage {
+    ) -> FramePage? {
+        guard items.count >= 2 else { return nil }
         let frames: [NormalizedRect]
         switch items.count {
-        case 1:
-            frames = [.unit]
         case 2:
             frames = [
                 NormalizedRect(x: 0, y: 0, width: 0.5, height: 1),
@@ -226,21 +259,55 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
             ]
         }
 
-        let placements = zip(items, frames).map { item, frame in
+        var placements: [FrameLayoutPlacement] = []
+        for (item, frame) in zip(items, frames) {
             let cellAspect = viewport.aspectRatio * frame.width / frame.height
-            let crop = safeCrop(for: item, targetAspectRatio: cellAspect)
-            return FrameLayoutPlacement(
-                id: "mosaic:\(item.id)",
-                photoID: item.id,
-                screenFrame: frame,
-                sourceCrop: crop ?? .unit,
-                contentMode: crop == nil ? .fit : .crop
-            )
+            guard let placement = multiPhotoPlacement(
+                item: item,
+                frame: frame,
+                cellAspectRatio: cellAspect,
+                id: "mosaic:\(item.id)"
+            ) else {
+                return nil
+            }
+            placements.append(placement)
         }
         return FramePage(
             id: "mosaic:" + items.map(\.id).joined(separator: ":"),
             kind: .mosaic,
             placements: placements
+        )
+    }
+
+    private func multiPhotoPlacement(
+        item: FrameLayoutItem,
+        frame: NormalizedRect,
+        cellAspectRatio: Double,
+        id: String
+    ) -> FrameLayoutPlacement? {
+        if let crop = safeCrop(for: item, targetAspectRatio: cellAspectRatio) {
+            return FrameLayoutPlacement(
+                id: id,
+                photoID: item.id,
+                screenFrame: frame,
+                sourceCrop: crop,
+                contentMode: .crop
+            )
+        }
+
+        let occupancy = FrameLayoutOccupancy.fittedPhotoFraction(
+            photoAspectRatio: item.pixelSize.aspectRatio,
+            cellAspectRatio: cellAspectRatio
+        )
+        guard occupancy >= FrameLayoutOccupancy.minimumMultiPhotoPhotoFraction else {
+            return nil
+        }
+        return FrameLayoutPlacement(
+            id: id,
+            photoID: item.id,
+            screenFrame: frame,
+            sourceCrop: .unit,
+            contentMode: .fit
         )
     }
 

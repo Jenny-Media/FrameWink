@@ -504,6 +504,109 @@ final class FrameLayoutChooserTests: XCTestCase {
         )
     }
 
+    func testLivingPhotoMotionPolicyHonorsReduceMotionResizeAndCalmCollages() {
+        XCTAssertTrue(
+            FramePhotoMotionPolicy.shouldAnimate(
+                isFrameMode: true,
+                isPlaying: true,
+                photoCount: 1,
+                reduceMotionEnabled: false,
+                isInteractingWithResize: false
+            )
+        )
+        XCTAssertFalse(
+            FramePhotoMotionPolicy.shouldAnimate(
+                isFrameMode: true,
+                isPlaying: true,
+                photoCount: 1,
+                reduceMotionEnabled: true,
+                isInteractingWithResize: false
+            )
+        )
+        XCTAssertFalse(
+            FramePhotoMotionPolicy.shouldAnimate(
+                isFrameMode: true,
+                isPlaying: true,
+                photoCount: 1,
+                reduceMotionEnabled: false,
+                isInteractingWithResize: true
+            )
+        )
+        XCTAssertFalse(
+            FramePhotoMotionPolicy.shouldAnimate(
+                isFrameMode: true,
+                isPlaying: true,
+                photoCount: 2,
+                reduceMotionEnabled: false,
+                isInteractingWithResize: false
+            )
+        )
+    }
+
+    func testMosaicRejectsFitTilesWithExcessiveBlankSpace() {
+        let edgeContent = [
+            NormalizedRect(x: 0.01, y: 0.2, width: 0.08, height: 0.2),
+            NormalizedRect(x: 0.91, y: 0.2, width: 0.08, height: 0.2),
+        ]
+        let items = (0..<4).map { index in
+            fixture(
+                id: "panorama-\(index)",
+                width: 4_000,
+                height: 1_000,
+                importantRects: edgeContent
+            )
+        }
+
+        let pages = chooser.pages(
+            for: items,
+            viewport: landscapeViewport,
+            preference: .mosaic
+        )
+
+        XCTAssertEqual(pages.count, items.count)
+        XCTAssertTrue(pages.allSatisfy { $0.placements.count == 1 })
+    }
+
+    func testEveryMosaicFitTileMeetsTheOccupancyThreshold() throws {
+        let edgeContent = [
+            NormalizedRect(x: 0.2, y: 0.01, width: 0.2, height: 0.08),
+            NormalizedRect(x: 0.2, y: 0.91, width: 0.2, height: 0.08),
+        ]
+        let items = (0..<4).map { index in
+            fixture(
+                id: "slightly-landscape-\(index)",
+                width: 1_050,
+                height: 1_000,
+                importantRects: edgeContent
+            )
+        }
+
+        let pages = chooser.pages(
+            for: items,
+            viewport: PixelSize(width: 1_200, height: 900),
+            preference: .mosaic
+        )
+        let fitPlacements = pages.flatMap(\.placements).filter {
+            $0.contentMode == .fit
+        }
+
+        XCTAssertEqual(pages.first?.kind, .mosaic)
+        XCTAssertEqual(pages.first?.placements.count, 4)
+        XCTAssertFalse(fitPlacements.isEmpty)
+        for placement in fitPlacements {
+            let item = try XCTUnwrap(items.first { $0.id == placement.photoID })
+            let cellAspect = (1_200.0 / 900.0)
+                * placement.screenFrame.width / placement.screenFrame.height
+            XCTAssertGreaterThanOrEqual(
+                FrameLayoutOccupancy.fittedPhotoFraction(
+                    photoAspectRatio: item.pixelSize.aspectRatio,
+                    cellAspectRatio: cellAspect
+                ),
+                FrameLayoutOccupancy.minimumMultiPhotoPhotoFraction
+            )
+        }
+    }
+
     func testMosaicCreatesBoundedNonOverlappingFourPhotoGrid() throws {
         let items = (1...5).map { index in
             fixture(id: "photo-\(index)", width: 1_600, height: 1_200)

@@ -16,6 +16,24 @@ struct PhotoLibraryAlbum: Identifiable, Equatable, Sendable {
     let id: String
     let title: String
     let photoCount: Int?
+    let coverAssetIdentifiers: [String]
+
+    init(
+        id: String,
+        title: String,
+        photoCount: Int?,
+        coverAssetIdentifiers: [String] = []
+    ) {
+        self.id = id
+        self.title = title
+        self.photoCount = photoCount
+        self.coverAssetIdentifiers = coverAssetIdentifiers
+    }
+}
+
+enum AlbumThumbnailLoadingPhase: Equatable {
+    case local
+    case cloud
 }
 
 struct PhotoLibraryAsset: Identifiable, Equatable, Sendable {

@@ -96,6 +96,22 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.buttons["frame-close-control"].exists)
     }
 
+    func testLongPressPhotoOffersNativeShareAction() {
+        launch(scenario: "personal-reel")
+
+        let actionTarget = app.descendants(matching: .any)[
+            "frame-photo-actions-78F4585F-54C5-4360-9C36-34E2C3F82BC4"
+        ].firstMatch
+        XCTAssertTrue(actionTarget.waitForExistence(timeout: 8))
+
+        actionTarget.press(forDuration: 1)
+
+        XCTAssertTrue(
+            app.buttons["Share Photo"].waitForExistence(timeout: 4),
+            "Long-pressing a displayed photo must reveal its native share action."
+        )
+    }
+
     func testChangingPlaybackSettingsKeepsTheSelectedPhotoSource() {
         launch(scenario: "source-integrity")
 

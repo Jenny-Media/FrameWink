@@ -466,8 +466,12 @@ struct AlbumPickerView: View {
                                     album: album,
                                     isSelected: controller.configuration
                                         .albumIdentifier == album.id,
-                                    loadThumbnail: {
-                                        await controller.thumbnail(for: album)
+                                    loadThumbnail: { maxPixelDimension, progress in
+                                        await controller.thumbnail(
+                                            for: album,
+                                            maxPixelDimension: maxPixelDimension,
+                                            progress: progress
+                                        )
                                     },
                                     onSelect: {
                                         select(album)
@@ -523,11 +527,16 @@ struct AlbumPickerView: View {
 private struct AlbumPickerTile: View {
     let album: PhotoLibraryAlbum
     let isSelected: Bool
-    let loadThumbnail: () async -> UIImage?
+    let loadThumbnail: (
+        Int,
+        @escaping (AlbumThumbnailLoadingPhase) -> Void
+    ) async -> UIImage?
     let onSelect: () -> Void
 
+    @Environment(\.displayScale) private var displayScale
     @State private var thumbnail: UIImage?
-    @State private var isLoadingThumbnail = true
+    @State private var requestedPixelDimension = 0
+    @State private var loadingState = AlbumCoverLoadingState.local
 
     var body: some View {
         Button(action: onSelect) {
@@ -540,6 +549,12 @@ private struct AlbumPickerTile: View {
                                 height: proxy.size.width
                             )
                             .clipped()
+                            .onAppear {
+                                updateRequestedPixelDimension(proxy.size.width)
+                            }
+                            .onChange(of: proxy.size.width) { width in
+                                updateRequestedPixelDimension(width)
+                            }
                     }
                     .aspectRatio(1, contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -572,11 +587,20 @@ private struct AlbumPickerTile: View {
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint("Select this album for your frame")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .task(id: album.id) {
-            thumbnail = nil
-            isLoadingThumbnail = true
-            thumbnail = await loadThumbnail()
-            isLoadingThumbnail = false
+        .task(id: thumbnailRequestID) {
+            guard requestedPixelDimension > 0 else { return }
+            loadingState = .local
+            let loadedThumbnail = await loadThumbnail(requestedPixelDimension) { phase in
+                guard thumbnail == nil else { return }
+                loadingState = phase == .cloud ? .cloud : .local
+            }
+            guard !Task.isCancelled else { return }
+            if let loadedThumbnail {
+                thumbnail = loadedThumbnail
+                loadingState = .ready
+            } else if thumbnail == nil {
+                loadingState = .unavailable
+            }
         }
     }
 
@@ -589,10 +613,20 @@ private struct AlbumPickerTile: View {
         } else {
             ZStack {
                 Color(UIColor.secondarySystemBackground)
-                if isLoadingThumbnail {
+                switch loadingState {
+                case .local, .ready:
                     ProgressView()
-                        .accessibilityLabel("Loading album cover")
-                } else {
+                        .accessibilityLabel("Loading album cover from this iPad")
+                case .cloud:
+                    VStack(spacing: 8) {
+                        Image(systemName: "icloud.and.arrow.down")
+                            .font(.title2)
+                        ProgressView()
+                    }
+                    .foregroundColor(.secondary)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Downloading album cover from iCloud Photos")
+                case .unavailable:
                     Image(systemName: "photo.on.rectangle.angled")
                         .font(.system(size: 38, weight: .light))
                         .foregroundColor(.secondary)
@@ -614,6 +648,30 @@ private struct AlbumPickerTile: View {
 
     private var albumCoverAccessibilityIdentifier: String {
         if thumbnail != nil { return "album-cover-ready" }
-        return isLoadingThumbnail ? "album-cover-loading" : "album-cover-unavailable"
+        switch loadingState {
+        case .local, .ready:
+            return "album-cover-loading"
+        case .cloud:
+            return "album-cover-cloud-loading"
+        case .unavailable:
+            return "album-cover-unavailable"
+        }
     }
+
+    private var thumbnailRequestID: String {
+        "\(album.id)|\(requestedPixelDimension)"
+    }
+
+    private func updateRequestedPixelDimension(_ pointDimension: CGFloat) {
+        let physicalPixels = Int(ceil(pointDimension * displayScale))
+        let roundedPixels = ((max(physicalPixels, 1) + 63) / 64) * 64
+        requestedPixelDimension = min(max(roundedPixels, 256), 768)
+    }
+}
+
+private enum AlbumCoverLoadingState {
+    case local
+    case cloud
+    case ready
+    case unavailable
 }

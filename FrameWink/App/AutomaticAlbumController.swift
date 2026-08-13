@@ -177,6 +177,10 @@ final class AutomaticAlbumController: ObservableObject {
                 albums = try await client.albums()
                 phase = currentReadyPhase
                 startObservingIfNeeded()
+                client.preheatAlbumThumbnails(
+                    albums: Array(albums.prefix(18)),
+                    maxPixelDimension: 384
+                )
             } catch {
                 albums = []
                 phase = .failed(error.localizedDescription)
@@ -347,11 +351,13 @@ final class AutomaticAlbumController: ObservableObject {
 
     func thumbnail(
         for album: PhotoLibraryAlbum,
-        maxPixelDimension: Int = 384
+        maxPixelDimension: Int = 384,
+        progress: @escaping (AlbumThumbnailLoadingPhase) -> Void = { _ in }
     ) async -> UIImage? {
         await client.albumThumbnail(
-            albumIdentifier: album.id,
-            maxPixelDimension: maxPixelDimension
+            album: album,
+            maxPixelDimension: maxPixelDimension,
+            progress: progress
         )
     }
 

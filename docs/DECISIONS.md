@@ -154,3 +154,17 @@ date; do not silently rewrite historical decisions during implementation.
   aspect ratios than a full-screen iPad. Deterministic bounded motion adds life
   without becoming a slideshow-effects panel, while adaptive stacks use those
   unusual windows without producing unreadable postage stamps.
+
+## D-018 — Collages earn their space; photo actions use system sharing
+
+- **Decision:** Every multi-photo placement must either use a subject-safe
+  full-bleed crop or occupy at least 78% of its tile when fitted. If a Mosaic
+  group cannot meet that standard, FrameWink retries with fewer photos and then
+  falls back to a single-photo page. Long-pressing an individual displayed
+  photo offers Apple's system share sheet for that image. FrameWink does not
+  claim a `Show in Photos` action because PhotoKit has no supported public API
+  for opening one arbitrary `PHAsset` in the Photos app.
+- **Reason:** A collage should feel intentionally composed rather than expose
+  large black bands, but subject preservation is more important than forcing a
+  layout. System sharing is familiar, available on iPadOS 15, and avoids a
+  brittle private Photos deep link.

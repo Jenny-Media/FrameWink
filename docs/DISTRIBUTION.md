@@ -398,20 +398,21 @@ blocker affects only a later boundary.
 
 ### B-020 — Physical album-cover UI automation could not enter automation mode
 
-- Status: Open, non-blocking device-validation issue
+- Status: Resolved by owner-observed physical testing on 2026-08-13
 - First recorded: 2026-08-13
 - Evidence: the new real-PhotoKit album-cover UI regression built and installed
   on the connected iPad Pro, but XCTest timed out while enabling iPadOS
   automation mode before the test body ran. Xcode then emitted the already
   documented host tool-path diagnostic while collecting failure artifacts.
-- Impact: the optimized cover path has compile, unit, Simulator, Release, and
-  signed-install evidence, but still needs a completed real-library assertion
-  that at least one cover becomes visible within twenty seconds.
-- Does not block: interactive use, manual cover inspection, the connected iPad
-  mini attempt, local builds, or the Xcode Cloud release path.
-- Next action: retry on an awake unlocked device; if iPadOS continues rejecting
-  automation mode, inspect the installed album grid manually and preserve the
-  XCTest for a later unlocked run.
+- Resolution: the owner opened **Choose Album** on a physical iPad and confirmed
+  that real covers appear progressively. They remain qualitatively slower than
+  Apple's Photos app, so the implementation now also returns bounded cover
+  candidates with album metadata, preheats the first visible/nearby set,
+  requests measured screen-sized tiles, tries every eligible local candidate
+  before cloud fallback, and exposes an explicit cloud-loading state.
+- Remaining non-blocking check: preserve and retry the physical XCTest when
+  iPadOS automation mode is stable; compare qualitative time-to-first-visible
+  and scrolling behavior after installing this newer cover pipeline.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 

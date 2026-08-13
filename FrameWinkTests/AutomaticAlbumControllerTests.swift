@@ -103,6 +103,26 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertEqual(client.thumbnailRequests.first?.maxPixelDimension, 384)
     }
 
+    func testAlbumLoadingPreheatsABoundedInitialSetOfCovers() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        client.albumsValue = (0..<24).map { (index: Int) -> PhotoLibraryAlbum in
+            PhotoLibraryAlbum(
+                id: "album-\(index)",
+                title: "Album \(index)",
+                photoCount: index
+            )
+        }
+        let controller = makeController(client: client, store: ControllerAlbumStore())
+
+        controller.setEntitled(true)
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { controller.albums.count == 24 }
+
+        XCTAssertEqual(client.preheatedAlbumIdentifiers.count, 18)
+        XCTAssertEqual(client.preheatedAlbumIdentifiers.first, "album-0")
+        XCTAssertEqual(client.preheatedPixelDimension, 384)
+    }
+
     func testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         client.albumsValue = [PhotoLibraryAlbum(id: "family", title: "Family", photoCount: 2)]
@@ -409,6 +429,8 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     var albumsValue: [PhotoLibraryAlbum] = []
     var albumsError: Error?
     var thumbnailRequests: [(albumIdentifier: String, maxPixelDimension: Int)] = []
+    var preheatedAlbumIdentifiers: [String] = []
+    var preheatedPixelDimension: Int?
     private var changeContinuation: AsyncStream<Void>.Continuation?
 
     init(authorization: PhotoLibraryAuthorizationState) {
@@ -434,6 +456,14 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     ) async -> UIImage? {
         thumbnailRequests.append((albumIdentifier, maxPixelDimension))
         return UIImage()
+    }
+
+    func preheatAlbumThumbnails(
+        albums: [PhotoLibraryAlbum],
+        maxPixelDimension: Int
+    ) {
+        preheatedAlbumIdentifiers = albums.map(\.id)
+        preheatedPixelDimension = maxPixelDimension
     }
     func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] { [] }
 
