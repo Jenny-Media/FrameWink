@@ -371,3 +371,16 @@ date; do not silently rewrite historical decisions during implementation.
   help when Vision returns no useful region. A bounded crop-loss rule is
   deterministic, orientation-independent, and preserves the native Photos-like
   choice to letterbox an incompatible image rather than over-zoom it.
+
+## D-032 — The production icon uses a clean gallery-frame mark
+
+- **Decision:** Replace the ornate scalloped FrameWink icon with the selected
+  clean-gallery iteration: a thick ivory frame, coral half-sun, sage and teal
+  hills, and one restrained gold wink glint on a midnight-indigo field. Keep
+  the generated alternatives and exact prompt under `Design/AppIconIterations/`
+  as design history, while shipping only the normalized opaque 1,024-pixel
+  master from the asset catalog.
+- **Reason:** Side-by-side full-size and 32-pixel review showed the clean frame
+  has the clearest silhouette and product hierarchy. It remains recognizable
+  at Home Screen size without camera imagery, typography, or fine decoration,
+  and it preserves the warm private-frame identity of the previous mark.

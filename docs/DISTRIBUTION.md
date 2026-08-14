@@ -204,7 +204,7 @@ blocker affects only a later boundary.
 - Needed from owner: review the saved response and personally select Publish in
   App Store Connect if Jenny Media LLC accepts the attestation.
 
-### B-010 — Xcode Cloud workflow needs an authenticated Xcode account
+### B-010 — Xcode Cloud has no workflow or build
 
 - Status: Open
 - First recorded: 2026-08-12
@@ -214,36 +214,37 @@ blocker affects only a later boundary.
   authentication completed successfully, and App Store Connect now confirms
   `Xcode Cloud has been successfully connected` and `Xcode Cloud can now access
   your source code`. The GitHub App installation is restricted to `Only select
-  repositories: Jenny-Media/FrameWink`. Xcode is now open at its Apple Account
-  email-or-phone sign-in sheet. Apple documents adding an Apple Account to Xcode
-  as a prerequisite for Xcode Cloud onboarding.
-- Impact: the first Xcode Cloud workflow cannot be saved or run, and no cloud
-  archive can reach TestFlight, until an authorized Jenny Media LLC team member
-  finishes the open Xcode Apple Account login.
+  repositories: Jenny-Media/FrameWink`. The owner completed the Xcode Apple
+  Account sign-in on 2026-08-14. Live App Store Connect inspection that day
+  still showed `Create a workflow in Xcode to get started` and no TestFlight
+  builds.
+- Impact: the first Xcode Cloud workflow still must be saved and run before a
+  cloud archive can reach TestFlight.
 - Does not block: all App Store Connect/IAP metadata, local verification,
   physical-device discovery, or commits.
-- Needed from owner: finish the open Apple Account authentication sheet in
-  Xcode. Repository-scoped GitHub access is complete and must remain limited to
+- Needed: create and run the repository-scoped validation workflow, then create
+  the internal TestFlight archive workflow. Keep GitHub access limited to
   `Jenny-Media/FrameWink`.
 
 ### B-011 — App Store declarations need owner completion
 
 - Status: Open
 - First recorded: 2026-08-12
-- Evidence: mutable product-page metadata, screenshots, category, pricing, and
-  availability are configured, but App Store Connect still requires the age
-  rating questionnaire, content-rights declaration, and a real App Review
-  contact record. The owner supplied the real App Review phone number on
-  2026-08-12. The complete Yihong Chen contact record, using the monitored
-  FrameWink support mailbox, is now saved in App Store Connect. The public
-  repository intentionally does not reproduce the private contact number. The
-  remaining content-rights and age-rating answers are publisher attestations
-  that cannot be inferred safely from the source tree.
+- Evidence: mutable product-page metadata, category, pricing, and availability
+  exist, but live inspection on 2026-08-14 found stale iPad-only copy, no
+  iPhone screenshots, an obsolete iPad screenshot, unset content-rights and
+  age-rating declarations, and blank App Review phone and email fields. The
+  owner supplied the contact values previously; the public repository
+  intentionally does not reproduce the private phone number. Content-rights
+  and age-rating answers are publisher attestations that cannot be inferred
+  safely from the source tree.
 - Impact: version 1.0 cannot be submitted to App Review until the declarations
   and contact record are complete.
 - Does not block: Xcode Cloud setup, internal TestFlight builds, local
   validation, or repository work.
-- Needed from owner: complete the content-rights and age-rating declarations.
+- Needed from owner: approve transmission of the private review contact and
+  approve the public metadata/declarations at the point of entry. Upload the
+  refreshed screenshots and attach the first IAP to version 1.0.
 
 ### B-012 — Physical PhotoKit album picker stalled after authorization
 
@@ -537,12 +538,14 @@ blocker affects only a later boundary.
   successful build.
 - TestFlight has `framewink@jenny.media` as its feedback address, the public
   GitHub repository as its marketing URL, and `PRIVACY.md` as its privacy URL.
-  The complete App Review contact for Yihong Chen is saved with the same
-  monitored FrameWink mailbox; its private phone number is not duplicated in
+  The App Review contact names are saved, but the phone and email fields were
+  blank during live inspection on 2026-08-14. The owner-supplied values must be
+  entered before submission; the private phone number is not duplicated in
   this public repository.
 - Jenny Media LLC's Paid Apps Agreement and Free Apps Agreement are active for
-  all regions. Its configured bank account, U.S. W-9, and Digital Services Act
-  compliance record are also active.
+  all regions. Its configured bank account and U.S. W-9 are active. Live App
+  Information currently identifies Jenny Media LLC as a non-trader for this
+  app; the publisher should verify that Digital Services Act classification.
 - The app is free in all 175 current regions and configured for all future
   regions; Wall Mode remains a separate $9.99 lifetime IAP whose all-region
   storefront availability is saved. Apple Silicon Mac availability is disabled
@@ -556,6 +559,9 @@ blocker affects only a later boundary.
   automatic layout, literal timing, and shorter Frame Settings; replace the
   earlier accepted screenshot set and upload the ten-shot 6.9-inch iPhone set
   before App Review submission.
+- App Privacy has the policy URL and `Data Not Collected` response saved, but
+  its owner attestation has not been published. Age Ratings and Content Rights
+  remain unset. App Accessibility setup is optional and has not been started.
 
 ## Committed Xcode Cloud guardrail
 
@@ -572,8 +578,8 @@ without preventing Build, Analyze, or Test workflows.
   ready to send invitations. The first successful Xcode Cloud build must be
   explicitly assigned to this group.
 - Complete the owner-only App Privacy attestation under B-009.
-- Finish the open Jenny Media LLC Apple Account sign-in sheet in Xcode under
-  B-010. Repository-scoped GitHub authorization is complete.
+- Create and run the first Xcode Cloud workflow under B-010. Repository-scoped
+  GitHub authorization and the Xcode Apple Account sign-in are complete.
 - Complete the publisher declarations and contact data under B-011.
 - After StoreKit metadata propagation, repeat product loading through a sandbox
   or TestFlight device build and submit the first lifetime IAP with the first

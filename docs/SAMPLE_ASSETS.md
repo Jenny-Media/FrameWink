@@ -34,18 +34,24 @@ personal reel.
 
 ## `AppIcon-1024.png`
 
-The opaque 1,024-pixel app icon master was generated with Codex's built-in
-image-generation tool on 2026-08-12 and saved in
+The opaque 1,024-pixel app icon master was regenerated with Codex's built-in
+image-generation tool on 2026-08-14 and saved in
 `FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/`.
 
 ```text
 Use case: logo-brand
-Asset type: iPadOS App Store icon master, square 1024 × 1024 bitmap
-Primary request: Create a refined, memorable icon for FrameWink, a private local digital photo-frame app. Show a single bold cream-colored picture-frame shape enclosing an abstract warm sunrise over two simple curved hills; add one tiny four-point glint near the upper-right inside edge to suggest a playful wink.
-Style/medium: premium flat geometric illustration with subtle tactile grain, exceptionally clean silhouette, native Apple-platform sensibility without copying an Apple icon
-Composition/framing: centered, symmetrical overall balance, large simple forms that remain legible at 32 px, generous but not empty margins, full-bleed square background
+Asset type: production iOS and iPadOS App Store icon, square 1024 × 1024 bitmap
+Primary request: Redesign the FrameWink app icon as an exceptionally clear, premium flat geometric mark for a private local photo-frame app. Preserve the core idea of a warm ivory picture frame around a coral sunset and two overlapping hills, with a subtle playful wink cue. Use a clean, thick, softly squared gallery-frame silhouette with one small four-point gold wink glint tucked inside the upper-right corner. Simplify every contour and enlarge the important forms so the icon remains recognizable at 32 px.
+Style/medium: crisp premium flat vector-like illustration with extremely subtle paper grain only; no thin strokes; no tiny decoration besides the wink glint
+Composition/framing: centered bold mark occupying about 78% of the square; broad frame rail; large half-sun; two sweeping hills with clear overlap; generous internal negative space; visually balanced at thumbnail scale
 Lighting/mood: warm, calm, trustworthy, quietly joyful
 Color palette: deep midnight indigo background, warm ivory frame, muted coral sun, sage and muted teal hills, small soft-gold glint
 Constraints: opaque full-bleed square; no transparency; no text; no letters; no photography; no device mockup; no border around the overall canvas; do not pre-round the canvas corners because iPadOS applies its own mask; no watermark
-Avoid: gradients that turn muddy at small size, thin linework, excessive detail, lens/camera imagery, human faces, hearts, smiley faces, neon colors, glossy 3D rendering
+Avoid: scalloped ornate frame edges, gradients that turn muddy, glossy 3D, drop shadows, excessive texture, fine lines, realistic landscape detail, neon colors
 ```
+
+The selected clean-gallery candidate is also retained under
+`Design/AppIconIterations/` with the two rejected explorations, full prompts,
+and 32-pixel comparison sheets. The production PNG is an opaque, metadata-free
+sRGB image. Its SHA-256 is
+`5f4881ffb1a29b9a06a18bc1297828bb68cffdb9830dbd7422145b988b772e8a`.

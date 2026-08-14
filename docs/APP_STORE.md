@@ -74,6 +74,48 @@ The public repository hosts this policy and the Issues tracker provides the
 support endpoint. Privacy questions and support mail go to
 `framewink@jenny.media`.
 
+## Version 1.0 product-page copy
+
+Subtitle:
+
+> Private smart photo frame
+
+Promotional text:
+
+> A private, local-first photo frame for iPhone and iPad. Choose photos, press Start Frame, and keep memories fresh with one FrameWink Lifetime upgrade.
+
+Description:
+
+> Turn an iPhone or iPad into a calm, private photo frame in a few taps.
+>
+> FrameWink starts with clearly labelled sample photos, so you can see the experience before granting access to anything. When you are ready, choose your own photos with Apple's system photo picker. FrameWink prepares a Smart Reel entirely on your device and keeps display-sized copies inside the app.
+>
+> FREE SMART REEL
+>
+> • Import up to 500 photo candidates across sessions
+> • Get up to 100 locally curated recommendations
+> • Review the reel before it plays
+> • Remove an unwanted photo with Never Show Again and undo mistakes
+> • Let automatic layouts protect faces, pair compatible portraits, and fit each screen
+> • Swipe, pause, share, and choose 10-second, 30-second, 1-minute, or 5-minute timing
+> • Replay without a watermark, ads, an account, or a trial countdown
+>
+> FRAMEWINK LIFETIME
+>
+> A single $9.99 purchase unlocks automatic refresh from one Photos album you explicitly choose, an unlimited supported-album candidate pool, fresher recommendations with longer-term repeat avoidance, additional automatic multi-photo layouts, optional night schedules, foreground Auto-Lock prevention while the frame plays, and practical mounted-display guidance. Family Sharing is supported where available from Apple.
+>
+> PRIVATE BY DESIGN
+>
+> FrameWink has no developer server, account, advertising, analytics SDK, or tracking. Photos and analysis stay on your device. FrameWink never edits, hides, favorites, or deletes originals in your Photos library. You can remove imported copies and downloaded album copies from the app at any time.
+>
+> Automatic album updates request full Photos access only after you choose that paid feature. FrameWink excludes hidden photos and screenshots from automatic selection. Guided Access setup remains a manual Apple system feature, and scheduled display behavior works only while FrameWink remains open.
+>
+> Requires iOS or iPadOS 15 or later.
+
+Keywords (89 characters):
+
+> photo frame,slideshow,photos,album,smart display,digital frame,private,mosaic,iPhone,iPad
+
 ## App Review notes draft
 
 FrameWink is a universal iPhone and iPad app and requires iOS/iPadOS 15 or
@@ -119,8 +161,8 @@ The App Store Connect product is Apple ID `6800849862`. Its saved reference and
 English (U.S.) display name are `FrameWink Lifetime`; its saved description is
 `Automatic albums, Mosaic, night schedules, and more.` It is priced at a $9.99
 U.S. base across all available storefronts and has Family Sharing permanently
-enabled. The refined promotional text and full 1.0 product-page description are
-also saved in App Store Connect.
+enabled. The version 1.0 product-page copy above is the release source of truth;
+it still needs to replace the stale iPad-only text in App Store Connect.
 
 ## Screenshot plan
 
@@ -178,12 +220,12 @@ with `scripts/capture_app_store_iphone_submission_screenshots.sh`.
 
 The first-workflow assistant in Xcode has matched FrameWink, Jenny Media LLC,
 and `Jenny-Media/FrameWink`. B-001, B-002, and B-006 are resolved. The owner
-approved repository-scoped Xcode Cloud access on 2026-08-12, but Xcode is
-currently waiting at its Apple Account sign-in sheet. GitHub owner
-authentication is complete; App Store Connect confirms Xcode Cloud can access
-the source, and the GitHub App is restricted to `Jenny-Media/FrameWink`. Finish
-the Xcode Apple Account authentication under B-010, then resume the workflow in
-Xcode. The repository otherwise has a shared archivable `FrameWink` scheme and
+approved repository-scoped Xcode Cloud access on 2026-08-12 and completed the
+Xcode Apple Account sign-in on 2026-08-14. GitHub owner authentication is
+complete; App Store Connect confirms Xcode Cloud can access the source, and the
+GitHub App is restricted to `Jenny-Media/FrameWink`. App Store Connect still
+shows no workflow or build, so first-workflow creation remains open under
+B-010. The repository otherwise has a shared archivable `FrameWink` scheme and
 no external package dependency.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` runs automatically before each
@@ -235,13 +277,14 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   `docs/DISTRIBUTION.md`.
 - Apple Silicon Mac availability: disabled; the app is designed for iPhone and
   iPad touch interaction
-- Product-page copy: promotional text, description, keywords, support,
-  marketing, and copyright saved
-- App Store screenshots: ten accepted for the 13-inch iPad slot and ordered
-  `01` through `10`; a matching ten-shot 6.9-inch iPhone submission set is
-  generated locally and must be uploaded for the universal release
-- App Review contact: Yihong Chen and `framewink@jenny.media` saved with the
-  owner-supplied phone number, which is intentionally omitted from this public
-  repository.
+- Product-page copy: support, marketing, and copyright are saved, but the live
+  promotional text, description, keywords, and subtitle are stale and
+  iPad-only. Replace them with the version 1.0 copy in this file.
+- App Store screenshots: the 13-inch iPad slot has ten older accepted images,
+  including an obsolete saved-configurations screen. Replace all ten with the
+  refreshed local set and upload the matching ten-shot 6.9-inch iPhone set.
+- App Review contact: Yihong Chen is saved, but live verification on 2026-08-14
+  found the phone and email fields blank. Add the owner-supplied values without
+  copying the private phone number into this public repository.
 - App Review submission still requires publisher-owned content-rights and age
   rating declarations; see B-011 in `docs/DISTRIBUTION.md`.

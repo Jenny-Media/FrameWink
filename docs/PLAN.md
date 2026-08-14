@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 23.25 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **46.25 h** | **In progress** |
+| 6. Hardening and release | 8 h | 24.75 h | Local release candidate complete — cloud/App Store completion pending |
+| **Total** | **40 h** | **47.75 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -785,6 +785,38 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   source instead of magnifying the incompatible crop. These private-photo
   judgments remain human checks; no attachment or device photo was added to
   the repository or automated evidence. Active work was approximately 1 hour.
+
+## App Review candidate preparation — 2026-08-14
+
+- Status: local release candidate complete; source publication and external
+  App Store/Xcode Cloud setup remain in progress. The app target now ships as
+  version 1.0 build 1, and the archive-mode CI guard rejects any other marketing
+  version in addition to the established bundle, team, product, device-family,
+  deployment-target, and privacy checks.
+- Icon: a delegated three-variant image-generation pass produced and compared
+  clean-gallery, integrated-wink, and compact-horizon marks at full and
+  32-pixel sizes. The clean-gallery variant was selected, normalized to an
+  opaque 1,024-pixel sRGB PNG, integrated into the asset catalog, and compiled
+  into both iPhone and iPad icon renditions. Exact prompts and alternatives are
+  retained under `Design/AppIconIterations/`.
+- Screenshots: the ten-shot 1320 × 2868 iPhone and ten-shot 2064 × 2752 iPad
+  submission sets were regenerated from the current app. Contact-sheet review
+  found no clipping, blank scenes, stale display-style controls, private media,
+  or misleading Free/Paid boundary. Every upload image is a JPEG without alpha.
+- Verification: the complete iPhone 17 Pro Max and iPad (A16) Simulator schemes
+  each pass 177 tests, intentionally skip four physical-PhotoKit checks, and
+  fail zero out of 181. The unsigned universal Release build, static analysis,
+  unsigned local archive, plist/StoreKit/shell validation, archive-mode cloud
+  guard, icon hash/dimension check, and diff hygiene all pass. The only runtime
+  warnings are the two previously documented private iOS 27 UIKit context-menu
+  hierarchy warnings; Xcode's successful test cleanup again reports its known
+  internal `simctl` lookup diagnostic.
+- Live release audit: App Store Connect still has no build or Xcode Cloud
+  workflow, no iPhone screenshots, one obsolete iPad screenshot, stale
+  iPad-only product copy/subtitle, blank App Review phone/email, unpublished
+  privacy answers, and unset age-rating/content-rights declarations. Those
+  externally mutable or publisher-attested items remain under B-009 through
+  B-011. Active work for the local candidate was approximately 1.5 hours.
 
 ## Timebox rule
 

@@ -37,6 +37,7 @@ bundle_identifier=$(read_build_setting PRODUCT_BUNDLE_IDENTIFIER)
 development_team=$(read_build_setting DEVELOPMENT_TEAM)
 device_family=$(read_build_setting TARGETED_DEVICE_FAMILY)
 minimum_os=$(read_build_setting IPHONEOS_DEPLOYMENT_TARGET)
+marketing_version=$(read_build_setting MARKETING_VERSION)
 wall_mode_product_id=$(read_build_setting FRAMEWINK_WALL_MODE_PRODUCT_ID)
 unit_test_bundle_identifier=$(xcodebuild \
     -project "$project_path" \
@@ -61,6 +62,8 @@ ui_test_bundle_identifier=$(xcodebuild \
     || fail "Release target must support iPhone and iPad (TARGETED_DEVICE_FAMILY = 1,2)."
 [ "$minimum_os" = "15.0" ] \
     || fail "Release deployment target is '$minimum_os', expected iOS/iPadOS 15.0."
+[ "$marketing_version" = "1.0" ] \
+    || fail "Release marketing version is '$marketing_version', expected App Store version 1.0."
 [ "$unit_test_bundle_identifier" = "media.jenny.FrameWinkTests" ] \
     || fail "Unit-test bundle identifier is '$unit_test_bundle_identifier', expected media.jenny.FrameWinkTests."
 [ "$ui_test_bundle_identifier" = "media.jenny.FrameWinkUITests" ] \

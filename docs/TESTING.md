@@ -1414,3 +1414,57 @@ explicit owner approval.
   Owner observation of the private moon/architecture photos remains required;
   the app should choose whole-photo Fit when the compact viewport cannot retain
   70% in Fill.
+
+## App Review candidate preflight — 2026-08-14
+
+- Destination discovery command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -project FrameWink.xcodeproj -scheme FrameWink -showdestinations`. Result:
+  iPhone 17 Pro Max and iPad (A16) iOS 27 Simulators, both physical iPads, and
+  the physical iPhone are available; the scheme is universal.
+- Complete iPhone command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug
+  -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE'
+  -derivedDataPath /private/tmp/FrameWink-Review-iPhone -resultBundlePath
+  /private/tmp/FrameWink-Review-iPhone-20260814.xcresult
+  CODE_SIGNING_ALLOWED=NO test`. Result: 177 passed, four intentional physical-
+  PhotoKit skips, and zero failures out of 181.
+- Complete iPad command uses the same project, scheme, configuration, and code-
+  signing flag with destination
+  `platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F`, derived
+  data `/private/tmp/FrameWink-Review-iPad`, and result bundle
+  `/private/tmp/FrameWink-Review-iPad-20260814.xcresult`. Result: 177 passed,
+  four intentional physical-PhotoKit skips, and zero failures out of 181.
+- Release command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release
+  -destination 'generic/platform=iOS' -derivedDataPath
+  /private/tmp/FrameWink-Review-Release CODE_SIGNING_ALLOWED=NO build`. Result:
+  success with no app compiler diagnostics. The equivalent Debug generic iOS
+  Simulator `analyze` action also succeeds.
+- Archive packaging command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release
+  -destination 'generic/platform=iOS' -archivePath
+  /private/tmp/FrameWink-Review-1.0.xcarchive CODE_SIGNING_ALLOWED=NO archive`.
+  Result: success. The archived app reports `media.jenny.FrameWink`, version
+  1.0 build 1, iOS 15.0 minimum, device families 1 and 2, no non-exempt
+  encryption, one root privacy manifest, and compiled iPhone/iPad icons.
+- Screenshot commands:
+  `scripts/capture_app_store_iphone_submission_screenshots.sh` and
+  `scripts/capture_app_store_submission_screenshots.sh`. Both generated ten
+  current screenshots successfully. Visual contact-sheet review passed; `sips`
+  confirms 1320 × 2868 and 2064 × 2752 JPEGs respectively, all without alpha.
+- Asset and configuration checks: the production icon is 1024 × 1024, opaque,
+  and byte-identical to the selected clean-gallery candidate with SHA-256
+  `5f4881ffb1a29b9a06a18bc1297828bb68cffdb9830dbd7422145b988b772e8a`.
+  `plutil -lint`, `jq empty`, `/bin/sh -n`, the archive-mode
+  `ci_scripts/ci_pre_xcodebuild.sh`, and `git diff --check` all pass.
+- Warnings/remaining device work: both test bundles retain the two known private
+  iOS 27 UIKit context-menu hierarchy warnings, Apple's StoreKitTest headers
+  emit their SDK deprecation warning, and Xcode's successful cleanup emits the
+  known internal `simctl` lookup diagnostic. The previous real-device photo,
+  StoreKit sandbox, Family Sharing, iCloud, and long-running mounted-display
+  checks remain the physical gates recorded in `docs/DISTRIBUTION.md`; no new
+  device behavior was inferred from Simulator results.
