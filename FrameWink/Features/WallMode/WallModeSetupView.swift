@@ -418,7 +418,9 @@ private struct AlbumPickerTile: View {
                 Color(UIColor.secondarySystemBackground)
                 switch loadingState {
                 case .local, .ready:
-                    ProgressView()
+                    Image(systemName: "photo")
+                        .font(.system(size: 34, weight: .light))
+                        .foregroundColor(.secondary.opacity(0.45))
                         .accessibilityLabel("Loading album cover from this iPad")
                 case .cloud:
                     VStack(spacing: 8) {

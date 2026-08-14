@@ -131,6 +131,44 @@ final class LocalCurationStoreTests: XCTestCase {
         XCTAssertEqual(try store.loadSmartReel(), updated)
     }
 
+    func testPipelineUndoRestoresSelectionOrderAndRemovesOnlyItsVeto() throws {
+        let firstID = UUID()
+        let restoredID = UUID()
+        let lastID = UUID()
+        let retainedExclusion = UUID()
+        let selections = [firstID, restoredID, lastID].map {
+            CuratedPhoto(
+                candidateID: $0,
+                algorithmRevision: SmartReelCurator.algorithmRevision,
+                finalScore: 0.8,
+                reasons: [.quality]
+            )
+        }
+        let reel = SmartReel(
+            id: UUID(),
+            algorithmRevision: SmartReelCurator.algorithmRevision,
+            createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+            selections: selections
+        )
+        let pipeline = SmartReelPipeline(
+            analyzer: DelayedFixtureAnalyzer(),
+            curator: SmartReelCurator(),
+            store: store
+        )
+        try store.saveExclusions([retainedExclusion])
+
+        let excluded = try pipeline.exclude(candidateID: restoredID, from: reel)
+        let restored = try pipeline.restore(
+            selection: selections[1],
+            at: 1,
+            to: excluded
+        )
+
+        XCTAssertEqual(restored.selections.map(\.candidateID), [firstID, restoredID, lastID])
+        XCTAssertEqual(try store.loadExclusions(), [retainedExclusion])
+        XCTAssertEqual(try store.loadSmartReel(), restored)
+    }
+
     func testPipelineDoesNotPersistAnEmptyReelWhenNoPhotoIsUsable() async throws {
         let pipeline = SmartReelPipeline(
             analyzer: DelayedFixtureAnalyzer(sharpness: 0.01),

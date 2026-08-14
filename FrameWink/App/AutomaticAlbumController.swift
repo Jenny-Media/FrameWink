@@ -33,6 +33,7 @@ final class AutomaticAlbumController: ObservableObject {
     private var shouldBuildProvisionalReels = false
     private var provisionalCandidateCount = 0
     private var preheatedAlbumCatalogKey: String?
+    private var mostRecentExclusion: (selection: CuratedPhoto, index: Int)?
 
     init(
         client: PhotoLibraryClient,
@@ -353,13 +354,20 @@ final class AutomaticAlbumController: ObservableObject {
     }
 
     func neverShow(candidateID: UUID) {
-        guard let smartReel = smartReel else { return }
+        guard let smartReel = smartReel,
+              let index = smartReel.selections.firstIndex(where: {
+                  $0.candidateID == candidateID
+              }) else {
+            return
+        }
         do {
+            let selection = smartReel.selections[index]
             let updated = try smartReelBuilder.exclude(
                 candidateID: candidateID,
                 from: smartReel
             )
             self.smartReel = updated
+            mostRecentExclusion = (selection, index)
             phase = .ready(
                 photoCount: records.count,
                 suggestionCount: updated.selections.count
@@ -369,10 +377,41 @@ final class AutomaticAlbumController: ObservableObject {
         }
     }
 
+    var canUndoNeverShow: Bool {
+        mostRecentExclusion != nil
+    }
+
+    func undoNeverShow() {
+        guard let smartReel,
+              let mostRecentExclusion else {
+            return
+        }
+        do {
+            let restored = try smartReelBuilder.restore(
+                selection: mostRecentExclusion.selection,
+                at: mostRecentExclusion.index,
+                to: smartReel
+            )
+            self.smartReel = restored
+            self.mostRecentExclusion = nil
+            phase = .ready(
+                photoCount: records.count,
+                suggestionCount: restored.selections.count
+            )
+        } catch {
+            phase = .failed(error.localizedDescription)
+        }
+    }
+
+    func clearNeverShowUndo() {
+        mostRecentExclusion = nil
+    }
+
     func resetNeverShowChoices() {
         do {
             try smartReelBuilder.resetExclusions()
             smartReel = nil
+            mostRecentExclusion = nil
             refresh()
         } catch {
             phase = .failed(error.localizedDescription)

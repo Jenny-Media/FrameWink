@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 16.5 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **39.5 h** | **In progress** |
+| 6. Hardening and release | 8 h | 18.75 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **41.75 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -688,6 +688,29 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   invalidate the Simulator results or physical install. Manual first-tap
   confirmation on the installed phone remains the only device interaction
   check. Active work was approximately 1.25 hours.
+
+## Native control and reversible-review refinement — 2026-08-14
+
+- Status: implementation and local verification complete. Playback now shows
+  Share, pause/play, and More while preserving finger-following swipe navigation
+  and named VoiceOver previous/next actions. Frame Controls is a native Form
+  with a four-option segmented Photo Duration picker. Dismiss-only sheets use
+  leading Close actions; photo import uses a native modal Form; the home menu is
+  symbol-labelled and grouped; local album covers use quiet placeholders; and
+  both review sources provide a persisted five-second Undo for Never Show Again.
+- Verification: the exact iOS 27 iPad (A16) Simulator scheme passes 172 tests,
+  skips four intentional physical-PhotoKit checks, and fails zero of 176. The
+  two existing private UIKit context-menu hierarchy warnings remain. The
+  unsigned iPadOS 15 Release build, Xcode static analysis, archive-mode cloud
+  guard, ten 2064 × 2752 submission screenshots, and eleven 1640 × 2360 QA
+  screenshots pass. Visual inspection confirms one native popover edge, a
+  centered title, native duration segments, and the direct playback share.
+- Physical status: the signed exact source installed on the iPad Pro but could
+  not launch while that iPad was locked. The paired iPad mini 6 was not
+  reachable. Unlocking each and rerunning its scoped acceptance `prepare`
+  command remains the device smoke check. Existing real Photos, oldest-2-GB,
+  TestFlight sandbox, Xcode Cloud, and seven-day-soak gates remain open and are
+  unchanged. Active work was approximately 2.25 hours.
 
 ## Timebox rule
 

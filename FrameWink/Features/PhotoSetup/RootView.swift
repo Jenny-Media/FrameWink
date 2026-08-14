@@ -1,8 +1,9 @@
 import SwiftUI
 
-private enum SheetDestination: String, Identifiable {
+private enum SheetDestination: String, Identifiable, Equatable {
     case photos
     case photoPicker
+    case importStatus
     case albumPicker
     case privacy
     case reviewSuggestions
@@ -117,20 +118,6 @@ struct RootView: View {
                         chrome(isCompact: isCompact)
                     }
 
-                    if shouldShowImportStatus && !isFrameMode {
-                        Color.black.opacity(0.2)
-                            .ignoresSafeArea()
-                            .transition(.opacity)
-
-                        ImportStatusCard(
-                            phase: model.importPhase,
-                            canRetry: model.canRetryImport,
-                            cancel: model.cancelImport,
-                            retry: model.retryImport,
-                            dismiss: model.dismissImportStatus
-                        )
-                        .transition(.scale.combined(with: .opacity))
-                    }
                 }
             }
             .navigationBarHidden(true)
@@ -171,6 +158,14 @@ struct RootView: View {
                     model.importSelectedItems(items)
                 }
                 .ignoresSafeArea()
+            case .importStatus:
+                ImportStatusCard(
+                    phase: model.importPhase,
+                    canRetry: model.canRetryImport,
+                    cancel: model.cancelImport,
+                    retry: model.retryImport,
+                    dismiss: model.dismissImportStatus
+                )
             case .albumPicker:
                 AlbumPickerView(controller: automaticAlbum) { _ in
                     selectPhotoMode(.automaticAlbum)
@@ -200,12 +195,16 @@ struct RootView: View {
         }
         .onChange(of: isFrameMode) { isActive in
             wallMode.setFrameModeActive(isActive)
+            synchronizeImportStatusPresentation(shouldShowImportStatus)
 #if DEBUG
             PhysicalAcceptanceRecorder.shared.recordStateChange()
 #endif
         }
         .onChange(of: model.collectionMode) { mode in
             preferredPhotoMode = mode.rawValue
+        }
+        .onChange(of: shouldShowImportStatus) { shouldShow in
+            synchronizeImportStatusPresentation(shouldShow)
         }
         .onChange(of: frameConfigurations.activeConfigurationID) { _ in
             applyActiveFrameConfiguration()
@@ -217,6 +216,7 @@ struct RootView: View {
                 restorePreferredPhotoMode()
             }
             applyInitialPresentationIfNeeded()
+            synchronizeImportStatusPresentation(shouldShowImportStatus)
         }
 #if DEBUG
         .onAppear {
@@ -257,17 +257,29 @@ struct RootView: View {
 
     private var homeMenu: some View {
         Menu {
-            Button("Photos…") {
+            Button {
                 presentedSheet = .photos
+            } label: {
+                Label("Photos…", systemImage: "photo.on.rectangle.angled")
             }
 
-            Button(purchases.isWallModeUnlocked ? "Frame Settings" : "More Frame Features") {
+            Button {
                 presentedSheet = purchases.isWallModeUnlocked
                     ? .frameSettings
                     : .wallModePaywall
+            } label: {
+                Label(
+                    purchases.isWallModeUnlocked ? "Frame Settings" : "More Frame Features",
+                    systemImage: purchases.isWallModeUnlocked ? "gearshape" : "sparkles"
+                )
             }
-            Button("Privacy & Data") {
+
+            Divider()
+
+            Button {
                 presentedSheet = .privacy
+            } label: {
+                Label("Privacy & Data", systemImage: "lock.shield")
             }
         } label: {
             Image(systemName: "ellipsis.circle.fill")
@@ -714,6 +726,24 @@ struct RootView: View {
         }
     }
 
+    private func synchronizeImportStatusPresentation(_ shouldShow: Bool) {
+        guard shouldShow, !isFrameMode else {
+            if presentedSheet == .importStatus {
+                presentedSheet = nil
+            }
+            return
+        }
+
+        if presentedSheet == nil {
+            presentedSheet = .importStatus
+        } else if presentedSheet == .photoPicker {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                guard shouldShowImportStatus, !isFrameMode else { return }
+                presentedSheet = .importStatus
+            }
+        }
+    }
+
     private func selectPhotoMode(_ mode: PhotoCollectionMode) {
         model.collectionMode = mode
         preferredPhotoMode = mode.rawValue
@@ -939,8 +969,8 @@ private struct PhotosSheet: View {
             .navigationTitle("Photos")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
@@ -1083,8 +1113,8 @@ private struct PrivacyAndDataSheet: View {
             .navigationTitle("Privacy & Data")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }

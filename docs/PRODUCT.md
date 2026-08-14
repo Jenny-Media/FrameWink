@@ -56,12 +56,14 @@ preloaded gifts, family contributions, and remote administration.
    `Start Sample Frame` remains available as the secondary action.
 3. The app imports display-sized local copies, curates them, and changes the
    primary action to `Start Frame`.
-4. Frame playback begins directly. Previous, pause/play, next, and a single
-   `More` button provide the essential controls. `More` opens one compact Frame
-   Controls panel with one selected slideshow interval and one scene-level
-   share action. FrameWink chooses the layout automatically, while a receding
-   top-right close button exits Frame Mode directly. A short tap/swipe hint
-   recedes with the controls; tapping the photo brings controls back.
+4. Frame playback begins directly. Share, pause/play, and `More` provide the
+   visible controls, while a horizontal swipe follows the finger to move to the
+   previous or next scene. VoiceOver exposes equivalent named previous and next
+   actions on each displayed photo. `More` opens one compact native Frame
+   Controls panel with one selected photo duration. FrameWink chooses the layout
+   automatically, while a receding top-right close button exits Frame Mode
+   directly. A short tap/swipe hint recedes with the controls; tapping the photo
+   brings controls back.
 5. Review, deletion, privacy, source switching, and frame settings remain
    available through progressive disclosure rather than a button dashboard.
 6. FrameWink Lifetime is offered when a user chooses an automatic album or
@@ -84,7 +86,8 @@ preloaded gifts, family contributions, and remote administration.
   geometry-driven two-to-four-photo tall stacks where each photo remains large.
 - Automatic face-safe Fit/Fill decisions without a display-style setting.
 - A selected 30-second default with direct 10-second, 30-second, 1-minute, and
-  5-minute choices, plus tap/swipe previous and next, pause, and replay.
+  5-minute choices, plus swipe navigation, pause, direct scene sharing, and
+  unlimited replay.
 - Restrained dissolve/directional transitions and subtle face-safe zoom/pan
   motion with Reduce Motion support.
 - Review Suggestions and Never Show Again.

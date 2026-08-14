@@ -8,90 +8,146 @@ struct ImportStatusCard: View {
     let dismiss: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            switch phase {
-            case .idle:
-                EmptyView()
-            case .importing(let progress):
-                progressContent(progress, isCancelling: false)
-            case .cancelling(let progress):
-                progressContent(progress, isCancelling: true)
-            case .finished(let report):
-                completionContent(report)
-            case .deletionFailed(let message):
-                Label("Couldn’t delete imported photos", systemImage: "exclamationmark.triangle.fill")
-                    .font(.title3.weight(.semibold))
-                    .foregroundColor(.orange)
-                Text(message)
-                    .foregroundColor(.secondary)
-                Button("Dismiss", action: dismiss)
-                    .buttonStyle(.borderedProminent)
+        NavigationView {
+            Form {
+                content
+            }
+            .navigationTitle(navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    toolbarAction
+                }
+            }
+            .accessibilityIdentifier("import-status-sheet")
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .interactiveDismissDisabled(isBusy)
+        .onDisappear {
+            if !isBusy {
+                dismiss()
             }
         }
-        .padding(24)
-        .frame(maxWidth: 480, alignment: .leading)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: .black.opacity(0.28), radius: 28, y: 12)
-        .padding()
     }
 
     @ViewBuilder
-    private func progressContent(_ progress: ImportProgress, isCancelling: Bool) -> some View {
-        Text(isCancelling ? "Stopping import…" : "Preparing your photos")
-            .font(.title3.weight(.semibold))
+    private var content: some View {
+        switch phase {
+        case .idle:
+            EmptyView()
+        case .importing(let progress):
+            progressContent(progress, isCancelling: false)
+        case .cancelling(let progress):
+            progressContent(progress, isCancelling: true)
+        case .finished(let report):
+            completionContent(report)
+        case .deletionFailed(let message):
+            Section {
+                Label("Couldn’t delete imported photos", systemImage: "exclamationmark.triangle.fill")
+                    .foregroundColor(.orange)
+                Text(message)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
 
-        ProgressView(value: progress.fractionCompleted)
-            .tint(.accentColor)
-            .accessibilityLabel("Photo import progress")
-            .accessibilityValue("\(progress.completedCount) of \(progress.totalCount)")
+    @ViewBuilder
+    private var toolbarAction: some View {
+        switch phase {
+        case .importing:
+            Button("Cancel", role: .cancel, action: cancel)
+                .accessibilityIdentifier("cancel-photo-import")
+        case .cancelling:
+            ProgressView()
+                .accessibilityLabel("Stopping import")
+        case .idle, .finished, .deletionFailed:
+            Button("Close", action: dismiss)
+                .accessibilityIdentifier("close-import-status")
+        }
+    }
 
-        Text("\(progress.completedCount) of \(progress.totalCount) finished")
-            .foregroundColor(.secondary)
+    @ViewBuilder
+    private func progressContent(
+        _ progress: ImportProgress,
+        isCancelling: Bool
+    ) -> some View {
+        Section {
+            ProgressView(value: progress.fractionCompleted)
+                .tint(.accentColor)
+                .accessibilityLabel("Photo import progress")
+                .accessibilityValue("\(progress.completedCount) of \(progress.totalCount)")
 
-        if !isCancelling {
-            Button("Cancel Import", role: .cancel, action: cancel)
-                .buttonStyle(.bordered)
+            Text("\(progress.completedCount) of \(progress.totalCount) finished")
+                .foregroundColor(.secondary)
+        } footer: {
+            Text(
+                isCancelling
+                    ? "FrameWink is keeping every photo that already finished."
+                    : "Display-sized copies stay on this iPad and remain available offline."
+            )
         }
     }
 
     @ViewBuilder
     private func completionContent(_ report: PhotoImportReport) -> some View {
+        Section {
+            completionLabel(report)
+
+            Text(summary(for: report))
+                .foregroundColor(.secondary)
+
+            if let firstFailure = report.failures.first {
+                Text(firstFailure.message)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+            }
+        }
+
+        if canRetry {
+            Section {
+                Button(report.wasCancelled ? "Resume Import" : "Retry Failed", action: retry)
+                    .accessibilityIdentifier("retry-photo-import")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func completionLabel(_ report: PhotoImportReport) -> some View {
         if report.wasCancelled {
             Label("Import stopped", systemImage: "pause.circle.fill")
-                .font(.title3.weight(.semibold))
         } else if report.limitReachedCount > 0 && report.failures.isEmpty {
             Label("Photo collection full", systemImage: "photo.stack.fill")
-                .font(.title3.weight(.semibold))
                 .foregroundColor(.accentColor)
         } else if report.failures.isEmpty {
             Label("Photos ready", systemImage: "checkmark.circle.fill")
-                .font(.title3.weight(.semibold))
                 .foregroundColor(.green)
         } else {
             Label("Some photos need another try", systemImage: "exclamationmark.circle.fill")
-                .font(.title3.weight(.semibold))
                 .foregroundColor(.orange)
         }
+    }
 
-        Text(summary(for: report))
-            .foregroundColor(.secondary)
-
-        if let firstFailure = report.failures.first {
-            Text(firstFailure.message)
-                .font(.footnote)
-                .foregroundColor(.secondary)
+    private var navigationTitle: String {
+        switch phase {
+        case .idle:
+            return "Photo Import"
+        case .importing:
+            return "Preparing Photos"
+        case .cancelling:
+            return "Stopping Import"
+        case .finished:
+            return "Import Complete"
+        case .deletionFailed:
+            return "Couldn’t Delete Photos"
         }
+    }
 
-        HStack {
-            if canRetry {
-                Button(report.wasCancelled ? "Resume Import" : "Retry Failed", action: retry)
-                    .buttonStyle(.borderedProminent)
-                Button("Done", action: dismiss)
-                    .buttonStyle(.bordered)
-            } else {
-                Button("Done", action: dismiss)
-                    .buttonStyle(.borderedProminent)
-            }
+    private var isBusy: Bool {
+        switch phase {
+        case .importing, .cancelling:
+            return true
+        case .idle, .finished, .deletionFailed:
+            return false
         }
     }
 

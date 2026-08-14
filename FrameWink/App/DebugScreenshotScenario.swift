@@ -464,6 +464,21 @@ final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
         )
     }
 
+    func restore(
+        selection: CuratedPhoto,
+        at index: Int,
+        to reel: SmartReel
+    ) throws -> SmartReel {
+        var selections = reel.selections
+        selections.insert(selection, at: min(max(index, 0), selections.count))
+        return SmartReel(
+            id: reel.id,
+            algorithmRevision: reel.algorithmRevision,
+            createdAt: reel.createdAt,
+            selections: selections
+        )
+    }
+
     func resetExclusions() throws {}
 }
 #endif

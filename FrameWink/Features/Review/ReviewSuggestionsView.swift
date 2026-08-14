@@ -5,6 +5,7 @@ struct ReviewSuggestionsView: View {
     @ObservedObject var model: AppModel
 
     @Environment(\.presentationMode) private var presentationMode
+    @State private var undoDismissTask: Task<Void, Never>?
 
     private let columns = [
         GridItem(.adaptive(minimum: 190, maximum: 280), spacing: 16),
@@ -39,7 +40,7 @@ struct ReviewSuggestionsView: View {
                                         loadImage: { photo in
                                             await model.thumbnail(for: photo)
                                         },
-                                        neverShow: model.neverShow
+                                        neverShow: neverShow
                                     )
                                 }
                             }
@@ -51,14 +52,44 @@ struct ReviewSuggestionsView: View {
             .navigationTitle("Review Suggestions")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .safeAreaInset(edge: .bottom) {
+            if model.canUndoNeverShow {
+                ReviewUndoBar(undo: undoNeverShow)
+            }
+        }
+        .onDisappear {
+            undoDismissTask?.cancel()
+            model.clearNeverShowUndo()
+        }
+    }
+
+    private func neverShow(_ candidateID: UUID) {
+        model.neverShow(candidateID: candidateID)
+        scheduleUndoDismissal()
+    }
+
+    private func undoNeverShow() {
+        undoDismissTask?.cancel()
+        model.undoNeverShow()
+    }
+
+    private func scheduleUndoDismissal() {
+        undoDismissTask?.cancel()
+        undoDismissTask = Task {
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                model.clearNeverShowUndo()
+            }
+        }
     }
 }
 
@@ -95,12 +126,12 @@ private struct ReviewPhotoCard: View {
             } label: {
                 Label("Never Show Again", systemImage: "eye.slash.fill")
                     .font(.footnote.weight(.semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 9)
-                    .background(.black.opacity(0.6), in: Capsule())
+                    .frame(minHeight: 44)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .tint(.red)
+            .accessibilityIdentifier("never-show-" + photo.id.uuidString)
             .padding(12)
         }
         .frame(height: 220)
@@ -120,6 +151,7 @@ private struct ReviewPhotoCard: View {
 struct AutomaticAlbumReviewView: View {
     @ObservedObject var controller: AutomaticAlbumController
     @Environment(\.presentationMode) private var presentationMode
+    @State private var undoDismissTask: Task<Void, Never>?
 
     private let columns = [
         GridItem(.adaptive(minimum: 190, maximum: 280), spacing: 16),
@@ -154,7 +186,7 @@ struct AutomaticAlbumReviewView: View {
                                         loadImage: { photo in
                                             await controller.thumbnail(for: photo)
                                         },
-                                        neverShow: controller.neverShow
+                                        neverShow: neverShow
                                     )
                                 }
                             }
@@ -166,13 +198,65 @@ struct AutomaticAlbumReviewView: View {
             .navigationTitle("Review Automatic Album")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .safeAreaInset(edge: .bottom) {
+            if controller.canUndoNeverShow {
+                ReviewUndoBar(undo: undoNeverShow)
+            }
+        }
+        .onDisappear {
+            undoDismissTask?.cancel()
+            controller.clearNeverShowUndo()
+        }
+    }
+
+    private func neverShow(_ candidateID: UUID) {
+        controller.neverShow(candidateID: candidateID)
+        scheduleUndoDismissal()
+    }
+
+    private func undoNeverShow() {
+        undoDismissTask?.cancel()
+        controller.undoNeverShow()
+    }
+
+    private func scheduleUndoDismissal() {
+        undoDismissTask?.cancel()
+        undoDismissTask = Task {
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                controller.clearNeverShowUndo()
+            }
+        }
+    }
+}
+
+private struct ReviewUndoBar: View {
+    let undo: () -> Void
+
+    var body: some View {
+        HStack(spacing: 16) {
+            Label("Photo hidden", systemImage: "eye.slash")
+                .foregroundColor(.primary)
+
+            Spacer()
+
+            Button("Undo", action: undo)
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .accessibilityIdentifier("undo-never-show")
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 10)
+        .background(.regularMaterial)
+        .accessibilityElement(children: .contain)
     }
 }

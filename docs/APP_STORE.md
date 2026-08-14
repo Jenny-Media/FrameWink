@@ -130,13 +130,14 @@ set. Do not use private tester photos.
 2. **Your best 30 — Free:** Smart Reel review grid showing local suggestions and
    `Never Show Again`.
 3. **Made for an iPad — Free:** landscape Frame Mode with a paired-portrait
-   layout and visible navigation/timing controls.
+   layout and visible Share, pause, and More controls.
 4. **A one-time wall upgrade — Paid:** the $9.99 non-consumable paywall with the
    full Free Smart Reel comparison and Restore Purchases.
 5. **Fresh from your album — Paid:** the Photos-familiar progressive album grid
    with a clearly selected source.
-6. **Simple at a glance — Paid:** Frame Controls with the selected 30-second
-   default and direct 10-second, 30-second, 1-minute, and 5-minute choices.
+6. **Simple at a glance — Paid:** the native Frame Controls segmented picker
+   with the selected 30-second default and direct 10-second, 30-second,
+   1-minute, and 5-minute choices.
 7. **Made for every photo — Paid:** An automatic multi-photo frame that shows
    a balanced Mosaic without exposing another layout setting.
 8. **Quiet at night — Paid:** Frame Settings with the optional schedule and

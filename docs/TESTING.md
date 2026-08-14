@@ -1227,3 +1227,48 @@ explicit owner approval.
   timer UI test timed out while iOS enabled Automation Mode before the test body
   ran; B-023 records that non-blocking tooling boundary. Manually tapping each
   duration once on the installed phone remains required.
+
+## Native control and reversible-review audit — 2026-08-14
+
+- Playback exposes one direct `Share Photo` or `Share Photos`, pause/play, and
+  More control. Previous and next remain finger-following horizontal swipes;
+  each photo exposes named Previous Photo and Next Photo VoiceOver actions with
+  the current page position. Focused UI coverage proves the arrows are absent,
+  scene Share is direct for one- and multi-photo pages, long-press remains the
+  exact-photo share path, and rotation/swipe behavior still works.
+- Frame Controls is a system NavigationView/Form with a native segmented
+  Photo Duration picker and leading Close action. Rapid `10s` → `5m` → `1m` →
+  `30s` → `10s` selection passes with one tap per segment. The selected state
+  remains optimistic while persistence uses the existing playback binding.
+- The Photos, Privacy & Data, personal review, and automatic review sheets now
+  use cancellation-position Close actions. Import progress, cancellation,
+  completion, retry, and deletion failure use one native modal Form rather than
+  an app-owned dimming overlay. The initial-personal-import UI regression proves
+  that this sheet appears without exposing bundled sample imagery.
+- `Never Show Again` is a full-size native destructive action. Its Undo removes
+  only the just-added durable exclusion, restores the exact curated selection
+  and order, saves the repaired reel, and disappears after use or five seconds.
+  Pipeline, automatic-controller, and end-to-end review UI regressions pass.
+- Local album covers use a quiet photo placeholder during local candidate work;
+  a spinner remains only for actual iCloud download. Home menu items have native
+  labels, grouped symbols, and a divider before Privacy & Data.
+- Exact complete command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F'
+  -derivedDataPath /private/tmp/FrameWink-NativeControls-Derived
+  -resultBundlePath /private/tmp/FrameWink-NativeControls-Final-20260814-0904.xcresult
+  CODE_SIGNING_ALLOWED=NO test`. Result: 172 passed, four intentional
+  physical-PhotoKit skips, zero failures, and zero expected failures out of 176.
+  The same two private iOS 27 UIKit context-menu hierarchy warnings remain, and
+  Xcode's post-test diagnostic again lacked `simctl` outside the explicit
+  developer environment after the successful run.
+- The exact source passes unsigned generic iPadOS Release build, Xcode static
+  analysis, and `CI_XCODEBUILD_ACTION=archive ci_scripts/ci_pre_xcodebuild.sh`.
+  The built app remains `media.jenny.FrameWink`, iPad family 2, and iPadOS 15.0
+  minimum. Both screenshot scripts pass, and visual contact-sheet inspection
+  found no clipping, double sheet edges, blank paid frames, or misplaced text.
+- The signed exact source installed over existing data on the paired iPad Pro;
+  its locked screen refused only foreground launch. The paired iPad mini 6 was
+  not reachable. These external device-state results are recorded under B-004;
+  unlock and rerun `prepare` before manual touch and Photos-library checks.

@@ -347,6 +347,39 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertFalse(controller.canDisplay)
     }
 
+    func testNeverShowCanBeUndoneWithoutRefreshingTheAlbum() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        let synchronizer = ControllerAlbumSynchronizer()
+        let builder = ControllerSmartReelBuilder()
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: builder,
+            changeRefreshDelayNanoseconds: 1
+        )
+        controller.setEntitled(true)
+        try await waitUntil { controller.smartReel != nil }
+        let originalIDs = try XCTUnwrap(controller.smartReel).selections.map(\.candidateID)
+        let excluded = try XCTUnwrap(originalIDs.first)
+
+        controller.neverShow(candidateID: excluded)
+        XCTAssertTrue(controller.canUndoNeverShow)
+        XCTAssertFalse(controller.smartReel?.selections.contains {
+            $0.candidateID == excluded
+        } ?? true)
+
+        controller.undoNeverShow()
+
+        XCTAssertFalse(controller.canUndoNeverShow)
+        XCTAssertEqual(controller.smartReel?.selections.map(\.candidateID), originalIDs)
+        XCTAssertEqual(builder.exclusions, [])
+        XCTAssertEqual(synchronizer.syncCount, 1)
+    }
+
     func testResetNeverShowPreservesCachedPhotosAndRefreshesSuggestions() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         let store = ControllerAlbumStore()
@@ -713,6 +746,24 @@ private final class ControllerSmartReelBuilder: SmartReelBuilding {
             algorithmRevision: reel.algorithmRevision,
             createdAt: reel.createdAt,
             selections: reel.selections.filter { $0.candidateID != candidateID }
+        )
+        savedReel = updated
+        return updated
+    }
+
+    func restore(
+        selection: CuratedPhoto,
+        at index: Int,
+        to reel: SmartReel
+    ) throws -> SmartReel {
+        exclusions.remove(selection.candidateID)
+        var selections = reel.selections
+        selections.insert(selection, at: min(max(index, 0), selections.count))
+        let updated = SmartReel(
+            id: reel.id,
+            algorithmRevision: reel.algorithmRevision,
+            createdAt: reel.createdAt,
+            selections: selections
         )
         savedReel = updated
         return updated

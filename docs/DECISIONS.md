@@ -299,3 +299,24 @@ date; do not silently rewrite historical decisions during implementation.
   gesture immediately while the binding remains the source of truth. Stable
   geometry and larger targets make the literal duration choices feel like
   native controls without adding another menu or setting.
+
+## D-028 — Playback and modal controls use native Photos-familiar roles
+
+- **Decision:** The visible playback bar contains direct scene Share,
+  pause/play, and More actions. Horizontal swipes remain the primary previous
+  and next interaction, with equivalent named VoiceOver actions on every photo.
+  Frame Controls contains only a native four-option segmented Photo Duration
+  picker in a system Form and a cancellation-position Close action. Dismiss-only
+  Photos, Privacy, and review sheets also use leading Close actions; the import
+  status is a native modal Form instead of an app-owned blocking card. Home menu
+  commands use labels and grouped symbols, local album-cover loading uses quiet
+  placeholders while real iCloud work retains progress, and `Never Show Again`
+  uses a native destructive control with a five-second durable Undo. This
+  supersedes D-023 and D-024 only for Share placement, and D-027 only for the
+  custom duration-button presentation; their state and timing behavior remain.
+- **Reason:** A direct scene share is more discoverable than hiding it behind
+  More, while visible previous/next arrows duplicate the finger-following swipe
+  and make the playback surface busier. Native segmented controls, toolbar
+  roles, Forms, and loading semantics match familiar Apple interaction and
+  accessibility behavior. Undo makes curation mistakes immediately reversible
+  without weakening the persisted hard veto after the affordance expires.

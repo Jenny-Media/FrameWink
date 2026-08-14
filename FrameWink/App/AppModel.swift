@@ -88,6 +88,7 @@ final class AppModel: ObservableObject {
     private var retryItems: [PhotoImportItem] = []
     private var curatedCandidateCount = 0
     private var pendingCurationCandidateCount: Int?
+    private var mostRecentExclusion: (selection: CuratedPhoto, index: Int)?
 
     init(
         importer: PhotoImporting,
@@ -293,16 +294,49 @@ final class AppModel: ObservableObject {
 
     func neverShow(candidateID: UUID) {
         guard let smartReelBuilder = smartReelBuilder,
-              let smartReel = smartReel else {
+              let smartReel = smartReel,
+              let index = smartReel.selections.firstIndex(where: {
+                  $0.candidateID == candidateID
+              }) else {
             return
         }
         do {
+            let selection = smartReel.selections[index]
             let updated = try smartReelBuilder.exclude(candidateID: candidateID, from: smartReel)
             self.smartReel = updated
+            mostRecentExclusion = (selection, index)
             curationPhase = .ready(updated.selections.count)
         } catch {
             curationPhase = .failed(error.localizedDescription)
         }
+    }
+
+    var canUndoNeverShow: Bool {
+        mostRecentExclusion != nil
+    }
+
+    func undoNeverShow() {
+        guard let smartReelBuilder,
+              let smartReel,
+              let mostRecentExclusion else {
+            return
+        }
+        do {
+            let restored = try smartReelBuilder.restore(
+                selection: mostRecentExclusion.selection,
+                at: mostRecentExclusion.index,
+                to: smartReel
+            )
+            self.smartReel = restored
+            self.mostRecentExclusion = nil
+            curationPhase = .ready(restored.selections.count)
+        } catch {
+            curationPhase = .failed(error.localizedDescription)
+        }
+    }
+
+    func clearNeverShowUndo() {
+        mostRecentExclusion = nil
     }
 
     func resetNeverShowChoices() {
@@ -310,6 +344,7 @@ final class AppModel: ObservableObject {
         do {
             try smartReelBuilder.resetExclusions()
             smartReel = nil
+            mostRecentExclusion = nil
             curationPhase = .idle
             refreshSmartReel()
         } catch {
@@ -355,6 +390,7 @@ final class AppModel: ObservableObject {
             importedPhotos = []
             retryItems = []
             smartReel = nil
+            mostRecentExclusion = nil
             curatedCandidateCount = 0
             pendingCurationCandidateCount = nil
             collectionMode = .samples

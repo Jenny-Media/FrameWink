@@ -114,6 +114,13 @@ blocker affects only a later boundary.
   locked, so iPadOS refused the foreground launch after the successful install.
   Unlocking and opening the already-installed app remains the only incomplete
   step from that run and does not block Simulator, Release, or cloud preflight.
+- Native-control refinement install: on 2026-08-14 the exact 172-test source
+  signed and installed over existing data on the paired iPad Pro. Its locked
+  screen refused only the foreground launch. The paired iPad mini 6 was listed
+  but not reachable, so discovery stopped before its build/install stage. Wake
+  and unlock each device, then rerun its scoped `prepare` command; these device-
+  state boundaries do not affect the green Simulator, Release, analysis, or
+  archive-guard evidence.
 - Needed from owner: provide or approve a small licensed, human-labelled
   evaluation-photo set and exercise real Photos authorization, iCloud/Limited
   behavior, and sandbox purchase/restore on the connected iPad.

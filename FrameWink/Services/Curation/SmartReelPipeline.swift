@@ -27,7 +27,32 @@ protocol SmartReelBuilding {
 
     func exclude(candidateID: UUID, from reel: SmartReel) throws -> SmartReel
 
+    func restore(
+        selection: CuratedPhoto,
+        at index: Int,
+        to reel: SmartReel
+    ) throws -> SmartReel
+
     func resetExclusions() throws
+}
+
+extension SmartReelBuilding {
+    func restore(
+        selection: CuratedPhoto,
+        at index: Int,
+        to reel: SmartReel
+    ) throws -> SmartReel {
+        var selections = reel.selections.filter {
+            $0.candidateID != selection.candidateID
+        }
+        selections.insert(selection, at: min(max(index, 0), selections.count))
+        return SmartReel(
+            id: reel.id,
+            algorithmRevision: reel.algorithmRevision,
+            createdAt: reel.createdAt,
+            selections: selections
+        )
+    }
 }
 
 final class SmartReelPipeline: SmartReelBuilding {
@@ -200,6 +225,35 @@ final class SmartReelPipeline: SmartReelBuilding {
             selections: reel.selections.filter { $0.candidateID != candidateID }
         )
         try store.saveSmartReel(updated)
+        return updated
+    }
+
+    func restore(
+        selection: CuratedPhoto,
+        at index: Int,
+        to reel: SmartReel
+    ) throws -> SmartReel {
+        let originalExclusions = try store.loadExclusions()
+        var exclusions = originalExclusions
+        exclusions.remove(selection.candidateID)
+        try store.saveExclusions(exclusions)
+
+        var selections = reel.selections.filter {
+            $0.candidateID != selection.candidateID
+        }
+        selections.insert(selection, at: min(max(index, 0), selections.count))
+        let updated = SmartReel(
+            id: reel.id,
+            algorithmRevision: reel.algorithmRevision,
+            createdAt: reel.createdAt,
+            selections: selections
+        )
+        do {
+            try store.saveSmartReel(updated)
+        } catch {
+            try? store.saveExclusions(originalExclusions)
+            throw error
+        }
         return updated
     }
 

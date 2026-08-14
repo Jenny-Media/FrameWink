@@ -164,10 +164,10 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(playbackOptions.waitForExistence(timeout: 3))
         playbackOptions.tap()
         XCTAssertTrue(
-            app.descendants(matching: .any)["frame-controls-panel"]
+            app.navigationBars["Frame Controls"]
                 .waitForExistence(timeout: 3)
         )
-        let speed = app.buttons["frame-speed-10"]
+        let speed = app.segmentedControls["frame-duration-picker"].buttons["10s"]
         XCTAssertTrue(speed.waitForExistence(timeout: 3))
         speed.tap()
 
@@ -188,7 +188,9 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             app.staticTexts["Preparing My Photos on this iPad"]
                 .waitForExistence(timeout: 8)
         )
-        XCTAssertTrue(app.staticTexts["Preparing 0 of 3 selected photos…"].exists)
+        XCTAssertTrue(app.navigationBars["Preparing Photos"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["0 of 3 finished"].exists)
+        XCTAssertTrue(app.buttons["cancel-photo-import"].isHittable)
         XCTAssertFalse(app.staticTexts["Bundled sample photos"].exists)
         XCTAssertFalse(
             app.descendants(matching: .any)["frame-photo-sample-city-skyline"].exists
@@ -218,9 +220,9 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let secondPhoto = app.descendants(matching: .any)[
             "frame-photo-5255CD65-7C11-4EEB-B7F5-85FC76A4D11B"
         ].firstMatch
-        app.buttons["Next photo"].tap()
+        app.swipeLeft()
         XCTAssertTrue(secondPhoto.waitForExistence(timeout: 4))
-        app.buttons["Previous photo"].tap()
+        app.swipeRight()
         XCTAssertTrue(firstPhoto.waitForExistence(timeout: 4))
 
         let playbackOptions = app.buttons["More playback options"]
@@ -282,6 +284,13 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         let playbackOptions = app.buttons["More playback options"]
         XCTAssertTrue(playbackOptions.waitForExistence(timeout: 3))
+        let shareAction = app.buttons["frame-share-current-photos"]
+        XCTAssertTrue(
+            shareAction.isHittable,
+            "Frame playback must expose sharing without opening More."
+        )
+        XCTAssertFalse(app.buttons["Previous photo"].exists)
+        XCTAssertFalse(app.buttons["Next photo"].exists)
         XCTAssertTrue(
             app.buttons["frame-quick-close-control"].isHittable,
             "Frame playback must expose a direct one-tap exit when controls are visible."
@@ -289,37 +298,33 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         playbackOptions.tap()
         XCTAssertTrue(
-            app.descendants(matching: .any)["frame-controls-panel"]
+            app.navigationBars["Frame Controls"]
                 .waitForExistence(timeout: 3)
         )
-        XCTAssertTrue(app.staticTexts["Frame Controls"].isHittable)
         XCTAssertFalse(app.buttons["frame-close-control"].exists)
-        let shareAction = app.buttons["frame-share-current-photos"]
-        XCTAssertTrue(
-            shareAction.exists,
-            "Frame Controls must expose sharing for the current scene."
+        XCTAssertFalse(
+            app.buttons["frame-share-current-photos"].isHittable,
+            "The playback bar must sit behind the open Frame Controls popover."
         )
-        XCTAssertTrue(
-            shareAction.isHittable,
-            "The direct Share action must be visibly reachable in Frame Controls."
-        )
-        XCTAssertTrue(app.buttons["frame-speed-10"].exists)
-        XCTAssertTrue(app.buttons["frame-speed-30"].exists)
-        XCTAssertTrue(app.buttons["frame-speed-60"].exists)
-        XCTAssertTrue(app.buttons["frame-speed-300"].exists)
-        XCTAssertFalse(app.buttons["frame-speed-5"].exists)
+        let durationPicker = app.segmentedControls["frame-duration-picker"]
+        XCTAssertTrue(durationPicker.waitForExistence(timeout: 3))
+        XCTAssertTrue(durationPicker.buttons["10s"].exists)
+        XCTAssertTrue(durationPicker.buttons["30s"].exists)
+        XCTAssertTrue(durationPicker.buttons["1m"].exists)
+        XCTAssertTrue(durationPicker.buttons["5m"].exists)
+        XCTAssertFalse(durationPicker.buttons["5s"].exists)
         XCTAssertFalse(app.buttons["frame-layout-fit"].exists)
         XCTAssertFalse(app.buttons["frame-layout-fill"].exists)
         XCTAssertTrue(app.staticTexts["Photo Duration"].exists)
 
-        let tenSeconds = app.buttons["frame-speed-10"]
+        let tenSeconds = durationPicker.buttons["10s"]
         XCTAssertFalse(tenSeconds.isSelected)
         tenSeconds.tap()
         XCTAssertTrue(
             tenSeconds.isSelected,
             "A duration must become selected on the first tap."
         )
-        XCTAssertFalse(app.buttons["frame-speed-30"].isSelected)
+        XCTAssertFalse(durationPicker.buttons["30s"].isSelected)
 
         let panelScreenshot = XCTAttachment(screenshot: app.screenshot())
         panelScreenshot.name = "Frame Controls panel"
@@ -331,29 +336,26 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         launch(scenario: "frame-controls")
 
         XCTAssertTrue(
-            app.descendants(matching: .any)["frame-controls-panel"]
+            app.navigationBars["Frame Controls"]
                 .waitForExistence(timeout: 8)
         )
 
-        let identifiers = [
-            "frame-speed-10",
-            "frame-speed-300",
-            "frame-speed-60",
-            "frame-speed-30",
-            "frame-speed-10",
+        let durationPicker = app.segmentedControls["frame-duration-picker"]
+        XCTAssertTrue(durationPicker.waitForExistence(timeout: 3))
+        let labels = [
+            "10s",
+            "5m",
+            "1m",
+            "30s",
+            "10s",
         ]
-        for identifier in identifiers {
-            let duration = app.buttons[identifier]
-            XCTAssertTrue(duration.isHittable, "\(identifier) must accept a direct tap.")
-            XCTAssertGreaterThanOrEqual(
-                duration.frame.height,
-                44,
-                "\(identifier) must retain a full-size touch target."
-            )
+        for label in labels {
+            let duration = durationPicker.buttons[label]
+            XCTAssertTrue(duration.isHittable, "\(label) must accept a direct tap.")
             duration.tap()
             XCTAssertTrue(
                 duration.isSelected,
-                "\(identifier) must become selected after one tap."
+                "\(label) must become selected after one tap."
             )
         }
     }
@@ -375,16 +377,8 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
     func testMultiPhotoFrameOffersOneShareActionForTheWholeScene() {
         launch(scenario: "mosaic-frame")
 
-        let playbackOptions = app.buttons["More playback options"]
-        XCTAssertTrue(playbackOptions.waitForExistence(timeout: 8))
-        playbackOptions.tap()
-
-        XCTAssertTrue(
-            app.descendants(matching: .any)["frame-controls-panel"]
-                .waitForExistence(timeout: 3)
-        )
         let shareAction = app.buttons["frame-share-current-photos"]
-        XCTAssertTrue(shareAction.waitForExistence(timeout: 3))
+        XCTAssertTrue(shareAction.waitForExistence(timeout: 8))
         XCTAssertEqual(
             shareAction.label,
             "Share Photos",
@@ -393,6 +387,28 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.buttons["frame-share-photo-menu"].exists)
         XCTAssertFalse(app.buttons["Share Featured"].exists)
         XCTAssertFalse(app.buttons["Other Photos"].exists)
+    }
+
+    func testReviewNeverShowUsesNativeActionAndCanUndo() {
+        launch(scenario: "free-review-grid")
+
+        XCTAssertTrue(app.navigationBars["Review Suggestions"].waitForExistence(timeout: 8))
+        let neverShowButtons = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'never-show-'")
+        )
+        let neverShow = neverShowButtons.firstMatch
+        XCTAssertTrue(neverShow.isHittable)
+        XCTAssertGreaterThanOrEqual(neverShow.frame.height, 44)
+        let countBefore = neverShowButtons.count
+
+        neverShow.tap()
+
+        let undo = app.buttons["undo-never-show"]
+        XCTAssertTrue(undo.waitForExistence(timeout: 3))
+        XCTAssertEqual(neverShowButtons.count, countBefore - 1)
+        undo.tap()
+        XCTAssertTrue(waitForNonexistence(undo, timeout: 3))
+        XCTAssertEqual(neverShowButtons.count, countBefore)
     }
 
     func testFrameQuickCloseExitsWithoutOpeningMore() {
@@ -525,16 +541,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let firstIdentifier = firstPhoto.identifier
         XCTAssertFalse(firstIdentifier.isEmpty)
 
-        let next = app.buttons["Next photo"]
-        XCTAssertTrue(next.waitForExistence(timeout: 2))
-        XCTAssertTrue(next.isHittable, "The visible Next control must accept touches.")
-        let firstPosition = next.value as? String
-        XCTAssertNotNil(firstPosition)
-        next.tap()
-        XCTAssertTrue(
-            waitForValueContaining(next, text: "Photo 2 of", timeout: 3),
-            "Next must advance from \(firstPosition ?? "unknown")."
-        )
+        app.swipeLeft()
 
         let nextPhoto = albumPhotos.matching(
             NSPredicate(format: "identifier != %@", firstIdentifier)
@@ -552,7 +559,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         ).firstMatch
         XCTAssertTrue(
             thirdPagePhoto.waitForExistence(timeout: 4),
-            "A swipe must replace every photo from the preceding real-album page."
+            "A second swipe must replace every photo from the preceding real-album page."
         )
 #endif
     }
