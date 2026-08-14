@@ -468,7 +468,7 @@ recovery.
 - [x] Compatibility copy says iPadOS 15+ rather than every old iPad.
 - [x] Battery, heat, ventilation, and damaged-device guidance is present.
 - [x] Xcode Cloud clean archive and internal TestFlight distribution succeed.
-- [ ] Install Build 6 from TestFlight on physical iPhone and iPad and repeat the
+- [ ] Install the latest TestFlight build on physical iPhone and iPad and repeat the
       sandbox purchase/restore acceptance check.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` is recognized automatically by
@@ -1496,7 +1496,7 @@ explicit owner approval.
 - The follow-on `Validation` workflow uses required Analyze and Test actions on
   `main`; Test uses the shared scheme on both recommended iPhone and iPad
   destinations. The manual-only `Internal TestFlight` workflow archives iOS
-  with internal-TestFlight preparation and distributes the archive to the
+  with App Store Connect preparation and distributes the archive to the
   `Jenny Media Internal` group.
 - Xcode generated `FrameWink.xcodeproj/xcshareddata/xcodecloud/manifest.json`
   after onboarding. `jq empty` validates the file before it is committed.
@@ -1522,6 +1522,12 @@ explicit owner approval.
 - `Internal TestFlight` Build 6 at commit `6f59253` succeeded end to end:
   clean archive, TestFlight internal-distribution post-action, and processing
   to FrameWink 1.0 (6) `Ready to Test` in `Jenny Media Internal`.
+- Build 6 used Apple's `TestFlight (Internal Testing Only)` preparation. Apple
+  correctly made it unavailable for customer submission. The workflow now uses
+  App Store Connect preparation, which remains TestFlight-capable and makes its
+  archive eligible for App Store release. Build 8 succeeded from `037c4ab` in
+  four minutes with both Archive and TestFlight post-action green. App Store
+  Connect accepted version 1.0 (8) into the two-item review draft.
 - Validation Build 5 completed Analyze, then reported 172 passed, four intended
   physical-PhotoKit skips, and five failures out of 181. Four failures were
   `StoreKitConfigurationTests` returning `productUnavailable` on distributed
@@ -1544,8 +1550,28 @@ explicit owner approval.
   after the test scrolls to the native disclosure button. Result: one passed,
   zero failures. The targeted normal-scheme iPhone run passes the same UI test
   and all four StoreKit tests.
+- Validation Build 7 confirmed the compact-height UI repair and every
+  non-StoreKit suite, but Apple's iOS 26.5 Xcode Cloud artifact workers still
+  returned an empty `Product.products` result for all four StoreKit runtime
+  tests. The catalog is present in the test bundle, yet that worker does not
+  expose it to `storekitd` as an IDE-launched test does.
+- StoreKit coverage now has two explicit layers. A platform-independent test
+  parses the bundled `FrameWink.storekit` file and asserts the product ID,
+  non-consumable type, Family Sharing flag, and reference name on every runner.
+  Runtime purchase, refund, Ask to Buy, and failure tests remain mandatory and
+  pass locally on both iPhone and iPad Simulators. Only when the product is
+  absent on an identified Xcode Cloud worker do those four runtime tests report
+  an explicit skip with the runner limitation; they continue to fail closed in
+  every other environment.
+- Post-change targeted commands on iPhone 17 Pro Max and iPad Air (11-inch)
+  Simulators each passed all five StoreKit tests with zero skips and zero
+  failures. Xcode's post-success missing-`simctl` diagnostics remain
+  non-failing cleanup noise.
 - Expected diagnostics remain: StoreKitTest purchase-anchor/update-listener
   warnings in direct product tests, the intentional simulated failure's
   `ASDServerErrorDomain`, an iOS 27 duplicate private WebKit accessibility
   class warning, the launch-screen advisory, and Xcode's post-success `simctl`
   cleanup diagnostic. None failed the run.
+- Next cloud gate: the automatic Validation build triggered by this test-only
+  repair must finish with the structural StoreKit test passing, the four
+  cloud-limited runtime tests explicitly skipped, and no failures.

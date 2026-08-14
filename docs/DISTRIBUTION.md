@@ -214,8 +214,8 @@ blocker affects only a later boundary.
   indexed; the completed build discovered the committed shared `FrameWink`
   scheme and made additional workflow creation available. `Validation` now
   analyzes and tests `main` on recommended iPhone and iPad destinations.
-  `Internal TestFlight` is manual-only and performs a clean archive with
-  `TestFlight (Internal Testing Only)` preparation and a post-action assigned
+  `Internal TestFlight` is manual-only and performs a clean archive with App
+  Store Connect preparation and a post-action assigned
   specifically to `Jenny Media Internal`. Build 3 then failed closed before
   compilation because Xcode Cloud 26.6 supplied `CI_TEAM_ID` as Jenny Media
   LLC's App Store Connect team UUID rather than the 10-character Apple
@@ -237,12 +237,18 @@ blocker affects only a later boundary.
   issues; both are fixed and pass artifact-only local reproduction.
 - Does not block: all App Store Connect/IAP metadata, local verification,
   physical-device discovery, or commits.
-- Next action: push the distributed-test repair and confirm the automatic
-  Validation workflow is green.
+- Validation Build 7 confirmed the compact-height UI repair and all
+  non-StoreKit suites, but Apple's iOS 26.5 artifact workers still returned no
+  StoreKit products. The test bundle now validates the catalog contract on
+  every runner and explicitly skips only the four runtime transaction checks
+  when an identified Xcode Cloud worker lacks that product. The same runtime
+  checks remain mandatory and pass locally on both device families.
+- Next action: push this test-only runner accommodation and confirm the
+  automatic Validation workflow has zero failures.
 
-### B-011 — App Store declarations need owner completion
+### B-011 — App Store declarations and review package
 
-- Status: Open
+- Status: Resolved on 2026-08-14
 - First recorded: 2026-08-12
 - Evidence: after owner confirmation on 2026-08-14, the universal subtitle,
   current promotional text, description, keywords, content-rights answer,
@@ -251,13 +257,16 @@ blocker affects only a later boundary.
   now contain the current ordered ten-shot sets: 6.9-inch iPhone and 13-inch
   iPad. The public repository intentionally does not reproduce the private
   review phone number.
-- Impact: version 1.0 still needs processed Build 6 selected and added to the
-  same review submission. The lifetime IAP is already `Ready for Review` in
-  Draft Submission 1.
+- Resolution: Build 8 at commit `037c4ab` succeeded with App Store Connect
+  preparation and its TestFlight post-action. App Store Connect accepted Build
+  8 for version 1.0. Draft Submission 1 contains iOS 1.0 (8) and FrameWink
+  Lifetime as two items and reports `Ready for Review`.
+- Impact: none on submission readiness. Build 6 remains internal-only by
+  design and is not the customer release candidate.
 - Does not block: Xcode Cloud setup, internal TestFlight builds, local
   validation, or repository work.
-- Next action: select Build 6 for version 1.0 and add the version to Draft
-  Submission 1. Do not press the final Submit for Review control.
+- Next action: owner review of the release mode and EU trader declaration,
+  followed by the final Submit for Review control when authorized.
 
 ### B-012 — Physical PhotoKit album picker stalled after authorization
 
@@ -590,8 +599,9 @@ blocker affects only a later boundary.
 - The `FrameWink Lifetime` IAP is `Ready for Review` in Draft Submission 1 and
   has its required private review screenshot. The
   accepted 1242 × 2688 JPEG is retained in the repository; public promotional
-  imagery remains unset by design. Version 1.0 still must be added to that
-  draft with Build 6 selected.
+  imagery remains unset by design. Version 1.0 has submission-capable Build 8
+  selected in the same draft. The draft is `Ready for Review`; final submission
+  was not clicked.
 
 ## Committed Xcode Cloud guardrail
 
@@ -608,8 +618,8 @@ without preventing Build, Analyze, or Test workflows.
   ready to send invitations. The first successful Xcode Cloud build must be
   explicitly assigned to this group.
 - Confirm the distributed-test repair in the automatic Validation workflow.
-- Attach processed Build 6 to version 1.0 and add the version to Draft
-  Submission 1 under B-011.
+- Decide the release mode and then submit Draft Submission 1 only with explicit
+  owner authorization. B-011's two-item package is otherwise ready.
 - Resolve or knowingly affirm the EU trader classification under B-024.
 - After StoreKit metadata propagation, repeat product loading through a sandbox
   or TestFlight device build and submit the first lifetime IAP with the first

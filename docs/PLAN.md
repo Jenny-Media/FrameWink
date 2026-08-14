@@ -832,12 +832,14 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Status: in progress. The App Privacy response is published, current universal
   copy and ordered iPhone/iPad screenshot galleries are live, content rights
   and the 4+ age rating are complete, and the private App Review contact is
-  saved. The lifetime IAP is `Ready for Review` in Draft Submission 1;
-  version 1.0 still needs processed Build 6 selected and added to that draft.
+  saved. The lifetime IAP is `Ready for Review` in Draft Submission 1. Build 6
+  is intentionally internal-only and cannot be selected for customers. The
+  submission-capable Build 8 succeeded from commit `037c4ab`; version 1.0 (8)
+  and FrameWink Lifetime are together in a `Ready for Review` draft.
 - Xcode Cloud: Build 1 succeeded on Apple infrastructure at commit `b8691b9`
   with Xcode 26.6 and macOS 26.6.2. `Validation` now analyzes and tests pushes
   to `main` on recommended iPhone and iPad destinations. `Internal TestFlight`
-  is manual-only and archives with internal-TestFlight preparation, then
+  is manual-only and archives with App Store Connect preparation, then
   distributes specifically to `Jenny Media Internal`.
 - Build 3 failed before compilation because Xcode Cloud 26.6 exposed
   `CI_TEAM_ID` as Jenny Media LLC's App Store Connect team UUID, while Apple's
@@ -874,11 +876,23 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   purchase/loading/refund/failure tests. The UI test now scrolls to the native
   `Mounted Display Tips` disclosure control and passes on iPad; the equivalent
   targeted iPhone run also passes.
+- Validation Build 7 confirmed the compact UI fix and all non-StoreKit suites,
+  but its iOS 26.5 artifact workers still could not expose the installed
+  StoreKitTest catalog to `Product.products`. The suite now validates the
+  bundled product contract structurally on every runner and reports explicit
+  skips for the four runtime transactions only when that product is absent on
+  an identified Xcode Cloud worker. Those runtime tests remain fail-closed
+  elsewhere and pass locally, without skips, on both iPhone and iPad.
 - The lifetime IAP is `Ready for Review` and is present in Draft Submission 1.
-  Content rights are saved. Version 1.0 now only needs Build 6 selected and
-  added to that same draft; final submission remains intentionally owner-gated.
+  Content rights are saved. Apple's internal-only Build 6 cannot be selected
+  for customers, so the workflow was corrected to App Store Connect
+  preparation. Build 8 succeeded from `037c4ab`, processed immediately, and is
+  attached to version 1.0 in the same two-item `Ready for Review` draft. Final
+  submission remains intentionally owner-gated and was not clicked.
 - B-024 remains the only publisher/legal decision: whether Jenny Media LLC is
   an EU trader. No declaration was changed without the owner's choice.
+- The next automatic Validation build must confirm zero failures before this
+  live release hardening pass is closed.
 
 ## Timebox rule
 

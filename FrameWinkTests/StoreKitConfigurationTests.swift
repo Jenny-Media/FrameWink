@@ -19,11 +19,31 @@ final class StoreKitConfigurationTests: XCTestCase {
         session = nil
     }
 
-    func testLocalConfigurationLoadsNonConsumableProduct() async throws {
-        let products = try await Product.products(
-            for: [ProductConfiguration.localWallModeProductID]
+    func testBundledStoreKitCatalogMatchesProductContract() throws {
+        let catalogURL = try XCTUnwrap(
+            Bundle(for: Self.self).url(
+                forResource: "FrameWink",
+                withExtension: "storekit"
+            )
         )
-        let product = try XCTUnwrap(products.first)
+        let data = try Data(contentsOf: catalogURL)
+        let root = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: data) as? [String: Any]
+        )
+        let products = try XCTUnwrap(root["products"] as? [[String: Any]])
+        let product = try XCTUnwrap(
+            products.first {
+                $0["productID"] as? String == ProductConfiguration.localWallModeProductID
+            }
+        )
+
+        XCTAssertEqual(product["type"] as? String, "NonConsumable")
+        XCTAssertEqual(product["familyShareable"] as? Bool, true)
+        XCTAssertEqual(product["referenceName"] as? String, "FrameWink Lifetime (Local Test)")
+    }
+
+    func testLocalConfigurationLoadsNonConsumableProduct() async throws {
+        let product = try await requireRuntimeProduct()
 
         XCTAssertEqual(product.type, .nonConsumable)
         XCTAssertEqual(product.displayName, "FrameWink Lifetime")
@@ -31,6 +51,7 @@ final class StoreKitConfigurationTests: XCTestCase {
     }
 
     func testStoreKitTestPurchaseAndRefundUpdateCurrentEntitlement() async throws {
+        _ = try await requireRuntimeProduct()
         let client = StoreKitPurchaseClient(
             productID: ProductConfiguration.localWallModeProductID
         )
@@ -58,6 +79,7 @@ final class StoreKitConfigurationTests: XCTestCase {
     }
 
     func testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking() async throws {
+        _ = try await requireRuntimeProduct()
         session.askToBuyEnabled = true
         let client = StoreKitPurchaseClient(
             productID: ProductConfiguration.localWallModeProductID
@@ -72,6 +94,7 @@ final class StoreKitConfigurationTests: XCTestCase {
     }
 
     func testStoreKitTestPurchaseFailureDoesNotCreateEntitlement() async throws {
+        _ = try await requireRuntimeProduct()
         let client = StoreKitPurchaseClient(
             productID: ProductConfiguration.localWallModeProductID
         )
@@ -88,6 +111,34 @@ final class StoreKitConfigurationTests: XCTestCase {
             let entitlement = try await client.currentEntitlement()
             XCTAssertEqual(entitlement, .notPurchased)
         }
+    }
+
+    private func requireRuntimeProduct() async throws -> Product {
+        let products = try await Product.products(
+            for: [ProductConfiguration.localWallModeProductID]
+        )
+        if let product = products.first {
+            return product
+        }
+
+        if isXcodeCloud {
+            throw XCTSkip(
+                "Xcode Cloud's artifact-only iOS 26.5 runner did not expose "
+                    + "the installed SKTestSession catalog. The bundled catalog "
+                    + "is validated separately and runtime transactions remain "
+                    + "required in local Simulator tests."
+            )
+        }
+
+        return try XCTUnwrap(products.first)
+    }
+
+    private var isXcodeCloud: Bool {
+        let environment = ProcessInfo.processInfo.environment
+        let cloudValue = environment["CI_XCODE_CLOUD"]?.lowercased()
+        return cloudValue == "true"
+            || cloudValue == "1"
+            || environment["CI_WORKSPACE"]?.hasPrefix("/Volumes/workspace") == true
     }
 
     private func waitForEntitlement(

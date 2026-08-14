@@ -241,12 +241,12 @@ The configured workflows are:
      The shared scheme's Test action includes both `FrameWinkTests` and the
      first-launch/privacy `FrameWinkUITests` bundle.
    - Deployment preparation: none.
-2. **Internal TestFlight**
+2. **Internal TestFlight / release candidate**
    - Start manually from a chosen branch. Automatic branch archives are
      intentionally disabled.
    - Environment: Clean.
-   - Action: Archive `FrameWink` for iOS with `TestFlight (Internal Testing
-     Only)` deployment preparation.
+   - Action: Archive `FrameWink` for iOS with `App Store Connect` deployment
+     preparation so the same build is eligible for TestFlight and App Review.
    - Post-action: distribute to the existing `Jenny Media Internal` group.
      App Store Connect explicitly states that Xcode Cloud builds are not
      included by the group's automatic-distribution switch.
@@ -260,7 +260,7 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 ## App Store Connect readiness
 
 - Internal testing group: `Jenny Media Internal` (currently 0 testers; Build 6
-  version 1.0 is `Ready to Test` after the archive workflow post-action)
+  is internal-only and Build 8 is the App Store-eligible release candidate)
 - TestFlight feedback email: `framewink@jenny.media`
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:
@@ -284,9 +284,12 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   the private phone number is not copied into this public repository.
 - App Privacy is published as `Data Not Collected`; content rights are
   confirmed, and the completed all-No/None questionnaire produced a 4+ age
-  rating. B-011 now tracks attaching the processed build and first IAP.
+  rating. B-011 is resolved by the two-item review draft.
 - EU distribution requires the publisher to review the current non-trader DSA
   declaration under B-024. Do not infer or automate that legal classification.
+- Review package: Draft Submission 1 contains iOS 1.0 (8) and `FrameWink
+  Lifetime`; App Store Connect reports both items `Ready for Review`. The final
+  Submit for Review control is available and intentionally has not been used.
 - IAP review asset: App Store Connect accepted
   `AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg` as
   the private review screenshot for `FrameWink Lifetime`. It is a metadata-free
