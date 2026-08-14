@@ -1,0 +1,10 @@
+# The Vercel project builds only the public website. Keep Xcode sources,
+# screenshots, archives, and local build artifacts out of deployment uploads.
+*
+!website/
+!website/**
+
+website/.env*
+website/.next/
+website/.vercel/
+website/node_modules/
