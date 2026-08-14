@@ -267,3 +267,18 @@ date; do not silently rewrite historical decisions during implementation.
   storage or memory. Progressive preparation preserves a quick first result,
   while a 100-photo recommendation set provides variety without loading every
   stored photo into playback at once.
+
+## D-026 — Sample Photos use ten sanitized publisher-supplied photographs
+
+- **Decision:** Replace the three generated landscape examples with ten
+  publisher-supplied photos: seven landscape and three portrait. Bundle only
+  auto-oriented, display-sized JPEG derivatives with embedded metadata removed;
+  keep originals outside the repository and unmodified. Test every catalog
+  entry for decoding, exact dimensions, uniqueness, and absence of private
+  metadata.
+- **Reason:** Three photos repeated too quickly and did not demonstrate
+  portrait pairing or the breadth of the responsive frame. Ten provides useful
+  variety while remaining modest for older 2 GB iPads. JPEG derivatives make
+  the complete set smaller than the former three PNGs, and stripping metadata
+  prevents GPS, device, creator, and capture details from entering the public
+  repository or app bundle.

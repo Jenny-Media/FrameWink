@@ -639,6 +639,29 @@ Wake and unlock either device, then rerun its `prepare` command. Large real
 PHPicker selection, low-storage behavior, first-ten latency, Fit motion with
 Reduce Motion, and finger-following swipe quality remain human device checks.
 
+## Ten-photo sample refinement — 2026-08-14
+
+- Status: implementation and local verification complete. Ten sanitized,
+  publisher-supplied photos replace the three generated PNGs. Their real
+  portrait/landscape dimensions flow through responsive layout; the shared
+  loader, debug fixtures, curation tests, accessibility IDs, current App Review
+  copy, asset record, and both screenshot libraries are aligned.
+- Verification: 167 Simulator tests pass, four physical-PhotoKit tests skip by
+  design, and zero fail out of 171. The unsigned Release build, static analysis,
+  archive guard, built-product resource/privacy inspection, ten native
+  submission screenshots, and eleven 1640 × 2360 source screenshots pass. The
+  known iOS 27 context-menu and post-test `simctl` diagnostics are unchanged.
+- Physical-install status: the exact signed build installed over existing data
+  on the paired iPad Pro, but its locked screen refused foreground launch. The
+  paired iPad mini 6 is visible over the local network but has not been unlocked
+  recently and refused even installation. These are external device-state
+  boundaries, not source, signing, or build failures. Unlock each device and
+  rerun `prepare` for the remaining physical visual smoke check.
+- Privacy/size: originals remain outside the repository and were not modified;
+  every 2,048-pixel derivative is free of private embedded metadata. The full
+  ten-photo JPEG set is approximately 5.1 MiB, smaller than the former three
+  PNGs. Active work was approximately 1.5 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

@@ -78,7 +78,7 @@ support endpoint. Privacy questions and support mail go to
 
 FrameWink is iPad-only and requires iPadOS 15 or later.
 
-On first launch, the app immediately shows three bundled example photos and does
+On first launch, the app immediately shows ten bundled example photos and does
 not request Photos authorization. `Choose Photos` opens Apple's PHPicker for a
 total collection of up to 500 items. The target includes
 `NSPhotoLibraryUsageDescription`, but the

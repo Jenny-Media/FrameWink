@@ -49,6 +49,7 @@ struct DisplaySlide: Identifiable {
     let accessibilityLabel: LocalizedStringKey
     let source: DisplaySlideSource
     let importantRects: [NormalizedRect]
+    let bundledPixelSize: PixelSize?
 
     init(
         id: String,
@@ -56,7 +57,8 @@ struct DisplaySlide: Identifiable {
         caption: LocalizedStringKey,
         accessibilityLabel: LocalizedStringKey,
         source: DisplaySlideSource,
-        importantRects: [NormalizedRect] = []
+        importantRects: [NormalizedRect] = [],
+        bundledPixelSize: PixelSize? = nil
     ) {
         self.id = id
         self.title = title
@@ -64,6 +66,7 @@ struct DisplaySlide: Identifiable {
         self.accessibilityLabel = accessibilityLabel
         self.source = source
         self.importantRects = importantRects
+        self.bundledPixelSize = bundledPixelSize
     }
 }
 
@@ -139,7 +142,7 @@ final class AppModel: ObservableObject {
             }
         }
 
-        return Self.sampleSlides
+        return BundledSampleCatalog.slides
     }
 
     var canRetryImport: Bool {
@@ -428,27 +431,4 @@ final class AppModel: ObservableObject {
         )
     }
 
-    private static let sampleSlides = [
-        DisplaySlide(
-            id: "sample-lakeside",
-            title: "Keep the good days close",
-            caption: "Bundled example · no Photos access needed",
-            accessibilityLabel: "Sample photo of two friends picnicking beside a mountain lake",
-            source: .bundled(resourceName: "sample-lakeside")
-        ),
-        DisplaySlide(
-            id: "sample-beach-dog",
-            title: "Small moments, beautifully framed",
-            caption: "Bundled example · stays on this iPad",
-            accessibilityLabel: "Sample photo of a golden retriever running in ocean surf",
-            source: .bundled(resourceName: "sample-beach-dog")
-        ),
-        DisplaySlide(
-            id: "sample-kitchen",
-            title: "A quieter way to remember",
-            caption: "Bundled example · works offline",
-            accessibilityLabel: "Sample photo of flowers and peaches on a wooden kitchen table",
-            source: .bundled(resourceName: "sample-kitchen")
-        ),
-    ]
 }

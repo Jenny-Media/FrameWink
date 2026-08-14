@@ -1137,3 +1137,53 @@ explicit owner approval.
   memory and thermal behavior, cancel/resume and Airplane Mode, one-tap timing,
   finger-following swipes, safe Fit motion, and Reduce Motion behavior. The
   permission prompt, picker choices, and low-storage setup remain human-owned.
+
+## Ten sanitized bundled samples — 2026-08-14
+
+- The three generated PNG examples were replaced by ten publisher-supplied,
+  display-sized JPEG derivatives: seven landscape and three portrait. The
+  originals remain unmodified outside the repository. The derivatives total
+  approximately 5.1 MiB, less than the prior three PNGs.
+- `exiftool` reports only JPEG file/JFIF format fields. It finds no EXIF, GPS,
+  IPTC, TIFF, XMP, camera/device serial, creator, copyright, capture date, or
+  location data. A new automated regression rejects those private metadata
+  dictionaries and verifies all ten catalog IDs/resources are unique, decode,
+  and exactly match their declared pixel dimensions.
+- Bundled slides now carry their real dimensions into the responsive layout
+  engine instead of assuming every example is 1536 × 1024. Debug review,
+  automatic-album, cover, curation, and screenshot fixtures use the same JPEG-
+  capable loader and current resources.
+- Exact complete command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F'
+  -derivedDataPath /private/tmp/FrameWink-DerivedData -resultBundlePath
+  /private/tmp/FrameWink-Samples-20260814.xcresult test`. Result: 167 passed,
+  four intentional physical-PhotoKit skips, zero failures, zero expected
+  failures, and 171 total on the iOS 27 `iPad (A16)` Simulator.
+- The suite retains its existing manual finger-following directional swipe,
+  automatic dissolve/Living Photo, safe Fit motion, calm multi-photo, Reduce
+  Motion, and resize-suspension coverage. The two known private iOS 27 UIKit
+  context-menu warnings remain; Xcode's post-test diagnostic again failed to
+  locate `simctl` outside the explicit developer-directory environment after
+  the successful run.
+- The exact source passes an unsigned generic-device Release build and Xcode
+  static analysis. The archive guard passes with the explicit Xcode path and
+  validates privacy files, iPad-only family 2, iPadOS 15.0 minimum, Jenny Media
+  LLC team, production bundle ID, and StoreKit product. Its first invocation
+  reproduced the already recorded machine-wide `xcode-select` B-016 boundary;
+  the documented `DEVELOPER_DIR` invocation passed.
+- Built-product inspection finds exactly ten `sample-*.jpg` resources, zero
+  retired sample PNGs, no private sample metadata, `UIDeviceFamily = [2]`, and
+  `MinimumOSVersion = 15.0`.
+- All ten native 2064 × 2752 submission JPEGs and the broader eleven-image
+  1640 × 2360 source library were regenerated and visually inspected. The
+  retired saved-configuration screenshot was removed; its replacement is the
+  current direct Frame Controls panel. The source capture script now requires
+  the correct iPad geometry and exact eleven-image output.
+- The signed exact Debug acceptance build installed over existing data on the
+  paired iPad Pro, but its locked screen rejected only foreground launch. The
+  paired iPad mini 6 was also locked and rejected the installation tunnel.
+  Unlocking the devices and rerunning `prepare` remains the physical visual
+  smoke check; the Simulator, Release, signing, and Pro installation stages are
+  already successful.

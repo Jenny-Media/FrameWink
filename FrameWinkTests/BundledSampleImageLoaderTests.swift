@@ -1,19 +1,55 @@
+import ImageIO
 import XCTest
 @testable import FrameWink
 
 final class BundledSampleImageLoaderTests: XCTestCase {
     func testEveryBundledSampleImageLoadsFromTheAppBundle() {
-        let resourceNames = [
-            "sample-lakeside",
-            "sample-beach-dog",
-            "sample-kitchen",
+        XCTAssertEqual(BundledSampleCatalog.photos.count, 10)
+        XCTAssertEqual(Set(BundledSampleCatalog.photos.map(\.id)).count, 10)
+        XCTAssertEqual(Set(BundledSampleCatalog.photos.map(\.resourceName)).count, 10)
+
+        for photo in BundledSampleCatalog.photos {
+            let image = BundledSampleImageLoader.image(named: photo.resourceName)
+            XCTAssertEqual(
+                image?.cgImage?.width,
+                photo.pixelSize.width,
+                "Unexpected width for \(photo.resourceName)"
+            )
+            XCTAssertEqual(
+                image?.cgImage?.height,
+                photo.pixelSize.height,
+                "Unexpected height for \(photo.resourceName)"
+            )
+        }
+    }
+
+    func testBundledSamplesContainNoPrivateMetadata() throws {
+        let disallowedProperties: [CFString] = [
+            kCGImagePropertyExifDictionary,
+            kCGImagePropertyExifAuxDictionary,
+            kCGImagePropertyGPSDictionary,
+            kCGImagePropertyIPTCDictionary,
+            kCGImagePropertyTIFFDictionary,
         ]
 
-        for resourceName in resourceNames {
-            XCTAssertNotNil(
-                BundledSampleImageLoader.image(named: resourceName),
-                "Expected bundled sample image \(resourceName).png to decode"
+        for photo in BundledSampleCatalog.photos {
+            let url = try XCTUnwrap(
+                BundledSampleImageLoader.url(named: photo.resourceName)
             )
+            let source = try XCTUnwrap(CGImageSourceCreateWithURL(url as CFURL, nil))
+            let properties = try XCTUnwrap(
+                CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
+            )
+            for key in disallowedProperties {
+                XCTAssertNil(
+                    properties[key],
+                    "\(photo.resourceName) unexpectedly contains \(key) metadata"
+                )
+            }
+            if let metadata = CGImageSourceCopyMetadataAtIndex(source, 0, nil) {
+                let tags = CGImageMetadataCopyTags(metadata) as? [Any] ?? []
+                XCTAssertTrue(tags.isEmpty, "\(photo.resourceName) contains XMP metadata")
+            }
         }
     }
 }

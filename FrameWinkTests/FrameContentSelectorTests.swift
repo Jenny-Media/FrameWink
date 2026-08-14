@@ -8,7 +8,7 @@ final class FrameContentSelectorTests: XCTestCase {
             title: "Sample",
             caption: "Sample",
             accessibilityLabel: "Sample",
-            source: .bundled(resourceName: "sample-lakeside")
+            source: .bundled(resourceName: "sample-city-skyline")
         )
 
         let slides = FrameContentSelector.slides(
@@ -26,7 +26,7 @@ final class FrameContentSelectorTests: XCTestCase {
             title: "Sample",
             caption: "Sample",
             accessibilityLabel: "Sample",
-            source: .bundled(resourceName: "sample-lakeside")
+            source: .bundled(resourceName: "sample-city-skyline")
         )
 
         XCTAssertEqual(
@@ -67,7 +67,7 @@ final class FrameContentSelectorTests: XCTestCase {
             title: "Sample",
             caption: "Sample",
             accessibilityLabel: "Sample",
-            source: .bundled(resourceName: "sample-lakeside")
+            source: .bundled(resourceName: "sample-city-skyline")
         )
 
         XCTAssertTrue(isPreparing)

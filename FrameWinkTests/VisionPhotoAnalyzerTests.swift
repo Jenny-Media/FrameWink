@@ -6,7 +6,7 @@ import XCTest
 final class VisionPhotoAnalyzerTests: XCTestCase {
     func testBundledSamplesAlwaysProduceConventionalSignals() async throws {
         let analyzer = VisionPhotoAnalyzer()
-        let names = ["sample-lakeside", "sample-beach-dog", "sample-kitchen"]
+        let names = BundledSampleCatalog.photos.map(\.resourceName)
 
         for (index, name) in names.enumerated() {
             let image = try XCTUnwrap(BundledSampleImageLoader.image(named: name))
@@ -34,7 +34,7 @@ final class VisionPhotoAnalyzerTests: XCTestCase {
     func testOneHundredBoundedAnalysesCompleteWithinThirtySecondsOnSimulator() async throws {
         let analyzer = VisionPhotoAnalyzer()
         let image = try XCTUnwrap(
-            BundledSampleImageLoader.image(named: "sample-lakeside")
+            BundledSampleImageLoader.image(named: "sample-city-skyline")
         )
         let peakBefore = peakResidentMemoryBytes()
         let start = CFAbsoluteTimeGetCurrent()
@@ -69,7 +69,7 @@ final class VisionPhotoAnalyzerTests: XCTestCase {
     func testMatchingCachedSignalsRestoreWithoutDecodingAndRevisionChangeInvalidates() async throws {
         let analyzer = VisionPhotoAnalyzer()
         let image = try XCTUnwrap(
-            BundledSampleImageLoader.image(named: "sample-lakeside")
+            BundledSampleImageLoader.image(named: "sample-city-skyline")
         )
         let id = UUID()
         let original = PhotoCandidate(

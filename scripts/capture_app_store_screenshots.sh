@@ -11,7 +11,7 @@ FRAMEWINK_SIMULATOR_ID=${FRAMEWINK_SIMULATOR_ID:-}
 if [ -z "$FRAMEWINK_SIMULATOR_ID" ]; then
     FRAMEWINK_SIMULATOR_ID=$(
         DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun simctl list devices booted \
-            | sed -nE '/iPad/{s/.*\(([0-9A-F-]{36})\).*/\1/p;q;}'
+            | sed -nE '/iPad \(A16\)/{s/.*\(([0-9A-F-]{36})\).*/\1/p;q;}'
     )
 fi
 
@@ -88,5 +88,29 @@ capture_scenario wall-checklist 08-paid-commissioning-checklist.png
 capture_scenario automatic-album-review 09-paid-review-grid.png
 capture_scenario mosaic-frame 10-paid-mosaic-frame.png
 capture_scenario free-review-grid 11-free-review-grid.png
+
+FRAMEWINK_SCREENSHOT_COUNT=$(
+    find "$FRAMEWINK_SCREENSHOT_DIRECTORY" -maxdepth 1 -type f -name '*.png' \
+        | wc -l | tr -d ' '
+)
+if [ "$FRAMEWINK_SCREENSHOT_COUNT" -ne 11 ]; then
+    echo "Expected exactly eleven source screenshots, found $FRAMEWINK_SCREENSHOT_COUNT." >&2
+    exit 1
+fi
+
+for FRAMEWINK_SCREENSHOT in "$FRAMEWINK_SCREENSHOT_DIRECTORY"/*.png; do
+    FRAMEWINK_SCREENSHOT_METADATA=$(sips \
+        -g format -g pixelWidth -g pixelHeight \
+        "$FRAMEWINK_SCREENSHOT")
+    case "$FRAMEWINK_SCREENSHOT_METADATA" in
+        *"format: png"*"pixelWidth: 1640"*"pixelHeight: 2360"*)
+            ;;
+        *)
+            echo "Invalid source screenshot: $FRAMEWINK_SCREENSHOT" >&2
+            echo "$FRAMEWINK_SCREENSHOT_METADATA" >&2
+            exit 1
+            ;;
+    esac
+done
 
 echo "Captured FrameWink screenshots in $FRAMEWINK_SCREENSHOT_DIRECTORY"

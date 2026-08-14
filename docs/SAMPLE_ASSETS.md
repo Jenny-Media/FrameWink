@@ -1,51 +1,36 @@
 # Bundled sample asset record
 
-The three Milestones 0–1 sample photos were generated with Codex's built-in
-image-generation tool on 2026-08-11 and then copied into
-`FrameWink/Resources/SamplePhotos/`. They were created for this project; no
-third-party photos were downloaded.
+The publisher supplied and approved the ten personal photographs used for the
+current Sample Photos experience. The repository contains only display-sized
+derivatives. The original files remain outside the repository and were not
+modified. No third-party or web-downloaded photo is bundled.
 
-## `sample-lakeside.png`
+On 2026-08-14, each derivative was auto-oriented, converted to sRGB baseline
+JPEG, resized to a maximum 2,048-pixel edge, and exported at quality 90 with
+metadata stripped. `exiftool` found no EXIF, GPS, IPTC, TIFF, camera serial,
+creator, copyright, date, or XMP data in the resulting files. The remaining
+JPEG file/JFIF fields contain only format, dimensions, encoding, and resolution.
+`BundledSampleImageLoaderTests` independently rejects private metadata and
+checks the catalog dimensions against every bundled file.
 
-```text
-Use case: photorealistic-natural
-Asset type: bundled sample photograph for an iPad digital photo frame
-Primary request: a candid summer picnic beside a calm alpine lake, two adult friends seen from behind sharing fruit on a blanket, wildflowers in the foreground and mountains reflected in the water
-Style/medium: natural editorial photography, realistic texture, subtle film grain
-Composition/framing: landscape 3:2, subjects off-center with generous scenery, display-worthy crop
-Lighting/mood: warm late-afternoon sunlight, calm, intimate, hopeful
-Color palette: sage green, lake blue, sunlit amber
-Constraints: fictional people, tasteful everyday moment, no logos, no text, no watermark, no border
-Avoid: stock-photo posing, surreal anatomy, oversaturation
-```
+| Resource | Pixels | Visible content |
+|---|---:|---|
+| `sample-city-skyline.jpg` | 2048 × 1365 | City skyline at dusk |
+| `sample-city-tower.jpg` | 1365 × 2048 | Illuminated tower at dusk |
+| `sample-autumn-leaves.jpg` | 2048 × 1365 | Red and orange leaves |
+| `sample-water-bird.jpg` | 1365 × 2048 | White wading bird and reflection |
+| `sample-coast-aerial.jpg` | 2048 × 1536 | Pier and turquoise coast from above |
+| `sample-spring-flowers.jpg` | 2048 × 1365 | Red and yellow tulips |
+| `sample-open-road.jpg` | 2048 × 1365 | Open road and blue sky |
+| `sample-evening-sail.jpg` | 1365 × 2048 | Sailboat at sunset |
+| `sample-mountain-volcano.jpg` | 2048 × 1365 | Lava at night |
+| `sample-sunset-city.jpg` | 2048 × 1536 | City beneath a pink sunset |
 
-## `sample-beach-dog.png`
-
-```text
-Use case: photorealistic-natural
-Asset type: bundled sample photograph for an iPad digital photo frame
-Primary request: a golden retriever running joyfully through gentle ocean surf at a quiet rugged beach, sea cliffs and a pale sky in the distance
-Style/medium: natural editorial pet photography, crisp subject with authentic water texture, subtle film grain
-Composition/framing: landscape 3:2, low camera angle, dog slightly off-center with room to run
-Lighting/mood: soft golden hour, playful and nostalgic
-Color palette: warm cream, muted teal, sandstone
-Constraints: no collar branding, no people, no text, no watermark, no border
-Avoid: studio look, surreal anatomy, oversaturation
-```
-
-## `sample-kitchen.png`
-
-```text
-Use case: photorealistic-natural
-Asset type: bundled sample photograph for an iPad digital photo frame
-Primary request: an old wooden kitchen table by a bright window with a handmade ceramic vase of garden flowers, a bowl of just-picked peaches, and a linen napkin, quiet lived-in home moment
-Style/medium: natural editorial still-life photography, tactile realistic textures, subtle film grain
-Composition/framing: landscape 3:2, intimate three-quarter view, balanced negative space
-Lighting/mood: soft morning window light, warm and serene
-Color palette: terracotta, dusty rose, cream, weathered oak
-Constraints: no labels, no logos, no people, no text, no watermark, no border
-Avoid: catalog perfection, artificial CGI appearance, oversaturation
-```
+The three earlier AI-generated PNG samples were removed rather than left as
+unused bundle weight. The ten JPEG derivatives total approximately 5.1 MiB,
+less than the previous three PNGs, and include three portrait photos so the
+sample experience exercises the same pairing and responsive-layout paths as a
+personal reel.
 
 ## `AppIcon-1024.png`
 

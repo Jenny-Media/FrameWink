@@ -173,7 +173,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         XCTAssertTrue(personalPhotos.firstMatch.waitForExistence(timeout: 4))
         XCTAssertFalse(
-            app.descendants(matching: .any)["frame-photo-sample-lakeside"].exists,
+            app.descendants(matching: .any)["frame-photo-sample-city-skyline"].exists,
             "Changing speed must not reactivate a stale saved sample source."
         )
 
@@ -191,7 +191,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Preparing 0 of 3 selected photos…"].exists)
         XCTAssertFalse(app.staticTexts["Bundled sample photos"].exists)
         XCTAssertFalse(
-            app.descendants(matching: .any)["frame-photo-sample-lakeside"].exists
+            app.descendants(matching: .any)["frame-photo-sample-city-skyline"].exists
         )
     }
 

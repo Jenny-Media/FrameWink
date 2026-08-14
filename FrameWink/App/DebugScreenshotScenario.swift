@@ -204,39 +204,29 @@ extension DebugScreenshotScenario {
     }
 
     private func seedFreeReview(importedStore: ImportedPhotoStoring) {
-        let samples = [
-            (
-                id: Self.importedPhotoFixtureIDs[0],
-                resource: "sample-lakeside"
-            ),
-            (
-                id: Self.importedPhotoFixtureIDs[1],
-                resource: "sample-beach-dog"
-            ),
-            (
-                id: Self.importedPhotoFixtureIDs[2],
-                resource: "sample-kitchen"
-            ),
-        ]
+        let samples = zip(
+            Self.importedPhotoFixtureIDs,
+            BundledSampleCatalog.photos.prefix(Self.importedPhotoFixtureIDs.count)
+        )
         do {
             try importedStore.prepareDirectories()
             let photos = try samples.enumerated().map { index, sample -> ImportedPhoto in
-                guard let sourceURL = Bundle.main.url(
-                    forResource: sample.resource,
-                    withExtension: "png"
+                let (id, bundledPhoto) = sample
+                guard let sourceURL = BundledSampleImageLoader.url(
+                    named: bundledPhoto.resourceName
                 ) else {
                     throw PhotoLibraryClientError.assetUnavailable
                 }
-                let filename = sample.id.uuidString + ".png"
+                let filename = id.uuidString + "." + sourceURL.pathExtension
                 try FileManager.default.copyItem(
                     at: sourceURL,
                     to: importedStore.imageURL(filename: filename)
                 )
                 return ImportedPhoto(
-                    id: sample.id,
+                    id: id,
                     filename: filename,
-                    pixelWidth: 1_536,
-                    pixelHeight: 1_024,
+                    pixelWidth: bundledPhoto.pixelSize.width,
+                    pixelHeight: bundledPhoto.pixelSize.height,
                     importedAt: Date(timeIntervalSinceReferenceDate: Double(index)),
                     creationDate: Date(timeIntervalSinceReferenceDate: Double(index) * 86_400)
                 )
@@ -286,10 +276,10 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
 @MainActor
 final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
     private let sampleAssets = [
-        (id: "sample-lakeside", resource: "sample-lakeside"),
-        (id: "sample-beach-dog", resource: "sample-beach-dog"),
-        (id: "sample-kitchen", resource: "sample-kitchen"),
-        (id: "sample-lakeside-alt", resource: "sample-lakeside"),
+        (id: "sample-city-skyline", resource: "sample-city-skyline", width: 2_048, height: 1_365),
+        (id: "sample-city-tower", resource: "sample-city-tower", width: 1_365, height: 2_048),
+        (id: "sample-autumn-leaves", resource: "sample-autumn-leaves", width: 2_048, height: 1_365),
+        (id: "sample-city-skyline-alt", resource: "sample-city-skyline", width: 1_024, height: 1_365),
     ]
 
     func authorizationState() -> PhotoLibraryAuthorizationState {
@@ -339,12 +329,9 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         albumIdentifier: String,
         maxPixelDimension: Int
     ) async -> UIImage? {
-        let resources = ["sample-lakeside", "sample-beach-dog", "sample-kitchen"]
+        let resources = BundledSampleCatalog.photos.prefix(3).map(\.resourceName)
         let index = abs(albumIdentifier.hashValue) % resources.count
-        guard let url = Bundle.main.url(
-            forResource: resources[index],
-            withExtension: "png"
-        ) else {
+        guard let url = BundledSampleImageLoader.url(named: resources[index]) else {
             return nil
         }
         return UIImage(contentsOfFile: url.path)
@@ -357,8 +344,8 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         return sampleAssets.enumerated().map { index, sample in
             PhotoLibraryAsset(
                 id: sample.id,
-                pixelWidth: 2_048,
-                pixelHeight: 2_560,
+                pixelWidth: sample.width,
+                pixelHeight: sample.height,
                 creationDate: Date(timeIntervalSinceReferenceDate: Double(index) * 86_400),
                 modificationDate: Date(timeIntervalSinceReferenceDate: 1_000 + Double(index)),
                 isHidden: false,
@@ -374,13 +361,10 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         networkAccessAllowed: Bool
     ) async throws {
         guard let sample = sampleAssets.first(where: { $0.id == assetIdentifier }),
-              let sourceURL = Bundle.main.url(
-                forResource: sample.resource,
-                withExtension: "png"
-              ) else {
+              let sourceURL = BundledSampleImageLoader.url(named: sample.resource) else {
             throw PhotoLibraryClientError.assetUnavailable
         }
-        if assetIdentifier == "sample-lakeside-alt",
+        if assetIdentifier == "sample-city-skyline-alt",
            let image = UIImage(contentsOfFile: sourceURL.path),
            let cgImage = image.cgImage,
            let detail = cgImage.cropping(
@@ -391,7 +375,7 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
                 height: cgImage.height
             )
            ),
-           let data = UIImage(cgImage: detail).pngData() {
+           let data = UIImage(cgImage: detail).jpegData(compressionQuality: 0.9) {
             try data.write(to: destinationURL, options: .atomic)
             return
         }

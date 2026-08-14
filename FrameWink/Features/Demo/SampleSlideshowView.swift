@@ -1082,7 +1082,7 @@ private extension DisplaySlide {
         let creationDate: Date?
         switch source {
         case .bundled:
-            pixelSize = PixelSize(width: 1_536, height: 1_024)
+            pixelSize = bundledPixelSize ?? PixelSize(width: 1_536, height: 1_024)
             creationDate = nil
         case .imported(let photo), .automaticAlbum(let photo):
             pixelSize = PixelSize(
@@ -1268,8 +1268,23 @@ private extension View {
 }
 
 enum BundledSampleImageLoader {
+    private static let supportedExtensions = ["jpg", "jpeg", "png"]
+
+    static func url(named resourceName: String, bundle: Bundle = .main) -> URL? {
+        let resource = resourceName as NSString
+        if !resource.pathExtension.isEmpty {
+            return bundle.url(
+                forResource: resource.deletingPathExtension,
+                withExtension: resource.pathExtension
+            )
+        }
+        return supportedExtensions.lazy.compactMap {
+            bundle.url(forResource: resourceName, withExtension: $0)
+        }.first
+    }
+
     static func image(named resourceName: String, bundle: Bundle = .main) -> UIImage? {
-        guard let url = bundle.url(forResource: resourceName, withExtension: "png") else {
+        guard let url = url(named: resourceName, bundle: bundle) else {
             return nil
         }
         return UIImage(contentsOfFile: url.path)
@@ -1279,7 +1294,7 @@ enum BundledSampleImageLoader {
         named resourceName: String,
         bundle: Bundle = .main
     ) async -> UIImage? {
-        guard let url = bundle.url(forResource: resourceName, withExtension: "png") else {
+        guard let url = url(named: resourceName, bundle: bundle) else {
             return nil
         }
         return await Task.detached(priority: .userInitiated) {
@@ -1309,7 +1324,8 @@ struct SampleSlideshowView_Previews: PreviewProvider {
                     title: "Keep the good days close",
                     caption: "Bundled example · no Photos access needed",
                     accessibilityLabel: "Sample photo",
-                    source: .bundled(resourceName: "sample-lakeside")
+                    source: .bundled(resourceName: "sample-city-skyline"),
+                    bundledPixelSize: PixelSize(width: 2_048, height: 1_365)
                 )
             ],
             loadImportedImage: { _ in nil },
