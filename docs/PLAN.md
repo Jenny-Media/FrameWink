@@ -575,6 +575,16 @@ Review enabled. Both physical iPads were relaunched. The remaining check is
 StoreKit sandbox propagation and price loading; the first non-consumable still
 travels with the first app-version submission.
 
+Local paid-feature testing no longer depends on that propagation. The existing
+Debug physical-acceptance harness grants a process-scoped test entitlement
+while retaining the real PhotoKit client, and is now installed and running on
+both the physical iPad Pro and iPad mini 6. Release and TestFlight continue to
+derive access only from verified StoreKit transactions. The harness discovery
+gate was updated for Xcode 27's paired Wi-Fi metadata: it accepts only a paired
+physical iPad and then proves current reachability with a read-only lock-state
+query before building. Both device builds, installs, launches, and health
+samples succeeded with live processes and nominal thermal state.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

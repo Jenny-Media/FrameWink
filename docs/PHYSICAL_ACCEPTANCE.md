@@ -10,6 +10,9 @@ physical iPad, builds and installs a signed Debug build, opens a real-PhotoKit
 acceptance harness, and captures timestamped evidence. The harness unlocks
 FrameWink Lifetime only for this explicitly launched Debug process; it still uses the real
 Photos library and does not change Release or TestFlight entitlement behavior.
+Current Xcode betas may describe a reachable paired Wi-Fi device as
+`disconnected` until a command opens its tunnel, so discovery requires pairing
+and then proves reachability with a read-only lock-state query before building.
 
 The monitor records whether the iPad is reachable, whether FrameWink is still
 running, lock state, screenshots, and a photo-free app heartbeat containing

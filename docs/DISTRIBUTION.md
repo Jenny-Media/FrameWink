@@ -104,6 +104,11 @@ blocker affects only a later boundary.
   app active, nominal thermal state, 95% battery while charging, idle-timer
   ownership off outside Frame Mode, and Guided Access off. The remaining
   permission scope and album choice are intentionally tester-owned.
+- Latest local-unlock run: on 2026-08-13, the Debug physical-acceptance harness
+  built, installed, and launched on both the paired iPad Pro and iPad mini 6.
+  Xcode 27's paired Wi-Fi devices require a reachability probe instead of a
+  literal `connection.state == connected` check; both probes and post-launch
+  health samples passed with live processes and nominal thermal state.
 - Needed from owner: provide or approve a small licensed, human-labelled
   evaluation-photo set and exercise real Photos authorization, iCloud/Limited
   behavior, and sandbox purchase/restore on the connected iPad.

@@ -19,7 +19,7 @@ Commands:
 
 Environment:
   FRAMEWINK_DEVICE_ID     Physical CoreDevice ID. Auto-detected when exactly one
-                          connected physical iPad is available.
+                          paired, reachable physical iPad is available.
   FRAMEWINK_XCODE_UDID    Xcode destination UDID. Auto-detected from CoreDevice.
   FRAMEWINK_ARTIFACTS     Evidence directory (default: TestArtifacts/PhysicalAcceptance).
 EOF
@@ -49,13 +49,13 @@ discover_device() {
             | select(
                 .properties.hardware.reality == "physical"
                 and .properties.hardware.deviceType == "iPad"
-                and .properties.connection.state == "connected"
+                and .properties.connection.pairingState == "paired"
             )
             | .identifier
         ' "$FRAMEWINK_DEVICE_LIST_JSON")
         FRAMEWINK_DEVICE_COUNT=$(printf '%s\n' "$FRAMEWINK_DEVICE_IDS" | sed '/^$/d' | wc -l | tr -d ' ')
         [ "$FRAMEWINK_DEVICE_COUNT" = "1" ] || {
-            echo "Expected exactly one connected physical iPad; found $FRAMEWINK_DEVICE_COUNT." >&2
+            echo "Expected exactly one paired physical iPad; found $FRAMEWINK_DEVICE_COUNT." >&2
             echo "Set FRAMEWINK_DEVICE_ID explicitly when more than one is connected." >&2
             exit 1
         }
@@ -68,13 +68,20 @@ discover_device() {
              .identifier == $id
              and .properties.hardware.reality == "physical"
              and .properties.hardware.deviceType == "iPad"
-             and .properties.connection.state == "connected"
+             and .properties.connection.pairingState == "paired"
          )] | length
     ' "$FRAMEWINK_DEVICE_LIST_JSON")
     [ "$FRAMEWINK_MATCH_COUNT" = "1" ] || {
-        echo "FRAMEWINK_DEVICE_ID is not a connected physical iPad." >&2
+        echo "FRAMEWINK_DEVICE_ID is not a paired physical iPad." >&2
         exit 1
     }
+
+    if ! DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device info lockState \
+        --device "$FRAMEWINK_DEVICE_ID" >/dev/null 2>&1; then
+        echo "FRAMEWINK_DEVICE_ID is paired but not currently reachable." >&2
+        echo "Wake and unlock the iPad, then retry." >&2
+        exit 1
+    fi
 
     if [ -z "${FRAMEWINK_XCODE_UDID:-}" ]; then
         FRAMEWINK_XCODE_UDID=$(jq -r --arg id "$FRAMEWINK_DEVICE_ID" '

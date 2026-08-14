@@ -1013,3 +1013,21 @@ explicit owner approval.
   reopen the paywall and verify a localized price, then perform the transaction
   with a sandbox tester or TestFlight. App Store Connect requires this first
   non-consumable to be submitted with the first app version.
+
+## Local paid-feature unlock on physical iPads — 2026-08-13
+
+- `FRAMEWINK_PHYSICAL_ACCEPTANCE=1` remains compiled only in Debug and selects
+  the test purchase client with a purchased entitlement while leaving the real
+  PhotoKit client active. It does not persist an entitlement flag and cannot
+  affect Release or TestFlight behavior.
+- Xcode 27 reports reachable paired Wi-Fi devices with connection state
+  `disconnected` until a command opens their tunnel. The physical-acceptance
+  script now requires `pairingState == paired` and then proves reachability with
+  `devicectl device info lockState`; shell syntax validation passes.
+- Separate signed Debug harness builds installed and launched successfully on
+  the iPad Pro 12.9-inch (3rd generation), iPadOS 26.6, and iPad mini 6,
+  iPadOS 27.0. Existing app data was retained.
+- Follow-up samples reported both FrameWink processes live and reachable with
+  nominal thermal state. The iPad Pro reported battery unplugged; the iPad mini
+  reported battery full. Actual StoreKit purchase, restore, and Family Sharing
+  remain separate Sandbox/TestFlight acceptance checks.
