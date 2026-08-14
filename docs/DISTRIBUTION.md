@@ -443,9 +443,9 @@ blocker affects only a later boundary.
   `scripts/physical_acceptance.sh verify-albums` when iPadOS automation mode is
   stable.
 
-### B-022 — Lifetime purchase availability is not saved
+### B-022 — Lifetime purchase availability was not saved
 
-- Status: Open, blocking production StoreKit testing
+- Status: Resolved in App Store Connect on 2026-08-13
 - First recorded: 2026-08-13
 - Evidence: App Store Connect contains the `FrameWink Lifetime` non-consumable
   with product identifier `media.jenny.FrameWink.wallmode`, Family Sharing
@@ -458,12 +458,16 @@ blocker affects only a later boundary.
   Release compatibility build using the production identifier was installed,
   but production purchase testing still depends on saved App Store Connect
   availability and Apple propagation.
-- Impact: Free Smart Reel remains usable, but the owner cannot complete a real
-  production-product purchase test on the physical iPhone or iPad.
-- Needed from owner: authorize the already prepared App Store Connect **Save**
-  action. After Apple propagates it, relaunch the Release build and verify that
-  localized price and purchase controls load; use an appropriate sandbox or
-  TestFlight transaction path for the purchase itself.
+- Resolution: with owner confirmation, the prepared availability change was
+  saved in Jenny Media LLC's App Store Connect account. The product page now
+  reports **Saved**, all 175 current countries or regions selected, Family
+  Sharing enabled, and **Add for Review** available. Both physical iPads were
+  relaunched so StoreKit can refresh the production product identifier.
+- Remaining non-blocking check: allow Apple's sandbox metadata to propagate,
+  then reopen the paywall and verify that the localized price replaces
+  **Purchase unavailable**. The first non-consumable must still be submitted
+  with the first app version; use a sandbox tester or TestFlight for the actual
+  transaction rather than a normal production Apple ID in a development build.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
@@ -493,9 +497,9 @@ blocker affects only a later boundary.
   all regions. Its configured bank account, U.S. W-9, and Digital Services Act
   compliance record are also active.
 - The app is free in all 175 current regions and configured for all future
-  regions; Wall Mode remains a separate $9.99 lifetime IAP. The IAP storefront
-  selection is prepared but not yet saved under B-022. Apple Silicon Mac
-  availability is disabled to preserve the iPad-only product contract.
+  regions; Wall Mode remains a separate $9.99 lifetime IAP whose all-region
+  storefront availability is saved. Apple Silicon Mac availability is disabled
+  to preserve the iPad-only product contract.
 - The English (U.S.) product page has a private-photo-frame subtitle,
   Photo & Video primary category, promotional text, description, keywords,
   marketing/support URLs, and all ten accepted 13-inch iPad screenshots in the
@@ -519,9 +523,9 @@ without preventing Build, Analyze, or Test workflows.
 - Finish the open Jenny Media LLC Apple Account sign-in sheet in Xcode under
   B-010. Repository-scoped GitHub authorization is complete.
 - Complete the publisher declarations and contact data under B-011.
-- Save the prepared lifetime-IAP storefront availability under B-022, allow
-  propagation, and repeat production-product loading on a Release/TestFlight
-  device build.
+- After StoreKit metadata propagation, repeat product loading through a sandbox
+  or TestFlight device build and submit the first lifetime IAP with the first
+  app version.
 
 ## Local debugger tooling note
 

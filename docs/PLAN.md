@@ -565,6 +565,16 @@ the exact sharing source was installed and launched on the physical iPhone 17
 Pro Max for owner testing; its device-family setting was then restored with no
 project-file diff.
 
+Real-device testing exposed that the production lifetime product was still
+unavailable on both iPhone and iPad even though the Release artifacts used
+`media.jenny.FrameWink.wallmode`. App Store Connect showed the root cause: the
+all-region availability edit was still pending behind an enabled Save action.
+After owner confirmation, that change was published successfully; the product
+now reports Saved with 175 countries or regions, Family Sharing, and Add for
+Review enabled. Both physical iPads were relaunched. The remaining check is
+StoreKit sandbox propagation and price loading; the first non-consumable still
+travels with the first app-version submission.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

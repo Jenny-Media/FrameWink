@@ -996,3 +996,20 @@ explicit owner approval.
   `media.jenny.FrameWink.wallmode`, then installed and launched over existing
   data on the paired physical iPhone 17 Pro Max. The temporary family edit was
   restored immediately; the repository remains iPad-only.
+
+## Production StoreKit availability publication — 2026-08-13
+
+- The owner reproduced **Purchase unavailable** on a physical iPad using the
+  signed Release build. Its built `Info.plist` had already been verified to use
+  production product identifier `media.jenny.FrameWink.wallmode`, so this was
+  not the earlier Debug/local-StoreKit configuration issue.
+- App Store Connect showed `FrameWink Lifetime` with Family Sharing, a $9.99
+  schedule across 175 countries or regions, and an enabled Save button. With
+  owner confirmation, Save completed and the page reported **Saved** with
+  **Add for Review** enabled.
+- FrameWink was terminated and relaunched successfully on both the physical
+  iPad Pro 12.9-inch (3rd generation) and iPad mini 6 without deleting app data.
+- Real-device acceptance remains pending Apple sandbox metadata propagation:
+  reopen the paywall and verify a localized price, then perform the transaction
+  with a sandbox tester or TestFlight. App Store Connect requires this first
+  non-consumable to be submitted with the first app version.
