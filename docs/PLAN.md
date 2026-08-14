@@ -803,6 +803,9 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   submission sets were regenerated from the current app. Contact-sheet review
   found no clipping, blank scenes, stale display-style controls, private media,
   or misleading Free/Paid boundary. Every upload image is a JPEG without alpha.
+  A standalone validation script now rechecks both exact filename manifests,
+  counts, dimensions, alpha state, uniqueness, the IAP review image, and the
+  production icon without booting a Simulator.
 - Verification: the complete iPhone 17 Pro Max and iPad (A16) Simulator schemes
   each pass 177 tests, intentionally skip four physical-PhotoKit checks, and
   fail zero out of 181. The unsigned universal Release build, static analysis,

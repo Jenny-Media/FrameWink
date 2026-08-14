@@ -1468,6 +1468,11 @@ explicit owner approval.
   was then accepted and finished processing without an error. It visibly shows
   the lifetime product, $9.99 purchase control, Restore Purchases, Family
   Sharing, and the free/paid boundary, and is used only by App Review.
+- Repeatable asset gate: `scripts/validate_app_store_assets.sh` verifies the
+  exact ordered filename manifests, count, dimensions, alpha state, and file
+  uniqueness of both ten-shot submission sets; the accepted IAP review image;
+  and the universal 1,024-pixel icon plus asset-catalog reference. It does not
+  require a running Simulator or mutate the submission directories.
 - Warnings/remaining device work: both test bundles retain the two known private
   iOS 27 UIKit context-menu hierarchy warnings, Apple's StoreKitTest headers
   emit their SDK deprecation warning, and Xcode's successful cleanup emits the
