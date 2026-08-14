@@ -845,6 +845,11 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   Team ID. The project still resolved `DEVELOPMENT_TEAM = 5736QK4NZX`. The
   fail-closed guard now accepts those two verified identifiers and rejects all
   other teams before the archive rerun.
+- Validation Build 2 passed static analysis and its shared build-for-testing
+  source guard, then failed when Xcode Cloud reran the script in artifact-only
+  `test-without-building` workers that do not contain the repository. The guard
+  now skips only that exact missing-project worker phase; every phase that owns
+  a source checkout still performs the full identity and privacy validation.
 - Repository state: Xcode generated a project-level cloud manifest after the
   successful connection. It is committed with this release record so future
   clones preserve the product-to-cloud target mapping.

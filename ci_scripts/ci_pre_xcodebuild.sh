@@ -8,11 +8,17 @@ project_path="$repository_path/FrameWink.xcodeproj"
 scheme_name="FrameWink"
 developer_team_id="5736QK4NZX"
 app_store_connect_team_id="69a6de81-5b05-47e3-e053-5b8c7c11a4d1"
+xcodebuild_action=${CI_XCODEBUILD_ACTION:-}
 
 fail() {
     echo "FrameWink release guard: $1" >&2
     exit 1
 }
+
+if [ "$xcodebuild_action" = "test-without-building" ] && [ ! -d "$project_path" ]; then
+    echo "FrameWink release guard skipped for artifact-only test worker; build-for-testing already validated the source checkout."
+    exit 0
+fi
 
 read_build_setting() {
     setting_name=$1
@@ -71,7 +77,7 @@ ui_test_bundle_identifier=$(xcodebuild \
 [ "$ui_test_bundle_identifier" = "media.jenny.FrameWinkUITests" ] \
     || fail "UI-test bundle identifier is '$ui_test_bundle_identifier', expected media.jenny.FrameWinkUITests."
 
-if [ "${CI_XCODEBUILD_ACTION:-}" = "archive" ]; then
+if [ "$xcodebuild_action" = "archive" ]; then
     [ "${CI_BUNDLE_ID:-$bundle_identifier}" = "media.jenny.FrameWink" ] \
         || fail "Xcode Cloud archive product has the wrong bundle identifier."
     cloud_team_id=${CI_TEAM_ID:-$development_team}
@@ -85,4 +91,4 @@ if [ "${CI_XCODEBUILD_ACTION:-}" = "archive" ]; then
         || fail "The TestFlight archive must use the production FrameWink Lifetime product identifier."
 fi
 
-echo "FrameWink release guard passed for ${CI_XCODEBUILD_ACTION:-local validation}."
+echo "FrameWink release guard passed for ${xcodebuild_action:-local validation}."

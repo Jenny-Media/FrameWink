@@ -1506,3 +1506,11 @@ explicit owner approval.
   verified Jenny Media identifiers; local checks exercise the Developer Team
   ID, the App Store Connect UUID, and a rejected unrelated-team value before
   the cloud archive is rerun.
+- Validation Build 2 succeeded in Analyze and in the initial build-for-testing
+  guard, but its distributed simulator workers failed before tests because
+  Xcode Cloud reran `ci_pre_xcodebuild.sh` after restoring artifacts without a
+  repository checkout. The worker action is `test-without-building`, as listed
+  in Apple's Xcode Cloud environment-variable reference. The guard now exits
+  successfully only when that exact action has no project directory. A local
+  fixture check verifies the artifact-only path passes while a missing project
+  for a normal action still fails.

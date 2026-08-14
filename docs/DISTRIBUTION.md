@@ -222,7 +222,13 @@ blocker affects only a later boundary.
   Developer team ID documented for that variable. The project's resolved
   `DEVELOPMENT_TEAM` remained the expected `5736QK4NZX`; the guard now accepts
   either verified Jenny Media representation and still rejects every unrelated
-  value.
+  value. Validation Build 2 also showed that Xcode Cloud reruns the pre-build
+  script inside each distributed `test-without-building` simulator worker after
+  restoring test artifacts, without cloning the repository into those workers.
+  The full guard had already passed during `build-for-testing`; the script now
+  exits successfully only for that exact artifact-only phase when the project
+  is absent. Source, analyze, build-for-testing, and archive phases retain the
+  complete fail-closed checks.
 - Impact: the first archive workflow still must succeed and produce the first
   TestFlight build.
 - Does not block: all App Store Connect/IAP metadata, local verification,
