@@ -1498,3 +1498,11 @@ explicit owner approval.
   `Jenny Media Internal` group.
 - Xcode generated `FrameWink.xcodeproj/xcshareddata/xcodecloud/manifest.json`
   after onboarding. `jq empty` validates the file before it is committed.
+- The first `Internal TestFlight` attempt, Build 3 at commit `3338357`, failed
+  in `ci_pre_xcodebuild.sh` before compilation or distribution. The cloud log
+  showed the correct bundle ID and product but supplied `CI_TEAM_ID` as Jenny
+  Media LLC's App Store Connect team UUID. Xcode's resolved Release setting
+  remained `DEVELOPMENT_TEAM = 5736QK4NZX`. The guard now recognizes both
+  verified Jenny Media identifiers; local checks exercise the Developer Team
+  ID, the App Store Connect UUID, and a rejected unrelated-team value before
+  the cloud archive is rerun.

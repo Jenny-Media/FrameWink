@@ -6,6 +6,8 @@ script_directory=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 repository_path=${CI_PRIMARY_REPOSITORY_PATH:-$(CDPATH= cd -- "$script_directory/.." && pwd)}
 project_path="$repository_path/FrameWink.xcodeproj"
 scheme_name="FrameWink"
+developer_team_id="5736QK4NZX"
+app_store_connect_team_id="69a6de81-5b05-47e3-e053-5b8c7c11a4d1"
 
 fail() {
     echo "FrameWink release guard: $1" >&2
@@ -56,7 +58,7 @@ ui_test_bundle_identifier=$(xcodebuild \
 
 [ "$bundle_identifier" = "media.jenny.FrameWink" ] \
     || fail "Release bundle identifier is '$bundle_identifier', expected media.jenny.FrameWink."
-[ "$development_team" = "5736QK4NZX" ] \
+[ "$development_team" = "$developer_team_id" ] \
     || fail "Release development team is '$development_team', expected Jenny Media LLC (5736QK4NZX)."
 [ "$device_family" = "1,2" ] \
     || fail "Release target must support iPhone and iPad (TARGETED_DEVICE_FAMILY = 1,2)."
@@ -72,8 +74,11 @@ ui_test_bundle_identifier=$(xcodebuild \
 if [ "${CI_XCODEBUILD_ACTION:-}" = "archive" ]; then
     [ "${CI_BUNDLE_ID:-$bundle_identifier}" = "media.jenny.FrameWink" ] \
         || fail "Xcode Cloud archive product has the wrong bundle identifier."
-    [ "${CI_TEAM_ID:-$development_team}" = "5736QK4NZX" ] \
-        || fail "Xcode Cloud archive is not using the Jenny Media LLC team."
+    cloud_team_id=${CI_TEAM_ID:-$development_team}
+    case "$cloud_team_id" in
+        "$developer_team_id"|"$app_store_connect_team_id") ;;
+        *) fail "Xcode Cloud archive is not using the Jenny Media LLC team." ;;
+    esac
     [ -n "$wall_mode_product_id" ] \
         || fail "Release Wall Mode product identifier is empty; confirm the immutable App Store Connect product before archiving."
     [ "$wall_mode_product_id" = "media.jenny.FrameWink.wallmode" ] \

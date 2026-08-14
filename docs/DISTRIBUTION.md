@@ -216,14 +216,20 @@ blocker affects only a later boundary.
   analyzes and tests `main` on recommended iPhone and iPad destinations.
   `Internal TestFlight` is manual-only and performs a clean archive with
   `TestFlight (Internal Testing Only)` preparation and a post-action assigned
-  specifically to `Jenny Media Internal`.
+  specifically to `Jenny Media Internal`. Build 3 then failed closed before
+  compilation because Xcode Cloud 26.6 supplied `CI_TEAM_ID` as Jenny Media
+  LLC's App Store Connect team UUID rather than the 10-character Apple
+  Developer team ID documented for that variable. The project's resolved
+  `DEVELOPMENT_TEAM` remained the expected `5736QK4NZX`; the guard now accepts
+  either verified Jenny Media representation and still rejects every unrelated
+  value.
 - Impact: the first archive workflow still must succeed and produce the first
   TestFlight build.
 - Does not block: all App Store Connect/IAP metadata, local verification,
   physical-device discovery, or commits.
-- Next action: commit and push Xcode's generated project-level cloud manifest,
-  allow the automatic validation workflow to run, then manually start the
-  internal archive from `main` and verify its TestFlight post-action.
+- Next action: push the cloud-team compatibility correction, allow the automatic
+  validation workflow to run, then rerun the internal archive from `main` and
+  verify its TestFlight post-action.
 
 ### B-011 — App Store declarations need owner completion
 

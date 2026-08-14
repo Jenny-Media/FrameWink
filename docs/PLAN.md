@@ -839,6 +839,12 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   to `main` on recommended iPhone and iPad destinations. `Internal TestFlight`
   is manual-only and archives with internal-TestFlight preparation, then
   distributes specifically to `Jenny Media Internal`.
+- Build 3 failed before compilation because Xcode Cloud 26.6 exposed
+  `CI_TEAM_ID` as Jenny Media LLC's App Store Connect team UUID, while Apple's
+  current documentation describes the variable as the 10-character Developer
+  Team ID. The project still resolved `DEVELOPMENT_TEAM = 5736QK4NZX`. The
+  fail-closed guard now accepts those two verified identifiers and rejects all
+  other teams before the archive rerun.
 - Repository state: Xcode generated a project-level cloud manifest after the
   successful connection. It is committed with this release record so future
   clones preserve the product-to-cloud target mapping.
