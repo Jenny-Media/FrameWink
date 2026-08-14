@@ -839,7 +839,8 @@ explicit owner approval.
   exposes Share Photo/Share Featured Photo, per-tile choices for other photos
   in a collage, and Exit Frame. Long-press remains available for an exact tile;
   the parent swipe gesture is simultaneous so it does not preempt the context
-  menu.
+  menu. This checkpoint's split multi-photo share control was later superseded
+  by D-023 and the single scene-share regression below.
 - Album catalog loading has independent state. Closing and reopening the picker
   immediately shows the existing catalog and covers while a refresh proceeds,
   rather than replacing the grid with Loading albums. Cover cache keys include
@@ -906,8 +907,9 @@ explicit owner approval.
   still exposed the controls.
 - Frame Controls now resets to system semantic foreground/background colors,
   requests a 500-point draggable sheet when popovers adapt on iOS 16+, and
-  renders Share Photo/Share Featured as the full-width prominent action above
-  Exit Frame. iPad retains the anchored popover.
+  rendered the then-current Share action full width above Exit Frame. The later
+  D-023 refinement changed only that action's multi-photo semantics; iPad
+  retains the anchored popover.
 - The direct-controls regression passes on both the iPad (A16) and a temporary
   iPhone 17 Pro Max Simulator compatibility build. The iPhone capture visibly
   includes the title, close button, style/speed controls, prominent Share Photo,
@@ -971,3 +973,26 @@ explicit owner approval.
   family setting was immediately restored to iPad-only and has no repository
   diff. The final physical `verify-albums` retry again timed out enabling iPadOS
   automation before any app assertion, then restored the interactive harness.
+
+## Single scene-share action — 2026-08-13
+
+- Replaced the multi-photo `Share Featured` plus `Other Photos` split with one
+  `Share Photos` button. It supplies every image in the current scene to one
+  `UIActivityViewController`. Single-photo scenes retain `Share Photo`, and the
+  long-press context action still shares exactly the touched photo.
+- Focused iPad Simulator UI coverage passed for direct Frame Controls sharing,
+  a multi-photo Mosaic scene exposing only one share action, and the exact-photo
+  long-press action: 3/3 passed.
+- The complete iOS 27 `iPad (A16)` Simulator scheme passed 142 unit tests and 17
+  UI tests. Four physical-PhotoKit UI tests skipped intentionally, producing
+  155 passes, four skips, and zero failures across 159 tests.
+- The existing two private iOS 27 UIKit context-menu hierarchy warnings and
+  post-test `simctl` diagnostic remain non-failing. No new runtime warning was
+  introduced.
+- The unsigned generic-device Release build succeeded for iPadOS 15 and device
+  family 2.
+- A Jenny Media LLC-signed Release compatibility build was verified with
+  `UIDeviceFamily` 1 and 2, minimum OS 15.0, and production product identifier
+  `media.jenny.FrameWink.wallmode`, then installed and launched over existing
+  data on the paired physical iPhone 17 Pro Max. The temporary family edit was
+  restored immediately; the repository remains iPad-only.

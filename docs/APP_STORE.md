@@ -213,6 +213,9 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - Primary category: Photo & Video
 - Subtitle: `Private photo frame for iPad`
 - App base price: free in all 175 current and future regions
+- Lifetime IAP availability: all current and future regions are prepared but
+  the App Store Connect change still requires the owner-authorized Save action;
+  see B-022 in `docs/DISTRIBUTION.md`.
 - Apple Silicon Mac availability: disabled; the app remains iPad-only
 - Product-page copy: promotional text, description, keywords, support,
   marketing, and copyright saved

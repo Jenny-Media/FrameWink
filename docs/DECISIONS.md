@@ -174,8 +174,7 @@ date; do not silently rewrite historical decisions during implementation.
 - **Decision:** The playback `More` button opens a native Frame Controls
   popover with directly visible display-style and slideshow-speed choices.
   The panel stays open after either choice so a user can make several related
-  adjustments, and keeps Share and Exit Frame nearby. Only the secondary list
-  of other photos in a collage remains nested.
+  adjustments, and keeps Share and Exit Frame nearby.
 - **Reason:** A cascading menu makes common adjustments require repeated taps
   and hides the current selections. One small anchored panel preserves the
   quiet frame surface while making the useful advanced controls scannable and
@@ -218,3 +217,16 @@ date; do not silently rewrite historical decisions during implementation.
   most important escape path unnecessarily obscure. A transient top-right
   control is familiar on compact devices, remains quiet during playback, and
   avoids the iPad's top-leading window-control region.
+
+## D-023 — Scene sharing is one action
+
+- **Decision:** Frame Controls exposes exactly one share action. It is labelled
+  `Share Photo` for a single-photo scene and `Share Photos` for a multi-photo
+  scene, and sends every currently displayed scene photo to Apple's system
+  share sheet together. Long-press remains the precise way to share only one
+  touched photo from a multi-photo scene.
+- **Reason:** Splitting a collage into `Share Featured` and `Other Photos`
+  required users to understand an internal hierarchy that is irrelevant to
+  sharing. One scene-level action follows the visible composition, while the
+  existing photo-level gesture preserves control without adding another
+  button.

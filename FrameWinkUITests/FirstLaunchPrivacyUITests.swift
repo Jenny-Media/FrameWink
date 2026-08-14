@@ -287,14 +287,13 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         )
         XCTAssertTrue(app.staticTexts["Frame Controls"].isHittable)
         XCTAssertTrue(app.buttons["frame-close-control"].waitForExistence(timeout: 3))
-        let sharePhoto = app.buttons["Share Photo"]
-        let shareFeaturedPhoto = app.buttons["Share Featured"]
+        let shareAction = app.buttons["frame-share-current-photos"]
         XCTAssertTrue(
-            sharePhoto.exists || shareFeaturedPhoto.exists,
+            shareAction.exists,
             "Frame Controls must expose sharing for the current scene."
         )
         XCTAssertTrue(
-            sharePhoto.isHittable || shareFeaturedPhoto.isHittable,
+            shareAction.isHittable,
             "The direct Share action must be visibly reachable in Frame Controls."
         )
         XCTAssertTrue(app.buttons["frame-speed-5"].exists)
@@ -306,6 +305,29 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         panelScreenshot.name = "Frame Controls panel"
         panelScreenshot.lifetime = .keepAlways
         add(panelScreenshot)
+    }
+
+    func testMultiPhotoFrameOffersOneShareActionForTheWholeScene() {
+        launch(scenario: "mosaic-frame")
+
+        let playbackOptions = app.buttons["More playback options"]
+        XCTAssertTrue(playbackOptions.waitForExistence(timeout: 8))
+        playbackOptions.tap()
+
+        XCTAssertTrue(
+            app.descendants(matching: .any)["frame-controls-panel"]
+                .waitForExistence(timeout: 3)
+        )
+        let shareAction = app.buttons["frame-share-current-photos"]
+        XCTAssertTrue(shareAction.waitForExistence(timeout: 3))
+        XCTAssertEqual(
+            shareAction.label,
+            "Share Photos",
+            "A multi-photo scene must expose one action that shares the scene's photos together."
+        )
+        XCTAssertFalse(app.buttons["frame-share-photo-menu"].exists)
+        XCTAssertFalse(app.buttons["Share Featured"].exists)
+        XCTAssertFalse(app.buttons["Other Photos"].exists)
     }
 
     func testFrameQuickCloseExitsWithoutOpeningMore() {

@@ -443,6 +443,28 @@ blocker affects only a later boundary.
   `scripts/physical_acceptance.sh verify-albums` when iPadOS automation mode is
   stable.
 
+### B-022 — Lifetime purchase availability is not saved
+
+- Status: Open, blocking production StoreKit testing
+- First recorded: 2026-08-13
+- Evidence: App Store Connect contains the `FrameWink Lifetime` non-consumable
+  with product identifier `media.jenny.FrameWink.wallmode`, Family Sharing
+  enabled, and status **Prepare for Submission**. All current and future
+  storefronts are selected in the availability editor, but that pending change
+  has not been saved to App Store Connect.
+- Device diagnosis: the first temporary iPhone compatibility install was a
+  Debug build using the local StoreKit product identifier and therefore could
+  not load a product when launched outside an Xcode StoreKit session. A signed
+  Release compatibility build using the production identifier was installed,
+  but production purchase testing still depends on saved App Store Connect
+  availability and Apple propagation.
+- Impact: Free Smart Reel remains usable, but the owner cannot complete a real
+  production-product purchase test on the physical iPhone or iPad.
+- Needed from owner: authorize the already prepared App Store Connect **Save**
+  action. After Apple propagates it, relaunch the Release build and verify that
+  localized price and purchase controls load; use an appropriate sandbox or
+  TestFlight transaction path for the purchase itself.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue
@@ -471,7 +493,8 @@ blocker affects only a later boundary.
   all regions. Its configured bank account, U.S. W-9, and Digital Services Act
   compliance record are also active.
 - The app is free in all 175 current regions and configured for all future
-  regions; Wall Mode remains a separate $9.99 lifetime IAP. Apple Silicon Mac
+  regions; Wall Mode remains a separate $9.99 lifetime IAP. The IAP storefront
+  selection is prepared but not yet saved under B-022. Apple Silicon Mac
   availability is disabled to preserve the iPad-only product contract.
 - The English (U.S.) product page has a private-photo-frame subtitle,
   Photo & Video primary category, promotional text, description, keywords,
@@ -496,6 +519,9 @@ without preventing Build, Analyze, or Test workflows.
 - Finish the open Jenny Media LLC Apple Account sign-in sheet in Xcode under
   B-010. Repository-scoped GitHub authorization is complete.
 - Complete the publisher declarations and contact data under B-011.
+- Save the prepared lifetime-IAP storefront availability under B-022, allow
+  propagation, and repeat production-product loading on a Release/TestFlight
+  device build.
 
 ## Local debugger tooling note
 

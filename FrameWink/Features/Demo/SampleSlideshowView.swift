@@ -27,8 +27,9 @@ struct SampleSlideshowView: View {
     @State private var pageTransitionDirection: FramePageTransitionDirection = .dissolve
     @State private var isShowingFrameControls = false
     @State private var sharePreparationID: String?
+    @State private var sharePreparationCount = 0
     @State private var shareTask: Task<Void, Never>?
-    @State private var sharedPhoto: SharedFramePhoto?
+    @State private var sharedPhotos: SharedFramePhotos?
     @StateObject private var imageCache = DisplayImageCache()
 
     private let layoutChooser = FrameLayoutChooser()
@@ -86,7 +87,11 @@ struct SampleSlideshowView: View {
                     }
 
                     if sharePreparationID != nil {
-                        ProgressView("Preparing photo…")
+                        ProgressView(
+                            sharePreparationCount > 1
+                                ? "Preparing photos…"
+                                : "Preparing photo…"
+                        )
                             .tint(.white)
                             .foregroundColor(.white)
                             .padding(.horizontal, 18)
@@ -231,9 +236,10 @@ struct SampleSlideshowView: View {
             hideHintTask?.cancel()
             shareTask?.cancel()
             sharePreparationID = nil
+            sharePreparationCount = 0
         }
-        .sheet(item: $sharedPhoto) { sharedPhoto in
-            SystemPhotoShareSheet(image: sharedPhoto.image)
+        .sheet(item: $sharedPhotos) { sharedPhotos in
+            SystemPhotoShareSheet(images: sharedPhotos.images)
         }
     }
 
@@ -461,14 +467,30 @@ struct SampleSlideshowView: View {
     }
 
     private func prepareToShare(_ slide: DisplaySlide) {
+        prepareToShare([slide])
+    }
+
+    private func prepareToShare(_ slides: [DisplaySlide]) {
+        guard !slides.isEmpty else { return }
         shareTask?.cancel()
-        sharePreparationID = slide.id
+        sharePreparationID = slides.map(\.id).joined(separator: "|")
+        sharePreparationCount = slides.count
         shareTask = Task {
-            let image = await cachedImage(for: slide)
-            guard !Task.isCancelled else { return }
+            var images: [UIImage] = []
+            images.reserveCapacity(slides.count)
+            for slide in slides {
+                guard let image = await cachedImage(for: slide),
+                      !Task.isCancelled else {
+                    sharePreparationID = nil
+                    sharePreparationCount = 0
+                    return
+                }
+                images.append(image)
+            }
             sharePreparationID = nil
-            guard let image else { return }
-            sharedPhoto = SharedFramePhoto(image: image)
+            sharePreparationCount = 0
+            guard !Task.isCancelled else { return }
+            sharedPhotos = SharedFramePhotos(images: images)
         }
     }
 
@@ -651,9 +673,9 @@ struct SampleSlideshowView: View {
         presentationDidChange(layoutPreference, interval)
     }
 
-    private func shareFromFrameControls(_ slide: DisplaySlide) {
+    private func shareFromFrameControls(_ slides: [DisplaySlide]) {
         isShowingFrameControls = false
-        prepareToShare(slide)
+        prepareToShare(slides)
     }
 
     private var controlsHint: some View {
@@ -830,7 +852,7 @@ private struct FrameControlsPanel: View {
     let slides: [DisplaySlide]
     let selectLayout: (FrameLayoutPreference) -> Void
     let selectInterval: (TimeInterval) -> Void
-    let share: (DisplaySlide) -> Void
+    let share: ([DisplaySlide]) -> Void
     let exitFrame: () -> Void
     let dismiss: () -> Void
 
@@ -883,46 +905,29 @@ private struct FrameControlsPanel: View {
 
             Divider()
 
-            HStack(spacing: 10) {
-                if let featuredSlide = slides.first {
-                    Button {
-                        share(featuredSlide)
-                    } label: {
-                        HStack(spacing: 0) {
-                            Image(systemName: "square.and.arrow.up")
-                                .frame(width: 28)
-                            Text(slides.count == 1 ? "Share Photo" : "Share Featured")
-                                .frame(maxWidth: .infinity, alignment: .center)
-                            Color.clear
-                                .frame(width: 28, height: 1)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 38)
+            if !slides.isEmpty {
+                Button {
+                    share(slides)
+                } label: {
+                    HStack(spacing: 0) {
+                        Image(systemName: "square.and.arrow.up")
+                            .frame(width: 28)
+                        Text(slides.count == 1 ? "Share Photo" : "Share Photos")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Color.clear
+                            .frame(width: 28, height: 1)
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.accentColor)
-                    .accessibilityLabel(
-                        slides.count == 1 ? "Share Photo" : "Share Featured"
-                    )
-                    .accessibilityIdentifier("frame-share-current-photo")
+                    .frame(maxWidth: .infinity, minHeight: 38)
                 }
-
-                if slides.count > 1 {
-                    Menu {
-                        ForEach(slides.indices.dropFirst(), id: \.self) { index in
-                            Button("Photo \(index + 1)") {
-                                share(slides[index])
-                            }
-                            .accessibilityIdentifier(
-                                "frame-share-photo-" + slides[index].id
-                            )
-                        }
-                    } label: {
-                        Label("Other Photos", systemImage: "photo.on.rectangle.angled")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityIdentifier("frame-share-photo-menu")
-                }
+                .buttonStyle(.bordered)
+                .tint(.accentColor)
+                .accessibilityLabel(slides.count == 1 ? "Share Photo" : "Share Photos")
+                .accessibilityHint(
+                    slides.count == 1
+                        ? "Opens the system share sheet"
+                        : "Shares every photo in the current frame"
+                )
+                .accessibilityIdentifier("frame-share-current-photos")
             }
 
             Button(action: exitFrame) {
@@ -1018,17 +1023,17 @@ private extension View {
     }
 }
 
-private struct SharedFramePhoto: Identifiable {
+private struct SharedFramePhotos: Identifiable {
     let id = UUID()
-    let image: UIImage
+    let images: [UIImage]
 }
 
 private struct SystemPhotoShareSheet: UIViewControllerRepresentable {
-    let image: UIImage
+    let images: [UIImage]
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
         UIActivityViewController(
-            activityItems: [image],
+            activityItems: images,
             applicationActivities: nil
         )
     }

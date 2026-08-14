@@ -485,9 +485,9 @@ deterministic at 4–7% scale and up to 2.5% pan, reaches an endpoint within the
 slide interval, and is governed by a tested policy that disables it for Reduce
 Motion, resize, pause, preview, and multi-photo scenes.
 
-Frame playback no longer places an app-owned close button in the top-leading
-window-control region. **Share Photo** (or **Share Featured Photo** for a
-multi-photo scene) and **Exit Frame** now live in the existing More menu, while
+Frame playback avoids the top-leading window-control region and now uses a
+receding top-right close control. Frame Controls exposes one **Share Photo** or
+**Share Photos** action for the whole visible scene plus **Exit Frame**, while
 long-press remains an exact-tile shortcut and the slideshow swipe recognizer
 coexists with context-menu recognition. The album picker preserves an already
 loaded catalog during background refresh, retains revision-keyed bounded cover
@@ -550,6 +550,20 @@ release target remains iPad-only. The remaining risk is the
 initial-catalog and cover timing on a large real iCloud Photos library, which
 cannot be represented faithfully in Simulator and is covered by the tightened
 physical acceptance checks.
+
+Owner testing then exposed that a multi-photo scene changed the direct share
+control into `Share Featured` plus an `Other Photos` menu. Frame Controls now
+keeps one stable action: `Share Photo` for one image and `Share Photos` for a
+collage. The latter sends all currently displayed images to the native share
+sheet as one multi-item share; long-press still shares only the touched image.
+A new UI regression proves that Mosaic presents one share action and removes
+the featured/other split. The complete iPad Simulator scheme passes 159 tests:
+155 passed and the same four physical-PhotoKit tests skipped intentionally. The
+unsigned iPadOS 15 Release build also succeeds. Active work for this refinement
+was approximately 0.5 hour. A temporary signed Release compatibility build of
+the exact sharing source was installed and launched on the physical iPhone 17
+Pro Max for owner testing; its device-family setting was then restored with no
+project-file diff.
 
 ## Timebox rule
 
