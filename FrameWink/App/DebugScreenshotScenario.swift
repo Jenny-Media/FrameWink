@@ -248,7 +248,7 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
 
     func loadProduct() async throws -> PurchaseProductInfo? {
         PurchaseProductInfo(
-            id: ProductConfiguration.localWallModeProductID,
+            id: ProductConfiguration.productionWallModeProductID,
             displayName: "FrameWink Lifetime",
             description: "One-time FrameWink feature unlock",
             displayPrice: "$9.99",

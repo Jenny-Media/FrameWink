@@ -19,7 +19,7 @@ final dialog includes a legal accuracy/compliance attestation; see B-009 in
 
 Picker-selected photos and photos from a paid, explicitly selected album are
 copied at display size into the app's private container and do not leave the
-iPad through FrameWink. StoreKit purchase processing is provided by Apple.
+device through FrameWink. StoreKit purchase processing is provided by Apple.
 FrameWink has no account, developer server, analytics, advertising, telemetry,
 or developer-controlled network request.
 
@@ -45,7 +45,7 @@ as release-review input and must remain aligned with it.
 Effective: August 12, 2026
 
 FrameWink is provided by Jenny Media LLC. FrameWink is designed to process
-photos locally on the iPad. The app has no developer-operated account or server
+photos locally on the device. The app has no developer-operated account or server
 and does not upload photos, app activity, identifiers, diagnostics, purchases,
 or other personal data to Jenny Media LLC. It does not use advertising,
 tracking, or third-party analytics SDKs.
@@ -76,7 +76,9 @@ support endpoint. Privacy questions and support mail go to
 
 ## App Review notes draft
 
-FrameWink is iPad-only and requires iPadOS 15 or later.
+FrameWink is a universal iPhone and iPad app and requires iOS/iPadOS 15 or
+later. Compact iPhone playback prioritizes one large photo; iPad and larger
+windows can use responsive multi-photo compositions when appropriate.
 
 On first launch, the app immediately shows ten bundled example photos and does
 not request Photos authorization. `Choose Photos` opens Apple's PHPicker for a
@@ -97,7 +99,7 @@ unlocks automatic refresh for an explicitly selected Photos album, curation of
 all eligible album candidates without the free 500-candidate input limit,
 long-term repeat reduction, automatic Mosaic composition when appropriate, a
 persisted active source/timing state, foreground-only Auto-Lock prevention,
-visual dim/blackout schedules, and mounted-iPad guidance.
+visual dim/blackout schedules, and mounted-display guidance.
 
 For automatic albums, include an iCloud-backed item and confirm preparation
 continues while Apple Photos downloads it. Change the selected album in Photos,
@@ -105,7 +107,7 @@ return to FrameWink, review the regenerated suggestions, and use `Remove
 Downloaded Album Photos`. FrameWink never creates a PhotoKit change
 request and does not edit or delete originals.
 
-Consumer Guided Access must be started manually in iPadOS. FrameWink does not
+Consumer Guided Access must be started manually. FrameWink does not
 change system brightness, sense ambient light, promise an exact scheduled wake,
 or guarantee relaunch after a reboot.
 
@@ -166,6 +168,12 @@ The broader eleven-image 1640 x 2360 source library remains under
 `AppStore/Screenshots/iPad/` and can be regenerated with
 `scripts/capture_app_store_screenshots.sh`.
 
+Ten native 1320 x 2868 JPEGs for the 6.9-inch iPhone slot are committed under
+`AppStore/Screenshots/Submission/iPhone-6.9-inch/`. They use the same honest
+Free/Paid sequence while showing compact single-photo playback instead of
+forcing an iPad Mosaic into a narrow viewport. Regenerate and validate them
+with `scripts/capture_app_store_iphone_submission_screenshots.sh`.
+
 ## Xcode Cloud workflow recipe
 
 The first-workflow assistant in Xcode has matched FrameWink, Jenny Media LLC,
@@ -187,7 +195,8 @@ Create two workflows:
 
 1. **FrameWink Validation**
    - Start on pull-request updates and pushes to the chosen main branch.
-   - Actions: Analyze (FrameWink, iOS) and Test (FrameWink, iPad Simulator).
+   - Actions: Analyze (FrameWink, iOS) and Test on both an iPhone Simulator and
+     an iPad Simulator.
      The shared scheme's Test action includes both `FrameWinkTests` and the
      first-launch/privacy `FrameWinkUITests` bundle.
    - Deployment preparation: none.
@@ -217,18 +226,20 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - Paid Apps and Free Apps agreements: active for all regions
 - Banking, U.S. W-9, and Digital Services Act compliance: active
 - Primary category: Photo & Video
-- Subtitle: `Private photo frame for iPad`
+- Required universal-release subtitle update: change the currently saved
+  `Private photo frame for iPad` to `Private smart photo frame`
 - App base price: free in all 175 current and future regions
 - Lifetime IAP availability: saved for all 175 current countries or regions and
   all future regions; Family Sharing is enabled. The first non-consumable must
   be submitted with the first app version; see B-022 in
   `docs/DISTRIBUTION.md`.
-- Apple Silicon Mac availability: disabled; the app remains iPad-only
+- Apple Silicon Mac availability: disabled; the app is designed for iPhone and
+  iPad touch interaction
 - Product-page copy: promotional text, description, keywords, support,
   marketing, and copyright saved
-- App Store screenshots: all ten accepted for the 13-inch iPad slot and ordered
-  `01` through `10`; Apple will reuse them for all iPad display sizes and the
-  current English (U.S.) localization
+- App Store screenshots: ten accepted for the 13-inch iPad slot and ordered
+  `01` through `10`; a matching ten-shot 6.9-inch iPhone submission set is
+  generated locally and must be uploaded for the universal release
 - App Review contact: Yihong Chen and `framewink@jenny.media` saved with the
   owner-supplied phone number, which is intentionally omitted from this public
   repository.

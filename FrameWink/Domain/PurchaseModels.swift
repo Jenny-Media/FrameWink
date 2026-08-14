@@ -45,6 +45,7 @@ enum PurchaseActionState: Equatable {
 }
 
 enum ProductConfiguration {
+    static let productionWallModeProductID = "media.jenny.FrameWink.wallmode"
     static let localWallModeProductID = "media.jenny.FrameWink.wallmode.local"
     static let infoKey = "FrameWinkWallModeProductIdentifier"
 

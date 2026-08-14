@@ -412,7 +412,7 @@ struct RootView: View {
                     .foregroundColor(.white.opacity(0.72))
                     .accessibilityHidden(true)
 
-                Text("Preparing \(setupTitle) on this iPad")
+                Text("Preparing \(setupTitle) on this device")
                     .font(.headline)
                     .foregroundColor(.white.opacity(0.86))
 
@@ -898,7 +898,7 @@ private struct PhotosSheet: View {
                     if !model.importedPhotos.isEmpty {
                         sourceButton(
                             title: "My Selected Photos",
-                            detail: "\(model.importedPhotos.count) selected on this iPad",
+                            detail: "\(model.importedPhotos.count) selected on this device",
                             systemImage: "photo.stack",
                             mode: .personal
                         )
@@ -1061,7 +1061,7 @@ private struct PrivacyAndDataSheet: View {
                     Text("Private by design")
                         .font(.largeTitle.bold())
 
-                    Text("FrameWink has no server and never uploads your photos. Selection, preparation, and display happen on this iPad.")
+                    Text("FrameWink has no server and never uploads your photos. Selection, preparation, and display happen on this device.")
                         .font(.title3)
 
                     privacyPoint(
@@ -1085,7 +1085,7 @@ private struct PrivacyAndDataSheet: View {
                     .padding(.vertical, 8)
                 }
 
-                Section("Data on This iPad") {
+                Section("Data on This Device") {
                     if !model.importedPhotos.isEmpty {
                         Text(
                             "\(model.importedPhotos.count) selected photo copies are stored locally."

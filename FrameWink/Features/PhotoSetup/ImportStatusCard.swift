@@ -83,7 +83,7 @@ struct ImportStatusCard: View {
             Text(
                 isCancelling
                     ? "FrameWink is keeping every photo that already finished."
-                    : "Display-sized copies stay on this iPad and remain available offline."
+                    : "Display-sized copies stay on this device and remain available offline."
             )
         }
     }
@@ -161,8 +161,8 @@ struct ImportStatusCard: View {
             return "\(imported) imported, \(failed) couldn’t be prepared. Successful photos are already saved."
         }
         if report.limitReachedCount > 0 {
-            return "\(imported) imported. FrameWink keeps up to \(ManualPhotoCollectionPolicy.maximumCandidateCount) selected photos on this iPad."
+            return "\(imported) imported. FrameWink keeps up to \(ManualPhotoCollectionPolicy.maximumCandidateCount) selected photos on this device."
         }
-        return "\(imported) display-sized copies are stored on this iPad and ready offline."
+        return "\(imported) display-sized copies are stored on this device and ready offline."
     }
 }

@@ -94,7 +94,7 @@ struct WallModeSetupView: View {
                 }
             }
 
-            Text("The night schedule applies while FrameWink is open. It cannot relaunch the app after an iPad restart.")
+            Text("The night schedule applies while FrameWink is open. It cannot relaunch the app after a device restart.")
                 .font(.footnote)
                 .foregroundColor(.secondary)
 
@@ -107,19 +107,19 @@ struct WallModeSetupView: View {
 
     private var mountedTipsSection: some View {
         Section {
-            DisclosureGroup("Mounted iPad Tips", isExpanded: $showMountedTips) {
+            DisclosureGroup("Mounted Display Tips", isExpanded: $showMountedTips) {
                 Label(
                     guidedAccessIsEnabled ? "Guided Access is on" : "Guided Access is off",
                     systemImage: guidedAccessIsEnabled ? "checkmark.shield.fill" : "shield"
                 )
                 .foregroundColor(guidedAccessIsEnabled ? .green : .secondary)
 
-                Text("Guided Access is optional. Start it with the iPad’s Accessibility Shortcut after the frame is playing.")
+                Text("Guided Access is optional. Start it with the device’s Accessibility Shortcut after the frame is playing.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
 
                 mountedTip(
-                    "Use reliable power and keep the iPad ventilated.",
+                    "Use reliable power and keep the device ventilated.",
                     systemImage: "powerplug"
                 )
                 mountedTip(
@@ -131,7 +131,7 @@ struct WallModeSetupView: View {
                     systemImage: "rectangle.portrait.rotate"
                 )
                 mountedTip(
-                    "After an iPad restart, open FrameWink and start the frame again.",
+                    "After a device restart, open FrameWink and start the frame again.",
                     systemImage: "arrow.clockwise"
                 )
             }
@@ -205,7 +205,7 @@ struct AlbumPickerView: View {
                     emptyState(
                         icon: "lock.slash",
                         title: "Photos access is unavailable",
-                        detail: "Allow Photos access for FrameWink in iPad Settings, then try again."
+                        detail: "Allow Photos access for FrameWink in Settings, then try again."
                     )
                 } else if case .failed(let message) = controller.albumCatalogPhase,
                           controller.albums.isEmpty {
@@ -421,7 +421,7 @@ private struct AlbumPickerTile: View {
                     Image(systemName: "photo")
                         .font(.system(size: 34, weight: .light))
                         .foregroundColor(.secondary.opacity(0.45))
-                        .accessibilityLabel("Loading album cover from this iPad")
+                        .accessibilityLabel("Loading album cover from this device")
                 case .cloud:
                     VStack(spacing: 8) {
                         Image(systemName: "icloud.and.arrow.down")

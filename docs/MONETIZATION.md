@@ -7,10 +7,15 @@
 - Planned US price: $9.99.
 - Confirmed identifier: `media.jenny.FrameWink.wallmode`.
 - Family Sharing is enabled for the production non-consumable.
-- Local Debug-only identifier: `media.jenny.FrameWink.wallmode.local`.
-- The local StoreKit test product also enables Family Sharing so the Debug
-  purchase flow matches the production entitlement policy.
-- The Release build receives only the confirmed production identifier.
+- Directly launched Debug and Release app builds use the confirmed production
+  identifier so development-signed iPhone and iPad installs can query Apple's
+  sandbox product metadata.
+- The isolated StoreKit test fixture uses
+  `media.jenny.FrameWink.wallmode.local` and enables Family Sharing. It is
+  attached only to the scheme's Test action and explicit StoreKit Test
+  sessions, never to normal Run or a real App Store product.
+- A failed metadata request remains retryable from the paywall without
+  restarting the app; StoreKit failure never disables the free experience.
 
 ## Paywall timing
 

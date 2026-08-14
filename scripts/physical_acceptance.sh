@@ -9,17 +9,18 @@ FRAMEWINK_BUNDLE_ID=media.jenny.FrameWink
 
 usage() {
     cat <<'EOF'
-Usage: scripts/physical_acceptance.sh <prepare|verify-albums|sample|soak> [options]
+Usage: scripts/physical_acceptance.sh <prepare|prepare-storekit|verify-albums|sample|soak> [options]
 
 Commands:
   prepare              Build, install, and launch the real-PhotoKit Debug harness.
-  verify-albums        UI-test authorized album discovery on the physical iPad.
+  prepare-storekit     Build, install, and launch with the real StoreKit sandbox path.
+  verify-albums        UI-test authorized album discovery on a physical iOS device.
   sample               Record one process/lock/heartbeat/screenshot sample.
   soak [hours] [secs]  Monitor the already-running app (defaults: 168 hours, 300 sec).
 
 Environment:
   FRAMEWINK_DEVICE_ID     Physical CoreDevice ID. Auto-detected when exactly one
-                          paired, reachable physical iPad is available.
+                          paired physical iPhone or iPad is available.
   FRAMEWINK_XCODE_UDID    Xcode destination UDID. Auto-detected from CoreDevice.
   FRAMEWINK_ARTIFACTS     Evidence directory (default: TestArtifacts/PhysicalAcceptance).
 EOF
@@ -48,14 +49,17 @@ discover_device() {
             .result.devices[]
             | select(
                 .properties.hardware.reality == "physical"
-                and .properties.hardware.deviceType == "iPad"
+                and (
+                    .properties.hardware.deviceType == "iPad"
+                    or .properties.hardware.deviceType == "iPhone"
+                )
                 and .properties.connection.pairingState == "paired"
             )
             | .identifier
         ' "$FRAMEWINK_DEVICE_LIST_JSON")
         FRAMEWINK_DEVICE_COUNT=$(printf '%s\n' "$FRAMEWINK_DEVICE_IDS" | sed '/^$/d' | wc -l | tr -d ' ')
         [ "$FRAMEWINK_DEVICE_COUNT" = "1" ] || {
-            echo "Expected exactly one paired physical iPad; found $FRAMEWINK_DEVICE_COUNT." >&2
+            echo "Expected exactly one paired physical iPhone or iPad; found $FRAMEWINK_DEVICE_COUNT." >&2
             echo "Set FRAMEWINK_DEVICE_ID explicitly when more than one is connected." >&2
             exit 1
         }
@@ -67,19 +71,22 @@ discover_device() {
          | select(
              .identifier == $id
              and .properties.hardware.reality == "physical"
-             and .properties.hardware.deviceType == "iPad"
+             and (
+                 .properties.hardware.deviceType == "iPad"
+                 or .properties.hardware.deviceType == "iPhone"
+             )
              and .properties.connection.pairingState == "paired"
          )] | length
     ' "$FRAMEWINK_DEVICE_LIST_JSON")
     [ "$FRAMEWINK_MATCH_COUNT" = "1" ] || {
-        echo "FRAMEWINK_DEVICE_ID is not a paired physical iPad." >&2
+        echo "FRAMEWINK_DEVICE_ID is not a paired physical iPhone or iPad." >&2
         exit 1
     }
 
     if ! DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device info lockState \
         --device "$FRAMEWINK_DEVICE_ID" >/dev/null 2>&1; then
         echo "FRAMEWINK_DEVICE_ID is paired but not currently reachable." >&2
-        echo "Wake and unlock the iPad, then retry." >&2
+        echo "Wake and unlock the device, then retry." >&2
         exit 1
     fi
 
@@ -114,7 +121,8 @@ write_run_metadata() {
 }
 
 prepare() {
-    echo "Building for $FRAMEWINK_DEVICE_MODEL (iPadOS $FRAMEWINK_DEVICE_OS)…"
+    FRAMEWINK_PREPARE_MODE=${1:-acceptance}
+    echo "Building for $FRAMEWINK_DEVICE_MODEL (OS $FRAMEWINK_DEVICE_OS)…"
     DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcodebuild -quiet \
         -project "$FRAMEWINK_REPOSITORY_ROOT/FrameWink.xcodeproj" \
         -scheme FrameWink \
@@ -128,13 +136,23 @@ prepare() {
     DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device install app \
         --device "$FRAMEWINK_DEVICE_ID" "$FRAMEWINK_APP_PATH"
     write_run_metadata
-    if ! DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device process launch \
-        --device "$FRAMEWINK_DEVICE_ID" \
-        --terminate-existing \
-        --environment-variables '{"FRAMEWINK_PHYSICAL_ACCEPTANCE":"1"}' \
-        "$FRAMEWINK_BUNDLE_ID"; then
-        echo "FrameWink installed, but iPadOS refused to launch it." >&2
-        echo "Unlock the iPad, leave it awake, and rerun prepare." >&2
+    if [ "$FRAMEWINK_PREPARE_MODE" = "storekit" ]; then
+        FRAMEWINK_LAUNCH_OK=true
+        DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device process launch \
+            --device "$FRAMEWINK_DEVICE_ID" \
+            --terminate-existing \
+            "$FRAMEWINK_BUNDLE_ID" || FRAMEWINK_LAUNCH_OK=false
+    else
+        FRAMEWINK_LAUNCH_OK=true
+        DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device process launch \
+            --device "$FRAMEWINK_DEVICE_ID" \
+            --terminate-existing \
+            --environment-variables '{"FRAMEWINK_PHYSICAL_ACCEPTANCE":"1"}' \
+            "$FRAMEWINK_BUNDLE_ID" || FRAMEWINK_LAUNCH_OK=false
+    fi
+    if [ "$FRAMEWINK_LAUNCH_OK" != true ]; then
+        echo "FrameWink installed, but the OS refused to launch it." >&2
+        echo "Unlock the device, leave it awake, and rerun prepare." >&2
         exit 1
     fi
 
@@ -156,15 +174,20 @@ prepare() {
     done
     if [ "$FRAMEWINK_LAUNCH_CONFIRMED" != true ]; then
         echo "The launch request returned, but FrameWink did not stay running." >&2
-        echo "Confirm the iPad display is unlocked and rerun prepare." >&2
+        echo "Confirm the device display is unlocked and rerun prepare." >&2
         exit 1
     fi
 
     echo
-    echo "FrameWink is open in the Debug physical-acceptance harness."
-    echo "It grants FrameWink Lifetime locally but uses the real Photos library."
-    echo "Follow docs/PHYSICAL_ACCEPTANCE.md, then run:"
-    echo "  scripts/physical_acceptance.sh sample"
+    if [ "$FRAMEWINK_PREPARE_MODE" = "storekit" ]; then
+        echo "FrameWink is open with the real StoreKit sandbox path."
+        echo "Use an Apple sandbox tester; local purchase controls never charge a production account."
+    else
+        echo "FrameWink is open in the Debug physical-acceptance harness."
+        echo "It grants FrameWink Lifetime locally but uses the real Photos library."
+        echo "Follow docs/PHYSICAL_ACCEPTANCE.md, then run:"
+        echo "  scripts/physical_acceptance.sh sample"
+    fi
 }
 
 verify_albums() {
@@ -184,7 +207,7 @@ verify_albums() {
     FRAMEWINK_VERIFY_ALBUMS_STATUS=$?
     set -e
 
-    echo "Returning the iPad to the interactive FrameWink harness…"
+    echo "Returning the device to the interactive FrameWink harness…"
     DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun devicectl device process launch \
         --device "$FRAMEWINK_DEVICE_ID" \
         --terminate-existing \
@@ -337,6 +360,9 @@ discover_device
 case "$FRAMEWINK_COMMAND" in
     prepare)
         prepare
+        ;;
+    prepare-storekit)
+        prepare storekit
         ;;
     verify-albums)
         verify_albums

@@ -320,3 +320,23 @@ date; do not silently rewrite historical decisions during implementation.
   roles, Forms, and loading semantics match familiar Apple interaction and
   accessibility behavior. Undo makes curation mistakes immediately reversible
   without weakening the persisted hard veto after the affordance expires.
+
+## D-029 — FrameWink ships as one universal iPhone and iPad app
+
+- **Decision:** The first release supports device families 1 and 2 with a
+  minimum iOS/iPadOS version of 15, superseding D-020. iPad remains the primary
+  large-display and mounted-frame experience. Compact iPhone windows prioritize
+  one readable photo and use the same private photo sources, curation,
+  entitlement, and automatic layout engine. Direct Debug and Release app builds
+  query the production lifetime-product identifier through Apple's sandbox or
+  production environment; the checked-in `.storekit` fixture retains its
+  separate local identifier for the scheme's Test action and isolated StoreKit
+  tests; normal Run does not attach it. A missing product can be retried from
+  the paywall without relaunching.
+- **Reason:** Physical compact-layout testing showed the adaptive interface is
+  useful as a portable iPhone frame, and the owner explicitly chose universal
+  support. The prior iPhone purchase failure was not a compact-UI limitation:
+  the temporary installed Debug build queried a fixture-only identifier without
+  an attached StoreKit Test session. Separating isolated tests from direct
+  device builds preserves deterministic automation while enabling real sandbox
+  product loading on both device families.

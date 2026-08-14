@@ -22,7 +22,7 @@ enum WallChecklistItem: String, CaseIterable, Codable, Identifiable {
 
     var title: String {
         switch self {
-        case .compatibleOS: return "Confirm iPadOS compatibility"
+        case .compatibleOS: return "Confirm iOS or iPadOS compatibility"
         case .reliablePower: return "Use reliable continuous power"
         case .batteryCondition: return "Inspect the battery and enclosure"
         case .ventilation: return "Leave room for ventilation"
@@ -38,25 +38,25 @@ enum WallChecklistItem: String, CaseIterable, Codable, Identifiable {
     var detail: String {
         switch self {
         case .compatibleOS:
-            return "FrameWink requires iPadOS 15 or later. Install current security updates supported by this iPad."
+            return "FrameWink requires iOS or iPadOS 15 or later. Install current security updates supported by this device."
         case .reliablePower:
-            return "Use a reputable charger and cable rated for the iPad. Periodically inspect both for wear or unusual heat."
+            return "Use a reputable charger and cable rated for this device. Periodically inspect both for wear or unusual heat."
         case .batteryCondition:
-            return "Do not wall-mount an iPad with swelling, screen separation, damage, odor, or unusual heat. Stop using it and seek qualified service."
+            return "Do not mount a device with swelling, screen separation, damage, odor, or unusual heat. Stop using it and seek qualified service."
         case .ventilation:
-            return "Do not seal the iPad or charger in an unventilated enclosure. Leave airflow around the device and power hardware."
+            return "Do not seal the device or charger in an unventilated enclosure. Leave airflow around the device and power hardware."
         case .heatAndSunlight:
-            return "Keep the iPad away from radiators, cooking heat, damp areas, and direct sun that can overheat the device or fade the display."
+            return "Keep the device away from radiators, cooking heat, damp areas, and direct sun that can overheat it or fade the display."
         case .cableSecurity:
             return "Route the cable so it cannot be pulled, tripped over, crushed, sharply bent, or pressed against a connector."
         case .orientation:
             return "Choose portrait or landscape before mounting. FrameWink reflows layouts, but the mount itself must safely support that orientation."
         case .autoBrightness:
-            return "FrameWink does not read ambient light or change system brightness. Configure iPadOS Auto-Brightness and display settings to your preference."
+            return "FrameWink does not read ambient light or change system brightness. Configure Auto-Brightness and display settings to your preference."
         case .guidedAccess:
-            return "Consumer Guided Access is started in iPadOS by you. FrameWink can report its status but cannot turn it on automatically."
+            return "Consumer Guided Access is started by you in Settings. FrameWink can report its status but cannot turn it on automatically."
         case .rebootRecovery:
-            return "After a restart or power loss, a normal App Store app cannot guarantee automatic relaunch. Plan to unlock the iPad and reopen FrameWink manually."
+            return "After a restart or power loss, a normal App Store app cannot guarantee automatic relaunch. Plan to unlock the device and reopen FrameWink manually."
         }
     }
 }

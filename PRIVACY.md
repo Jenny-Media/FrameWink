@@ -3,7 +3,7 @@
 Effective: August 12, 2026
 
 FrameWink is provided by Jenny Media LLC. FrameWink is designed to process
-photos locally on the iPad. The app has no Jenny Media LLC account or server
+photos locally on the device. The app has no Jenny Media LLC account or server
 and does not upload photos, app activity, identifiers, diagnostics, purchases,
 or other personal data to Jenny Media LLC. It does not use advertising,
 tracking, or third-party analytics SDKs.

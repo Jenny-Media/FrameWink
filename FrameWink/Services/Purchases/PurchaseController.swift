@@ -5,10 +5,12 @@ final class PurchaseController: ObservableObject {
     @Published private(set) var entitlement: WallModeEntitlementState = .loading
     @Published private(set) var product: PurchaseProductInfo?
     @Published private(set) var actionState: PurchaseActionState = .idle
+    @Published private(set) var isLoadingProduct = false
 
     private let client: PurchaseClient
     private var startupTask: Task<Void, Never>?
     private var updatesTask: Task<Void, Never>?
+    private var productTask: Task<Void, Never>?
 
     init(client: PurchaseClient) {
         self.client = client
@@ -17,6 +19,7 @@ final class PurchaseController: ObservableObject {
     deinit {
         startupTask?.cancel()
         updatesTask?.cancel()
+        productTask?.cancel()
     }
 
     var isWallModeUnlocked: Bool {
@@ -41,14 +44,13 @@ final class PurchaseController: ObservableObject {
                 self.entitlement = .unavailable(error.localizedDescription)
             }
 
-            do {
-                self.product = try await client.loadProduct()
-            } catch {
-                if !self.entitlement.isUnlocked {
-                    self.entitlement = .unavailable(error.localizedDescription)
-                }
-            }
+            self.beginProductLoad()
         }
+    }
+
+    func refreshProduct() {
+        guard product == nil else { return }
+        beginProductLoad()
     }
 
     func purchase() async {
@@ -82,6 +84,28 @@ final class PurchaseController: ObservableObject {
 
     func clearActionStatus() {
         actionState = .idle
+    }
+
+    private func beginProductLoad() {
+        guard productTask == nil else { return }
+        isLoadingProduct = true
+        productTask = Task { [weak self, client] in
+            defer {
+                self?.isLoadingProduct = false
+                self?.productTask = nil
+            }
+            do {
+                let loadedProduct = try await client.loadProduct()
+                guard let self else { return }
+                product = loadedProduct
+                if case .unavailable = entitlement {
+                    entitlement = .free
+                }
+            } catch {
+                guard let self, !entitlement.isUnlocked else { return }
+                entitlement = .unavailable(error.localizedDescription)
+            }
+        }
     }
 
     private func apply(_ event: PurchaseEntitlementEvent) {

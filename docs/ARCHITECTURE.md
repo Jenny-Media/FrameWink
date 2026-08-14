@@ -2,12 +2,12 @@
 
 ## Compatibility baseline
 
-- iPad-only application.
-- Minimum iPadOS 15.
+- Universal iPhone and iPad application with an iPad-first frame experience.
+- Minimum iOS/iPadOS 15.
 - SwiftUI application lifecycle.
 - Use `ObservableObject`/`@StateObject` for shared state.
 - Use Swift concurrency only where availability and cancellation behavior are
-  understood and tested on iPadOS 15.
+  understood and tested on iOS/iPadOS 15.
 - Apple frameworks only for the MVP.
 
 ## Domain models

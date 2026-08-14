@@ -6,7 +6,7 @@ confusing local test doubles with TestFlight or App Store evidence.
 ## What is automated
 
 `scripts/physical_acceptance.sh` safely discovers exactly one connected
-physical iPad, builds and installs a signed Debug build, opens a real-PhotoKit
+physical iPhone or iPad, builds and installs a signed Debug build, opens a real-PhotoKit
 acceptance harness, and captures timestamped evidence. The harness unlocks
 FrameWink Lifetime only for this explicitly launched Debug process; it still uses the real
 Photos library and does not change Release or TestFlight entitlement behavior.
@@ -21,11 +21,21 @@ Low Power Mode, and battery state. Evidence is written under the ignored
 `TestArtifacts/PhysicalAcceptance/` directory. Device identifiers and private
 photos therefore do not enter Git.
 
-Start the harness:
+Start the real-PhotoKit acceptance harness with a test-only entitlement:
 
 ```sh
 scripts/physical_acceptance.sh prepare
 ```
+
+Install and launch the normal StoreKit path without the test entitlement:
+
+```sh
+scripts/physical_acceptance.sh prepare-storekit
+```
+
+`prepare-storekit` queries the production product identifier through Apple's
+sandbox environment. Sign in with a Sandbox Apple Account when Apple's UI asks;
+the script never reads or supplies credentials and cannot confirm a purchase.
 
 Record a checkpoint after a manual step:
 
@@ -45,7 +55,7 @@ Run the release-gate seven-day monitor every five minutes:
 scripts/physical_acceptance.sh soak 168 300
 ```
 
-Keep the Mac connected for host-side monitoring. The iPad can use a separate
+Keep the Mac connected for host-side monitoring. An iPad can use a separate
 safe charger after the initial wired launch only if it stays reachable over the
 paired local network; otherwise the missing samples are correctly recorded as
 monitoring gaps. The app itself does not depend on the Mac.
@@ -97,7 +107,7 @@ album grid to replace the loading state within ten seconds. Simulator runs skip
 this check by design. It also waits up to twenty seconds for at least one real
 cover to replace its loading placeholder. A cache regression then closes and
 reopens the picker and requires both the existing catalog and a visible cover
-to return within two seconds. XCTest temporarily shows iPadOS's automation indicator;
+to return within two seconds. XCTest temporarily shows the OS automation indicator;
 the command always relaunches the interactive FrameWink harness afterward,
 whether the test passes or fails.
 6. With an iCloud-only item in the album, confirm Apple Photos can fetch it and
@@ -131,7 +141,7 @@ the release gate should use the exact TestFlight binary.
    and Access → Sandbox**. Use an email address never used as an Apple Account.
 2. Install FrameWink from TestFlight. TestFlight builds automatically use
    Apple's sandbox purchase environment.
-3. Follow Apple's current TestFlight sandbox sign-in instructions on the iPad.
+3. Follow Apple's current TestFlight sandbox sign-in instructions on the device.
    Keep credentials in Apple's UI; never place them in scripts, Git, or Codex
    output.
 4. Open **More Frame Features** and confirm `FrameWink Lifetime`, `$9.99`, the
@@ -166,7 +176,7 @@ safety.
    remains on. Exit Frame Mode, run another sample, and confirm
    `idleTimerDisabled: false`; then verify normal Auto-Lock resumes.
 3. Start the frame and enable Guided Access with the configured Accessibility
-   Shortcut. Return to **Frame Settings → Mounted iPad Tips** if needed and confirm it reports active;
+   Shortcut. Return to **Frame Settings → Mounted Display Tips** if needed and confirm it reports active;
    the heartbeat also records `guidedAccessEnabled: true`. Consumer Guided
    Access must be started manually by design.
 4. Set dim and blackout times a few minutes ahead and visually confirm both
@@ -184,10 +194,16 @@ safety.
 
 The monitor cannot prove smooth animation, perceived brightness, charger heat,
 mount stability, battery swelling, or restart recovery. A human must inspect
-those. FrameWink intentionally does not promise automatic relaunch after an iPad
+those. FrameWink intentionally does not promise automatic relaunch after a device
 restart.
 
 ## Remaining device matrix
+
+Universal acceptance includes at least one compact iPhone and one full-size
+iPad. On iPhone, verify readable single-photo playback, rotation, every direct
+control, sheet dismissal, the album grid, sandbox product loading, purchase,
+and restore. On iPad, additionally verify multi-photo layout, resizing, mounted
+display guidance, Auto-Lock behavior, and the long-running frame scenario.
 
 The connected 2018 iPad Pro is useful real hardware but has 4 GB RAM and runs a
 modern OS. It does not prove the approximately 2 GB legacy performance floor or

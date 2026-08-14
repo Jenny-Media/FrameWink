@@ -64,7 +64,7 @@ enum PhotoLibraryClientError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .accessDenied:
-            return "Photo access is not available. You can keep using Free Smart Reel or change access in iPad Settings."
+            return "Photo access is not available. You can keep using Free Smart Reel or change access in Settings."
         case .albumUnavailable:
             return "That album is no longer available. Choose another album."
         case .assetUnavailable:

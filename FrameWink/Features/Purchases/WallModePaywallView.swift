@@ -24,7 +24,7 @@ struct WallModePaywallView: View {
                                 .foregroundColor(.accentColor)
                                 .accessibilityHidden(true)
 
-                            Text("Make this iPad a dependable frame")
+                            Text("Make this device a dependable frame")
                                 .font(.largeTitle.bold())
 
                             Text("FrameWink Lifetime is one purchase—no subscription, account, ads, or photo upload.")
@@ -60,7 +60,7 @@ struct WallModePaywallView: View {
                             )
                             paidPoint(
                                 icon: "checklist",
-                                title: "Mounted iPad tips",
+                                title: "Mounted display tips",
                                 detail: "Get optional guidance for power, ventilation, orientation, Guided Access, and restart recovery."
                             )
                         }
@@ -87,7 +87,7 @@ struct WallModePaywallView: View {
                                 .id("purchase-controls")
                         }
 
-                        Text("Automatic albums request Photos access only after you choose that feature. FrameWink reads the selected album, keeps display-sized copies on this iPad, and never changes your Photos library.")
+                        Text("Automatic albums request Photos access only after you choose that feature. FrameWink reads the selected album, keeps display-sized copies on this device, and never changes your Photos library.")
                             .font(.footnote)
                             .foregroundColor(.secondary)
                     }
@@ -95,6 +95,7 @@ struct WallModePaywallView: View {
                     .padding(32)
                 }
                 .onAppear {
+                    purchases.refreshProduct()
                     guard initiallyShowsPurchaseControls else { return }
                     DispatchQueue.main.async {
                         proxy.scrollTo("purchase-controls", anchor: .bottom)
@@ -118,9 +119,13 @@ struct WallModePaywallView: View {
     private var purchaseControls: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button {
-                Task { await purchases.purchase() }
+                if purchases.product == nil {
+                    purchases.refreshProduct()
+                } else {
+                    Task { await purchases.purchase() }
+                }
             } label: {
-                if purchases.actionState == .purchasing {
+                if purchases.actionState == .purchasing || purchases.isLoadingProduct {
                     ProgressView()
                         .frame(maxWidth: .infinity)
                 } else {
@@ -130,7 +135,7 @@ struct WallModePaywallView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
-            .disabled(purchases.product == nil || purchases.actionState == .purchasing)
+            .disabled(purchases.actionState == .purchasing || purchases.isLoadingProduct)
 
             Button("Restore Purchases") {
                 Task { await purchases.restore() }
@@ -146,7 +151,7 @@ struct WallModePaywallView: View {
         if let product = purchases.product {
             return "Unlock for \(product.displayPrice)"
         }
-        return "Purchase unavailable"
+        return "Try Again"
     }
 
     @ViewBuilder
@@ -195,7 +200,7 @@ struct WallModePaywallView: View {
             Text("This purchase is no longer entitled. Your free Smart Reel remains available.")
                 .foregroundColor(.secondary)
         case .unavailable(let message):
-            Text("\(message) Free Smart Reel remains available.")
+            Text("\(message) Try again here after checking your connection. Free Smart Reel remains available.")
                 .foregroundColor(.secondary)
         }
     }

@@ -57,10 +57,10 @@ ui_test_bundle_identifier=$(xcodebuild \
     || fail "Release bundle identifier is '$bundle_identifier', expected media.jenny.FrameWink."
 [ "$development_team" = "5736QK4NZX" ] \
     || fail "Release development team is '$development_team', expected Jenny Media LLC (5736QK4NZX)."
-[ "$device_family" = "2" ] \
-    || fail "Release target must remain iPad-only (TARGETED_DEVICE_FAMILY = 2)."
+[ "$device_family" = "1,2" ] \
+    || fail "Release target must support iPhone and iPad (TARGETED_DEVICE_FAMILY = 1,2)."
 [ "$minimum_os" = "15.0" ] \
-    || fail "Release deployment target is '$minimum_os', expected iPadOS 15.0."
+    || fail "Release deployment target is '$minimum_os', expected iOS/iPadOS 15.0."
 [ "$unit_test_bundle_identifier" = "media.jenny.FrameWinkTests" ] \
     || fail "Unit-test bundle identifier is '$unit_test_bundle_identifier', expected media.jenny.FrameWinkTests."
 [ "$ui_test_bundle_identifier" = "media.jenny.FrameWinkUITests" ] \
@@ -73,8 +73,8 @@ if [ "${CI_XCODEBUILD_ACTION:-}" = "archive" ]; then
         || fail "Xcode Cloud archive is not using the Jenny Media LLC team."
     [ -n "$wall_mode_product_id" ] \
         || fail "Release Wall Mode product identifier is empty; confirm the immutable App Store Connect product before archiving."
-    [ "$wall_mode_product_id" != "media.jenny.FrameWink.wallmode.local" ] \
-        || fail "The local StoreKit product identifier cannot be used in a TestFlight archive."
+    [ "$wall_mode_product_id" = "media.jenny.FrameWink.wallmode" ] \
+        || fail "The TestFlight archive must use the production FrameWink Lifetime product identifier."
 fi
 
 echo "FrameWink release guard passed for ${CI_XCODEBUILD_ACTION:-local validation}."

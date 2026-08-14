@@ -143,6 +143,25 @@ final class PurchaseControllerTests: XCTestCase {
         XCTAssertFalse(controller.isWallModeUnlocked)
     }
 
+    func testUnavailableProductCanBeRetriedWithoutRestarting() async {
+        let client = FakePurchaseClient()
+        client.productError = TestPurchaseError.expected
+        let controller = PurchaseController(client: client)
+
+        controller.start()
+        await waitUntil {
+            if case .unavailable = controller.entitlement { return true }
+            return false
+        }
+
+        client.productError = nil
+        controller.refreshProduct()
+        await waitUntil { controller.product != nil && controller.entitlement == .free }
+
+        XCTAssertEqual(client.loadProductCount, 2)
+        XCTAssertFalse(controller.isWallModeUnlocked)
+    }
+
     private func waitUntil(
         timeout: TimeInterval = 1,
         condition: @escaping @MainActor () -> Bool
@@ -158,7 +177,7 @@ final class PurchaseControllerTests: XCTestCase {
 @MainActor
 private final class FakePurchaseClient: PurchaseClient {
     var product = PurchaseProductInfo(
-        id: ProductConfiguration.localWallModeProductID,
+        id: ProductConfiguration.productionWallModeProductID,
         displayName: "FrameWink Lifetime",
         description: "Local test product",
         displayPrice: "$9.99",
@@ -171,9 +190,11 @@ private final class FakePurchaseClient: PurchaseClient {
     var purchaseError: Error?
     private(set) var restoreCount = 0
     private(set) var updatesStreamCount = 0
+    private(set) var loadProductCount = 0
     private var continuation: AsyncStream<PurchaseEntitlementEvent>.Continuation?
 
     func loadProduct() async throws -> PurchaseProductInfo? {
+        loadProductCount += 1
         if let productError = productError { throw productError }
         return product
     }

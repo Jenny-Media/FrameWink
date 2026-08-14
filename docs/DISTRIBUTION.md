@@ -18,7 +18,8 @@ procedure.
 The first cloud workflow should:
 
 1. Start on updates to the release branch and allow manual runs.
-2. Build and run the shared unit- and UI-test targets on an iPad Simulator.
+2. Build and run the shared unit- and UI-test targets on iPhone and iPad
+   Simulators.
 3. Analyze the app target.
 4. Perform a clean archive for distribution.
 5. Use a TestFlight post-action to distribute successful builds to Jenny Media
@@ -57,7 +58,7 @@ blocker affects only a later boundary.
   Store Connect Apple ID is `6800849400` and internal SKU is
   `media.jenny.FrameWink`.
 
-### B-003 — No iPad Simulator is booted
+### B-003 — No iPad Simulator was booted
 
 - Status: Resolved on 2026-08-11
 - First recorded: 2026-08-11
@@ -470,21 +471,29 @@ blocker affects only a later boundary.
   storefronts are selected in the availability editor, but that pending change
   has not been saved to App Store Connect.
 - Device diagnosis: the first temporary iPhone compatibility install was a
-  Debug build using the local StoreKit product identifier and therefore could
-  not load a product when launched outside an Xcode StoreKit session. A signed
-  Release compatibility build using the production identifier was installed,
-  but production purchase testing still depends on saved App Store Connect
-  availability and Apple propagation.
+  Debug build using the local StoreKit fixture identifier and therefore could
+  not load a product when launched outside an Xcode StoreKit session.
 - Resolution: with owner confirmation, the prepared availability change was
   saved in Jenny Media LLC's App Store Connect account. The product page now
   reports **Saved**, all 175 current countries or regions selected, Family
   Sharing enabled, and **Add for Review** available. Both physical iPads were
   relaunched so StoreKit can refresh the production product identifier.
-- Remaining non-blocking check: allow Apple's sandbox metadata to propagate,
-  then reopen the paywall and verify that the localized price replaces
-  **Purchase unavailable**. The first non-consumable must still be submitted
-  with the first app version; use a sandbox tester or TestFlight for the actual
-  transaction rather than a normal production Apple ID in a development build.
+- Code resolution on 2026-08-14: the universal target's directly launched
+  Debug and Release builds now use the production identifier, while the
+  isolated StoreKit Test fixture retains its `.local` identifier. Product
+  loading is retryable from the paywall without an app restart. The first
+  non-consumable must still be submitted with the first app version; use a
+  sandbox tester or TestFlight for the actual transaction rather than a normal
+  production Apple ID in a development build.
+- Remaining device check: confirm Apple's sandbox returns the localized price,
+  authorize a transaction, and cover restore/Family Sharing with sandbox
+  accounts. This Apple account boundary cannot be bypassed by app code.
+- Device-install evidence on 2026-08-14: the exact universal signed Debug build
+  installed and launched on the paired iPhone 17 Pro Max, iOS 27, through
+  `scripts/physical_acceptance.sh prepare-storekit`. The built binary contains
+  the production product identifier and no test-entitlement environment. Price,
+  purchase confirmation, restore, and Family Sharing remain human sandbox
+  checks; installation and product configuration are no longer blockers.
 
 ### B-023 — Physical iPhone timer UI automation cannot enter automation mode
 
@@ -500,9 +509,8 @@ blocker affects only a later boundary.
   screenshot confirms the exact signed source launches and the compact caption
   no longer intersects the setup card. The full iPad suite, Release build,
   static analysis, and archive guard pass.
-- Does not block: the iPad-only release target, implementation, Simulator
-  acceptance, signed physical installation, or manual owner testing. The
-  temporary `TARGETED_DEVICE_FAMILY = 1,2` edits were restored after every run.
+- Does not block: the universal release target, implementation, Simulator
+  acceptance, signed physical installation, or manual owner testing.
 - Needed from owner: in the installed iPhone build, start a frame, open More,
   and tap each duration once. Confirm the checkmark and blue selection move on
   every first tap. Retry the physical XCTest only when iOS Automation Mode is
@@ -538,13 +546,16 @@ blocker affects only a later boundary.
 - The app is free in all 175 current regions and configured for all future
   regions; Wall Mode remains a separate $9.99 lifetime IAP whose all-region
   storefront availability is saved. Apple Silicon Mac availability is disabled
-  to preserve the iPad-only product contract.
-- The English (U.S.) product page has a private-photo-frame subtitle,
+  because FrameWink is designed for iPhone and iPad touch interaction.
+- The English (U.S.) product page currently has an iPad-specific subtitle that
+  must be changed to `Private smart photo frame` for the universal release. It
+  otherwise has
   Photo & Video primary category, promotional text, description, keywords,
   marketing/support URLs, and all ten accepted 13-inch iPad screenshots in the
   documented Free-then-Paid order. A refreshed local ten-shot set now reflects
   automatic layout, literal timing, and shorter Frame Settings; replace the
-  earlier accepted screenshot set before App Review submission.
+  earlier accepted screenshot set and upload the ten-shot 6.9-inch iPhone set
+  before App Review submission.
 
 ## Committed Xcode Cloud guardrail
 

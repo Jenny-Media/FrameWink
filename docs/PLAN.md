@@ -13,12 +13,12 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 18.75 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **41.75 h** | **In progress** |
+| 6. Hardening and release | 8 h | 21.25 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **44.25 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
-- [x] Xcode project is iPad-only and targets iPadOS 15.
+- [x] Xcode project is universal and targets iOS/iPadOS 15.
 - [x] Application and test targets build.
 - [x] Production bundle identifiers and Jenny Media LLC signing team are set.
 - [x] Repository folders follow the documented architecture.
@@ -26,12 +26,12 @@ time rather than unattended calendar time.
 - [x] Bundled sample-photo asset location exists.
 - [x] Current build/test command is recorded below.
 
-Acceptance: a clean checkout builds and launches on an available iPad
-Simulator.
+Acceptance: a clean checkout builds and launches on available iPhone and iPad
+Simulators.
 
 Status: complete. The generic Simulator build passes, Xcode detects FrameWink
-as an archivable app product, and the app installs and launches on the iOS 27
-`iPad (A16)` Simulator.
+as an archivable app product, and the app installs and launches on iOS 27
+iPhone 17 Pro Max and `iPad (A16)` Simulators.
 
 ## Milestone 1 — Zero-permission preview
 
@@ -711,6 +711,37 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   command remains the device smoke check. Existing real Photos, oldest-2-GB,
   TestFlight sandbox, Xcode Cloud, and seven-day-soak gates remain open and are
   unchanged. Active work was approximately 2.25 hours.
+
+## Universal iPhone and StoreKit retry refinement — 2026-08-14
+
+- Status: implementation and local verification complete. FrameWink now ships
+  as one iPhone/iPad target (`TARGETED_DEVICE_FAMILY = 1,2`) with iOS/iPadOS 15
+  minimum. iPad remains the large-display experience; compact iPhone geometry
+  intentionally prioritizes a readable single photo. Device-specific privacy,
+  mounted-display, permission, and restart wording is now universal.
+- StoreKit correction: directly launched Debug and Release builds use
+  `media.jenny.FrameWink.wallmode`. The `.local` identifier remains confined to
+  the scheme Test action and `SKTestSession`; normal Run no longer attaches the
+  local fixture. A failed or empty product lookup exposes a retry action and
+  can recover without restarting the app. Automated coverage proves that an
+  unavailable product loads on the next request and restores the free state.
+- Verification: the iPhone 17 Pro Max Simulator passes all 156 unit tests and
+  17 UI tests, with four physical-PhotoKit UI checks skipped by design. The
+  complete iPad (A16) Simulator scheme passes 173 tests, skips the same four,
+  and fails zero out of 177. The universal unsigned Release build, static
+  analysis, archive-mode Xcode Cloud guard, plist/JSON/shell validation, diff
+  hygiene, built-product inspection, ten 6.9-inch iPhone screenshots, ten
+  13-inch iPad submission screenshots, and eleven iPad QA screenshots pass.
+  The two known private UIKit context-menu warnings and Xcode's post-test
+  `simctl` diagnostic remain unchanged.
+- Physical status: the exact signed Debug build installed and launched on the
+  paired iPhone 17 Pro Max running iOS 27. Its built app reports device families
+  1 and 2, iOS 15.0 minimum, the production app/product identifiers, and the
+  bundled privacy manifest. It is running the normal Apple StoreKit sandbox
+  path. The owner must still use Apple's account UI to confirm localized price,
+  authorize the sandbox transaction, restore it, and exercise Family Sharing;
+  those commerce steps cannot be automated or bypassed. Active work was
+  approximately 2.5 hours.
 
 ## Timebox rule
 

@@ -210,6 +210,6 @@ private enum PhotoImportServiceError: LocalizedError {
     case insufficientStorage
 
     var errorDescription: String? {
-        "FrameWink paused before the iPad ran low on storage. Free some space, then resume the import."
+        "FrameWink paused before this device ran low on storage. Free some space, then resume the import."
     }
 }

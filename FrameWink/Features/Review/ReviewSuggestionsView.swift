@@ -168,7 +168,7 @@ struct AutomaticAlbumReviewView: View {
                             .accessibilityHidden(true)
                         Text("No automatic suggestions to review")
                             .font(.title2.weight(.semibold))
-                        Text("Refresh the selected album after photos become available on this iPad.")
+                        Text("Refresh the selected album after photos become available on this device.")
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                     }

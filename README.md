@@ -1,6 +1,6 @@
 # FrameWink
 
-FrameWink is a small, local-first iPad photo-frame app. This repository contains
+FrameWink is a small, local-first iPhone and iPad photo-frame app. This repository contains
 the durable product context, implementation, tests, and release plan for a
 40-active-hour soft-launch timebox.
 
@@ -22,8 +22,8 @@ needs to be recreated from the durable docs:
 1. In Xcode, choose **File → New → Project → iOS App**.
 2. Choose the final product name and organization identifier.
 3. Select SwiftUI, Swift, and include tests.
-4. Make the target iPad-only (`TARGETED_DEVICE_FAMILY = 2`).
-5. Set the minimum deployment target to iPadOS 15.0.
+4. Make the target universal (`TARGETED_DEVICE_FAMILY = 1,2`).
+5. Set the minimum deployment target to iOS/iPadOS 15.0.
 6. Initialize a Git repository.
 7. Copy `AGENTS.md`, `docs/`, and `prompts/` into the Git root beside the
    `.xcodeproj`.
@@ -71,7 +71,7 @@ are already implemented; continue from the next incomplete milestone in
 
 1. Review the diff.
 2. Confirm the build and tests actually ran.
-3. Run the feature yourself in Simulator or on an iPad.
+3. Run the feature yourself in Simulator or on an iPhone or iPad.
 4. Commit only when the milestone acceptance criteria pass.
 5. Continue to the next milestone under the durable project goal.
 

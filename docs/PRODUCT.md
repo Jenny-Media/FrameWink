@@ -2,13 +2,15 @@
 
 ## Working concept
 
-A premium, local-first iPad application that turns compatible older iPads into
-easy-to-use digital photo frames. The product should feel native and familiar,
-while retaining its own identity rather than copying Apple Photos.
+A premium, local-first universal app that turns compatible iPhones and iPads
+into easy-to-use digital photo frames. The large-display experience remains
+iPad-first; iPhone provides a compact portable frame. The product should feel
+native and familiar while retaining its own identity rather than copying Apple
+Photos.
 
 ## Positioning
 
-> Turn a compatible older iPad into a private, beautifully curated photo frame.
+> Turn a compatible Apple device into a private, beautifully curated photo frame.
 
 Supporting message:
 
@@ -16,7 +18,7 @@ Supporting message:
 
 ## Primary customer
 
-An Apple household that already owns a working, compatible, unused iPad and
+An Apple household that already owns a working, compatible iPhone or iPad and
 wants to display its own local or Apple Photos library. The customer values
 simple setup, privacy, no recurring charge, good use of portrait photos, and
 predictable wall-display behavior.
@@ -33,8 +35,10 @@ preloaded gifts, family contributions, and remote administration.
 2. Select a bounded set or album without learning photo-frame terminology.
 3. Avoid duplicates, screenshots, blurred captures, and awkward crops.
 4. Rediscover attractive photos across different dates and events.
-5. Use portrait photos gracefully on a landscape iPad.
-6. Install the iPad as a mostly unattended display.
+5. Use portrait photos gracefully on a landscape iPad and keep compact iPhone
+   scenes readable.
+6. Install an iPad as a mostly unattended display or use an iPhone as a
+   portable frame.
 7. Understand exactly what happens to private photos.
 
 ## Product principles
@@ -84,6 +88,8 @@ preloaded gifts, family contributions, and remote administration.
 - Two compatible portraits paired on a landscape display.
 - Responsive compact single-photo playback, occasional wide pairs, and
   geometry-driven two-to-four-photo tall stacks where each photo remains large.
+- Compact iPhone playback prioritizes a single large photo; multi-photo layouts
+  appear only when the current geometry leaves every photo useful and clear.
 - Automatic face-safe Fit/Fill decisions without a display-style setting.
 - A selected 30-second default with direct 10-second, 30-second, 1-minute, and
   5-minute choices, plus swipe navigation, pause, direct scene sharing, and
@@ -102,7 +108,7 @@ preloaded gifts, family contributions, and remote administration.
 - Additional automatic layouts, including occasional event-bound Mosaic
   composition on a sufficiently large window.
 - Dimming and blackout schedules while the app remains active.
-- Concise mounted-iPad and Guided Access guidance.
+- Concise mounted-display and Guided Access guidance.
 - Purchase restoration and Family Sharing where supported.
 
 ## Privacy wording
@@ -110,7 +116,7 @@ preloaded gifts, family contributions, and remote administration.
 Preferred claim:
 
 > The app has no server and never uploads your photos. Selection, analysis, and
-> display happen on this iPad.
+> display happen on this device.
 
 Do not claim that Apple Photos itself is always offline. If iCloud Photos and
 Optimize Storage are enabled, Apple Photos may need to download an asset for an

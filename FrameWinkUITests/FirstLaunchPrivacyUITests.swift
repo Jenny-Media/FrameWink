@@ -70,7 +70,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(
             firstPhoto.waitForExistence(timeout: 8)
         )
-        XCTAssertFalse(app.staticTexts["Selected privately on this iPad"].exists)
+        XCTAssertFalse(app.staticTexts["Selected privately on this device"].exists)
 
         app.terminate()
         launch(scenario: "personal-reel")
@@ -79,7 +79,11 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(more.waitForExistence(timeout: 8))
         more.tap()
         app.buttons["Privacy & Data"].tap()
+        XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
         let deleteImportedPhotos = app.buttons["delete-imported-photos"]
+        if !deleteImportedPhotos.waitForExistence(timeout: 1) {
+            app.swipeUp()
+        }
         XCTAssertTrue(deleteImportedPhotos.waitForExistence(timeout: 8))
         deleteImportedPhotos.tap()
 
@@ -185,7 +189,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         launch(scenario: "personal-import")
 
         XCTAssertTrue(
-            app.staticTexts["Preparing My Photos on this iPad"]
+            app.staticTexts["Preparing My Photos on this device"]
                 .waitForExistence(timeout: 8)
         )
         XCTAssertTrue(app.navigationBars["Preparing Photos"].waitForExistence(timeout: 3))
@@ -374,15 +378,17 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         )
     }
 
-    func testMultiPhotoFrameOffersOneShareActionForTheWholeScene() {
+    func testSceneOffersOneShareActionMatchingTheResponsiveLayout() {
         launch(scenario: "mosaic-frame")
 
         let shareAction = app.buttons["frame-share-current-photos"]
         XCTAssertTrue(shareAction.waitForExistence(timeout: 8))
+        let window = app.windows.firstMatch.frame
+        let usesCompactSinglePhotoLayout = window.width < 560 || window.height < 500
         XCTAssertEqual(
             shareAction.label,
-            "Share Photos",
-            "A multi-photo scene must expose one action that shares the scene's photos together."
+            usesCompactSinglePhotoLayout ? "Share Photo" : "Share Photos",
+            "The stable share action must match the photos in the responsive scene."
         )
         XCTAssertFalse(app.buttons["frame-share-photo-menu"].exists)
         XCTAssertFalse(app.buttons["Share Featured"].exists)
@@ -431,7 +437,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
     func testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker() throws {
 #if targetEnvironment(simulator)
-        throw XCTSkip("Real PhotoKit album discovery requires a physical iPad.")
+        throw XCTSkip("Real PhotoKit album discovery requires a physical iPhone or iPad.")
 #else
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] = "1"
@@ -460,7 +466,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
     func testAuthorizedPhysicalPhotoLibraryLoadsAnAlbumCover() throws {
 #if targetEnvironment(simulator)
-        throw XCTSkip("Real PhotoKit album covers require a physical iPad.")
+        throw XCTSkip("Real PhotoKit album covers require a physical iPhone or iPad.")
 #else
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] = "1"
@@ -481,7 +487,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
     func testAuthorizedPhysicalPhotoLibraryReopensAlbumPickerFromCache() throws {
 #if targetEnvironment(simulator)
-        throw XCTSkip("Real PhotoKit album-cover caching requires a physical iPad.")
+        throw XCTSkip("Real PhotoKit album-cover caching requires a physical iPhone or iPad.")
 #else
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] = "1"
@@ -520,7 +526,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
     func testConfiguredPhysicalAlbumFrameNavigatesBetweenDistinctPhotos() throws {
 #if targetEnvironment(simulator)
-        throw XCTSkip("A configured real PhotoKit album requires a physical iPad.")
+        throw XCTSkip("A configured real PhotoKit album requires a physical iPhone or iPad.")
 #else
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_PHYSICAL_ACCEPTANCE"] = "1"
@@ -601,7 +607,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         XCTAssertTrue(app.navigationBars["Frame Settings"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.switches["Night Schedule"].exists)
-        XCTAssertTrue(app.staticTexts["Mounted iPad Tips"].exists)
+        XCTAssertTrue(app.staticTexts["Mounted Display Tips"].exists)
         XCTAssertFalse(app.staticTexts["Data & Privacy"].exists)
         XCTAssertFalse(app.staticTexts["Photos"].exists)
         XCTAssertFalse(app.staticTexts["Slideshow"].exists)

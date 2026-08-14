@@ -113,7 +113,7 @@ final class AutomaticAlbumController: ObservableObject {
             return DisplaySlide(
                 id: "album-" + record.photo.id.uuidString,
                 title: LocalizedStringKey(selectedAlbumTitle),
-                caption: "Selected privately on this iPad",
+                caption: "Selected privately on this device",
                 accessibilityLabel: "A photo selected from your automatic album",
                 source: .automaticAlbum(record.photo),
                 importantRects: selection.importantRects

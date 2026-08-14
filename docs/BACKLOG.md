@@ -15,9 +15,9 @@ one into active work without an explicit decision and revised time budget.
 
 ## Sources and integrations
 
-- Evaluate an iPhone adaptation after the iPad release, including whether it is
-  a full portable frame or a narrower companion experience. Require a compact
-  navigation/layout pass and a separate App Store/device acceptance matrix.
+- Evaluate a narrower iPhone companion workflow only if portable full-frame use
+  proves insufficient; the current universal release already supports compact
+  iPhone playback.
 - Files and external drives.
 - SMB, WebDAV, Nextcloud, NAS, and Immich.
 - iCloud Shared Albums behavior beyond the initial PhotoKit source.

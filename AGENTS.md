@@ -1,7 +1,9 @@
 # Product contract
 
-This repository contains an iPad-only application that turns compatible older
-iPads into private, local digital photo frames.
+This repository contains a universal iPhone and iPad application that turns a
+compatible Apple device into a private, local digital photo frame. It remains
+iPad-first for mounted and tabletop use while supporting a compact portable
+iPhone experience.
 
 The central promise is:
 
@@ -13,7 +15,7 @@ Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
 
 ## Non-negotiable product rules
 
-- Minimum deployment target is iPadOS 15.
+- Minimum deployment target is iOS/iPadOS 15.
 - Photos and analysis remain on-device.
 - The app has no developer server, account, ads, analytics SDK, or tracking.
 - Do not request Photos permission during first launch.
@@ -26,7 +28,7 @@ Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
   identities, or Apple's private ranking.
 - Never claim direct ambient-light sensing.
 - Describe Guided Access as assisted manual setup.
-- Never promise automatic relaunch or recovery after an iPad restart.
+- Never promise automatic relaunch or recovery after a device restart.
 - Never delete, edit, favorite, hide, or otherwise mutate the user's Photos
   library.
 - Hidden photos and screenshots must not be selected automatically.
@@ -52,9 +54,9 @@ Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
 - Unlimited candidate pool and supported albums.
 - Automatic album refresh after explicit PhotoKit authorization.
 - Continuously regenerated recommendations and long-term repeat avoidance.
-- Multiple layouts and saved configurations.
+- Additional automatic layouts when the current geometry can use them well.
 - Dimming and blackout schedules.
-- Wall commissioning and Guided Access assistant.
+- Mounted-display guidance and Guided Access assistant.
 - Family Sharing where StoreKit configuration supports it.
 
 ## MVP engineering constraints
@@ -62,9 +64,9 @@ Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
 - Use SwiftUI, UIKit, PhotoKit, PhotosUI, Vision, StoreKit 2, and Foundation.
 - Do not add third-party production dependencies without explicit approval.
 - Do not add a custom Core ML model during the MVP.
-- Prefer APIs available on iPadOS 15. Guard newer Vision improvements behind
+- Prefer APIs available on iOS/iPadOS 15. Guard newer Vision improvements behind
   availability checks.
-- Prefer `ObservableObject` and `@StateObject` for iPadOS 15 compatibility.
+- Prefer `ObservableObject` and `@StateObject` for iOS/iPadOS 15 compatibility.
 - Do not introduce SwiftData for MVP persistence.
 - Analyze bounded thumbnails rather than full-resolution originals.
 - Keep caches bounded and memory-safe for 2 GB iPads.
@@ -97,8 +99,8 @@ Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
 
 After each milestone:
 
-- Discover an available iPad Simulator destination and build the application
-  and tests with `xcodebuild`.
+- Discover available iPhone and iPad Simulator destinations and build the
+  application and affected tests with `xcodebuild` on both device families.
 - Run all affected unit tests.
 - Report the exact commands, result, warnings, untested behavior, and real-device
   checks still required.

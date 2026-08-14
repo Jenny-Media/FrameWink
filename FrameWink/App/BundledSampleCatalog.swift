@@ -35,7 +35,7 @@ enum BundledSampleCatalog {
             resourceName: "sample-city-tower",
             pixelSize: PixelSize(width: 1_365, height: 2_048),
             title: "A new view of familiar places",
-            caption: "Bundled example · stays on this iPad",
+            caption: "Bundled example · stays on this device",
             accessibilityLabel: "Portrait sample photo of an illuminated city tower at dusk"
         ),
         BundledSamplePhoto(
@@ -59,7 +59,7 @@ enum BundledSampleCatalog {
             resourceName: "sample-coast-aerial",
             pixelSize: PixelSize(width: 2_048, height: 1_536),
             title: "See things differently",
-            caption: "Bundled example · stays on this iPad",
+            caption: "Bundled example · stays on this device",
             accessibilityLabel: "Aerial sample photo of a pier meeting a turquoise coast"
         ),
         BundledSamplePhoto(
@@ -83,7 +83,7 @@ enum BundledSampleCatalog {
             resourceName: "sample-evening-sail",
             pixelSize: PixelSize(width: 1_365, height: 2_048),
             title: "Evenings by the water",
-            caption: "Bundled example · stays on this iPad",
+            caption: "Bundled example · stays on this device",
             accessibilityLabel: "Portrait sample photo of a sailboat silhouetted at sunset"
         ),
         BundledSamplePhoto(

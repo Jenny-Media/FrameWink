@@ -2,7 +2,7 @@
 
 Move the LocalPhotoFrame Codex starter into `/Users/yihong/work/FrameWink` and
 carry FrameWink through its documented MVP milestones to a verified,
-privacy-preserving iPadOS app.
+privacy-preserving universal iOS and iPadOS app.
 
 Use product name `FrameWink`, bundle identifiers `media.jenny.FrameWink` and
 `media.jenny.FrameWinkTests`, and the Jenny Media LLC development team. Keep the

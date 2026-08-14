@@ -1272,3 +1272,67 @@ explicit owner approval.
   its locked screen refused only foreground launch. The paired iPad mini 6 was
   not reachable. These external device-state results are recorded under B-004;
   unlock and rerun `prepare` before manual touch and Photos-library checks.
+
+## Universal iPhone and direct-device StoreKit audit — 2026-08-14
+
+- Target/build settings: every app and test configuration now reports
+  `TARGETED_DEVICE_FAMILY = 1,2`; the application deployment target remains
+  15.0. The exact unsigned Release product reports bundle identifier
+  `media.jenny.FrameWink`, `UIDeviceFamily = [1, 2]`, `MinimumOSVersion = 15.0`,
+  product identifier `media.jenny.FrameWink.wallmode`, ten bundled sample JPEGs,
+  and one root `PrivacyInfo.xcprivacy`.
+- StoreKit isolation: Debug and Release app builds use the production product
+  identifier. The shared scheme's normal Launch action does not attach a local
+  StoreKit catalog. Its Test action and explicit `SKTestSession` checks retain
+  the fixture-only `media.jenny.FrameWink.wallmode.local` product. The new
+  purchase-controller regression first returns unavailable, retries without a
+  restart, loads the product on the second request, and returns entitlement to
+  free while preserving the purchase path.
+- iPhone unit command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE'
+  -derivedDataPath /private/tmp/FrameWink-Universal-iPhone-Units
+  -resultBundlePath /private/tmp/FrameWink-Universal-iPhone-Units-20260814.xcresult
+  -only-testing:FrameWinkTests test`. Result: 156 passed, zero skipped, zero
+  failed on iPhone 17 Pro Max Simulator, iOS 27.
+- iPhone UI command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE'
+  -derivedDataPath /private/tmp/FrameWink-Universal-iPhone-UI-Final2
+  -resultBundlePath /private/tmp/FrameWink-Universal-iPhone-UI-Final2-20260814.xcresult
+  -only-testing:FrameWinkUITests test`. Result: 17 passed, four intentional
+  physical-PhotoKit skips, zero failed out of 21.
+- Complete iPad command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F'
+  -derivedDataPath /private/tmp/FrameWink-Universal-iPad-Final
+  -resultBundlePath /private/tmp/FrameWink-Universal-iPad-Final-20260814.xcresult
+  CODE_SIGNING_ALLOWED=NO test`. Result: 173 passed, four intentional
+  physical-PhotoKit skips, zero failed out of 177.
+- Release command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release
+  -destination 'generic/platform=iOS' -derivedDataPath
+  /private/tmp/FrameWink-Universal-Release CODE_SIGNING_ALLOWED=NO build`.
+  Static analysis uses the same project/scheme with Debug,
+  `generic/platform=iOS Simulator`, and `analyze`. Both pass. The archive guard
+  passes with
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+  CI_XCODEBUILD_ACTION=archive ci_scripts/ci_pre_xcodebuild.sh`.
+- `plutil -lint` passes for app and privacy plists; `jq empty` passes for the
+  StoreKit fixture; every changed shell script passes `/bin/sh -n`; and
+  `git diff --check` is clean. Screenshot scripts produced ten 1320 × 2868
+  no-alpha iPhone JPEGs, ten 2064 × 2752 no-alpha iPad JPEGs, and eleven
+  1640 × 2360 iPad PNGs. Visual inspection found no clipping, double sheet
+  edges, blank paid scenes, or misplaced universal wording.
+- `scripts/physical_acceptance.sh prepare-storekit` built, installed, and
+  launched the exact signed Debug source on the paired iPhone 17 Pro Max,
+  iOS 27. The installed binary uses the real Apple StoreKit sandbox path and
+  production product identifier. A human must still sign in through Apple's
+  sandbox UI, verify the localized price, authorize the transaction, restore,
+  and test Family Sharing. Simulator uses the known private UIKit context-menu
+  hierarchy warnings; Xcode's successful test runs still emit the known
+  post-test diagnostic that its internal environment cannot locate `simctl`.

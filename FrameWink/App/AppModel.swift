@@ -135,7 +135,7 @@ final class AppModel: ObservableObject {
                 DisplaySlide(
                     id: photo.id.uuidString,
                     title: "My Photos",
-                    caption: "Selected privately on this iPad",
+                    caption: "Selected privately on this device",
                     accessibilityLabel: "A photo selected for your Smart Reel",
                     source: .imported(photo),
                     importantRects: importantRects
