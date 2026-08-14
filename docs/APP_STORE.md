@@ -218,33 +218,31 @@ with `scripts/capture_app_store_iphone_submission_screenshots.sh`.
 
 ## Xcode Cloud workflow recipe
 
-The first-workflow assistant in Xcode has matched FrameWink, Jenny Media LLC,
-and `Jenny-Media/FrameWink`. B-001, B-002, and B-006 are resolved. The owner
-approved repository-scoped Xcode Cloud access on 2026-08-12. GitHub owner
-authentication is complete; App Store Connect confirms Xcode Cloud can access
-the source, and the GitHub App is restricted to `Jenny-Media/FrameWink`. A live
-Xcode recheck on 2026-08-14 showed that the Apple Account session is currently
-signed out, while App Store Connect still shows no workflow or build. Account
-authentication and first-workflow creation therefore remain open under B-010.
-The repository otherwise has a shared archivable `FrameWink` scheme and no
-external package dependency.
+Xcode Cloud is connected to Jenny Media LLC and the GitHub App remains limited
+to `Jenny-Media/FrameWink`. The owner signed back in to Xcode on 2026-08-14 and
+the first cloud build succeeded against commit `b8691b9`. The repository has a
+shared archivable `FrameWink` scheme, no external package dependency, and
+Xcode's generated project-level cloud manifest. B-010 now tracks only the first
+archive-to-TestFlight result.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` runs automatically before each
 cloud action. Validation actions check the Release identity and privacy files.
 Archive actions fail closed until the production Wall Mode identifier is
 configured, and reject the Debug-only local product identifier.
 
-Create two workflows:
+The configured workflows are:
 
-1. **FrameWink Validation**
-   - Start on pull-request updates and pushes to the chosen main branch.
+1. **Validation**
+   - Start on pushes to `main` with automatic cancellation of superseded
+     builds.
    - Actions: Analyze (FrameWink, iOS) and Test on both an iPhone Simulator and
      an iPad Simulator.
      The shared scheme's Test action includes both `FrameWinkTests` and the
      first-launch/privacy `FrameWinkUITests` bundle.
    - Deployment preparation: none.
-2. **FrameWink Internal TestFlight**
-   - Start manually and on the chosen release branch or tag.
+2. **Internal TestFlight**
+   - Start manually from a chosen branch. Automatic branch archives are
+     intentionally disabled.
    - Environment: Clean.
    - Action: Archive `FrameWink` for iOS with `TestFlight (Internal Testing
      Only)` deployment preparation.
@@ -261,7 +259,7 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 ## App Store Connect readiness
 
 - Internal testing group: `Jenny Media Internal` (currently 0 testers and 0
-  builds)
+  TestFlight builds; selected by the archive workflow post-action)
 - TestFlight feedback email: `framewink@jenny.media`
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:
@@ -269,8 +267,7 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - Paid Apps and Free Apps agreements: active for all regions
 - Banking, U.S. W-9, and Digital Services Act compliance: active
 - Primary category: Photo & Video
-- Required universal-release subtitle update: change the currently saved
-  `Private photo frame for iPad` to `Private smart photo frame`
+- Universal-release subtitle: `Private smart photo frame`
 - App base price: free in all 175 current and future regions
 - Lifetime IAP availability: saved for all 175 current countries or regions and
   all future regions; Family Sharing is enabled. The first non-consumable must
@@ -278,18 +275,15 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   `docs/DISTRIBUTION.md`.
 - Apple Silicon Mac availability: disabled; the app is designed for iPhone and
   iPad touch interaction
-- Product-page copy: support, marketing, and copyright are saved, but the live
-  promotional text, description, keywords, and subtitle are stale and
-  iPad-only. Replace them with the version 1.0 copy in this file.
-- App Store screenshots: the 13-inch iPad slot has ten older accepted images,
-  including an obsolete saved-configurations screen. The matching ten-shot
-  6.9-inch iPhone set is uploaded but must be reordered `01` through `10` after
-  asynchronous processing. Replace all ten iPad images with the refreshed set.
-- App Review contact: Yihong Chen is saved, but live verification on 2026-08-14
-  found the phone and email fields blank. Add the owner-supplied values without
-  copying the private phone number into this public repository.
-- App Review submission still requires publisher-owned content-rights and age
-  rating declarations; see B-011 in `docs/DISTRIBUTION.md`.
+- Product-page copy: current universal promotional text, description, keywords,
+  subtitle, support, marketing, and copyright are saved.
+- App Store screenshots: both the 6.9-inch iPhone and 13-inch iPad slots have
+  their current ten-shot sets in the documented `01` through `10` order.
+- App Review contact: Yihong Chen and the owner-supplied phone/email are saved;
+  the private phone number is not copied into this public repository.
+- App Privacy is published as `Data Not Collected`; content rights are
+  confirmed, and the completed all-No/None questionnaire produced a 4+ age
+  rating. B-011 now tracks attaching the processed build and first IAP.
 - EU distribution requires the publisher to review the current non-trader DSA
   declaration under B-024. Do not infer or automate that legal classification.
 - IAP review asset: App Store Connect accepted

@@ -191,18 +191,11 @@ blocker affects only a later boundary.
 
 ### B-009 — App Privacy publication needs owner legal attestation
 
-- Status: Open
+- Status: Resolved on 2026-08-14
 - First recorded: 2026-08-12
-- Evidence: App Store Connect has the public policy URL and the audited answer
-  `Data Not Collected` saved. Its final Publish dialog requires the publisher to
-  attest that the responses are accurate, comply with App Review Guidelines and
-  applicable law, and will be promptly updated if practices change.
-- Impact: the prepared privacy response is not yet published on the future
-  product page.
-- Does not block: Xcode Cloud, TestFlight builds, support metadata, IAP setup,
-  local validation, or repository work.
-- Needed from owner: review the saved response and personally select Publish in
-  App Store Connect if Jenny Media LLC accepts the attestation.
+- Resolution: after the owner confirmed the prepared release actions, App Store
+  Connect published the audited `Data Not Collected` response with the public
+  privacy-policy URL. The live page identifies Yihong Chen as the publisher.
 
 ### B-010 — Xcode Cloud has no workflow or build
 
@@ -214,40 +207,41 @@ blocker affects only a later boundary.
   authentication completed successfully, and App Store Connect now confirms
   `Xcode Cloud has been successfully connected` and `Xcode Cloud can now access
   your source code`. The GitHub App installation is restricted to `Only select
-  repositories: Jenny-Media/FrameWink`. A live Xcode Apple Accounts inspection
-  on 2026-08-14 showed `Sign In…`, so the earlier account session is no longer
-  authenticated. App Store Connect still showed `Create a workflow in Xcode to
-  get started` and no TestFlight builds.
-- Impact: the first Xcode Cloud workflow still must be saved and run before a
-  cloud archive can reach TestFlight.
+  repositories: Jenny-Media/FrameWink`. On 2026-08-14 Xcode was signed back in,
+  the first workflow was created, and Build 1 succeeded against commit
+  `b8691b9` using Xcode 26.6 and macOS 26.6.2. A transient App Store Connect
+  `no shared schemes` message appeared while that first build was still being
+  indexed; the completed build discovered the committed shared `FrameWink`
+  scheme and made additional workflow creation available. `Validation` now
+  analyzes and tests `main` on recommended iPhone and iPad destinations.
+  `Internal TestFlight` is manual-only and performs a clean archive with
+  `TestFlight (Internal Testing Only)` preparation and a post-action assigned
+  specifically to `Jenny Media Internal`.
+- Impact: the first archive workflow still must succeed and produce the first
+  TestFlight build.
 - Does not block: all App Store Connect/IAP metadata, local verification,
   physical-device discovery, or commits.
-- Needed from owner: sign in to Xcode with the Jenny Media LLC Apple Account.
-  Then create and run the repository-scoped validation workflow and the
-  internal TestFlight archive workflow. Keep GitHub access limited to
-  `Jenny-Media/FrameWink`.
+- Next action: commit and push Xcode's generated project-level cloud manifest,
+  allow the automatic validation workflow to run, then manually start the
+  internal archive from `main` and verify its TestFlight post-action.
 
 ### B-011 — App Store declarations need owner completion
 
 - Status: Open
 - First recorded: 2026-08-12
-- Evidence: mutable product-page metadata, category, pricing, and availability
-  exist, but live inspection on 2026-08-14 found stale iPad-only copy, an
-  obsolete iPad screenshot, unset content-rights and age-rating declarations,
-  and blank App Review phone and email fields. Ten current 6.9-inch iPhone
-  screenshots are now uploaded, but asynchronous processing scrambled their
-  order and it must be corrected before submission. The
-  owner supplied the contact values previously; the public repository
-  intentionally does not reproduce the private phone number. Content-rights
-  and age-rating answers are publisher attestations that cannot be inferred
-  safely from the source tree.
-- Impact: version 1.0 cannot be submitted to App Review until the declarations
-  and contact record are complete.
+- Evidence: after owner confirmation on 2026-08-14, the universal subtitle,
+  current promotional text, description, keywords, content-rights answer,
+  all-No/None age-rating questionnaire, and App Review contact were saved.
+  App Store Connect calculated a 4+ global rating. Both storefront galleries
+  now contain the current ordered ten-shot sets: 6.9-inch iPhone and 13-inch
+  iPad. The public repository intentionally does not reproduce the private
+  review phone number.
+- Impact: version 1.0 still needs a processed archive build selected and the
+  lifetime IAP added to the same review submission.
 - Does not block: Xcode Cloud setup, internal TestFlight builds, local
   validation, or repository work.
-- Needed from owner: approve transmission of the private review contact and
-  approve the public metadata/declarations at the point of entry. Upload the
-  refreshed screenshots and attach the first IAP to version 1.0.
+- Next action: after the first cloud archive finishes processing, select that
+  build for version 1.0 and add `FrameWink Lifetime` to the review submission.
 
 ### B-012 — Physical PhotoKit album picker stalled after authorization
 
@@ -557,16 +551,12 @@ blocker affects only a later boundary.
 ## App Store Connect readiness snapshot
 
 - The `Jenny Media Internal` TestFlight group exists with no invited testers
-  and no builds yet. App Store Connect notes that its automatic-distribution
-  switch applies to uploaded Xcode builds but not Xcode Cloud builds, so the
-  cloud archive workflow must explicitly distribute to the group after a
-  successful build.
+  and no TestFlight builds yet. The manual `Internal TestFlight` cloud workflow
+  explicitly distributes its archive to that group after a successful build.
 - TestFlight has `framewink@jenny.media` as its feedback address, the public
   GitHub repository as its marketing URL, and `PRIVACY.md` as its privacy URL.
-  The App Review contact names are saved, but the phone and email fields were
-  blank during live inspection on 2026-08-14. The owner-supplied values must be
-  entered before submission; the private phone number is not duplicated in
-  this public repository.
+  The App Review contact name, phone, and email are saved. The private phone
+  number is not duplicated in this public repository.
 - Jenny Media LLC's Paid Apps Agreement and Free Apps Agreement are active for
   all regions. Its configured bank account and U.S. W-9 are active. Live App
   Information currently identifies Jenny Media LLC as a non-trader for this
@@ -575,18 +565,12 @@ blocker affects only a later boundary.
   regions; Wall Mode remains a separate $9.99 lifetime IAP whose all-region
   storefront availability is saved. Apple Silicon Mac availability is disabled
   because FrameWink is designed for iPhone and iPad touch interaction.
-- The English (U.S.) product page currently has an iPad-specific subtitle that
-  must be changed to `Private smart photo frame` for the universal release. It
-  otherwise has
-  Photo & Video primary category, promotional text, description, keywords,
-  marketing/support URLs, and all ten accepted 13-inch iPad screenshots in the
-  documented Free-then-Paid order. A refreshed local ten-shot set now reflects
-  automatic layout, literal timing, and shorter Frame Settings; replace the
-  earlier accepted screenshot set and upload the ten-shot 6.9-inch iPhone set
-  before App Review submission.
-- App Privacy has the policy URL and `Data Not Collected` response saved, but
-  its owner attestation has not been published. Age Ratings and Content Rights
-  remain unset. App Accessibility setup is optional and has not been started.
+- The English (U.S.) product page now uses `Private smart photo frame`, the
+  current universal copy and keywords, Photo & Video primary category,
+  marketing/support URLs, and the current ordered ten-shot iPhone and iPad
+  galleries. App Privacy is published as `Data Not Collected`, content rights
+  are confirmed, and App Store Connect calculated a 4+ rating. App
+  Accessibility setup is optional and has not been started.
 - The `FrameWink Lifetime` IAP has its required private review screenshot. The
   accepted 1242 × 2688 JPEG is retained in the repository; public promotional
   imagery remains unset by design. The IAP still must be added to the same
@@ -606,10 +590,10 @@ without preventing Build, Analyze, or Test workflows.
 - Add real App Store Connect users to `Jenny Media Internal` when the owner is
   ready to send invitations. The first successful Xcode Cloud build must be
   explicitly assigned to this group.
-- Complete the owner-only App Privacy attestation under B-009.
-- Sign back in to Xcode, then create and run the first Xcode Cloud workflow
-  under B-010. Repository-scoped GitHub authorization remains complete.
-- Complete the publisher declarations and contact data under B-011.
+- Run the first `Internal TestFlight` archive and verify its post-action under
+  B-010. Repository-scoped GitHub authorization remains complete.
+- Attach the processed archive and the first lifetime IAP to version 1.0 under
+  B-011.
 - Resolve or knowingly affirm the EU trader classification under B-024.
 - After StoreKit metadata propagation, repeat product loading through a sandbox
   or TestFlight device build and submit the first lifetime IAP with the first

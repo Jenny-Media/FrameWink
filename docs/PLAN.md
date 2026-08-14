@@ -827,6 +827,26 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   publisher/legal review item rather than an engineering assumption; B-024
   records the decision and any verification needed for EU storefronts.
 
+## Live App Store and Xcode Cloud preparation — 2026-08-14
+
+- Status: in progress. The App Privacy response is published, current universal
+  copy and ordered iPhone/iPad screenshot galleries are live, content rights
+  and the 4+ age rating are complete, and the private App Review contact is
+  saved. Version 1.0 still needs a processed build and its first lifetime IAP
+  attached before the submission can become ready for review.
+- Xcode Cloud: Build 1 succeeded on Apple infrastructure at commit `b8691b9`
+  with Xcode 26.6 and macOS 26.6.2. `Validation` now analyzes and tests pushes
+  to `main` on recommended iPhone and iPad destinations. `Internal TestFlight`
+  is manual-only and archives with internal-TestFlight preparation, then
+  distributes specifically to `Jenny Media Internal`.
+- Repository state: Xcode generated a project-level cloud manifest after the
+  successful connection. It is committed with this release record so future
+  clones preserve the product-to-cloud target mapping.
+- Remaining legal decision: B-024 remains open. Apple and EU guidance strongly
+  point toward trader status for an LLC selling a paid lifetime product, but
+  the live declaration is intentionally unchanged until the owner decides.
+- Active work for this live release pass is approximately 2.5 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

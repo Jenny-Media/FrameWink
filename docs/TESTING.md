@@ -1480,3 +1480,21 @@ explicit owner approval.
   StoreKit sandbox, Family Sharing, iCloud, and long-running mounted-display
   checks remain the physical gates recorded in `docs/DISTRIBUTION.md`; no new
   device behavior was inferred from Simulator results.
+
+## First Xcode Cloud build and workflow configuration — 2026-08-14
+
+- Xcode Cloud Build 1 succeeded against commit `b8691b9` using Xcode 26.6
+  (17F113) on macOS Tahoe 26.6.2 (25G82). The manual build queued for 12 seconds,
+  ran for two minutes, and completed its iOS Build action with zero warnings,
+  static-analysis issues, test failures, or build errors.
+- The success proves that Apple can clone `Jenny-Media/FrameWink`, discover the
+  committed shared `FrameWink` scheme, run the pre-build guard, resolve signing,
+  and build the universal app. It does not substitute for the still-pending
+  archive, TestFlight processing, or physical StoreKit/PhotoKit acceptance.
+- The follow-on `Validation` workflow uses required Analyze and Test actions on
+  `main`; Test uses the shared scheme on both recommended iPhone and iPad
+  destinations. The manual-only `Internal TestFlight` workflow archives iOS
+  with internal-TestFlight preparation and distributes the archive to the
+  `Jenny Media Internal` group.
+- Xcode generated `FrameWink.xcodeproj/xcshareddata/xcodecloud/manifest.json`
+  after onboarding. `jq empty` validates the file before it is committed.
