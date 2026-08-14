@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 21.25 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **44.25 h** | **In progress** |
+| 6. Hardening and release | 8 h | 22.25 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **45.25 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -742,6 +742,27 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   authorize the sandbox transaction, restore it, and exercise Family Sharing;
   those commerce steps cannot be automated or bypassed. Active work was
   approximately 2.5 hours.
+
+## Compact edge-face composition refinement — 2026-08-14
+
+- Status: implementation, local verification, and physical iPhone installation
+  complete. Narrow portrait Fill now requires a comfortable important-content
+  position as well as strict visibility. When source boundaries prevent that
+  composition, FrameWink automatically uses whole-photo Fit. Centered faces
+  retain full-bleed Fill, and wider iPad crop behavior is unchanged.
+- Verification: all 158 iPhone unit tests pass. The complete iPad scheme passes
+  175 tests, skips four intentional physical-PhotoKit cases, and fails zero of
+  179. The focused 29-test layout suite, unsigned universal Release build,
+  Xcode static analysis, and archive-mode Xcode Cloud guard also pass. The two
+  known private iOS 27 UIKit hierarchy warnings and post-test `simctl`
+  diagnostic remain unrelated and unchanged.
+- Physical status: the exact signed Debug build installed over existing data
+  and launched on the paired iPhone 17 Pro Max, iOS 27, with the production
+  StoreKit sandbox path. Revisit the two owner-reported edge-face photos and
+  confirm each switches to whole-photo Fit rather than clipping the subject.
+  This final photo-specific visual judgment remains a human check because the
+  private originals are not copied into the repository or automated artifacts.
+  Active work was approximately 1 hour.
 
 ## Timebox rule
 

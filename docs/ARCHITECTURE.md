@@ -88,6 +88,11 @@ Ordinary portrait windows stack at most two compatible landscapes. Very
 tall/narrow windows may stack three or four only when every cell remains at
 least 220 points high and each face/saliency-aware crop is safe; otherwise the
 chooser retries a smaller group or falls back to a single page.
+For compact portrait cells, a technically visible important region is not
+enough: the crop must retain a quiet edge inset and place the region near the
+cell center. If source boundaries make that composition impossible, the pure
+chooser returns Fit so the display preserves the complete photo instead of
+clipping or pinning a face to the screen edge.
 
 ### Display behavior
 

@@ -27,6 +27,9 @@ extension FrameLayoutChoosing {
 struct FrameLayoutChooser: FrameLayoutChoosing {
     private let compactMinimumWidth = 560
     private let compactMinimumHeight = 500
+    private let compactPortraitMaximumAspectRatio = 0.62
+    private let compactImportantCenterTolerance = 0.18
+    private let compactImportantEdgeInset = 0.07
     private let largeMinimumDimension = 900
     private let compatibilityLookahead = 4
     private let nearbyEventInterval: TimeInterval = 12 * 60 * 60
@@ -459,12 +462,55 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
             return nil
         }
 
-        return NormalizedRect(
+        let crop = NormalizedRect(
             x: originX,
             y: originY,
             width: cropWidth,
             height: cropHeight
         )
+        guard compactCropKeepsImportantContentComfortablyPlaced(
+            importantBounds,
+            crop: crop,
+            targetAspectRatio: targetAspectRatio
+        ) else {
+            return nil
+        }
+        return crop
+    }
+
+    private func compactCropKeepsImportantContentComfortablyPlaced(
+        _ importantBounds: NormalizedRect,
+        crop: NormalizedRect,
+        targetAspectRatio: Double
+    ) -> Bool {
+        guard targetAspectRatio <= compactPortraitMaximumAspectRatio else {
+            return true
+        }
+
+        let tolerance = 0.000_001
+        if crop.width < 1 - tolerance {
+            let minimum = (importantBounds.minX - crop.minX) / crop.width
+            let maximum = (importantBounds.maxX - crop.minX) / crop.width
+            let center = (importantBounds.midX - crop.minX) / crop.width
+            guard minimum >= compactImportantEdgeInset,
+                  maximum <= 1 - compactImportantEdgeInset,
+                  abs(center - 0.5) <= compactImportantCenterTolerance else {
+                return false
+            }
+        }
+
+        if crop.height < 1 - tolerance {
+            let minimum = (importantBounds.minY - crop.minY) / crop.height
+            let maximum = (importantBounds.maxY - crop.minY) / crop.height
+            let center = (importantBounds.midY - crop.minY) / crop.height
+            guard minimum >= compactImportantEdgeInset,
+                  maximum <= 1 - compactImportantEdgeInset,
+                  abs(center - 0.5) <= compactImportantCenterTolerance else {
+                return false
+            }
+        }
+
+        return true
     }
 
     private func safeOrigin(

@@ -340,3 +340,18 @@ date; do not silently rewrite historical decisions during implementation.
   an attached StoreKit Test session. Separating isolated tests from direct
   device builds preserves deterministic automation while enabling real sandbox
   product loading on both device families.
+
+## D-030 — Compact portrait crops require comfortable important-content placement
+
+- **Decision:** On a portrait cell with aspect ratio 0.62 or narrower, a Fill
+  crop is acceptable only when every combined face/saliency bound retains at
+  least a 7% visible edge inset and its center lies within 18% of the cell
+  center along each cropped axis. If the source boundary makes that placement
+  impossible, use the whole-photo Fit presentation. Keep the decision
+  automatic and do not add a crop-position or display-style control. Wider
+  layouts retain the established face-safe visibility rule.
+- **Reason:** A crop can technically preserve every detected face pixel while
+  still leaving a head pinned to, or visually cut by, a narrow iPhone edge.
+  Centering sometimes requires pixels that do not exist outside the original
+  photo. Whole-photo Fit is the honest fallback: it preserves the photographer's
+  composition and avoids asking the user to repair individual scenes.

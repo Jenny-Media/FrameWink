@@ -59,6 +59,51 @@ final class FrameLayoutChooserTests: XCTestCase {
         XCTAssertLessThanOrEqual(crop.minX, face.minX)
     }
 
+    func testCompactPortraitFallsBackToFitWhenAnEdgeFaceCannotReceiveLookRoom() throws {
+        let face = NormalizedRect(x: 0.76, y: 0.24, width: 0.20, height: 0.22)
+        let item = fixture(
+            id: "compact-edge-face",
+            width: 1_200,
+            height: 1_800,
+            importantRects: [face]
+        )
+
+        let page = try XCTUnwrap(
+            chooser.pages(
+                for: [item],
+                viewport: PixelSize(width: 430, height: 932),
+                preference: .automatic
+            ).first
+        )
+
+        XCTAssertEqual(page.kind, .singleFit)
+        XCTAssertEqual(page.placements.first?.sourceCrop, .unit)
+        XCTAssertEqual(page.placements.first?.contentMode, .fit)
+    }
+
+    func testCompactPortraitStillFillsWhenItsFaceCanBeComfortablyCentered() throws {
+        let face = NormalizedRect(x: 0.40, y: 0.24, width: 0.20, height: 0.22)
+        let item = fixture(
+            id: "compact-centered-face",
+            width: 1_200,
+            height: 1_800,
+            importantRects: [face]
+        )
+
+        let placement = try XCTUnwrap(
+            chooser.pages(
+                for: [item],
+                viewport: PixelSize(width: 430, height: 932),
+                preference: .automatic
+            ).first?.placements.first
+        )
+        let faceCenterInCrop = (face.midX - placement.sourceCrop.minX)
+            / placement.sourceCrop.width
+
+        XCTAssertEqual(placement.contentMode, .crop)
+        XCTAssertEqual(faceCenterInCrop, 0.5, accuracy: 0.000_001)
+    }
+
     func testUnsafeMultiFaceFillFallsBackToFit() throws {
         let item = fixture(
             id: "wide-faces",

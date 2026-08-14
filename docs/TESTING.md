@@ -1336,3 +1336,43 @@ explicit owner approval.
   and test Family Sharing. Simulator uses the known private UIKit context-menu
   hierarchy warnings; Xcode's successful test runs still emit the known
   post-test diagnostic that its internal environment cannot locate `simctl`.
+
+## Compact edge-face composition audit — 2026-08-14
+
+- The reported failure is reproducible in pure geometry: on a 430 x 932 compact
+  viewport, a portrait source with a face near the right source boundary can
+  satisfy strict crop visibility while leaving the face in the outer quarter
+  of the screen. Exact centering would require unavailable pixels beyond the
+  source image.
+- `FrameLayoutChooserTests` now proves both sides of the policy. An edge face
+  that cannot receive a 7% visible inset and near-center placement falls back
+  to unit-crop Fit; an equivalent centered face retains full-bleed crop with
+  its center at exactly 0.5. The complete 29-test layout suite passes.
+- iPhone unit command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE'
+  -derivedDataPath /private/tmp/FrameWink-FaceCrop-iPhone-Tests-2
+  -resultBundlePath /private/tmp/FrameWink-FaceCrop-iPhone-Tests-20260814-2.xcresult
+  -only-testing:FrameWinkTests test`. Result: 158 passed, zero skipped, and
+  zero failed on iPhone 17 Pro Max Simulator, iOS 27.
+- Complete iPad command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F'
+  -derivedDataPath /private/tmp/FrameWink-FaceCrop-iPad-Tests-2
+  -resultBundlePath /private/tmp/FrameWink-FaceCrop-iPad-Tests-20260814-2.xcresult
+  test`. Result: 175 passed, four intentional physical-PhotoKit skips, and
+  zero failed out of 179.
+- The unsigned universal Release build and Xcode static analysis pass. The
+  archive guard validates both privacy files, production identity, StoreKit
+  product, deployment target, and universal device families. The full scheme
+  retains two known private iOS 27 UIKit hierarchy warnings; Xcode's successful
+  UI run again emitted its known post-test diagnostic about internally locating
+  `simctl`.
+- `scripts/physical_acceptance.sh prepare-storekit` built, installed over the
+  existing data, and launched the exact signed source on the paired iPhone 17
+  Pro Max. Owner confirmation on the two private source photos remains required:
+  each should display the whole image when full-bleed cannot give the detected
+  face a comfortable position. The originals remain private and were not
+  copied into fixtures, screenshots, or the repository.
