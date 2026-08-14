@@ -290,6 +290,9 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - Review package: Draft Submission 1 contains iOS 1.0 (8) and `FrameWink
   Lifetime`; App Store Connect reports both items `Ready for Review`. The final
   Submit for Review control is available and intentionally has not been used.
+- Release validation: Xcode Cloud Build 10 at `d6d7026` succeeded in Analyze
+  and Test across all eight recommended iPhone/iPad destinations: 174 passed,
+  eight explicit environment-limited skips, and zero failures out of 182.
 - IAP review asset: App Store Connect accepted
   `AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg` as
   the private review screenshot for `FrameWink Lifetime`. It is a metadata-free

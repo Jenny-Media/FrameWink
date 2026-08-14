@@ -891,8 +891,12 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   submission remains intentionally owner-gated and was not clicked.
 - B-024 remains the only publisher/legal decision: whether Jenny Media LLC is
   an EU trader. No declaration was changed without the owner's choice.
-- The next automatic Validation build must confirm zero failures before this
-  live release hardening pass is closed.
+- Validation Build 9 showed one Apple-infrastructure-only failure: the iPad
+  (10th generation) worker's SpringBoard remained busy and denied all 17 UI
+  test launches before test code executed. The identical clean manual retry,
+  Build 10, succeeded in Analyze and Test on all eight destinations with 174
+  passed, eight explicit skips, and zero failures out of 182. The cloud
+  validation gate is closed.
 
 ## Timebox rule
 

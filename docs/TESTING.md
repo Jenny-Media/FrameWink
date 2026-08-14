@@ -1572,6 +1572,14 @@ explicit owner approval.
   `ASDServerErrorDomain`, an iOS 27 duplicate private WebKit accessibility
   class warning, the launch-screen advisory, and Xcode's post-success `simctl`
   cleanup diagnostic. None failed the run.
-- Next cloud gate: the automatic Validation build triggered by this test-only
-  repair must finish with the structural StoreKit test passing, the four
-  cloud-limited runtime tests explicitly skipped, and no failures.
+- Validation Build 9 exercised the intended coverage split: four
+  physical-PhotoKit checks and four Xcode Cloud StoreKit runtime checks were
+  explicitly skipped. One iPad (10th generation) worker then reported 17 UI
+  errors because SpringBoard was busy and denied every app launch before any
+  test code ran. A clean manual rebuild of the same commit isolated that
+  infrastructure failure.
+- Validation Build 10 at commit `d6d7026` succeeded in Analyze and Test across
+  all eight recommended iPhone/iPad destinations: 182 total, 174 passed, eight
+  explicit skips, and zero failures. Every worker's `test-without-building`
+  command succeeded. This closes the cloud validation gate without weakening
+  local StoreKit runtime coverage.

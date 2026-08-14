@@ -243,8 +243,12 @@ blocker affects only a later boundary.
   every runner and explicitly skips only the four runtime transaction checks
   when an identified Xcode Cloud worker lacks that product. The same runtime
   checks remain mandatory and pass locally on both device families.
-- Next action: push this test-only runner accommodation and confirm the
-  automatic Validation workflow has zero failures.
+- Validation Build 9 then hit an unrelated Apple simulator failure: the iPad
+  (10th generation) worker's busy SpringBoard denied all 17 UI test launches
+  before test code ran. The identical clean retry, Build 10 at `d6d7026`,
+  succeeded in Analyze and Test across all eight destinations with 174 passed,
+  eight explicit skips, and zero failures out of 182. This closes the Xcode
+  Cloud validation action without weakening local StoreKit runtime coverage.
 
 ### B-011 — App Store declarations and review package
 
