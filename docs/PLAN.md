@@ -191,7 +191,7 @@ enabled.
 - [x] App Store screenshots distinguish free and paid behavior.
 - [x] App Review notes explain Photos permissions and Wall Mode unlock.
 - [ ] Seven-day soak results are recorded in `docs/TESTING.md`.
-- [ ] Xcode Cloud clean archive succeeds and its post-action distributes to
+- [x] Xcode Cloud clean archive succeeds and its post-action distributes to
       TestFlight.
 
 Acceptance: release checklist passes with no critical known defect and no claim
@@ -832,8 +832,8 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Status: in progress. The App Privacy response is published, current universal
   copy and ordered iPhone/iPad screenshot galleries are live, content rights
   and the 4+ age rating are complete, and the private App Review contact is
-  saved. Version 1.0 still needs a processed build and its first lifetime IAP
-  attached before the submission can become ready for review.
+  saved. The lifetime IAP is `Ready for Review` in Draft Submission 1;
+  version 1.0 still needs processed Build 6 selected and added to that draft.
 - Xcode Cloud: Build 1 succeeded on Apple infrastructure at commit `b8691b9`
   with Xcode 26.6 and macOS 26.6.2. `Validation` now analyzes and tests pushes
   to `main` on recommended iPhone and iPad destinations. `Internal TestFlight`
@@ -857,6 +857,28 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   point toward trader status for an LLC selling a paid lifetime product, but
   the live declaration is intentionally unchanged until the owner decides.
 - Active work for this live release pass is approximately 2.5 hours.
+
+### Xcode Cloud archive and distributed-test repair — 2026-08-14
+
+- `Internal TestFlight` Build 6 at commit `6f59253` completed its clean archive
+  and TestFlight internal-distribution post-action. App Store Connect reports
+  FrameWink 1.0 (6) as `Ready to Test` for `Jenny Media Internal`.
+- Validation Build 5 analyzed successfully and ran 181 tests on recommended
+  iPhone and iPad destinations. It passed 172, intentionally skipped four
+  physical-PhotoKit checks, and exposed five deterministic failures: four
+  StoreKit tests in artifact-only workers and one compact-height settings UI
+  assertion.
+- The StoreKit test catalog is now an explicit hosted-test resource, and Debug
+  app startup defers the production StoreKit connection while a hosted XCTest
+  configuration is active. A fresh iPad artifact-only run passes all four
+  purchase/loading/refund/failure tests. The UI test now scrolls to the native
+  `Mounted Display Tips` disclosure control and passes on iPad; the equivalent
+  targeted iPhone run also passes.
+- The lifetime IAP is `Ready for Review` and is present in Draft Submission 1.
+  Content rights are saved. Version 1.0 now only needs Build 6 selected and
+  added to that same draft; final submission remains intentionally owner-gated.
+- B-024 remains the only publisher/legal decision: whether Jenny Media LLC is
+  an EU trader. No declaration was changed without the owner's choice.
 
 ## Timebox rule
 

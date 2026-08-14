@@ -467,13 +467,15 @@ recovery.
       Guided Access, reboot recovery, or another unavailable kiosk capability.
 - [x] Compatibility copy says iPadOS 15+ rather than every old iPad.
 - [x] Battery, heat, ventilation, and damaged-device guidance is present.
-- [ ] Xcode Cloud clean archive and TestFlight installation succeed.
+- [x] Xcode Cloud clean archive and internal TestFlight distribution succeed.
+- [ ] Install Build 6 from TestFlight on physical iPhone and iPad and repeat the
+      sandbox purchase/restore acceptance check.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` is recognized automatically by
 Xcode Cloud. Its validation path passes locally. Its archive path now validates
 the confirmed production Wall Mode product identifier and also guards the Jenny
-Media team, production bundle ID, iPad-only family, iPadOS 15 minimum, and both
-privacy property lists.
+Media team, production bundle ID, universal iPhone/iPad family, iOS/iPadOS 15
+minimum, and both privacy property lists.
 
 ## iPad Pro Simulator connection — 2026-08-12
 
@@ -1514,3 +1516,36 @@ explicit owner approval.
   successfully only when that exact action has no project directory. A local
   fixture check verifies the artifact-only path passes while a missing project
   for a normal action still fails.
+
+## Xcode Cloud archive and distributed-test verification — 2026-08-14
+
+- `Internal TestFlight` Build 6 at commit `6f59253` succeeded end to end:
+  clean archive, TestFlight internal-distribution post-action, and processing
+  to FrameWink 1.0 (6) `Ready to Test` in `Jenny Media Internal`.
+- Validation Build 5 completed Analyze, then reported 172 passed, four intended
+  physical-PhotoKit skips, and five failures out of 181. Four failures were
+  `StoreKitConfigurationTests` returning `productUnavailable` on distributed
+  artifact-only iOS 26.5 workers; the fifth was a compact iPhone SE settings
+  UI assertion for a disclosure control below the initial viewport.
+- `FrameWink.storekit` is now copied explicitly into the hosted unit-test
+  bundle. During Debug hosted tests, app startup waits for the test process to
+  install its `SKTestSession` before opening the normal purchase connection.
+  This preserves production/TestFlight behavior while making artifact-only
+  workers deterministic.
+- Fresh iPad artifact command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  test-without-building -xctestrun
+  /private/tmp/FrameWinkCloudFix-iPadFresh/Build/Products/FrameWink_FrameWink_iphonesimulator27.0-arm64.xctestrun
+  -destination id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F
+  -only-testing:FrameWinkTests/StoreKitConfigurationTests`. Result: four
+  passed, zero failures.
+- The same artifact-only runner executes
+  `FirstLaunchPrivacyUITests/testFrameSettingsKeepsOnlyDisplayGuidanceAndLocalDataControls`
+  after the test scrolls to the native disclosure button. Result: one passed,
+  zero failures. The targeted normal-scheme iPhone run passes the same UI test
+  and all four StoreKit tests.
+- Expected diagnostics remain: StoreKitTest purchase-anchor/update-listener
+  warnings in direct product tests, the intentional simulated failure's
+  `ASDServerErrorDomain`, an iOS 27 duplicate private WebKit accessibility
+  class warning, the launch-screen advisory, and Xcode's post-success `simctl`
+  cleanup diagnostic. None failed the run.

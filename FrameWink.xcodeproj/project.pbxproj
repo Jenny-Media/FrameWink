@@ -6,6 +6,10 @@
 	objectVersion = 70;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A00000000000000000000040 /* FrameWink.storekit in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000041 /* FrameWink.storekit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A00000000000000000000031 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		A00000000000000000000011 /* FrameWink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameWink.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A00000000000000000000012 /* FrameWinkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrameWinkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A00000000000000000000033 /* FrameWinkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrameWinkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000041 /* FrameWink.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = FrameWink/Resources/FrameWink.storekit; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -103,6 +108,7 @@
 				A00000000000000000000013 /* FrameWink */,
 				A00000000000000000000014 /* FrameWinkTests */,
 				A00000000000000000000034 /* FrameWinkUITests */,
+				A00000000000000000000041 /* FrameWink.storekit */,
 				A00000000000000000000018 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -244,6 +250,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A00000000000000000000040 /* FrameWink.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

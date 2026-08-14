@@ -161,8 +161,8 @@ The App Store Connect product is Apple ID `6800849862`. Its saved reference and
 English (U.S.) display name are `FrameWink Lifetime`; its saved description is
 `Automatic albums, Mosaic, night schedules, and more.` It is priced at a $9.99
 U.S. base across all available storefronts and has Family Sharing permanently
-enabled. The version 1.0 product-page copy above is the release source of truth;
-it still needs to replace the stale iPad-only text in App Store Connect.
+enabled. The version 1.0 product-page copy above is the release source of truth
+and is saved in App Store Connect.
 
 ## Screenshot plan
 
@@ -220,10 +220,11 @@ with `scripts/capture_app_store_iphone_submission_screenshots.sh`.
 
 Xcode Cloud is connected to Jenny Media LLC and the GitHub App remains limited
 to `Jenny-Media/FrameWink`. The owner signed back in to Xcode on 2026-08-14 and
-the first cloud build succeeded against commit `b8691b9`. The repository has a
-shared archivable `FrameWink` scheme, no external package dependency, and
-Xcode's generated project-level cloud manifest. B-010 now tracks only the first
-archive-to-TestFlight result.
+the first cloud build succeeded against commit `b8691b9`. Build 6 at commit
+`6f59253` subsequently completed its clean archive and TestFlight post-action;
+FrameWink 1.0 (6) is `Ready to Test`. The repository has a shared archivable
+`FrameWink` scheme, no external package dependency, and Xcode's generated
+project-level cloud manifest.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` runs automatically before each
 cloud action. Validation actions check the Release identity and privacy files.
@@ -258,8 +259,8 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 
 ## App Store Connect readiness
 
-- Internal testing group: `Jenny Media Internal` (currently 0 testers and 0
-  TestFlight builds; selected by the archive workflow post-action)
+- Internal testing group: `Jenny Media Internal` (currently 0 testers; Build 6
+  version 1.0 is `Ready to Test` after the archive workflow post-action)
 - TestFlight feedback email: `framewink@jenny.media`
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:

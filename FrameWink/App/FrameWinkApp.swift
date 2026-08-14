@@ -179,7 +179,9 @@ struct FrameWinkApp: App {
                     PhysicalAcceptanceRecorder.shared.start()
 #endif
                     model.prepareSmartReelIfNeeded()
-                    purchases.start()
+                    if shouldStartPurchases {
+                        purchases.start()
+                    }
                     wallMode.setEntitled(purchases.isWallModeUnlocked)
                     automaticAlbum.setEntitled(purchases.isWallModeUnlocked)
                     frameConfigurations.setEntitled(purchases.isWallModeUnlocked)
@@ -207,6 +209,17 @@ struct FrameWinkApp: App {
         return DebugScreenshotScenario.current?.initialPresentation
 #else
         return nil
+#endif
+    }
+
+    private var shouldStartPurchases: Bool {
+#if DEBUG
+        // Hosted unit tests configure StoreKitTest after the app process starts.
+        // Avoid opening the production StoreKit connection before their local
+        // SKTestSession has a chance to install its configuration.
+        return ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil
+#else
+        return true
 #endif
     }
 }

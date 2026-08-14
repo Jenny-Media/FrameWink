@@ -197,9 +197,9 @@ blocker affects only a later boundary.
   Connect published the audited `Data Not Collected` response with the public
   privacy-policy URL. The live page identifies Yihong Chen as the publisher.
 
-### B-010 — Xcode Cloud has no workflow or build
+### B-010 — Xcode Cloud archive and TestFlight distribution
 
-- Status: Open
+- Status: Resolved on 2026-08-14
 - First recorded: 2026-08-12
 - Evidence: the owner explicitly confirmed on 2026-08-12 that Apple/Xcode Cloud
   may access `Jenny-Media/FrameWink`. Xcode's first-workflow assistant matched
@@ -229,13 +229,16 @@ blocker affects only a later boundary.
   exits successfully only for that exact artifact-only phase when the project
   is absent. Source, analyze, build-for-testing, and archive phases retain the
   complete fail-closed checks.
-- Impact: the first archive workflow still must succeed and produce the first
-  TestFlight build.
+- Resolution: `Internal TestFlight` Build 6 at commit `6f59253` completed its
+  clean archive and internal-distribution post-action. App Store Connect shows
+  FrameWink 1.0 (6) as `Ready to Test` in `Jenny Media Internal`.
+- Impact: none on archive-to-TestFlight delivery. Validation Build 5 separately
+  exposed hosted StoreKit resource/startup ordering and compact-height UI-test
+  issues; both are fixed and pass artifact-only local reproduction.
 - Does not block: all App Store Connect/IAP metadata, local verification,
   physical-device discovery, or commits.
-- Next action: push the cloud-team compatibility correction, allow the automatic
-  validation workflow to run, then rerun the internal archive from `main` and
-  verify its TestFlight post-action.
+- Next action: push the distributed-test repair and confirm the automatic
+  Validation workflow is green.
 
 ### B-011 — App Store declarations need owner completion
 
@@ -248,12 +251,13 @@ blocker affects only a later boundary.
   now contain the current ordered ten-shot sets: 6.9-inch iPhone and 13-inch
   iPad. The public repository intentionally does not reproduce the private
   review phone number.
-- Impact: version 1.0 still needs a processed archive build selected and the
-  lifetime IAP added to the same review submission.
+- Impact: version 1.0 still needs processed Build 6 selected and added to the
+  same review submission. The lifetime IAP is already `Ready for Review` in
+  Draft Submission 1.
 - Does not block: Xcode Cloud setup, internal TestFlight builds, local
   validation, or repository work.
-- Next action: after the first cloud archive finishes processing, select that
-  build for version 1.0 and add `FrameWink Lifetime` to the review submission.
+- Next action: select Build 6 for version 1.0 and add the version to Draft
+  Submission 1. Do not press the final Submit for Review control.
 
 ### B-012 — Physical PhotoKit album picker stalled after authorization
 
@@ -562,9 +566,9 @@ blocker affects only a later boundary.
 
 ## App Store Connect readiness snapshot
 
-- The `Jenny Media Internal` TestFlight group exists with no invited testers
-  and no TestFlight builds yet. The manual `Internal TestFlight` cloud workflow
-  explicitly distributes its archive to that group after a successful build.
+- The `Jenny Media Internal` TestFlight group has no invited testers. Build 6
+  (version 1.0) is `Ready to Test` after the manual `Internal TestFlight` cloud
+  workflow completed its archive and post-action.
 - TestFlight has `framewink@jenny.media` as its feedback address, the public
   GitHub repository as its marketing URL, and `PRIVACY.md` as its privacy URL.
   The App Review contact name, phone, and email are saved. The private phone
@@ -583,10 +587,11 @@ blocker affects only a later boundary.
   galleries. App Privacy is published as `Data Not Collected`, content rights
   are confirmed, and App Store Connect calculated a 4+ rating. App
   Accessibility setup is optional and has not been started.
-- The `FrameWink Lifetime` IAP has its required private review screenshot. The
+- The `FrameWink Lifetime` IAP is `Ready for Review` in Draft Submission 1 and
+  has its required private review screenshot. The
   accepted 1242 × 2688 JPEG is retained in the repository; public promotional
-  imagery remains unset by design. The IAP still must be added to the same
-  review submission as version 1.0.
+  imagery remains unset by design. Version 1.0 still must be added to that
+  draft with Build 6 selected.
 
 ## Committed Xcode Cloud guardrail
 
@@ -602,10 +607,9 @@ without preventing Build, Analyze, or Test workflows.
 - Add real App Store Connect users to `Jenny Media Internal` when the owner is
   ready to send invitations. The first successful Xcode Cloud build must be
   explicitly assigned to this group.
-- Run the first `Internal TestFlight` archive and verify its post-action under
-  B-010. Repository-scoped GitHub authorization remains complete.
-- Attach the processed archive and the first lifetime IAP to version 1.0 under
-  B-011.
+- Confirm the distributed-test repair in the automatic Validation workflow.
+- Attach processed Build 6 to version 1.0 and add the version to Draft
+  Submission 1 under B-011.
 - Resolve or knowingly affirm the EU trader classification under B-024.
 - After StoreKit metadata propagation, repeat product loading through a sandbox
   or TestFlight device build and submit the first lifetime IAP with the first

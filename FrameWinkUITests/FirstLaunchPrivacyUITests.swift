@@ -607,7 +607,11 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         XCTAssertTrue(app.navigationBars["Frame Settings"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.switches["Night Schedule"].exists)
-        XCTAssertTrue(app.staticTexts["Mounted Display Tips"].exists)
+        let mountedDisplayTips = app.buttons["Mounted Display Tips"]
+        if !mountedDisplayTips.waitForExistence(timeout: 1) {
+            app.swipeUp()
+        }
+        XCTAssertTrue(mountedDisplayTips.waitForExistence(timeout: 4))
         XCTAssertFalse(app.staticTexts["Data & Privacy"].exists)
         XCTAssertFalse(app.staticTexts["Photos"].exists)
         XCTAssertFalse(app.staticTexts["Slideshow"].exists)
