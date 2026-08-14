@@ -1376,3 +1376,41 @@ explicit owner approval.
   each should display the whole image when full-bleed cannot give the detected
   face a comfortable position. The originals remain private and were not
   copied into fixtures, screenshots, or the repository.
+
+## Compact source-retention audit — 2026-08-14
+
+- The owner supplied one physical iPhone frame capture and three private
+  landscape examples. The moon source is approximately 2:1; portrait Fill on a
+  430 x 932 viewport would retain only about 23% of it. The previous centered-
+  crop path returned immediately when Vision supplied no important rectangle,
+  so subject-placement checks could not reject that deterministic over-crop.
+- Compact single-photo Fill now requires `crop.width * crop.height >= 0.70`.
+  This normalized value is the source fraction retained because an aspect-fill
+  crop trims only one axis. The gate is independent of Vision and does not
+  apply to regular iPad single pages or multi-photo cells.
+- New regressions prove that a 2:1 source uses Fit on a 430 x 932 portrait
+  viewport, a 3:2 source uses Fit on a 932 x 430 landscape viewport when more
+  than 30% would be lost, and a near-matching 1:2 portrait with a comfortably
+  centered face still uses Fill. The focused layout result is 31 passed with
+  zero failures or skips.
+- Complete iPhone command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE'
+  -derivedDataPath /private/tmp/FrameWink-CropRetention-iPhone
+  -resultBundlePath /private/tmp/FrameWink-CropRetention-iPhone-20260814.xcresult
+  test`. Result: 177 passed, four intentional physical-PhotoKit skips, and zero
+  failed out of 181.
+- Complete iPad command uses the same project/scheme with destination
+  `platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F`, derived
+  data `/private/tmp/FrameWink-CropRetention-iPad`, and result bundle
+  `/private/tmp/FrameWink-CropRetention-iPad-20260814.xcresult`. Result: 177
+  passed, four intentional physical-PhotoKit skips, and zero failed out of 181.
+- The unsigned universal Release build, static analysis, and archive-mode cloud
+  guard pass. The two private iOS 27 UIKit context-menu hierarchy warnings and
+  Xcode's post-test internal `simctl` diagnostic are unchanged.
+- `scripts/physical_acceptance.sh prepare-storekit` installed the exact signed
+  source over existing data and launched it on the paired iPhone 17 Pro Max.
+  Owner observation of the private moon/architecture photos remains required;
+  the app should choose whole-photo Fit when the compact viewport cannot retain
+  70% in Fill.

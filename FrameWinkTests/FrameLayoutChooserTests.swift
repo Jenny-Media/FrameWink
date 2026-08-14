@@ -81,12 +81,44 @@ final class FrameLayoutChooserTests: XCTestCase {
         XCTAssertEqual(page.placements.first?.contentMode, .fit)
     }
 
+    func testCompactPortraitFitsAnUltraWidePhotoInsteadOfDiscardingMostOfIt() throws {
+        let item = fixture(id: "compact-wide-moon", width: 2_000, height: 1_000)
+
+        let page = try XCTUnwrap(
+            chooser.pages(
+                for: [item],
+                viewport: PixelSize(width: 430, height: 932),
+                preference: .automatic
+            ).first
+        )
+
+        XCTAssertEqual(page.kind, .singleFit)
+        XCTAssertEqual(page.placements.first?.sourceCrop, .unit)
+        XCTAssertEqual(page.placements.first?.contentMode, .fit)
+    }
+
+    func testCompactLandscapeFitsWhenFillWouldDiscardMoreThanThirtyPercent() throws {
+        let item = fixture(id: "compact-landscape-building", width: 1_500, height: 1_000)
+
+        let page = try XCTUnwrap(
+            chooser.pages(
+                for: [item],
+                viewport: PixelSize(width: 932, height: 430),
+                preference: .automatic
+            ).first
+        )
+
+        XCTAssertEqual(page.kind, .singleFit)
+        XCTAssertEqual(page.placements.first?.sourceCrop, .unit)
+        XCTAssertEqual(page.placements.first?.contentMode, .fit)
+    }
+
     func testCompactPortraitStillFillsWhenItsFaceCanBeComfortablyCentered() throws {
         let face = NormalizedRect(x: 0.40, y: 0.24, width: 0.20, height: 0.22)
         let item = fixture(
             id: "compact-centered-face",
-            width: 1_200,
-            height: 1_800,
+            width: 1_000,
+            height: 2_000,
             importantRects: [face]
         )
 

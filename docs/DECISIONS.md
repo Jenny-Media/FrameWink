@@ -355,3 +355,19 @@ date; do not silently rewrite historical decisions during implementation.
   Centering sometimes requires pixels that do not exist outside the original
   photo. Whole-photo Fit is the honest fallback: it preserves the photographer's
   composition and avoids asking the user to repair individual scenes.
+
+## D-031 — Compact single photos retain most of their source
+
+- **Decision:** A compact single-photo page may use Fill only when its
+  normalized crop retains at least 70% of the original source area. Otherwise
+  use whole-photo Fit. Apply this geometry-only gate before relying on Vision,
+  so photos without a detected face or saliency rectangle receive the same
+  protection. D-030 remains an additional subject-placement requirement for
+  narrow portrait crops that pass this source-retention gate. Multi-photo
+  composition keeps D-018's separate crop/occupancy policy.
+- **Reason:** An ultra-wide moon photo displayed on a portrait iPhone retained
+  roughly one quarter of its source, and wide iPhone playback could also cut
+  architectural tops from ordinary landscape photos. Visibility tests cannot
+  help when Vision returns no useful region. A bounded crop-loss rule is
+  deterministic, orientation-independent, and preserves the native Photos-like
+  choice to letterbox an incompatible image rather than over-zoom it.

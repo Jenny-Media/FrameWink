@@ -91,9 +91,9 @@ preloaded gifts, family contributions, and remote administration.
 - Compact iPhone playback prioritizes a single large photo; multi-photo layouts
   appear only when the current geometry leaves every photo useful and clear.
 - Automatic face-safe Fit/Fill decisions without a display-style setting.
-- On narrow portrait screens, show the whole photo when a full-bleed crop
-  cannot give detected important content safe margins and a comfortable
-  position.
+- On compact screens, show the whole photo when full-bleed would discard more
+  than 30% of the source; narrow portrait crops also require detected important
+  content to retain safe margins and a comfortable position.
 - A selected 30-second default with direct 10-second, 30-second, 1-minute, and
   5-minute choices, plus swipe navigation, pause, direct scene sharing, and
   unlimited replay.

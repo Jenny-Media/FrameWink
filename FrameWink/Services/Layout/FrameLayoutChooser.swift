@@ -30,6 +30,7 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
     private let compactPortraitMaximumAspectRatio = 0.62
     private let compactImportantCenterTolerance = 0.18
     private let compactImportantEdgeInset = 0.07
+    private let compactSingleMinimumSourceFraction = 0.70
     private let largeMinimumDimension = 900
     private let compatibilityLookahead = 4
     private let nearbyEventInterval: TimeInterval = 12 * 60 * 60
@@ -42,9 +43,8 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
     ) -> [FramePage] {
         guard viewport.width > 0, viewport.height > 0 else { return [] }
 
-        let isCompact = viewport.width < compactMinimumWidth
-            || viewport.height < compactMinimumHeight
-        if preference == .mosaic, !isCompact {
+        let usesCompactLayout = isCompact(viewport)
+        if preference == .mosaic, !usesCompactLayout {
             return mosaicPreferredPages(for: items, viewport: viewport)
         }
 
@@ -68,7 +68,7 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
             }
 
             if preference == .automatic,
-               (!isCompact || stackedPhotoCapacity(for: viewport) >= 3),
+               (!usesCompactLayout || stackedPhotoCapacity(for: viewport) >= 3),
                (items.count <= 4 || result.isEmpty || result.count % 5 == 3),
                let page = automaticComposition(
                    anchoredBy: first,
@@ -320,9 +320,16 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
         preference: FrameLayoutPreference
     ) -> FramePage {
         let requestedFill = preference != .fit
-        let crop = requestedFill
+        let proposedCrop = requestedFill
             ? safeCrop(for: item, targetAspectRatio: viewport.aspectRatio)
             : nil
+        let crop = proposedCrop.flatMap { crop in
+            guard isCompact(viewport) else { return crop }
+            let retainedSourceFraction = crop.width * crop.height
+            return retainedSourceFraction >= compactSingleMinimumSourceFraction
+                ? crop
+                : nil
+        }
         let usesFill = requestedFill && crop != nil
         let kind: FrameLayoutKind = usesFill ? .singleFill : .singleFit
 
@@ -339,6 +346,11 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
                 ),
             ]
         )
+    }
+
+    private func isCompact(_ viewport: PixelSize) -> Bool {
+        viewport.width < compactMinimumWidth
+            || viewport.height < compactMinimumHeight
     }
 
     private func pairedPage(

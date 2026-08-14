@@ -93,6 +93,11 @@ enough: the crop must retain a quiet edge inset and place the region near the
 cell center. If source boundaries make that composition impossible, the pure
 chooser returns Fit so the display preserves the complete photo instead of
 clipping or pinning a face to the screen edge.
+Before that subject-aware check, every compact single-photo Fill must retain at
+least 70% of the normalized source area. This geometry-only gate applies even
+when Vision returns no face or saliency region, and uses Fit for an extreme
+portrait/landscape mismatch. Multi-photo cells keep their separate occupancy
+and safe-crop rules.
 
 ### Display behavior
 

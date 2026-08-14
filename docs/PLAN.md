@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 22.25 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **45.25 h** | **In progress** |
+| 6. Hardening and release | 8 h | 23.25 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **46.25 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -763,6 +763,28 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   This final photo-specific visual judgment remains a human check because the
   private originals are not copied into the repository or automated artifacts.
   Active work was approximately 1 hour.
+
+## Compact crop-retention refinement — 2026-08-14
+
+- Status: implementation, full local verification, and physical iPhone
+  installation complete. A compact single-photo scene now uses Fill only when
+  at least 70% of the source remains. More severe aspect-ratio mismatches use
+  whole-photo Fit even when Vision found no face or saliency rectangle. The
+  prior edge-face placement rule remains additive, near-matching compact photos
+  still fill, and established iPad/multi-photo composition is unchanged.
+- Verification: the focused 31-test layout suite passes. Complete iPhone and
+  iPad schemes each pass 177 tests, skip four intentional physical-PhotoKit
+  cases, and fail zero of 181. The unsigned universal Release build, Xcode
+  static analysis, and archive-mode Xcode Cloud guard also pass. Only the known
+  private iOS 27 UIKit hierarchy warnings and post-test `simctl` diagnostic
+  remain.
+- Physical status: the exact signed Debug build installed over the existing
+  reel and launched on the paired iPhone 17 Pro Max, iOS 27, using the normal
+  StoreKit sandbox path. Revisit the owner-reported moon, dome, and statue
+  photos in portrait and landscape and confirm FrameWink preserves the whole
+  source instead of magnifying the incompatible crop. These private-photo
+  judgments remain human checks; no attachment or device photo was added to
+  the repository or automated evidence. Active work was approximately 1 hour.
 
 ## Timebox rule
 
