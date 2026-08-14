@@ -282,3 +282,20 @@ date; do not silently rewrite historical decisions during implementation.
   the complete set smaller than the former three PNGs, and stripping metadata
   prevents GPS, device, creator, and capture details from entering the public
   repository or app bundle.
+
+## D-027 — Duration controls acknowledge the first tap optimistically
+
+- **Decision:** Frame Controls binds duration changes directly to the playback
+  coordinator and persistence callback, while keeping only a panel-lifetime
+  interaction override so the selected appearance updates in the same tap. Do
+  not synchronize a second durable selection state from the parent. Give every
+  duration a 48-point touch target, reserve stable checkmark space, and use
+  restrained press feedback that respects Reduce Motion. Compact sample
+  captions use viewport-aware type and bottom clearance so the setup card does
+  not cover them.
+- **Reason:** Synchronizing two independent duration values allowed a parent
+  redraw to restore the previous appearance between taps, and the old 38-point
+  controls were easier to miss. An optimistic visual override acknowledges the
+  gesture immediately while the binding remains the source of truth. Stable
+  geometry and larger targets make the literal duration choices feel like
+  native controls without adding another menu or setting.

@@ -662,6 +662,33 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   ten-photo JPEG set is approximately 5.1 MiB, smaller than the former three
   PNGs. Active work was approximately 1.5 hours.
 
+## First-tap duration and compact-caption refinement — 2026-08-14
+
+- Status: implementation and local verification complete. Frame Controls now
+  writes through one playback binding and uses a panel-lifetime optimistic
+  selection only for immediate feedback. Duration buttons have stable
+  checkmark geometry and 48-point touch targets. Compact preview captions use
+  viewport-aware type and bottom clearance instead of the iPad-only fixed
+  offset.
+- Verification: the rapid five-change duration regression and caption/card
+  geometry regression pass on both iPad (A16) and temporarily compatible
+  iPhone 17 Pro Max Simulators. The complete iPad Simulator scheme reports 169
+  passed, four intentional physical-PhotoKit skips, and zero failures out of
+  173. The unsigned generic-device Release build, static analysis, and
+  archive-mode Xcode Cloud guard pass; the release product remains iPad family
+  2 with iPadOS 15.0 minimum.
+- Visual/install status: the ten 13-inch submission screenshots and eleven
+  source QA screenshots were regenerated and inspected. The exact signed
+  temporary compatibility source installed and launched on the physical iPhone
+  17 Pro Max; its screenshot confirms the compact caption clears the setup
+  card. The repository device family was restored after each compatibility
+  build.
+- Blocker: B-023 records two physical iPhone XCTest attempts that timed out
+  enabling iOS Automation Mode before the one-tap test body ran. This does not
+  invalidate the Simulator results or physical install. Manual first-tap
+  confirmation on the installed phone remains the only device interaction
+  check. Active work was approximately 1.25 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

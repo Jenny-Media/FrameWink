@@ -1187,3 +1187,43 @@ explicit owner approval.
   Unlocking the devices and rerunning `prepare` remains the physical visual
   smoke check; the Simulator, Release, signing, and Pro installation stages are
   already successful.
+
+## First-tap duration and compact-caption refinement — 2026-08-14
+
+- Frame Controls no longer waits for a parent redraw to acknowledge a duration
+  tap. Its direct playback binding is paired with a panel-lifetime optimistic
+  appearance, and the parent assigns a fully updated playback value before
+  persisting. Every duration button is 48 points tall with fixed checkmark
+  space. Press scaling is disabled by Reduce Motion.
+- `testFrameDurationRespondsToEverySingleTap` taps `10s`, `5m`, `1m`, `30s`,
+  and `10s` once each, verifies every target is at least 44 points, and requires
+  the selected trait after every tap.
+  `testSampleCaptionStaysAboveTheCompactSetupCard` verifies the sample title
+  does not intersect the compact setup surface. Both pass on iOS 27 iPad (A16)
+  and iPhone 17 Pro Max Simulators; the temporary Debug app/UI-test family
+  widening was restored with no project-file diff.
+- Exact complete iPad command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F'
+  -derivedDataPath /private/tmp/FrameWink-DerivedData -resultBundlePath
+  /private/tmp/FrameWink-Refinement-20260814-0059.xcresult test`. Result: 169
+  passed, four intentional physical-PhotoKit skips, zero failures, zero
+  expected failures, and 173 total.
+- The two known private iOS 27 UIKit context-menu hierarchy warnings remain.
+  Xcode's post-test diagnostic again could not find `simctl` in its internal
+  environment after the successful run. The exact source also passes the
+  unsigned generic iPadOS Release build, Xcode static analysis, and
+  `CI_XCODEBUILD_ACTION=archive ci_scripts/ci_pre_xcodebuild.sh`; the built
+  product reports `media.jenny.FrameWink`, `UIDeviceFamily = [2]`, and iPadOS
+  15.0 minimum.
+- Ten 2064 × 2752 JPEG submission screenshots and eleven 1640 × 2360 PNG QA
+  screenshots were regenerated. Visual inspection confirms the selected
+  30-second duration has a stable checkmark, accent outline, and centered label;
+  the rest of the Frame Controls surface remains uncluttered.
+- A signed temporary compatibility Debug build installed and launched on the
+  physical iPhone 17 Pro Max. Its 1320 × 2868 screenshot confirms the sample
+  title clears the setup card. Two attempts to execute the narrow physical
+  timer UI test timed out while iOS enabled Automation Mode before the test body
+  ran; B-023 records that non-blocking tooling boundary. Manually tapping each
+  duration once on the installed phone remains required.

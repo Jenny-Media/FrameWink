@@ -333,6 +333,7 @@ struct RootView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .shadow(color: .black.opacity(0.22), radius: 20, y: 8)
         .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("home-setup-card")
     }
 
     @ViewBuilder

@@ -70,7 +70,7 @@ struct SampleSlideshowView: View {
 
                     if !isFrameMode,
                        let slide = slidesByID[page.placements.first?.photoID ?? ""] {
-                        caption(for: slide)
+                        caption(for: slide, viewport: proxy.size)
                             .id(slide.id)
                             .transition(.identity)
                             .transaction { transaction in
@@ -346,21 +346,41 @@ struct SampleSlideshowView: View {
         }
     }
 
-    private func caption(for slide: DisplaySlide) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+    private func caption(for slide: DisplaySlide, viewport: CGSize) -> some View {
+        let isCompact = viewport.width < 600
+        return VStack(alignment: .leading, spacing: 8) {
             Text(slide.title)
-                .font(.system(.largeTitle, design: .rounded).weight(.semibold))
+                .font(
+                    .system(
+                        isCompact ? .title2 : .largeTitle,
+                        design: .rounded
+                    )
+                    .weight(.semibold)
+                )
                 .foregroundColor(.white)
                 .shadow(radius: 8)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityIdentifier("sample-caption-title")
 
             Text(slide.caption)
-                .font(.headline)
+                .font(isCompact ? .subheadline : .headline)
                 .foregroundColor(.white.opacity(0.84))
+                .lineLimit(2)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-        .padding(.horizontal, 34)
-        .padding(.bottom, isFrameMode ? 125 : 250)
+        .padding(.horizontal, isCompact ? 24 : 34)
+        .padding(
+            .bottom,
+            isFrameMode ? 125 : previewCaptionBottomPadding(for: viewport)
+        )
         .allowsHitTesting(false)
+    }
+
+    private func previewCaptionBottomPadding(for viewport: CGSize) -> CGFloat {
+        guard viewport.width < 600 else { return 250 }
+        return min(max(viewport.height * 0.58, 280), 560)
     }
 
     private func interactionLayer(
@@ -611,12 +631,14 @@ struct SampleSlideshowView: View {
                     attachmentAnchor: .rect(.bounds)
                 ) {
                     FrameControlsPanel(
-                        interval: playback.interval,
+                        interval: Binding(
+                            get: { playback.interval },
+                            set: selectInterval
+                        ),
                         slides: shareableSlides(
                             pages: pages,
                             slidesByID: slidesByID
                         ),
-                        selectInterval: selectInterval,
                         share: shareFromFrameControls,
                         dismiss: {
                             isShowingFrameControls = false
@@ -676,8 +698,12 @@ struct SampleSlideshowView: View {
     }
 
     private func selectInterval(_ interval: TimeInterval) {
-        playback.setInterval(interval, at: Date())
-        presentationDidChange(interval)
+        let normalizedInterval = FramePlaybackTiming.normalized(interval)
+        guard playback.interval != normalizedInterval else { return }
+        var updatedPlayback = playback
+        updatedPlayback.setInterval(normalizedInterval, at: Date())
+        playback = updatedPlayback
+        presentationDidChange(normalizedInterval)
     }
 
     private func shareFromFrameControls(_ slides: [DisplaySlide]) {
@@ -853,26 +879,14 @@ struct SampleSlideshowView: View {
 }
 
 private struct FrameControlsPanel: View {
-    let interval: TimeInterval
+    @Binding var interval: TimeInterval
     let slides: [DisplaySlide]
-    let selectInterval: (TimeInterval) -> Void
     let share: ([DisplaySlide]) -> Void
     let dismiss: () -> Void
-    @State private var selectedInterval: TimeInterval
+    @State private var interactionInterval: TimeInterval?
 
-    init(
-        interval: TimeInterval,
-        slides: [DisplaySlide],
-        selectInterval: @escaping (TimeInterval) -> Void,
-        share: @escaping ([DisplaySlide]) -> Void,
-        dismiss: @escaping () -> Void
-    ) {
-        self.interval = interval
-        self.slides = slides
-        self.selectInterval = selectInterval
-        self.share = share
-        self.dismiss = dismiss
-        _selectedInterval = State(initialValue: interval)
+    private var displayedInterval: TimeInterval {
+        interactionInterval ?? interval
     }
 
     var body: some View {
@@ -899,11 +913,11 @@ private struct FrameControlsPanel: View {
                     ForEach(FramePlaybackTiming.availableIntervals, id: \.self) { candidate in
                         selectionButton(
                             title: FramePlaybackTiming.title(for: candidate),
-                            isSelected: selectedInterval == candidate,
+                            isSelected: displayedInterval == candidate,
                             accessibilityIdentifier: "frame-speed-\(Int(candidate))"
                         ) {
-                            selectedInterval = candidate
-                            selectInterval(candidate)
+                            interactionInterval = candidate
+                            interval = candidate
                         }
                     }
                 }
@@ -940,9 +954,6 @@ private struct FrameControlsPanel: View {
         .frame(idealWidth: 410, maxWidth: 460, alignment: .leading)
         .foregroundColor(.primary)
         .background(Color(uiColor: .systemBackground))
-        .onChange(of: interval) { newInterval in
-            selectedInterval = newInterval
-        }
     }
 
     @ViewBuilder
@@ -982,24 +993,52 @@ private struct FrameControlsPanel: View {
     ) -> some View {
         Button(action: action) {
             HStack(spacing: 5) {
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.caption.weight(.bold))
-                }
+                Image(systemName: "checkmark")
+                    .font(.caption.weight(.bold))
+                    .frame(width: 12)
+                    .opacity(isSelected ? 1 : 0)
+                    .accessibilityHidden(true)
                 Text(title)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
             .font(.subheadline.weight(.semibold))
-            .frame(maxWidth: .infinity, minHeight: 38)
+            .foregroundColor(isSelected ? .accentColor : .primary)
+            .frame(maxWidth: .infinity, minHeight: 48)
+            .background(
+                isSelected
+                    ? Color.accentColor.opacity(0.18)
+                    : Color(uiColor: .secondarySystemFill),
+                in: Capsule()
+            )
+            .overlay {
+                Capsule()
+                    .stroke(
+                        isSelected ? Color.accentColor : Color.clear,
+                        lineWidth: 1
+                    )
+            }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.bordered)
-        .tint(isSelected ? .accentColor : .secondary)
+        .buttonStyle(FrameDurationButtonStyle())
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityIdentifier(accessibilityIdentifier)
     }
 
+}
+
+private struct FrameDurationButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.72 : 1)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
+            .animation(
+                reduceMotion ? nil : .easeOut(duration: 0.1),
+                value: configuration.isPressed
+            )
+    }
 }
 
 private extension View {

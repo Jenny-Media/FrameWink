@@ -479,6 +479,28 @@ blocker affects only a later boundary.
   with the first app version; use a sandbox tester or TestFlight for the actual
   transaction rather than a normal production Apple ID in a development build.
 
+### B-023 — Physical iPhone timer UI automation cannot enter automation mode
+
+- Status: Open, non-blocking tooling issue
+- First recorded: 2026-08-14
+- Evidence: the signed temporary compatibility build installed and launched on
+  the paired iPhone 17 Pro Max. Two narrow attempts to run the new one-tap
+  duration regression both timed out while iOS was enabling XCTest Automation
+  Mode, before the test method executed. Xcode then emitted its known internal
+  `devicectl` path diagnostic while collecting failure artifacts.
+- Independent evidence: the same rapid `10s` → `5m` → `1m` → `30s` → `10s`
+  regression passes on both iPad and iPhone 17 Pro Max Simulators. A physical
+  screenshot confirms the exact signed source launches and the compact caption
+  no longer intersects the setup card. The full iPad suite, Release build,
+  static analysis, and archive guard pass.
+- Does not block: the iPad-only release target, implementation, Simulator
+  acceptance, signed physical installation, or manual owner testing. The
+  temporary `TARGETED_DEVICE_FAMILY = 1,2` edits were restored after every run.
+- Needed from owner: in the installed iPhone build, start a frame, open More,
+  and tap each duration once. Confirm the checkmark and blue selection move on
+  every first tap. Retry the physical XCTest only when iOS Automation Mode is
+  stable.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue

@@ -327,6 +327,51 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         add(panelScreenshot)
     }
 
+    func testFrameDurationRespondsToEverySingleTap() {
+        launch(scenario: "frame-controls")
+
+        XCTAssertTrue(
+            app.descendants(matching: .any)["frame-controls-panel"]
+                .waitForExistence(timeout: 8)
+        )
+
+        let identifiers = [
+            "frame-speed-10",
+            "frame-speed-300",
+            "frame-speed-60",
+            "frame-speed-30",
+            "frame-speed-10",
+        ]
+        for identifier in identifiers {
+            let duration = app.buttons[identifier]
+            XCTAssertTrue(duration.isHittable, "\(identifier) must accept a direct tap.")
+            XCTAssertGreaterThanOrEqual(
+                duration.frame.height,
+                44,
+                "\(identifier) must retain a full-size touch target."
+            )
+            duration.tap()
+            XCTAssertTrue(
+                duration.isSelected,
+                "\(identifier) must become selected after one tap."
+            )
+        }
+    }
+
+    func testSampleCaptionStaysAboveTheCompactSetupCard() {
+        launch(scenario: "sample")
+
+        let caption = app.staticTexts["sample-caption-title"]
+        let setupCard = app.descendants(matching: .any)["home-setup-card"]
+        XCTAssertTrue(caption.waitForExistence(timeout: 8))
+        XCTAssertTrue(setupCard.waitForExistence(timeout: 3))
+        XCTAssertLessThanOrEqual(
+            caption.frame.maxY,
+            setupCard.frame.minY,
+            "The sample title must not be hidden beneath the setup card."
+        )
+    }
+
     func testMultiPhotoFrameOffersOneShareActionForTheWholeScene() {
         launch(scenario: "mosaic-frame")
 
