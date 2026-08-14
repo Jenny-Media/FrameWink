@@ -1,9 +1,26 @@
 # The Vercel project builds only the public website. Keep Xcode sources,
 # screenshots, archives, and local build artifacts out of deployment uploads.
-*
-!website/
-!website/**
-
+.DS_Store
+.env*
+.git/
+.gitignore
+.vercel/
+AGENTS.md
+AppStore/
+Design/
+FrameWink/
+FrameWink.xcodeproj/
+FrameWinkTests/
+FrameWinkUITests/
+LocalPhotoFrame-Codex-Starter.zip
+PRIVACY.md
+README.md
+TestArtifacts/
+TestFlight/
+ci_scripts/
+docs/
+prompts/
+scripts/
 website/.env*
 website/.next/
 website/.vercel/
