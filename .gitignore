@@ -4,3 +4,5 @@ DerivedData/
 xcuserdata/
 LocalPhotoFrame-Codex-Starter.zip
 TestArtifacts/
+.vercel
+.env*

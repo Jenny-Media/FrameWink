@@ -398,3 +398,16 @@ date; do not silently rewrite historical decisions during implementation.
   are designed and verified for touch-first iPhone and iPad use. Enabling Mac
   or Vision Pro would create a larger review, QA, accessibility, commerce, and
   support surface without a deliberately designed experience.
+
+## D-034 — The public website shares the repository but not the app pipeline
+
+- **Decision:** Keep the public FrameWink website in this repository under
+  `website/`, deploy that directory as a separate Vercel project, and use
+  `https://frame.jenny.media` as its canonical origin. Keep the site static and
+  free of accounts, forms, analytics, advertising, and tracking. Configure
+  Vercel to deploy only website-relevant changes and Xcode Cloud to ignore
+  website-only changes.
+- **Reason:** Product, privacy, support, and release language should evolve from
+  one reviewed history. Independent build roots and path filters provide that
+  consistency without making website edits consume Xcode Cloud builds or
+  introducing a developer service into the local-first iOS product.

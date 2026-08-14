@@ -265,6 +265,12 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:
   `https://github.com/Jenny-Media/FrameWink/blob/main/PRIVACY.md`
+- Website URL transition: version 1.0 is already `Waiting for Review`, so do
+  not withdraw or mutate its review package only to change URLs. At the next
+  editable metadata opportunity, use `https://frame.jenny.media` for marketing,
+  `https://frame.jenny.media/support` for support, and
+  `https://frame.jenny.media/privacy` for privacy after confirming the deployed
+  routes remain live.
 - Paid Apps and Free Apps agreements: active for all regions
 - Banking, U.S. W-9, and Digital Services Act compliance: active
 - Primary category: Photo & Video

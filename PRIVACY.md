@@ -35,10 +35,21 @@ FrameWink Lifetime purchases, restoration, and Family Sharing use Apple's StoreK
 App Store services. Jenny Media LLC does not receive payment-card details
 through FrameWink. Apple's processing is governed by Apple's privacy policy.
 
+## Website
+
+The public FrameWink website at
+[frame.jenny.media](https://frame.jenny.media) is a static product and support
+site. Jenny Media LLC does not place analytics, advertising pixels, tracking
+scripts, contact forms, or marketing cookies on it. Vercel hosts the website
+and may process ordinary request information, such as an IP address and browser
+details, to deliver and secure the site under Vercel's own privacy terms.
+
+If you voluntarily email Jenny Media LLC or open a GitHub issue, those services
+process the information you choose to provide. GitHub issues are public; do not
+include private photos, receipts, or other sensitive information.
+
 ## Contact and support
 
 For privacy questions or support, email
 [framewink@jenny.media](mailto:framewink@jenny.media) or open a
 [FrameWink support issue](https://github.com/Jenny-Media/FrameWink/issues).
-GitHub issues are public, so please do not include private photos, purchase
-receipts, or other sensitive personal information.

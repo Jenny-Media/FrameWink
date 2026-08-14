@@ -568,6 +568,24 @@ blocker affects only a later boundary.
   release it while EU availability remains enabled until Apple accepts the
   verification and App Information reflects the trader disclosure.
 
+### B-025 — Automatic website deployment needs GitHub App authorization
+
+- Status: Open, non-blocking deployment automation
+- First recorded: 2026-08-14
+- Evidence: the Vercel project `framewink` exists with `website` as its root,
+  but Vercel could not connect `Jenny-Media/FrameWink` through the GitHub App.
+  The organization/repository grant is outside the repository and cannot be
+  supplied by source code.
+- Impact: pushes do not yet create automatic website deployments.
+- Does not block: local validation, committing the website, direct production
+  deployment with the authenticated Vercel CLI, assigning
+  `frame.jenny.media`, or the iOS App Review package.
+- Needed from owner: authorize the Vercel GitHub App for the
+  `Jenny-Media/FrameWink` repository, reconnect it to the `framewink` project,
+  and configure the project to ignore changes outside `website/`. Separately,
+  add an Xcode Cloud Files and Folders condition that ignores website-only
+  commits.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue

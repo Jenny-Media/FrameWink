@@ -936,6 +936,28 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   0.3 hours; App Store Connect remains externally mutable and should be checked
   again if review or availability status changes.
 
+### Public website launch — 2026-08-14
+
+- Added a responsive public Next.js website under `website/` with landing,
+  privacy, support, terms, robots, and sitemap routes. It reuses the production
+  app icon and approved App Store screenshots and accurately describes the
+  iPhone/iPad-only, local-first Free Smart Reel and $9.99 lifetime boundary.
+- The site has no account, form, analytics, advertising, tracking script, or
+  marketing cookie. The privacy page distinguishes ordinary Vercel hosting
+  request processing from the app, which continues to have no Jenny Media LLC
+  server.
+- Local website validation passes: four Node tests, ESLint, the Next.js
+  production build with all six public routes statically generated, and
+  `npm audit` with zero known vulnerabilities.
+- The Vercel project `framewink` is configured with `website` as its root and
+  `frame.jenny.media` as the intended canonical domain. Initial CLI deployment
+  and domain verification are the current release step.
+- Automatic Git deployment remains pending authorization of the Vercel GitHub
+  App for `Jenny-Media/FrameWink`. Xcode Cloud's Validation workflow also needs
+  a Files and Folders exclusion for website-only changes. Neither item blocks a
+  direct production website deployment.
+- Active implementation and validation time is approximately 1.8 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

@@ -55,3 +55,26 @@ The selected clean-gallery candidate is also retained under
 and 32-pixel comparison sheets. The production PNG is an opaque, metadata-free
 sRGB image. Its SHA-256 is
 `5f4881ffb1a29b9a06a18bc1297828bb68cffdb9830dbd7422145b988b772e8a`.
+
+## Website social card
+
+The website's 1,200 × 630 Open Graph card was created with Codex's built-in
+image-generation mode and saved as `website/public/og.png`. The final prompt
+was:
+
+```text
+Create a polished 1200 × 630 Open Graph social card for FrameWink, a private
+local photo-frame app for iPhone and iPad. Use the official FrameWink icon as
+the visual reference: midnight-indigo background, warm ivory gallery frame,
+coral half-sun, sage and teal hills, and a restrained gold wink glint. Place a
+large, crisp FrameWink icon on the left and an elegant editorial wordmark area
+on the right. Render exactly these two text lines, with no other text:
+"FrameWink" and "Beautiful memories, quietly in motion." Keep generous safe
+margins, premium Apple-adjacent typography, strong legibility at thumbnail
+size, subtle depth, and a calm warm mood. No devices, photos of people,
+watermarks, badges, extra icons, gradients that become muddy, or tiny details.
+```
+
+The repository copy is the deployment source; the original generated artifact
+is retained in the local Codex generated-images history rather than committed
+as a duplicate.

@@ -16,6 +16,12 @@ The public [privacy policy](PRIVACY.md) and
 [support tracker](https://github.com/Jenny-Media/FrameWink/issues) are maintained
 by Jenny Media LLC. Support email: `framewink@jenny.media`.
 
+The public product website is [frame.jenny.media](https://frame.jenny.media).
+Its source lives in [`website/`](website/) in this repository so product,
+privacy, support, and release copy remain versioned with the app. The website
+is a separate Vercel build root and does not add a server, account, analytics,
+or tracking to the FrameWink app.
+
 ## Recreating the Xcode project
 
 The checked-in `FrameWink.xcodeproj` is the active project. If the starter ever
