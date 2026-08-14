@@ -1461,6 +1461,13 @@ explicit owner approval.
   `5f4881ffb1a29b9a06a18bc1297828bb68cffdb9830dbd7422145b988b772e8a`.
   `plutil -lint`, `jq empty`, `/bin/sh -n`, the archive-mode
   `ci_scripts/ci_pre_xcodebuild.sh`, and `git diff --check` all pass.
+- IAP review screenshot: App Store Connect rejected the 1320 × 2868 6.9-inch
+  product screenshot in its IAP-specific field despite accepting that size for
+  the product page. A metadata-free 1242 × 2688 derivative at
+  `AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg`
+  was then accepted and finished processing without an error. It visibly shows
+  the lifetime product, $9.99 purchase control, Restore Purchases, Family
+  Sharing, and the free/paid boundary, and is used only by App Review.
 - Warnings/remaining device work: both test bundles retain the two known private
   iOS 27 UIKit context-menu hierarchy warnings, Apple's StoreKitTest headers
   emit their SDK deprecation warning, and Xcode's successful cleanup emits the

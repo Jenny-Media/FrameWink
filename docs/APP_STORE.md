@@ -220,13 +220,14 @@ with `scripts/capture_app_store_iphone_submission_screenshots.sh`.
 
 The first-workflow assistant in Xcode has matched FrameWink, Jenny Media LLC,
 and `Jenny-Media/FrameWink`. B-001, B-002, and B-006 are resolved. The owner
-approved repository-scoped Xcode Cloud access on 2026-08-12 and completed the
-Xcode Apple Account sign-in on 2026-08-14. GitHub owner authentication is
-complete; App Store Connect confirms Xcode Cloud can access the source, and the
-GitHub App is restricted to `Jenny-Media/FrameWink`. App Store Connect still
-shows no workflow or build, so first-workflow creation remains open under
-B-010. The repository otherwise has a shared archivable `FrameWink` scheme and
-no external package dependency.
+approved repository-scoped Xcode Cloud access on 2026-08-12. GitHub owner
+authentication is complete; App Store Connect confirms Xcode Cloud can access
+the source, and the GitHub App is restricted to `Jenny-Media/FrameWink`. A live
+Xcode recheck on 2026-08-14 showed that the Apple Account session is currently
+signed out, while App Store Connect still shows no workflow or build. Account
+authentication and first-workflow creation therefore remain open under B-010.
+The repository otherwise has a shared archivable `FrameWink` scheme and no
+external package dependency.
 
 The executable `ci_scripts/ci_pre_xcodebuild.sh` runs automatically before each
 cloud action. Validation actions check the Release identity and privacy files.
@@ -281,10 +282,15 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   promotional text, description, keywords, and subtitle are stale and
   iPad-only. Replace them with the version 1.0 copy in this file.
 - App Store screenshots: the 13-inch iPad slot has ten older accepted images,
-  including an obsolete saved-configurations screen. Replace all ten with the
-  refreshed local set and upload the matching ten-shot 6.9-inch iPhone set.
+  including an obsolete saved-configurations screen. The matching ten-shot
+  6.9-inch iPhone set is uploaded but must be reordered `01` through `10` after
+  asynchronous processing. Replace all ten iPad images with the refreshed set.
 - App Review contact: Yihong Chen is saved, but live verification on 2026-08-14
   found the phone and email fields blank. Add the owner-supplied values without
   copying the private phone number into this public repository.
 - App Review submission still requires publisher-owned content-rights and age
   rating declarations; see B-011 in `docs/DISTRIBUTION.md`.
+- IAP review asset: App Store Connect accepted
+  `AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg` as
+  the private review screenshot for `FrameWink Lifetime`. It is a metadata-free
+  derivative of the current in-app paywall and is not a public product image.

@@ -812,11 +812,13 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   hierarchy warnings; Xcode's successful test cleanup again reports its known
   internal `simctl` lookup diagnostic.
 - Live release audit: App Store Connect still has no build or Xcode Cloud
-  workflow, no iPhone screenshots, one obsolete iPad screenshot, stale
-  iPad-only product copy/subtitle, blank App Review phone/email, unpublished
-  privacy answers, and unset age-rating/content-rights declarations. Those
-  externally mutable or publisher-attested items remain under B-009 through
-  B-011. Active work for the local candidate was approximately 1.5 hours.
+  workflow, one obsolete iPad screenshot, stale iPad-only product copy/subtitle,
+  blank App Review phone/email, unpublished privacy answers, and unset age-
+  rating/content-rights declarations. Ten current iPhone screenshots are now
+  uploaded but need ordering, and the required private IAP review screenshot is
+  accepted. Xcode itself is signed out. Those externally mutable or publisher-
+  attested items remain under B-009 through B-011. Active work for the local
+  candidate was approximately 1.5 hours.
 
 ## Timebox rule
 

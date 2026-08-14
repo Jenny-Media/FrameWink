@@ -214,16 +214,17 @@ blocker affects only a later boundary.
   authentication completed successfully, and App Store Connect now confirms
   `Xcode Cloud has been successfully connected` and `Xcode Cloud can now access
   your source code`. The GitHub App installation is restricted to `Only select
-  repositories: Jenny-Media/FrameWink`. The owner completed the Xcode Apple
-  Account sign-in on 2026-08-14. Live App Store Connect inspection that day
-  still showed `Create a workflow in Xcode to get started` and no TestFlight
-  builds.
+  repositories: Jenny-Media/FrameWink`. A live Xcode Apple Accounts inspection
+  on 2026-08-14 showed `Sign In…`, so the earlier account session is no longer
+  authenticated. App Store Connect still showed `Create a workflow in Xcode to
+  get started` and no TestFlight builds.
 - Impact: the first Xcode Cloud workflow still must be saved and run before a
   cloud archive can reach TestFlight.
 - Does not block: all App Store Connect/IAP metadata, local verification,
   physical-device discovery, or commits.
-- Needed: create and run the repository-scoped validation workflow, then create
-  the internal TestFlight archive workflow. Keep GitHub access limited to
+- Needed from owner: sign in to Xcode with the Jenny Media LLC Apple Account.
+  Then create and run the repository-scoped validation workflow and the
+  internal TestFlight archive workflow. Keep GitHub access limited to
   `Jenny-Media/FrameWink`.
 
 ### B-011 — App Store declarations need owner completion
@@ -231,9 +232,11 @@ blocker affects only a later boundary.
 - Status: Open
 - First recorded: 2026-08-12
 - Evidence: mutable product-page metadata, category, pricing, and availability
-  exist, but live inspection on 2026-08-14 found stale iPad-only copy, no
-  iPhone screenshots, an obsolete iPad screenshot, unset content-rights and
-  age-rating declarations, and blank App Review phone and email fields. The
+  exist, but live inspection on 2026-08-14 found stale iPad-only copy, an
+  obsolete iPad screenshot, unset content-rights and age-rating declarations,
+  and blank App Review phone and email fields. Ten current 6.9-inch iPhone
+  screenshots are now uploaded, but asynchronous processing scrambled their
+  order and it must be corrected before submission. The
   owner supplied the contact values previously; the public repository
   intentionally does not reproduce the private phone number. Content-rights
   and age-rating answers are publisher attestations that cannot be inferred
@@ -562,6 +565,10 @@ blocker affects only a later boundary.
 - App Privacy has the policy URL and `Data Not Collected` response saved, but
   its owner attestation has not been published. Age Ratings and Content Rights
   remain unset. App Accessibility setup is optional and has not been started.
+- The `FrameWink Lifetime` IAP has its required private review screenshot. The
+  accepted 1242 × 2688 JPEG is retained in the repository; public promotional
+  imagery remains unset by design. The IAP still must be added to the same
+  review submission as version 1.0.
 
 ## Committed Xcode Cloud guardrail
 
@@ -578,8 +585,8 @@ without preventing Build, Analyze, or Test workflows.
   ready to send invitations. The first successful Xcode Cloud build must be
   explicitly assigned to this group.
 - Complete the owner-only App Privacy attestation under B-009.
-- Create and run the first Xcode Cloud workflow under B-010. Repository-scoped
-  GitHub authorization and the Xcode Apple Account sign-in are complete.
+- Sign back in to Xcode, then create and run the first Xcode Cloud workflow
+  under B-010. Repository-scoped GitHub authorization remains complete.
 - Complete the publisher declarations and contact data under B-011.
 - After StoreKit metadata propagation, repeat product loading through a sandbox
   or TestFlight device build and submit the first lifetime IAP with the first
