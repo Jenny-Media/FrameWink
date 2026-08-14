@@ -520,6 +520,28 @@ blocker affects only a later boundary.
   every first tap. Retry the physical XCTest only when iOS Automation Mode is
   stable.
 
+### B-024 — EU Digital Services Act trader status needs publisher review
+
+- Status: Open, publisher/legal decision
+- First recorded: 2026-08-14
+- Evidence: live App Information identifies Jenny Media LLC as a non-trader for
+  FrameWink, while availability covers all 175 regions and the app offers a
+  $9.99 lifetime IAP. Apple's current trader self-assessment guidance says that
+  app revenue, business activity, and a legal status associated with business
+  activity are factors that may indicate trader status. Apple explicitly says
+  it cannot make the legal determination for the developer. See
+  `https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements`.
+- Impact: an inaccurate declaration would affect required EU consumer-facing
+  disclosures. If Jenny Media LLC is a trader, Apple must verify and publish
+  the required business address, phone, and email on EU App Store pages.
+- Does not block: local release verification, GitHub, screenshots, Xcode Cloud,
+  TestFlight, or distribution outside the EU.
+- Needed from owner: determine the correct legal classification, preferably
+  with the Account Holder or legal advisor. If trader, complete Apple's DSA
+  business/contact verification and set FrameWink's app-level status before EU
+  submission. If non-trader, retain the declaration knowingly and accept the
+  consumer notice Apple displays in the EU.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue
@@ -548,7 +570,7 @@ blocker affects only a later boundary.
 - Jenny Media LLC's Paid Apps Agreement and Free Apps Agreement are active for
   all regions. Its configured bank account and U.S. W-9 are active. Live App
   Information currently identifies Jenny Media LLC as a non-trader for this
-  app; the publisher should verify that Digital Services Act classification.
+  app; B-024 records the required publisher/legal review before EU submission.
 - The app is free in all 175 current regions and configured for all future
   regions; Wall Mode remains a separate $9.99 lifetime IAP whose all-region
   storefront availability is saved. Apple Silicon Mac availability is disabled
@@ -588,6 +610,7 @@ without preventing Build, Analyze, or Test workflows.
 - Sign back in to Xcode, then create and run the first Xcode Cloud workflow
   under B-010. Repository-scoped GitHub authorization remains complete.
 - Complete the publisher declarations and contact data under B-011.
+- Resolve or knowingly affirm the EU trader classification under B-024.
 - After StoreKit metadata propagation, repeat product loading through a sandbox
   or TestFlight device build and submit the first lifetime IAP with the first
   app version.

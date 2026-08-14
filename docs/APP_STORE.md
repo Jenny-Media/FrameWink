@@ -290,6 +290,8 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   copying the private phone number into this public repository.
 - App Review submission still requires publisher-owned content-rights and age
   rating declarations; see B-011 in `docs/DISTRIBUTION.md`.
+- EU distribution requires the publisher to review the current non-trader DSA
+  declaration under B-024. Do not infer or automate that legal classification.
 - IAP review asset: App Store Connect accepted
   `AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg` as
   the private review screenshot for `FrameWink Lifetime`. It is a metadata-free

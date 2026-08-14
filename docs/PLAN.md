@@ -819,6 +819,10 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   accepted. Xcode itself is signed out. Those externally mutable or publisher-
   attested items remain under B-009 through B-011. Active work for the local
   candidate was approximately 1.5 hours.
+- EU compliance: App Store Connect marks Jenny Media LLC as a non-trader. The
+  combination of an LLC, all-region distribution, and a paid IAP makes that a
+  publisher/legal review item rather than an engineering assumption; B-024
+  records the decision and any verification needed for EU storefronts.
 
 ## Timebox rule
 
