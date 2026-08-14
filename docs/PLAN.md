@@ -949,9 +949,12 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Local website validation passes: four Node tests, ESLint, the Next.js
   production build with all six public routes statically generated, and
   `npm audit` with zero known vulnerabilities.
-- The Vercel project `framewink` is configured with `website` as its root and
-  `frame.jenny.media` as the intended canonical domain. Initial CLI deployment
-  and domain verification are the current release step.
+- The Vercel project `framewink` uses Node 24 and `website` as its root.
+  Production deployment `dpl_Bru2nBcsNhYMUEW8iy4X2GmhmGt6` reached `Ready`,
+  and `https://frame.jenny.media` serves the canonical site over HTTPS. The
+  landing page, privacy, support, terms, robots, and sitemap routes all returned
+  HTTP 200 from the public domain. A root `.vercelignore` keeps Xcode sources,
+  screenshots, and local artifacts out of the website upload.
 - Automatic Git deployment remains pending authorization of the Vercel GitHub
   App for `Jenny-Media/FrameWink`. Xcode Cloud's Validation workflow also needs
   a Files and Folders exclusion for website-only changes. Neither item blocks a

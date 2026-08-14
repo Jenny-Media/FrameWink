@@ -27,7 +27,9 @@ email and the repository's public issue tracker.
 ## Deployment
 
 Configure the Vercel project with `website` as its Root Directory and `main` as
-the production branch. The production custom domain is `frame.jenny.media`.
+the production branch. The production custom domain is live at
+[frame.jenny.media](https://frame.jenny.media). The root `.vercelignore` keeps
+the iOS project and local artifacts out of CLI deployment uploads.
 The initial production launch can use the Vercel CLI. Automatic Git deployments
 require the Vercel GitHub App to be authorized for `Jenny-Media/FrameWink`;
 once connected, Vercel should skip deployments when `website/` is unchanged.
