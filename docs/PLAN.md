@@ -950,16 +950,18 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   production build with all six public routes statically generated, and
   `npm audit` with zero known vulnerabilities.
 - The Vercel project `framewink` uses Node 24 and `website` as its root.
-  Production deployment `dpl_Bru2nBcsNhYMUEW8iy4X2GmhmGt6` reached `Ready`,
-  and `https://frame.jenny.media` serves the canonical site over HTTPS. The
-  landing page, privacy, support, terms, robots, and sitemap routes all returned
-  HTTP 200 from the public domain. A root `.vercelignore` keeps Xcode sources,
-  screenshots, and local artifacts out of the website upload.
+  Final production deployment `dpl_6usSR2HTYPEuAa2WJJ4JfjejYgs8` from commit
+  `4d89326` reached `Ready` with a clean Node 24 build, and
+  `https://frame.jenny.media` serves the canonical site over HTTPS. The landing
+  page, privacy, support, terms, robots, sitemap, and Open Graph image routes all
+  returned HTTP 200 from the public domain. A root `.vercelignore` keeps Xcode
+  sources, screenshots, and local artifacts out of the website upload.
 - Automatic Git deployment remains pending authorization of the Vercel GitHub
   App for `Jenny-Media/FrameWink`. Xcode Cloud's Validation workflow also needs
   a Files and Folders exclusion for website-only changes. Neither item blocks a
   direct production website deployment.
-- Active implementation and validation time is approximately 1.8 hours.
+- Active implementation, deployment, and validation time is approximately 2.1
+  hours.
 
 ## Timebox rule
 
