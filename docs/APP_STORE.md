@@ -259,7 +259,7 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 
 ## App Store Connect readiness
 
-- Internal testing group: `Jenny Media Internal` (currently 0 testers; Build 6
+- Internal testing group: `Jenny Media Internal` (currently 1 tester; Build 6
   is internal-only and Build 8 is the App Store-eligible release candidate)
 - TestFlight feedback email: `framewink@jenny.media`
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
@@ -274,22 +274,30 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   all future regions; Family Sharing is enabled. The first non-consumable must
   be submitted with the first app version; see B-022 in
   `docs/DISTRIBUTION.md`.
-- Apple Silicon Mac availability: disabled; the app is designed for iPhone and
-  iPad touch interaction
+- Public Apple-silicon Mac and Apple Vision Pro availability: disabled; the app
+  is designed and supported only for iPhone and iPad touch interaction.
+- `Jenny Media Internal` TestFlight testing on Apple-silicon Mac and Apple
+  Vision Pro: disabled (`Not Available`).
 - Product-page copy: current universal promotional text, description, keywords,
   subtitle, support, marketing, and copyright are saved.
 - App Store screenshots: both the 6.9-inch iPhone and 13-inch iPad slots have
   their current ten-shot sets in the documented `01` through `10` order.
-- App Review contact: Yihong Chen and the owner-supplied phone/email are saved;
-  the private phone number is not copied into this public repository.
+- App Review contact: Yihong Chen is saved, but a final live-field audit found
+  the phone and email inputs empty. Re-enter the owner-approved review contact
+  immediately before submission; the private phone number is not copied into
+  this public repository.
 - App Privacy is published as `Data Not Collected`; content rights are
   confirmed, and the completed all-No/None questionnaire produced a 4+ age
   rating. B-011 is resolved by the two-item review draft.
-- EU distribution requires the publisher to review the current non-trader DSA
-  declaration under B-024. Do not infer or automate that legal classification.
-- Review package: Draft Submission 1 contains iOS 1.0 (8) and `FrameWink
-  Lifetime`; App Store Connect reports both items `Ready for Review`. The final
-  Submit for Review control is available and intentionally has not been used.
+- The owner chose trader status for Jenny Media LLC. Apple's DSA contact
+  verification is in progress under B-024; do not submit for EU distribution
+  until Apple accepts the required email, phone, and business verification.
+- Review package: the submitted two-item package contains iOS 1.0 (8) and
+  `FrameWink Lifetime`; App Store Connect reports version 1.0 `Waiting for
+  Review`.
+- Version release mode is saved as **Manually release this version**. App
+  Review approval will therefore not publish version 1.0 until the Account
+  Holder deliberately releases it.
 - Release validation: Xcode Cloud Build 10 at `d6d7026` succeeded in Analyze
   and Test across all eight recommended iPhone/iPad destinations: 174 passed,
   eight explicit environment-limited skips, and zero failures out of 182.

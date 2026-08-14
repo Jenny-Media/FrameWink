@@ -8,6 +8,12 @@ iPad-first; iPhone provides a compact portable frame. The product should feel
 native and familiar while retaining its own identity rather than copying Apple
 Photos.
 
+The first release supports iPhone and iPad only. Compatibility analysis that
+allows an iOS build to run on an Apple-silicon Mac or Apple Vision Pro does not
+make those devices supported FrameWink platforms. Public App Store availability
+and internal TestFlight testing remain disabled for both until a later product
+milestone adds platform-specific design, testing, and support.
+
 ## Positioning
 
 > Turn a compatible Apple device into a private, beautifully curated photo frame.

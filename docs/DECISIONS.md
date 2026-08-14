@@ -384,3 +384,17 @@ date; do not silently rewrite historical decisions during implementation.
   has the clearest silhouette and product hierarchy. It remains recognizable
   at Home Screen size without camera imagery, typography, or fine decoration,
   and it preserves the warm private-frame identity of the previous mark.
+
+## D-033 — The first release supports iPhone and iPad only
+
+- **Decision:** Ship and support FrameWink only on iPhone and iPad. Keep Mac
+  Catalyst and Designed for iPhone/iPad on Mac disabled in the Xcode target.
+  Keep public Apple-silicon Mac and Apple Vision Pro availability disabled in
+  App Store Connect, and keep both corresponding platform-testing options
+  disabled for `Jenny Media Internal`. Apple reporting the iOS build as
+  technically compatible does not expand the supported platform contract.
+- **Reason:** FrameWink's interaction, Photos behavior, window adaptation,
+  mounted-display guidance, screenshots, automation, and physical acceptance
+  are designed and verified for touch-first iPhone and iPad use. Enabling Mac
+  or Vision Pro would create a larger review, QA, accessibility, commerce, and
+  support surface without a deliberately designed experience.

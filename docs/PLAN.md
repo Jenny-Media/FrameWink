@@ -898,6 +898,44 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   passed, eight explicit skips, and zero failures out of 182. The cloud
   validation gate is closed.
 
+### Submission-gate finalization — 2026-08-14
+
+- Release control: App Store Connect now has version 1.0 saved for manual
+  release. Approval will not automatically publish the app.
+- EU compliance: the owner selected trader status for Jenny Media LLC and
+  supplied the business contact details already approved for App Review. Apple
+  is waiting for its email verification code; any later phone/document check
+  and the final legal certification remain owner-gated under B-024.
+- TestFlight preparation: Build 8 is attached to `Jenny Media Internal`, and
+  the Account Holder is now its first tester. The paired physical iPhone 17 Pro Max,
+  iPad Pro, and iPad mini 6 are visible to Xcode. The iPhone Mirroring session
+  can open TestFlight; the iPad Pro currently contains the earlier local
+  development build rather than TestFlight Build 8.
+- Physical TestFlight smoke: iPhone Mirroring opened the installed version 1.0
+  Build 8, completed TestFlight onboarding, loaded the paid automatic album
+  with 86 prepared photos, started playback, and completed a manual swipe to a
+  different photo. This proves launch, retained production entitlement,
+  PhotoKit-backed preparation, playback, and navigation on the exact review
+  binary; a new purchase, restore, refund, and Family Sharing remain untested.
+- Submission audit: the submitted two-item package contains iOS 1.0 (8) and
+  FrameWink Lifetime. App Store Connect reports version 1.0 `Waiting for
+  Review`; manual release remains selected.
+- Platform scope: the owner confirmed iPhone and iPad as the only supported
+  first-release platforms. Public Apple-silicon Mac and Apple Vision Pro
+  availability are disabled, and both `Jenny Media Internal` platform-testing
+  options report `Not Available`. Xcode already disables Mac Catalyst and
+  Designed for iPhone/iPad on Mac.
+- Remaining follow-up gates are Apple's DSA verification/certification and
+  exact-build sandbox purchase/restore, refund, Family Sharing, and physical
+  iPad checks. These remain tracked while the submitted package waits for
+  review.
+- Documentation-only verification: `git diff --check` passes, and both Debug
+  and Release target settings retain device family `1,2` while disabling Mac
+  Catalyst and Designed for iPhone/iPad on Mac. No app binary changed, so the
+  build and test suites were not rerun. Active documentation work was about
+  0.3 hours; App Store Connect remains externally mutable and should be checked
+  again if review or availability status changes.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

@@ -1,8 +1,10 @@
 # FrameWink
 
-FrameWink is a small, local-first iPhone and iPad photo-frame app. This repository contains
-the durable product context, implementation, tests, and release plan for a
-40-active-hour soft-launch timebox.
+FrameWink is a small, local-first photo-frame app for iPhone and iPad only.
+macOS—including Mac Catalyst and Designed for iPhone/iPad on Apple silicon—and
+Apple Vision Pro compatibility are not supported in the first release. This
+repository contains the durable product context, implementation, tests, and
+release plan for a 40-active-hour soft-launch timebox.
 
 The product name is `FrameWink`. The app uses bundle identifier
 `media.jenny.FrameWink`, the unit tests use `media.jenny.FrameWinkTests`, and

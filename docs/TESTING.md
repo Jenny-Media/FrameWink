@@ -468,6 +468,9 @@ recovery.
 - [x] Compatibility copy says iPadOS 15+ rather than every old iPad.
 - [x] Battery, heat, ventilation, and damaged-device guidance is present.
 - [x] Xcode Cloud clean archive and internal TestFlight distribution succeed.
+- [x] Public Apple-silicon Mac and Apple Vision Pro availability are disabled,
+      and both corresponding `Jenny Media Internal` TestFlight platform options
+      report `Not Available`.
 - [ ] Install the latest TestFlight build on physical iPhone and iPad and repeat the
       sandbox purchase/restore acceptance check.
 

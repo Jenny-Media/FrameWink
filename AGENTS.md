@@ -16,6 +16,10 @@ Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
 ## Non-negotiable product rules
 
 - Minimum deployment target is iOS/iPadOS 15.
+- The first release supports iPhone and iPad only. Keep Mac Catalyst,
+  Apple-silicon Mac distribution/testing, and Apple Vision Pro
+  distribution/testing disabled unless a later milestone explicitly adds and
+  verifies one of those platforms.
 - Photos and analysis remain on-device.
 - The app has no developer server, account, ads, analytics SDK, or tracking.
 - Do not request Photos permission during first launch.

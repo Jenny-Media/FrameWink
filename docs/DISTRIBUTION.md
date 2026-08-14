@@ -263,14 +263,15 @@ blocker affects only a later boundary.
   review phone number.
 - Resolution: Build 8 at commit `037c4ab` succeeded with App Store Connect
   preparation and its TestFlight post-action. App Store Connect accepted Build
-  8 for version 1.0. Draft Submission 1 contains iOS 1.0 (8) and FrameWink
-  Lifetime as two items and reports `Ready for Review`.
+  8 for version 1.0. The two-item package containing iOS 1.0 (8) and FrameWink
+  Lifetime was subsequently submitted, and version 1.0 reports `Waiting for
+  Review` with manual release enabled.
 - Impact: none on submission readiness. Build 6 remains internal-only by
   design and is not the customer release candidate.
 - Does not block: Xcode Cloud setup, internal TestFlight builds, local
   validation, or repository work.
-- Next action: owner review of the release mode and EU trader declaration,
-  followed by the final Submit for Review control when authorized.
+- Next action: monitor App Review, finish the EU trader verification, and keep
+  the manual release gate closed until the remaining owner checks pass.
 
 ### B-012 — Physical PhotoKit album picker stalled after authorization
 
@@ -543,9 +544,9 @@ blocker affects only a later boundary.
   every first tap. Retry the physical XCTest only when iOS Automation Mode is
   stable.
 
-### B-024 — EU Digital Services Act trader status needs publisher review
+### B-024 — EU Digital Services Act trader verification
 
-- Status: Open, publisher/legal decision
+- Status: Open, Apple verification in progress
 - First recorded: 2026-08-14
 - Evidence: live App Information identifies Jenny Media LLC as a non-trader for
   FrameWink, while availability covers all 175 regions and the app offers a
@@ -559,11 +560,13 @@ blocker affects only a later boundary.
   the required business address, phone, and email on EU App Store pages.
 - Does not block: local release verification, GitHub, screenshots, Xcode Cloud,
   TestFlight, or distribution outside the EU.
-- Needed from owner: determine the correct legal classification, preferably
-  with the Account Holder or legal advisor. If trader, complete Apple's DSA
-  business/contact verification and set FrameWink's app-level status before EU
-  submission. If non-trader, retain the declaration knowingly and accept the
-  consumer notice Apple displays in the EU.
+- Owner decision: Jenny Media LLC should be identified as a trader. The live
+  setup has advanced through trader selection and business-contact entry to
+  Apple's email-code verification step. Email verification, any subsequent
+  phone/document checks, and the final legally binding certification remain.
+  The review package is already submitted with manual release enabled; do not
+  release it while EU availability remains enabled until Apple accepts the
+  verification and App Information reflects the trader disclosure.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
@@ -579,33 +582,36 @@ blocker affects only a later boundary.
 
 ## App Store Connect readiness snapshot
 
-- The `Jenny Media Internal` TestFlight group has no invited testers. Build 6
+- The `Jenny Media Internal` TestFlight group has one invited Account Holder.
+  Build 6
   (version 1.0) is `Ready to Test` after the manual `Internal TestFlight` cloud
   workflow completed its archive and post-action.
 - TestFlight has `framewink@jenny.media` as its feedback address, the public
   GitHub repository as its marketing URL, and `PRIVACY.md` as its privacy URL.
-  The App Review contact name, phone, and email are saved. The private phone
+  A final live-field audit found the App Review phone and email inputs empty;
+  re-enter the owner-approved values before submission. The private phone
   number is not duplicated in this public repository.
 - Jenny Media LLC's Paid Apps Agreement and Free Apps Agreement are active for
-  all regions. Its configured bank account and U.S. W-9 are active. Live App
-  Information currently identifies Jenny Media LLC as a non-trader for this
-  app; B-024 records the required publisher/legal review before EU submission.
+  all regions. Its configured bank account and U.S. W-9 are active. The trader
+  selection is awaiting Apple's DSA contact verification; B-024 records the
+  remaining verification and certification before EU submission.
 - The app is free in all 175 current regions and configured for all future
   regions; Wall Mode remains a separate $9.99 lifetime IAP whose all-region
-  storefront availability is saved. Apple Silicon Mac availability is disabled
-  because FrameWink is designed for iPhone and iPad touch interaction.
+  storefront availability is saved. Public Apple-silicon Mac and Apple Vision
+  Pro availability are disabled because FrameWink supports iPhone and iPad
+  only. Both corresponding platform-testing options are also `Not Available`
+  in `Jenny Media Internal`.
 - The English (U.S.) product page now uses `Private smart photo frame`, the
   current universal copy and keywords, Photo & Video primary category,
   marketing/support URLs, and the current ordered ten-shot iPhone and iPad
   galleries. App Privacy is published as `Data Not Collected`, content rights
   are confirmed, and App Store Connect calculated a 4+ rating. App
   Accessibility setup is optional and has not been started.
-- The `FrameWink Lifetime` IAP is `Ready for Review` in Draft Submission 1 and
-  has its required private review screenshot. The
+- The `FrameWink Lifetime` IAP has its required private review screenshot. The
   accepted 1242 × 2688 JPEG is retained in the repository; public promotional
   imagery remains unset by design. Version 1.0 has submission-capable Build 8
-  selected in the same draft. The draft is `Ready for Review`; final submission
-  was not clicked.
+  selected in the same two-item review package. App Store Connect reports
+  version 1.0 `Waiting for Review`, with manual release enabled.
 
 ## Committed Xcode Cloud guardrail
 
@@ -618,13 +624,13 @@ without preventing Build, Analyze, or Test workflows.
 
 ## Remaining release decisions
 
-- Add real App Store Connect users to `Jenny Media Internal` when the owner is
-  ready to send invitations. The first successful Xcode Cloud build must be
-  explicitly assigned to this group.
+- The Account Holder is now a tester in `Jenny Media Internal`; install and
+  smoke-test Build 8 from TestFlight on a physical iPhone or iPad.
 - Confirm the distributed-test repair in the automatic Validation workflow.
-- Decide the release mode and then submit Draft Submission 1 only with explicit
-  owner authorization. B-011's two-item package is otherwise ready.
-- Resolve or knowingly affirm the EU trader classification under B-024.
+- Release mode is set to manual. The two-item iOS 1.0 (8) and FrameWink
+  Lifetime package is submitted and `Waiting for Review`; do not withdraw or
+  replace it without an explicit owner decision or an Apple-requested change.
+- Finish Apple's EU trader contact verification and certification under B-024.
 - After StoreKit metadata propagation, repeat product loading through a sandbox
   or TestFlight device build and submit the first lifetime IAP with the first
   app version.
