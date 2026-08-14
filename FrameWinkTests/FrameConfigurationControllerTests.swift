@@ -10,7 +10,7 @@ final class FrameConfigurationControllerTests: XCTestCase {
         let store = LocalFrameConfigurationStore(directory: root)
         let controller = FrameConfigurationController(store: store)
 
-        XCTAssertEqual(controller.availableLayoutPreferences, [.automatic, .fit, .fill])
+        XCTAssertEqual(controller.availableLayoutPreferences, [.automatic])
         controller.create(
             name: "Ignored while free",
             source: .samples,
@@ -41,11 +41,12 @@ final class FrameConfigurationControllerTests: XCTestCase {
         XCTAssertEqual(first.name, "Kitchen")
         XCTAssertEqual(first.albumIdentifier, "kitchen-album")
         XCTAssertEqual(first.albumTitle, "Kitchen Album")
-        XCTAssertEqual(controller.availableLayoutPreferences, FrameLayoutPreference.allCases)
+        XCTAssertEqual(first.layoutPreference, .automatic)
+        XCTAssertEqual(controller.availableLayoutPreferences, [.automatic])
 
         controller.activate(first.id)
         controller.updateActive(layoutPreference: .fill, interval: 60)
-        XCTAssertEqual(controller.activeConfiguration?.layoutPreference, .fill)
+        XCTAssertEqual(controller.activeConfiguration?.layoutPreference, .automatic)
         XCTAssertEqual(controller.activeConfiguration?.interval, 60)
 
         let reopened = FrameConfigurationController(store: store)
@@ -104,7 +105,40 @@ final class FrameConfigurationControllerTests: XCTestCase {
         XCTAssertEqual(controller.activeConfiguration?.source, .freeSmartReel)
         XCTAssertNil(controller.activeConfiguration?.albumIdentifier)
         XCTAssertNil(controller.activeConfiguration?.albumTitle)
-        XCTAssertEqual(controller.activeConfiguration?.layoutPreference, .fit)
+        XCTAssertEqual(controller.activeConfiguration?.layoutPreference, .automatic)
         XCTAssertEqual(controller.activeConfiguration?.interval, 30)
+    }
+
+    func testLegacyPresentationChoicesMigrateWithoutLosingSourceData() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("FrameWinkPresentationMigrationTests-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = LocalFrameConfigurationStore(directory: root)
+        let configurationID = UUID()
+        try store.saveArchive(
+            FrameConfigurationArchive(
+                configurations: [
+                    SavedFrameConfiguration(
+                        id: configurationID,
+                        name: "Family",
+                        source: .automaticAlbum,
+                        albumIdentifier: "family-album",
+                        albumTitle: "Family",
+                        layoutPreference: .mosaic,
+                        interval: 7
+                    ),
+                ],
+                activeConfigurationID: configurationID
+            )
+        )
+
+        let controller = FrameConfigurationController(store: store)
+        controller.setEntitled(true)
+
+        XCTAssertEqual(controller.activeConfiguration?.source, .automaticAlbum)
+        XCTAssertEqual(controller.activeConfiguration?.albumIdentifier, "family-album")
+        XCTAssertEqual(controller.activeConfiguration?.layoutPreference, .automatic)
+        XCTAssertEqual(controller.activeConfiguration?.interval, 30)
+        XCTAssertEqual(store.loadArchive().configurations, controller.configurations)
     }
 }

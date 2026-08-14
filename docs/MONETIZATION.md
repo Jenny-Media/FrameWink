@@ -25,8 +25,8 @@ The current paywall may promise the implemented Wall Mode behavior:
   input limit.
 - Automatic change refresh after a user-initiated PhotoKit authorization flow.
 - On-device display history that reduces long-term repeats.
-- A four-photo Mosaic layout and a persisted active source/layout/timing
-  configuration.
+- Automatic multi-photo compositions, including a bounded four-photo Mosaic,
+  plus persisted active source and timing state.
 - Dimming/blackout schedules.
 - Auto-Lock prevention only during foreground Frame Mode.
 - Wall and Guided Access setup assistance.

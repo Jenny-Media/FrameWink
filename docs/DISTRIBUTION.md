@@ -109,6 +109,11 @@ blocker affects only a later boundary.
   Xcode 27's paired Wi-Fi devices require a reachability probe instead of a
   literal `connection.state == connected` check; both probes and post-launch
   health samples passed with live processes and nominal thermal state.
+- Latest refinement install: the automatic-presentation/literal-timing build
+  signed and installed over existing data on both iPads. Both devices were
+  locked, so iPadOS refused the foreground launch after the successful install.
+  Unlocking and opening the already-installed app remains the only incomplete
+  step from that run and does not block Simulator, Release, or cloud preflight.
 - Needed from owner: provide or approve a small licensed, human-labelled
   evaluation-photo set and exercise real Photos authorization, iCloud/Limited
   behavior, and sandbox purchase/restore on the connected iPad.
@@ -508,7 +513,9 @@ blocker affects only a later boundary.
 - The English (U.S.) product page has a private-photo-frame subtitle,
   Photo & Video primary category, promotional text, description, keywords,
   marketing/support URLs, and all ten accepted 13-inch iPad screenshots in the
-  documented Free-then-Paid order.
+  documented Free-then-Paid order. A refreshed local ten-shot set now reflects
+  automatic layout, literal timing, and shorter Frame Settings; replace the
+  earlier accepted screenshot set before App Review submission.
 
 ## Committed Xcode Cloud guardrail
 

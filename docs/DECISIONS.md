@@ -230,3 +230,23 @@ date; do not silently rewrite historical decisions during implementation.
   sharing. One scene-level action follows the visible composition, while the
   existing photo-level gesture preserves control without adding another
   button.
+
+## D-024 — Presentation is automatic and timing uses literal durations
+
+- **Decision:** FrameWink no longer exposes Fit, Fill, Auto, or Mosaic as user
+  choices. The responsive layout engine selects the safe composition for the
+  current photos and window. Frame Controls contains only the literal timing
+  choices `10s`, `30s`, `1m`, and `5m`, with `30s` selected by default, plus
+  one scene-level Share action. The direct top-right close control is the sole
+  Frame Mode exit; Exit Frame is removed from the panel. Frame Settings no
+  longer duplicates album selection, review, layout, timing, or manual refresh.
+  It keeps the optional night schedule behind progressive disclosure, concise
+  mounted-iPad guidance, and local data-removal controls. Existing saved source
+  and album data are preserved while legacy layout and timing values migrate to
+  the supported automatic presentation. This supersedes D-019 and the panel-
+  exit portion of D-022.
+- **Reason:** Physical use showed that layout names, duplicated settings, and
+  subjective timing labels made a simple photo frame feel configurable rather
+  than effortless. Literal durations remain easy to compare, while automatic
+  responsive composition already has enough context to make the layout choice
+  better than a persistent manual override.

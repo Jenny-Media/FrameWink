@@ -148,9 +148,9 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             app.descendants(matching: .any)["frame-controls-panel"]
                 .waitForExistence(timeout: 3)
         )
-        let fastSpeed = app.buttons["frame-speed-5"]
-        XCTAssertTrue(fastSpeed.waitForExistence(timeout: 3))
-        fastSpeed.tap()
+        let speed = app.buttons["frame-speed-10"]
+        XCTAssertTrue(speed.waitForExistence(timeout: 3))
+        speed.tap()
 
         XCTAssertTrue(personalPhotos.firstMatch.waitForExistence(timeout: 4))
         XCTAssertFalse(
@@ -158,15 +158,8 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             "Changing speed must not reactivate a stale saved sample source."
         )
 
-        let fitStyle = app.buttons["frame-layout-fit"]
-        XCTAssertTrue(fitStyle.waitForExistence(timeout: 3))
-        fitStyle.tap()
-
-        XCTAssertTrue(personalPhotos.firstMatch.waitForExistence(timeout: 4))
-        XCTAssertFalse(
-            app.descendants(matching: .any)["frame-photo-sample-lakeside"].exists,
-            "Changing layout must not reactivate a stale saved sample source."
-        )
+        XCTAssertFalse(app.buttons["frame-layout-fit"].exists)
+        XCTAssertFalse(app.buttons["frame-layout-fill"].exists)
     }
 
     func testInitialPersonalImportUsesNeutralPreparationInsteadOfSamples() {
@@ -255,14 +248,13 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             playbackOptions.waitForExistence(timeout: 3),
             "A blackout tap must reveal playback controls."
         )
-        playbackOptions.tap()
         XCTAssertTrue(
-            app.buttons["frame-close-control"].waitForExistence(timeout: 3),
-            "The playback menu must keep Exit Frame reachable during blackout."
+            app.buttons["frame-quick-close-control"].waitForExistence(timeout: 3),
+            "A blackout tap must reveal the direct exit control."
         )
     }
 
-    func testFrameControlsPanelOffersDirectSettingsShareAndExit() {
+    func testFrameControlsPanelOffersTimingAndShare() {
         launch(scenario: "personal-reel")
 
         let startFrame = app.buttons["Start Frame"]
@@ -271,10 +263,6 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         let playbackOptions = app.buttons["More playback options"]
         XCTAssertTrue(playbackOptions.waitForExistence(timeout: 3))
-        XCTAssertFalse(
-            app.buttons["frame-close-control"].exists,
-            "The full Exit Frame action belongs inside the controls panel."
-        )
         XCTAssertTrue(
             app.buttons["frame-quick-close-control"].isHittable,
             "Frame playback must expose a direct one-tap exit when controls are visible."
@@ -286,7 +274,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
                 .waitForExistence(timeout: 3)
         )
         XCTAssertTrue(app.staticTexts["Frame Controls"].isHittable)
-        XCTAssertTrue(app.buttons["frame-close-control"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["frame-close-control"].exists)
         let shareAction = app.buttons["frame-share-current-photos"]
         XCTAssertTrue(
             shareAction.exists,
@@ -296,10 +284,13 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             shareAction.isHittable,
             "The direct Share action must be visibly reachable in Frame Controls."
         )
-        XCTAssertTrue(app.buttons["frame-speed-5"].exists)
+        XCTAssertTrue(app.buttons["frame-speed-10"].exists)
+        XCTAssertTrue(app.buttons["frame-speed-30"].exists)
         XCTAssertTrue(app.buttons["frame-speed-60"].exists)
-        XCTAssertTrue(app.buttons["frame-layout-fit"].exists)
-        XCTAssertTrue(app.buttons["frame-layout-fill"].exists)
+        XCTAssertTrue(app.buttons["frame-speed-300"].exists)
+        XCTAssertFalse(app.buttons["frame-speed-5"].exists)
+        XCTAssertFalse(app.buttons["frame-layout-fit"].exists)
+        XCTAssertFalse(app.buttons["frame-layout-fill"].exists)
 
         let panelScreenshot = XCTAttachment(screenshot: app.screenshot())
         panelScreenshot.name = "Frame Controls panel"
@@ -508,13 +499,17 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(app.buttons["More Frame Features"].exists)
     }
 
-    func testFrameSettingsHidesLegacyWallModeAndStrictOfflineControls() {
+    func testFrameSettingsKeepsOnlyDisplayGuidanceAndLocalDataControls() {
         launch(scenario: "wall-mode-setup")
 
         XCTAssertTrue(app.navigationBars["Frame Settings"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["Photos"].exists)
-        XCTAssertTrue(app.staticTexts["Slideshow"].exists)
         XCTAssertTrue(app.switches["Night Schedule"].exists)
+        XCTAssertTrue(app.staticTexts["Mounted iPad Tips"].exists)
+        XCTAssertTrue(app.staticTexts["Data & Privacy"].exists)
+        XCTAssertFalse(app.staticTexts["Photos"].exists)
+        XCTAssertFalse(app.staticTexts["Slideshow"].exists)
+        XCTAssertFalse(app.buttons["Refresh Album Now"].exists)
+        XCTAssertFalse(app.buttons["Review Photos"].exists)
         XCTAssertFalse(app.navigationBars["Wall Mode Setup"].exists)
         XCTAssertFalse(app.switches["Strict Offline"].exists)
         XCTAssertFalse(app.staticTexts["Saved frame configurations"].exists)

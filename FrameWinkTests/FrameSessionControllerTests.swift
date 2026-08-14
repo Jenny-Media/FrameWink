@@ -4,6 +4,24 @@ import XCTest
 final class FrameSessionControllerTests: XCTestCase {
     private let start = Date(timeIntervalSince1970: 1_700_000_000)
 
+    func testDefaultAndVisibleTimingChoicesAreUnambiguous() {
+        let controller = FrameSessionController(startedAt: start)
+
+        XCTAssertEqual(controller.interval, 30)
+        XCTAssertEqual(FramePlaybackTiming.availableIntervals, [10, 30, 60, 300])
+        XCTAssertEqual(
+            FramePlaybackTiming.availableIntervals.map { FramePlaybackTiming.title(for: $0) },
+            ["10s", "30s", "1m", "5m"]
+        )
+    }
+
+    func testLegacyTimingValuesNormalizeToVisibleChoices() {
+        XCTAssertEqual(FramePlaybackTiming.normalized(5), 10)
+        XCTAssertEqual(FramePlaybackTiming.normalized(7), 30)
+        XCTAssertEqual(FramePlaybackTiming.normalized(60), 60)
+        XCTAssertEqual(FramePlaybackTiming.normalized(3_600), 300)
+    }
+
     func testTimerAdvancesAndWrapsWithoutDrift() {
         var controller = FrameSessionController(
             pageCount: 3,

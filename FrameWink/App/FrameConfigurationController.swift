@@ -12,8 +12,24 @@ final class FrameConfigurationController: ObservableObject {
     init(store: FrameConfigurationStoring) {
         self.store = store
         let archive = store.loadArchive()
-        configurations = archive.configurations
+        var normalizedConfigurations = archive.configurations
+        normalizedConfigurations.indices.forEach { index in
+            normalizedConfigurations[index].normalize()
+        }
+        configurations = normalizedConfigurations
         activeConfigurationID = archive.activeConfigurationID
+
+        guard normalizedConfigurations != archive.configurations else { return }
+        do {
+            try store.saveArchive(
+                FrameConfigurationArchive(
+                    configurations: normalizedConfigurations,
+                    activeConfigurationID: archive.activeConfigurationID
+                )
+            )
+        } catch {
+            persistenceError = error.localizedDescription
+        }
     }
 
     var activeConfiguration: SavedFrameConfiguration? {
@@ -22,7 +38,7 @@ final class FrameConfigurationController: ObservableObject {
     }
 
     var availableLayoutPreferences: [FrameLayoutPreference] {
-        isEntitled ? FrameLayoutPreference.allCases : [.automatic, .fit, .fill]
+        [.automatic]
     }
 
     func setEntitled(_ entitled: Bool) {

@@ -82,8 +82,8 @@ capture_scenario sample 01-free-sample.jpg
 capture_scenario free-review-grid 02-free-review-grid.jpg
 capture_scenario smart-frame 03-free-frame-mode.jpg
 capture_scenario paywall 04-paid-wall-mode-purchase.jpg
-capture_scenario wall-mode-setup 05-paid-automatic-album.jpg
-capture_scenario saved-configurations 06-paid-saved-configurations.jpg
+capture_scenario album-picker 05-paid-automatic-album.jpg
+capture_scenario frame-controls 06-paid-frame-controls.jpg
 capture_scenario mosaic-frame 07-paid-mosaic-frame.jpg
 capture_scenario wall-schedule 08-paid-night-schedule.jpg
 capture_scenario wall-checklist 09-paid-commissioning-checklist.jpg

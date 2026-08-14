@@ -135,7 +135,7 @@ struct FrameSessionController: Equatable {
         pageCount: Int = 0,
         currentPageIndex: Int = 0,
         isPlaying: Bool = true,
-        interval: TimeInterval = 7,
+        interval: TimeInterval = FramePlaybackTiming.defaultInterval,
         startedAt: Date = Date()
     ) {
         self.pageCount = max(pageCount, 0)

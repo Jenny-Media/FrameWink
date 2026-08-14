@@ -87,16 +87,16 @@ in the app container. The app suppresses iOS's automatic Limited-access alert so
 later prompts remain tied to explicit album-management actions.
 
 The free experience includes local Smart Reel curation, review, Never Show
-Again, Fit/Fill and portrait pairing, timing, pause/navigation, unlimited
-replay, and Delete Imported Photos.
+Again, automatic face-safe Fit/Fill decisions and portrait pairing, selectable
+timing, pause/navigation, unlimited replay, and Delete Imported Photos.
 
 To review the non-consumable purchase, open `More Frame Features` from the main
 screen. The FrameWink Lifetime paywall includes `Restore Purchases`. A verified entitlement
 unlocks automatic refresh for an explicitly selected Photos album, curation of
 all eligible album candidates without the free 100-candidate input limit,
-long-term repeat reduction, a Mosaic layout, a persisted active frame
-configuration, foreground-only Auto-Lock prevention, visual dim/blackout
-schedules, and the wall commissioning checklist.
+long-term repeat reduction, automatic Mosaic composition when appropriate, a
+persisted active source/timing state, foreground-only Auto-Lock prevention,
+visual dim/blackout schedules, and mounted-iPad guidance.
 
 For automatic albums, include an iCloud-backed item and confirm preparation
 continues while Apple Photos downloads it. Change the selected album in Photos,
@@ -132,14 +132,18 @@ set. Do not use private tester photos.
    layout and visible navigation/timing controls.
 4. **A one-time wall upgrade — Paid:** the $9.99 non-consumable paywall with the
    full Free Smart Reel comparison and Restore Purchases.
-5. **Fresh from your album — Paid:** the simple selected-album status with
-   automatic iCloud preparation and on-device privacy wording visible.
-6. **Made for every photo — Paid:** Automatic and four-photo Mosaic layout
-   choices in the compact Frame Settings screen.
-7. **Quiet at night — Paid:** Wall Mode schedule controls with foreground-only
-   language visible.
-8. **Mount it honestly — Paid:** the power, ventilation, Guided Access, and
-   restart-recovery commissioning checklist.
+5. **Fresh from your album — Paid:** the Photos-familiar progressive album grid
+   with a clearly selected source.
+6. **Simple at a glance — Paid:** Frame Controls with the selected 30-second
+   default and direct 10-second, 30-second, 1-minute, and 5-minute choices.
+7. **Made for every photo — Paid:** An automatic multi-photo frame that shows
+   a balanced Mosaic without exposing another layout setting.
+8. **Quiet at night — Paid:** Frame Settings with the optional schedule and
+   foreground-only language visible.
+9. **Mount it honestly — Paid:** concise power, ventilation, Guided Access, and
+   restart-recovery guidance.
+10. **One lifetime upgrade — Paid:** the concise FrameWink Lifetime feature
+    overview without a configuration-heavy promise.
 
 The filename and visible product UI must say `Free` or `Paid Wall Mode` where
 the boundary could be ambiguous. Automatic-album screenshots must show an
@@ -150,9 +154,9 @@ Ten native, upload-ready 13-inch iPad screenshots are committed under
 `AppStore/Screenshots/Submission/iPad-13-inch/`. They are 2064 x 2752 JPEGs
 without alpha and cover three Free Smart Reel screens followed by seven Paid
 Wall Mode screens. The paid sequence includes the `$9.99` one-time purchase and
-Restore Purchases, automatic-album setup, Frame Settings, Mosaic playback,
-night scheduling, mounted-iPad guidance, and the feature
-overview. They use only bundled project-owned media. Run
+Restore Purchases, automatic-album setup, direct Frame Controls, automatic
+Mosaic playback, night scheduling, mounted-iPad guidance, and the feature overview.
+They use only bundled project-owned media. Run
 `scripts/capture_app_store_submission_screenshots.sh` to regenerate and validate
 the set. Marketing caption overlays are optional rather than a submission gate.
 

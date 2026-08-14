@@ -58,9 +58,10 @@ preloaded gifts, family contributions, and remote administration.
    primary action to `Start Frame`.
 4. Frame playback begins directly. Previous, pause/play, next, and a single
    `More` button provide the essential controls. `More` opens one compact Frame
-   Controls panel where display style and speed can be changed directly, while
-   sharing and Exit Frame remain nearby. A short tap/swipe hint recedes with the
-   controls; tapping the photo brings controls back.
+   Controls panel with one selected slideshow interval and one scene-level
+   share action. FrameWink chooses the layout automatically, while a receding
+   top-right close button exits Frame Mode directly. A short tap/swipe hint
+   recedes with the controls; tapping the photo brings controls back.
 5. Review, deletion, privacy, source switching, and frame settings remain
    available through progressive disclosure rather than a button dashboard.
 6. FrameWink Lifetime is offered when a user chooses an automatic album or
@@ -79,8 +80,9 @@ preloaded gifts, family contributions, and remote administration.
 - Two compatible portraits paired on a landscape display.
 - Responsive compact single-photo playback, occasional wide pairs, and
   geometry-driven two-to-four-photo tall stacks where each photo remains large.
-- Fit and Fill.
-- Adjustable interval, tap/swipe previous and next, pause, and replay.
+- Automatic face-safe Fit/Fill decisions without a display-style setting.
+- A selected 30-second default with direct 10-second, 30-second, 1-minute, and
+  5-minute choices, plus tap/swipe previous and next, pause, and replay.
 - Restrained dissolve/directional transitions and subtle face-safe zoom/pan
   motion with Reduce Motion support.
 - Review Suggestions and Never Show Again.
@@ -90,12 +92,12 @@ preloaded gifts, family contributions, and remote administration.
 
 - Unlimited supported candidates and albums.
 - Automatic refresh as a selected PhotoKit album changes.
-- One clear active frame configuration that updates in place.
+- One clear active source/timing state that updates in place.
 - Continuous regeneration and long-term repeat avoidance.
-- Additional layouts.
-- Occasional event-bound Mosaic composition on a sufficiently large window.
+- Additional automatic layouts, including occasional event-bound Mosaic
+  composition on a sufficiently large window.
 - Dimming and blackout schedules while the app remains active.
-- Guided Access-assisted setup and wall commissioning checklist.
+- Concise mounted-iPad and Guided Access guidance.
 - Purchase restoration and Family Sharing where supported.
 
 ## Privacy wording

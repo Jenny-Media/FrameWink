@@ -13,7 +13,6 @@ enum RootInitialPresentation: Equatable {
 
 enum WallModeSetupInitialSection: String, Hashable {
     case automaticAlbum
-    case savedConfigurations
     case schedule
     case checklist
 }
@@ -31,7 +30,6 @@ enum DebugScreenshotScenario: String {
     case paywall
     case paywallFeatures = "paywall-features"
     case wallModeSetup = "wall-mode-setup"
-    case savedConfigurations = "saved-configurations"
     case wallSchedule = "wall-schedule"
     case wallChecklist = "wall-checklist"
     case automaticAlbumReview = "automatic-album-review"
@@ -42,6 +40,7 @@ enum DebugScreenshotScenario: String {
     case personalImport = "personal-import"
     case blackoutFrame = "blackout-frame"
     case albumPicker = "album-picker"
+    case frameControls = "frame-controls"
 
     static var current: Self? {
         guard let value = ProcessInfo.processInfo.environment[
@@ -56,16 +55,14 @@ enum DebugScreenshotScenario: String {
         switch self {
         case .sample, .personalReel, .sourceIntegrity, .personalImport, .albumPicker:
             return nil
-        case .smartFrame, .blackoutFrame:
+        case .smartFrame, .blackoutFrame, .frameControls:
             return .frameMode
         case .paywall:
             return .wallModePaywallPurchase
         case .paywallFeatures:
             return .wallModePaywallFeatures
         case .wallModeSetup:
-            return .wallModeSetup(.automaticAlbum)
-        case .savedConfigurations:
-            return .wallModeSetup(.savedConfigurations)
+            return .wallModeSetup(.schedule)
         case .wallSchedule:
             return .wallModeSetup(.schedule)
         case .wallChecklist:
@@ -81,9 +78,9 @@ enum DebugScreenshotScenario: String {
 
     var requiresWallModeEntitlement: Bool {
         switch self {
-        case .wallModeSetup, .savedConfigurations, .wallSchedule, .wallChecklist,
+        case .wallModeSetup, .wallSchedule, .wallChecklist,
                 .automaticAlbumReview, .mosaicFrame, .blackoutFrame, .albumPicker,
-                .sourceIntegrity:
+                .sourceIntegrity, .frameControls:
             return true
         default:
             return false
@@ -176,7 +173,7 @@ extension DebugScreenshotScenario {
                         albumIdentifier: nil,
                         albumTitle: nil,
                         layoutPreference: .mosaic,
-                        interval: 10
+                        interval: 30
                     ),
                     SavedFrameConfiguration(
                         id: nightstandID,

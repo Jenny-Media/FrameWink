@@ -10,8 +10,8 @@ struct SampleSlideshowView: View {
     let automaticAlbumPhotoDidDisplay: (ImportedPhoto) -> Void
     let preferredLayoutPreference: FrameLayoutPreference
     let preferredInterval: TimeInterval
-    let availableLayoutPreferences: [FrameLayoutPreference]
-    let presentationDidChange: (FrameLayoutPreference, TimeInterval) -> Void
+    let allowsAutomaticMosaic: Bool
+    let presentationDidChange: (TimeInterval) -> Void
     @Binding var isFrameMode: Bool
     let wallVisualState: WallVisualState
     let refreshWallSchedule: (Date) -> Void
@@ -34,7 +34,6 @@ struct SampleSlideshowView: View {
 
     private let layoutChooser = FrameLayoutChooser()
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    private let availableIntervals: [TimeInterval] = [5, 10, 30, 60]
 
     var body: some View {
         GeometryReader { proxy in
@@ -46,7 +45,7 @@ struct SampleSlideshowView: View {
                 for: slides.map(\.frameLayoutItem),
                 viewport: viewport,
                 preference: layoutPreference,
-                allowsAutomaticMosaic: availableLayoutPreferences.contains(.mosaic)
+                allowsAutomaticMosaic: allowsAutomaticMosaic
             )
             let layoutSignature = pages.map(\.id).joined(separator: "|")
             let slidesByID = Dictionary(uniqueKeysWithValues: slides.map { ($0.id, $0) })
@@ -137,6 +136,14 @@ struct SampleSlideshowView: View {
                 if isFrameMode {
                     showInitialGuidance()
                 }
+#if DEBUG
+                if DebugScreenshotScenario.current == .frameControls {
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 300_000_000)
+                        isShowingFrameControls = true
+                    }
+                }
+#endif
             }
             .onChange(of: layoutSignature) { newSignature in
                 synchronizePages(pages, signature: newSignature)
@@ -150,11 +157,6 @@ struct SampleSlideshowView: View {
             }
             .onChange(of: preferredInterval) { _ in
                 applyPreferredPresentation()
-            }
-            .onChange(of: availableLayoutPreferences) { preferences in
-                if !preferences.contains(layoutPreference) {
-                    layoutPreference = .automatic
-                }
             }
             .onReceive(timer) { date in
                 refreshWallSchedule(date)
@@ -591,21 +593,13 @@ struct SampleSlideshowView: View {
                     attachmentAnchor: .rect(.bounds)
                 ) {
                     FrameControlsPanel(
-                        layoutPreference: layoutPreference,
-                        availableLayoutPreferences: availableLayoutPreferences,
                         interval: playback.interval,
-                        availableIntervals: availableIntervals,
                         slides: shareableSlides(
                             pages: pages,
                             slidesByID: slidesByID
                         ),
-                        selectLayout: selectLayout,
                         selectInterval: selectInterval,
                         share: shareFromFrameControls,
-                        exitFrame: {
-                            isShowingFrameControls = false
-                            isFrameMode = false
-                        },
                         dismiss: {
                             isShowingFrameControls = false
                         }
@@ -663,14 +657,9 @@ struct SampleSlideshowView: View {
         } ?? []
     }
 
-    private func selectLayout(_ preference: FrameLayoutPreference) {
-        layoutPreference = preference
-        presentationDidChange(preference, playback.interval)
-    }
-
     private func selectInterval(_ interval: TimeInterval) {
         playback.setInterval(interval, at: Date())
-        presentationDidChange(layoutPreference, interval)
+        presentationDidChange(interval)
     }
 
     private func shareFromFrameControls(_ slides: [DisplaySlide]) {
@@ -764,10 +753,11 @@ struct SampleSlideshowView: View {
     }
 
     private func applyPreferredPresentation() {
-        layoutPreference = availableLayoutPreferences.contains(preferredLayoutPreference)
-            ? preferredLayoutPreference
-            : .automatic
-        playback.setInterval(preferredInterval, at: Date())
+        layoutPreference = preferredLayoutPreference
+        playback.setInterval(
+            FramePlaybackTiming.normalized(preferredInterval),
+            at: Date()
+        )
     }
 
     private func revealControls() {
@@ -845,15 +835,10 @@ struct SampleSlideshowView: View {
 }
 
 private struct FrameControlsPanel: View {
-    let layoutPreference: FrameLayoutPreference
-    let availableLayoutPreferences: [FrameLayoutPreference]
     let interval: TimeInterval
-    let availableIntervals: [TimeInterval]
     let slides: [DisplaySlide]
-    let selectLayout: (FrameLayoutPreference) -> Void
     let selectInterval: (TimeInterval) -> Void
     let share: ([DisplaySlide]) -> Void
-    let exitFrame: () -> Void
     let dismiss: () -> Void
 
     var body: some View {
@@ -875,25 +860,11 @@ private struct FrameControlsPanel: View {
                 .accessibilityIdentifier("close-frame-controls")
             }
 
-            controlSection(title: "Display Style") {
-                selectionGrid(columns: 3) {
-                    ForEach(availableLayoutPreferences) { preference in
-                        selectionButton(
-                            title: preference.title,
-                            isSelected: layoutPreference == preference,
-                            accessibilityIdentifier: "frame-layout-" + preference.rawValue
-                        ) {
-                            selectLayout(preference)
-                        }
-                    }
-                }
-            }
-
-            controlSection(title: "Slideshow Speed") {
+            controlSection(title: "Change Photo Every") {
                 selectionGrid(columns: 4) {
-                    ForEach(availableIntervals, id: \.self) { candidate in
+                    ForEach(FramePlaybackTiming.availableIntervals, id: \.self) { candidate in
                         selectionButton(
-                            title: intervalTitle(candidate),
+                            title: FramePlaybackTiming.title(for: candidate),
                             isSelected: interval == candidate,
                             accessibilityIdentifier: "frame-speed-\(Int(candidate))"
                         ) {
@@ -929,14 +900,6 @@ private struct FrameControlsPanel: View {
                 )
                 .accessibilityIdentifier("frame-share-current-photos")
             }
-
-            Button(action: exitFrame) {
-                Label("Exit Frame", systemImage: "xmark.circle")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .tint(.red)
-            .accessibilityIdentifier("frame-close-control")
         }
         .padding(20)
         .frame(idealWidth: 410, maxWidth: 460, alignment: .leading)
@@ -999,9 +962,6 @@ private struct FrameControlsPanel: View {
         .accessibilityIdentifier(accessibilityIdentifier)
     }
 
-    private func intervalTitle(_ interval: TimeInterval) -> String {
-        "\(Int(interval))s"
-    }
 }
 
 private extension View {
@@ -1009,13 +969,13 @@ private extension View {
     func frameControlsPresentation() -> some View {
         if #available(iOS 16.4, *) {
             self
-                .presentationDetents([.height(480)])
+                .presentationDetents([.height(300)])
                 .presentationDragIndicator(.hidden)
                 .presentationCompactAdaptation(.sheet)
                 .presentationBackground(Color(uiColor: .systemBackground))
         } else if #available(iOS 16.0, *) {
             self
-                .presentationDetents([.height(480)])
+                .presentationDetents([.height(300)])
                 .presentationDragIndicator(.hidden)
         } else {
             self
@@ -1351,9 +1311,9 @@ struct SampleSlideshowView_Previews: PreviewProvider {
             loadAutomaticAlbumImage: { _ in nil },
             automaticAlbumPhotoDidDisplay: { _ in },
             preferredLayoutPreference: .automatic,
-            preferredInterval: 7,
-            availableLayoutPreferences: [.automatic, .fit, .fill],
-            presentationDidChange: { _, _ in },
+            preferredInterval: FramePlaybackTiming.defaultInterval,
+            allowsAutomaticMosaic: false,
+            presentationDidChange: { _ in },
             isFrameMode: .constant(false),
             wallVisualState: .normal,
             refreshWallSchedule: { _ in }

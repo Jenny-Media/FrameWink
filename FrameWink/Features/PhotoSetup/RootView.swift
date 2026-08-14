@@ -96,7 +96,7 @@ struct RootView: View {
                         },
                         preferredLayoutPreference: activeLayoutPreference,
                         preferredInterval: activeInterval,
-                        availableLayoutPreferences: availableLayoutPreferences,
+                        allowsAutomaticMosaic: frameConfigurations.isEntitled,
                         presentationDidChange: saveCurrentPresentation,
                         isFrameMode: $isFrameMode,
                         wallVisualState: wallMode.visualState,
@@ -159,7 +159,6 @@ struct RootView: View {
                 WallModeSetupView(
                     wallMode: wallMode,
                     automaticAlbum: automaticAlbum,
-                    frameConfigurations: frameConfigurations,
                     currentPhotoMode: $model.collectionMode,
                     initialSection: initialPresentation.wallModeSetupSection
                 )
@@ -735,28 +734,22 @@ struct RootView: View {
         if initialPresentation == .mosaicFrame {
             return .mosaic
         }
-        return frameConfigurations.activeConfiguration?.layoutPreference ?? .automatic
-    }
-
-    private var availableLayoutPreferences: [FrameLayoutPreference] {
-        initialPresentation == .mosaicFrame
-            ? FrameLayoutPreference.allCases
-            : frameConfigurations.availableLayoutPreferences
+        return .automatic
     }
 
     private var activeInterval: TimeInterval {
-        frameConfigurations.activeConfiguration?.interval ?? 7
+        FramePlaybackTiming.normalized(
+            frameConfigurations.activeConfiguration?.interval
+                ?? FramePlaybackTiming.defaultInterval
+        )
     }
 
-    private func saveCurrentPresentation(
-        layoutPreference: FrameLayoutPreference,
-        interval: TimeInterval
-    ) {
+    private func saveCurrentPresentation(interval: TimeInterval) {
         frameConfigurations.saveCurrent(
             source: currentFrameSource,
             albumIdentifier: automaticAlbum.configuration.albumIdentifier,
             albumTitle: automaticAlbum.configuration.albumTitle,
-            layoutPreference: layoutPreference,
+            layoutPreference: .automatic,
             interval: interval
         )
     }

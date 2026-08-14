@@ -40,8 +40,8 @@ struct WallModePaywallView: View {
                             )
                             paidPoint(
                                 icon: "rectangle.grid.2x2.fill",
-                                title: "More display styles",
-                                detail: "Add Mosaic and choose the look and timing that fit your space."
+                                title: "More automatic layouts",
+                                detail: "FrameWink can build balanced multi-photo scenes when they suit your screen."
                             )
                             paidPoint(
                                 icon: "arrow.triangle.2.circlepath",
@@ -68,7 +68,7 @@ struct WallModePaywallView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Free Smart Reel stays fully useful")
                                 .font(.headline)
-                            Text("The free experience keeps full-quality local curation, up to 100 imported candidates, one 30-photo reel, review and Never Show Again, face-safe layouts, portrait pairing, Fit/Fill, timing, pause, navigation, and unlimited replay. StoreKit problems never disable it.")
+                            Text("The free experience keeps full-quality local curation, up to 100 imported candidates, one 30-photo reel, review and Never Show Again, face-safe automatic layouts, portrait pairing, timing, pause, navigation, and unlimited replay. StoreKit problems never disable it.")
                                 .foregroundColor(.secondary)
                         }
 

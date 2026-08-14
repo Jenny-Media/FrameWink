@@ -5,58 +5,42 @@ import UIKit
 struct WallModeSetupView: View {
     @ObservedObject var wallMode: WallModeController
     @ObservedObject var automaticAlbum: AutomaticAlbumController
-    @ObservedObject var frameConfigurations: FrameConfigurationController
     @Binding var currentPhotoMode: PhotoCollectionMode
     @Environment(\.presentationMode) private var presentationMode
     @State private var draft: WallModeConfiguration
-    @State private var layoutPreference: FrameLayoutPreference
-    @State private var interval: TimeInterval
     @State private var guidedAccessIsEnabled = UIAccessibility.isGuidedAccessEnabled
-    @State private var showAlbumPicker = false
-    @State private var showReview = false
     @State private var showDeleteAlbumConfirmation = false
     @State private var showResetNeverShowConfirmation = false
     @State private var showMountedTips = false
+    @State private var showScheduleTimes = false
     let initialSection: WallModeSetupInitialSection?
 
     init(
         wallMode: WallModeController,
         automaticAlbum: AutomaticAlbumController,
-        frameConfigurations: FrameConfigurationController,
         currentPhotoMode: Binding<PhotoCollectionMode>,
         initialSection: WallModeSetupInitialSection? = nil
     ) {
         self.wallMode = wallMode
         self.automaticAlbum = automaticAlbum
-        self.frameConfigurations = frameConfigurations
         _currentPhotoMode = currentPhotoMode
         self.initialSection = initialSection
         _draft = State(initialValue: wallMode.configuration)
-        _layoutPreference = State(
-            initialValue: frameConfigurations.activeConfiguration?.layoutPreference ?? .automatic
-        )
-        _interval = State(
-            initialValue: frameConfigurations.activeConfiguration?.interval ?? 10
-        )
+        _showScheduleTimes = State(initialValue: initialSection == .schedule)
     }
 
     var body: some View {
         NavigationView {
             ScrollViewReader { proxy in
                 Form {
-                    photosSection
-                        .id(WallModeSetupInitialSection.automaticAlbum)
-
-                    slideshowSection
-                        .id(WallModeSetupInitialSection.savedConfigurations)
-
                     displaySection
                         .id(WallModeSetupInitialSection.schedule)
 
                     mountedTipsSection
                         .id(WallModeSetupInitialSection.checklist)
 
-                    maintenanceSection
+                    dataAndPrivacySection
+                        .id(WallModeSetupInitialSection.automaticAlbum)
                 }
                 .onAppear {
                     guard let initialSection else { return }
@@ -79,14 +63,6 @@ struct WallModeSetupView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .sheet(isPresented: $showAlbumPicker) {
-            AlbumPickerView(controller: automaticAlbum) { _ in
-                currentPhotoMode = .automaticAlbum
-            }
-        }
-        .sheet(isPresented: $showReview) {
-            AutomaticAlbumReviewView(controller: automaticAlbum)
-        }
         .alert(
             "Remove Downloaded Album Photos?",
             isPresented: $showDeleteAlbumConfirmation
@@ -124,71 +100,6 @@ struct WallModeSetupView: View {
         }
     }
 
-    private var photosSection: some View {
-        Section("Photos") {
-            HStack(spacing: 12) {
-                Image(systemName: "photo.on.rectangle.angled")
-                    .font(.title2)
-                    .foregroundColor(.accentColor)
-                    .frame(width: 34)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(automaticAlbum.selectedAlbumTitle)
-                        .font(.headline)
-                    Text(automaticAlbumStatus)
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-
-                Spacer()
-            }
-
-            Button(
-                automaticAlbum.configuration.isConfigured ? "Change Album" : "Choose an Album"
-            ) {
-                automaticAlbum.requestAccessAndLoadAlbums()
-                showAlbumPicker = true
-            }
-            .accessibilityIdentifier("choose-album")
-
-            if isAlbumBusy {
-                ProgressView(value: albumProgress)
-                    .accessibilityLabel("Preparing album photos")
-            }
-
-            if let report = automaticAlbum.lastSyncReport,
-               report.hasPartialFailure {
-                Label(partialReport(report), systemImage: "exclamationmark.icloud")
-                    .font(.footnote)
-                    .foregroundColor(.orange)
-            }
-
-            Text("Album changes refresh automatically. Photos may download from iCloud when needed, just like in Photos.")
-                .font(.footnote)
-                .foregroundColor(.secondary)
-        }
-    }
-
-    private var slideshowSection: some View {
-        Section("Slideshow") {
-            Picker("Display Style", selection: $layoutPreference) {
-                ForEach(frameConfigurations.availableLayoutPreferences) { layout in
-                    Text(layout.title).tag(layout)
-                }
-            }
-
-            Picker("Speed", selection: $interval) {
-                ForEach([5.0, 10.0, 30.0, 60.0], id: \.self) { value in
-                    Text(intervalTitle(value)).tag(value)
-                }
-            }
-
-            Text("Automatic style works well for most photos and handles portrait pairs for you.")
-                .font(.footnote)
-                .foregroundColor(.secondary)
-        }
-    }
-
     private var displaySection: some View {
         Section("Display") {
             Label("Stays awake while the frame is playing", systemImage: "sun.max.fill")
@@ -196,21 +107,27 @@ struct WallModeSetupView: View {
             Toggle("Night Schedule", isOn: $draft.scheduleEnabled)
 
             if draft.scheduleEnabled {
-                DatePicker(
-                    "Begin dimming",
-                    selection: minuteBinding(\.dimStartMinute),
-                    displayedComponents: .hourAndMinute
-                )
-                DatePicker(
-                    "Screen goes dark",
-                    selection: minuteBinding(\.blackoutStartMinute),
-                    displayedComponents: .hourAndMinute
-                )
-                DatePicker(
-                    "Resume display",
-                    selection: minuteBinding(\.blackoutEndMinute),
-                    displayedComponents: .hourAndMinute
-                )
+                Text(scheduleSummary)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+
+                DisclosureGroup("Adjust Schedule", isExpanded: $showScheduleTimes) {
+                    DatePicker(
+                        "Begin dimming",
+                        selection: minuteBinding(\.dimStartMinute),
+                        displayedComponents: .hourAndMinute
+                    )
+                    DatePicker(
+                        "Screen goes dark",
+                        selection: minuteBinding(\.blackoutStartMinute),
+                        displayedComponents: .hourAndMinute
+                    )
+                    DatePicker(
+                        "Resume display",
+                        selection: minuteBinding(\.blackoutEndMinute),
+                        displayedComponents: .hourAndMinute
+                    )
+                }
             }
 
             Text("The night schedule applies while FrameWink is open. It cannot relaunch the app after an iPad restart.")
@@ -232,141 +149,73 @@ struct WallModeSetupView: View {
                     .font(.footnote)
                     .foregroundColor(.secondary)
 
-                ForEach(WallChecklistItem.allCases) { item in
-                    Button {
-                        toggle(item)
-                    } label: {
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(
-                                systemName: draft.completedChecklistItems.contains(item)
-                                    ? "checkmark.circle.fill"
-                                    : "circle"
-                            )
-                            .foregroundColor(
-                                draft.completedChecklistItems.contains(item) ? .green : .secondary
-                            )
-
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(item.title)
-                                    .foregroundColor(.primary)
-                                Text(item.detail)
-                                    .font(.footnote)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
+                mountedTip(
+                    "Use reliable power and keep the iPad ventilated.",
+                    systemImage: "powerplug"
+                )
+                mountedTip(
+                    "Keep the charging cable strain-free and check battery condition regularly.",
+                    systemImage: "battery.100"
+                )
+                mountedTip(
+                    "Lock orientation before mounting if you want a fixed presentation.",
+                    systemImage: "rectangle.portrait.rotate"
+                )
+                mountedTip(
+                    "After an iPad restart, open FrameWink and start the frame again.",
+                    systemImage: "arrow.clockwise"
+                )
             }
         }
     }
 
-    private var maintenanceSection: some View {
-        Section("More Options") {
-            if automaticAlbum.smartReel != nil {
-                Button("Review Photos") {
-                    showReview = true
-                }
-            }
+    private var dataAndPrivacySection: some View {
+        Section("Data & Privacy") {
+            Text("FrameWink keeps photo preparation and display on this iPad and never changes your Apple Photos library.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
 
             if automaticAlbum.configuration.isConfigured {
-                Button("Refresh Album Now") {
-                    automaticAlbum.refresh()
-                }
-                .disabled(isAlbumBusy)
-
                 Button("Reset Hidden Photos") {
                     showResetNeverShowConfirmation = true
                 }
-                .disabled(isAlbumBusy)
 
                 Button("Remove Downloaded Album Photos", role: .destructive) {
                     showDeleteAlbumConfirmation = true
                 }
             }
 
-            if let error = wallMode.configurationError
-                ?? frameConfigurations.persistenceError {
+            if let error = wallMode.configurationError {
                 Label(error, systemImage: "exclamationmark.triangle.fill")
                     .foregroundColor(.orange)
             }
         }
     }
 
-    private var isAlbumBusy: Bool {
-        switch automaticAlbum.phase {
-        case .loadingAlbums, .syncing, .curating:
-            return true
-        default:
-            return false
-        }
-    }
-
-    private var albumProgress: Double? {
-        switch automaticAlbum.phase {
-        case .syncing(let progress), .curating(let progress):
-            return progress.fractionCompleted
-        default:
-            return nil
-        }
-    }
-
-    private var automaticAlbumStatus: String {
-        switch automaticAlbum.phase {
-        case .idle:
-            return automaticAlbum.configuration.isConfigured ? "Ready" : "No album selected"
-        case .loadingAlbums:
-            return "Loading albums…"
-        case .syncing(let progress):
-            return "Preparing \(progress.completedCount) of \(progress.totalCount)…"
-        case .curating(let progress):
-            return "Choosing \(progress.completedCount) of \(progress.totalCount)…"
-        case .ready(_, let suggestionCount):
-            return suggestionCount == 1 ? "1 photo ready" : "\(suggestionCount) photos ready"
-        case .accessDenied:
-            return "Photos access is unavailable"
-        case .failed(let message):
-            return message
-        }
-    }
-
-    private func partialReport(_ report: AlbumSyncReport) -> String {
-        if !report.failures.isEmpty {
-            return "Some photos could not be prepared. Your existing frame is still available."
-        }
-        return "Some photos still need to download from iCloud. FrameWink will try again."
-    }
-
-    private func intervalTitle(_ value: TimeInterval) -> String {
-        switch Int(value) {
-        case 5: return "Fast · 5 seconds"
-        case 10: return "Normal · 10 seconds"
-        case 30: return "Relaxed · 30 seconds"
-        default: return "Slow · 1 minute"
-        }
-    }
-
     private func saveAndDismiss() {
         wallMode.updateConfiguration(draft)
-        frameConfigurations.saveCurrent(
-            source: frameSource,
-            albumIdentifier: automaticAlbum.configuration.albumIdentifier,
-            albumTitle: automaticAlbum.configuration.albumTitle,
-            layoutPreference: layoutPreference,
-            interval: interval
-        )
-        guard wallMode.configurationError == nil,
-              frameConfigurations.persistenceError == nil else {
-            return
-        }
+        guard wallMode.configurationError == nil else { return }
         presentationMode.wrappedValue.dismiss()
     }
 
-    private var frameSource: FrameConfigurationSource {
-        switch currentPhotoMode {
-        case .samples: return .samples
-        case .personal: return .freeSmartReel
-        case .automaticAlbum: return .automaticAlbum
+    private var scheduleSummary: String {
+        "Dims at \(timeTitle(draft.dimStartMinute)) · Dark at \(timeTitle(draft.blackoutStartMinute)) · Resumes at \(timeTitle(draft.blackoutEndMinute))"
+    }
+
+    private func timeTitle(_ minute: Int) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        return formatter.string(from: date(for: minute))
+    }
+
+    private func mountedTip(_ text: LocalizedStringKey, systemImage: String) -> some View {
+        Label {
+            Text(text)
+                .font(.footnote)
+        } icon: {
+            Image(systemName: systemImage)
+                .foregroundColor(.secondary)
         }
     }
 
@@ -387,13 +236,6 @@ struct WallModeSetupView: View {
         return Calendar.current.date(byAdding: .minute, value: minute, to: start) ?? start
     }
 
-    private func toggle(_ item: WallChecklistItem) {
-        if draft.completedChecklistItems.contains(item) {
-            draft.completedChecklistItems.remove(item)
-        } else {
-            draft.completedChecklistItems.insert(item)
-        }
-    }
 }
 
 struct AlbumPickerView: View {

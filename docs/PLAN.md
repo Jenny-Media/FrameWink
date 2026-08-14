@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 12.25 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **35.25 h** | **In progress** |
+| 6. Hardening and release | 8 h | 13.5 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **36.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -584,6 +584,31 @@ gate was updated for Xcode 27's paired Wi-Fi metadata: it accepts only a paired
 physical iPad and then proves current reachability with a read-only lock-state
 query before building. Both device builds, installs, launches, and health
 samples succeeded with live processes and nominal thermal state.
+
+The presentation refinement removes the remaining configuration-dashboard
+feel. Responsive Fit, Fill, pair, stack, and Mosaic decisions are automatic;
+the only visible timing choices are literal `10s`, `30s`, `1m`, and `5m`, with
+`30s` selected by default. Frame Controls now contains timing and one stable
+scene-share action, while the receding top-right close control is the direct
+exit. Frame Settings no longer duplicates album choice, review, layout, timing,
+or manual refresh. It retains foreground display behavior, an optional night
+schedule with its times behind disclosure, concise mounted-iPad guidance, and
+local data controls. Legacy saved sources and album identifiers remain intact;
+unsupported layout/timing values migrate to automatic presentation and a
+visible timing choice.
+
+The complete iOS 27 `iPad (A16)` Simulator scheme passes 158 tests with four
+intentional physical-PhotoKit skips and zero failures out of 162 total. Two
+private iOS 27 UIKit context-menu hierarchy warnings remain unchanged. The
+unsigned generic iPadOS Release build, Xcode static analysis, and archive-mode
+Xcode Cloud guard pass.
+Five focused UI flows verify source integrity, blackout escape, direct timing
+and sharing, one multi-photo share action, and the shorter Frame Settings
+surface. The ten native 13-inch submission screenshots were regenerated and
+visually checked; the obsolete saved-configuration asset is replaced by the
+literal timing panel. The signed Debug acceptance build installed on both
+physical iPads, but both were locked and refused only the foreground launch.
+Active work for this refinement was approximately 1.25 hours.
 
 ## Timebox rule
 

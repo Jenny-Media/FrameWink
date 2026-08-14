@@ -18,7 +18,7 @@ Submission order:
 3. `03-free-frame-mode.jpg` — Free full-screen Frame Mode.
 4. `04-paid-wall-mode-purchase.jpg` — Paid price, restore, and free-tier promise.
 5. `05-paid-automatic-album.jpg` — Paid local automatic-album setup.
-6. `06-paid-saved-configurations.jpg` — Paid saved frame configurations.
+6. `06-paid-frame-controls.jpg` — Paid literal timing choices and Share.
 7. `07-paid-mosaic-frame.jpg` — Paid four-photo Mosaic Frame Mode.
 8. `08-paid-night-schedule.jpg` — Paid foreground dimming/blackout schedule.
 9. `09-paid-commissioning-checklist.jpg` — Paid wall commissioning guidance.
@@ -52,8 +52,8 @@ The source library covers:
 2. Free full-screen Frame Mode controls.
 3. Paid Wall Mode capabilities.
 4. The one-time `$9.99` purchase and Restore Purchases.
-5. Paid automatic-album refresh and Strict Offline privacy wording.
-6. Paid saved frame configurations, including Mosaic.
+5. Paid progressive automatic-album selection.
+6. Paid literal timing choices and scene sharing.
 7. Paid foreground-only dimming and blackout schedule.
 8. Paid wall commissioning and honest platform-limit guidance.
 9. Paid automatic-album suggestion review with Never Show Again.

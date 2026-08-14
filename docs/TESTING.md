@@ -1031,3 +1031,42 @@ explicit owner approval.
   nominal thermal state. The iPad Pro reported battery unplugged; the iPad mini
   reported battery full. Actual StoreKit purchase, restore, and Family Sharing
   remain separate Sandbox/TestFlight acceptance checks.
+
+## Automatic presentation and literal timing refinement — 2026-08-13
+
+- Removed user-facing Auto/Fit/Fill/Mosaic choices while preserving the tested
+  responsive layout engine. Paid automatic presentation can still choose a
+  balanced Mosaic when the current photos and window make it appropriate.
+- Frame Controls now exposes `10s`, `30s`, `1m`, and `5m`, selects `30s` for a
+  new frame, retains one `Share Photo`/`Share Photos` action, and relies on the
+  receding top-right close control for exit. Legacy 5-second timing migrates to
+  10 seconds; the old implicit 7-second default migrates to 30 seconds.
+- Frame Settings now contains display wake behavior, an optional night
+  schedule with disclosed time editing, concise Mounted iPad Tips, and local
+  data/privacy controls. Album choice, review, layout, timing, and manual album
+  refresh remain in their existing direct or automatic paths rather than being
+  duplicated there.
+- Migration coverage proves that a legacy Mosaic/7-second record becomes
+  automatic/30-second without losing its selected source, album identifier,
+  album title, active ID, or durable archive. Timing coverage proves the exact
+  available labels and default.
+- Five focused XCUI flows pass for source retention after a timing change,
+  direct blackout escape, the timing/share panel, single scene-level collage
+  sharing, and the reduced Frame Settings surface.
+- The full iOS 27 `iPad (A16)` Simulator scheme passes 158 tests and skips the
+  four intentional physical-PhotoKit checks, with zero failures and zero
+  expected failures across 162 total. Xcode records the same two private UIKit
+  context-menu hierarchy warnings already documented for iOS 27 beta.
+- The unsigned generic iPadOS Release build and Xcode static analysis succeed.
+  The Xcode Cloud archive preflight passes the privacy manifests, Jenny Media
+  LLC team, production bundle/product identifiers, iPad-only family, and
+  iPadOS 15 minimum checks.
+- All ten 2064 × 2752 submission JPEGs were regenerated and validated without
+  alpha. Visual inspection confirms the progressive album grid, selected
+  30-second timing, automatic multi-photo share state, progressively disclosed
+  schedule, and concise mounted-iPad guidance.
+- The signed Debug physical-acceptance build installed over existing data on
+  both the iPad Pro and iPad mini 6. Both devices were locked at launch time, so
+  iPadOS rejected the foreground launch after installation. Unlocking either
+  device and tapping FrameWink, or rerunning `prepare`, is the remaining device
+  smoke step; the install and signing stages already succeeded.
