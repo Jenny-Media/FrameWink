@@ -56,6 +56,16 @@ Prepare a test album in Apple Photos. Use non-private images that Jenny Media
 LLC owns or is licensed to test. Include at least one screenshot, one duplicate,
 one intentionally blurred image, and one item that is iCloud-only if available.
 
+Before the album checks, exercise the hand-picked path from **More → Photos →
+Choose Photos**. Select at least ten licensed photos and confirm a Smart Reel is
+playable while the remaining picker imports continue. Add another selection in
+a later picker session and confirm the count accumulates toward 500, the active
+reel refines up to 100 recommendations without showing bundled samples, and
+cancel/relaunch preserves completed work. On a device with safely constrained
+free space, confirm the storage guard stops with an actionable message rather
+than risking an incomplete write. Repeat the first-tap **Photo Duration** change
+and one finger-following manual swipe with Reduce Motion both off and on.
+
 1. Run `prepare`. It opens the real simplified FrameWink home screen.
 2. Tap **Choose an Album** (or **Change Album** if one is already configured).
    This is the only action that should trigger the broad
@@ -97,7 +107,7 @@ whether the test passes or fails.
 7. In Settings, deny Photos access. Return to FrameWink and confirm Sample Mode
    and any free imported reel still work. Restore Limited, then Full Access,
    confirming the automatic album recovers after each foreground return.
-8. Tap **Delete Automatic Album Cache** and confirm the app-controlled copies
+8. Tap **Remove Downloaded Album Photos** and confirm the app-controlled copies
    disappear while every Apple Photos original remains.
 
 The permission alert, Limited selection sheet, iCloud residency changes, and

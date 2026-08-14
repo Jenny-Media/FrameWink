@@ -290,6 +290,38 @@ final class LocalCurationStoreTests: XCTestCase {
         XCTAssertEqual(countingStore.signalSaveCount, 10)
     }
 
+    func testManualPipelineProcessesFiveHundredCandidatesIntoOneHundredPhotoReel() async throws {
+        let countingStore = CountingCurationStore()
+        let pipeline = SmartReelPipeline(
+            analyzer: InstantFixtureAnalyzer(),
+            curator: SmartReelCurator(),
+            store: countingStore
+        )
+        let candidates = (1...500).map { index in
+            PhotoCandidate(
+                id: UUID(),
+                source: .pickerImport,
+                pixelWidth: 1_600,
+                pixelHeight: 1_200,
+                creationDate: Date(timeIntervalSince1970: Double(index * 60))
+            )
+        }
+        var imageRequestCount = 0
+
+        let reel = try await pipeline.build(
+            candidates: candidates,
+            imageProvider: { _ in
+                imageRequestCount += 1
+                return UIImage()
+            },
+            progress: { _ in }
+        )
+
+        XCTAssertEqual(imageRequestCount, 500)
+        XCTAssertEqual(countingStore.signals.count, 500)
+        XCTAssertEqual(reel.selections.count, 100)
+    }
+
     private func signals(id: UUID, revision: Int) -> PhotoSignals {
         PhotoSignals(
             candidateID: id,

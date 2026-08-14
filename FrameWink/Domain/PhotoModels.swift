@@ -1,5 +1,36 @@
 import Foundation
 
+enum ManualPhotoCollectionPolicy {
+    static let maximumCandidateCount = 500
+    static let initialPlayableCandidateCount = 10
+    static let maximumReelSelectionCount = 100
+    static let minimumFreeStorageBytes: Int64 = 512 * 1_024 * 1_024
+
+    private static let refinementCandidateCounts = [10, 30, 100, 250, 500]
+
+    static func remainingCapacity(after importedPhotoCount: Int) -> Int {
+        max(maximumCandidateCount - max(importedPhotoCount, 0), 0)
+    }
+
+    static func shouldPublishCheckpoint(
+        previousCount: Int,
+        currentCount: Int,
+        isFinal: Bool
+    ) -> Bool {
+        guard currentCount > previousCount else { return false }
+        if isFinal { return true }
+        return refinementCandidateCounts.contains { threshold in
+            previousCount < threshold && currentCount >= threshold
+        }
+    }
+
+    static func curationCandidateCount(for availableCount: Int) -> Int? {
+        guard availableCount >= initialPlayableCandidateCount else { return nil }
+        return refinementCandidateCounts.last { $0 <= availableCount }
+            ?? initialPlayableCandidateCount
+    }
+}
+
 enum PhotoSource: String, Codable {
     case bundledSample
     case pickerImport
@@ -97,4 +128,19 @@ struct PhotoImportReport: Equatable {
     let failures: [PhotoImportFailure]
     let remainingSourceIDs: [UUID]
     let wasCancelled: Bool
+    let limitReachedCount: Int
+
+    init(
+        imported: [ImportedPhoto],
+        failures: [PhotoImportFailure],
+        remainingSourceIDs: [UUID],
+        wasCancelled: Bool,
+        limitReachedCount: Int = 0
+    ) {
+        self.imported = imported
+        self.failures = failures
+        self.remainingSourceIDs = remainingSourceIDs
+        self.wasCancelled = wasCancelled
+        self.limitReachedCount = limitReachedCount
+    }
 }

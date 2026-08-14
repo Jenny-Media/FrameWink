@@ -130,9 +130,13 @@ extension DebugScreenshotScenario {
 
         let nowComponents = Calendar.current.dateComponents([.hour, .minute], from: Date())
         let currentMinute = (nowComponents.hour ?? 0) * 60 + (nowComponents.minute ?? 0)
+        let scheduleEnabled = self == .wallModeSetup
+            || self == .wallSchedule
+            || self == .wallChecklist
+            || self == .blackoutFrame
         try? wallModeStore.saveConfiguration(
             WallModeConfiguration(
-                scheduleEnabled: true,
+                scheduleEnabled: scheduleEnabled,
                 dimStartMinute: self == .blackoutFrame
                     ? (currentMinute + 1_438) % 1_440
                     : 20 * 60,

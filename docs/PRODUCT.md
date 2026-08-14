@@ -52,7 +52,7 @@ preloaded gifts, family contributions, and remote administration.
 ## First-run journey
 
 1. Bundled sample photos appear immediately without a Photos prompt.
-2. One prominent `Choose Photos` action opens PHPicker for up to 100 candidates;
+2. One prominent `Choose Photos` action opens PHPicker for up to 500 candidates;
    `Start Sample Frame` remains available as the secondary action.
 3. The app imports display-sized local copies, curates them, and changes the
    primary action to `Start Frame`.
@@ -72,8 +72,10 @@ preloaded gifts, family contributions, and remote administration.
 ## Free Smart Reel
 
 - Bundled sample mode.
-- Up to 100 picker-selected candidate photos.
-- One 30-photo locally persisted reel.
+- Up to 500 picker-selected candidate photos, enforced across import sessions.
+- One locally persisted Smart Reel with up to 100 recommendations.
+- Progressive preparation that makes an initial result available from ten
+  imported candidates while the rest continue in the foreground.
 - Full-quality curation rather than a deliberately degraded algorithm.
 - Near-duplicate suppression.
 - Face- and saliency-aware layout.

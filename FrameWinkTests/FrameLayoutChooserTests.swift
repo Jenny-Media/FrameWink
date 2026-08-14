@@ -486,9 +486,33 @@ final class FrameLayoutChooserTests: XCTestCase {
         XCTAssertGreaterThan(max(first.start.scale, first.end.scale), 1.03)
     }
 
-    func testLivingPhotoMotionDoesNotAnimateFitPlacement() {
+    func testLivingPhotoMotionUsesOnlyASubtleCenteredZoomForSafeFitPlacement() throws {
         let placement = FrameLayoutPlacement(
             id: "fit",
+            photoID: "photo",
+            screenFrame: .unit,
+            sourceCrop: .unit,
+            contentMode: .fit
+        )
+
+        let plan = try XCTUnwrap(
+            FramePhotoMotionPlanner.plan(
+                photoID: "photo",
+                placement: placement,
+                importantRects: []
+            )
+        )
+        XCTAssertNotEqual(plan.start, plan.end)
+        XCTAssertLessThanOrEqual(max(plan.start.scale, plan.end.scale), 1.04)
+        XCTAssertEqual(plan.start.offsetX, 0)
+        XCTAssertEqual(plan.start.offsetY, 0)
+        XCTAssertEqual(plan.end.offsetX, 0)
+        XCTAssertEqual(plan.end.offsetY, 0)
+    }
+
+    func testLivingPhotoMotionDeclinesFitZoomWhenImportantContentTouchesAnEdge() {
+        let placement = FrameLayoutPlacement(
+            id: "fit-edge",
             photoID: "photo",
             screenFrame: .unit,
             sourceCrop: .unit,
@@ -499,7 +523,9 @@ final class FrameLayoutChooserTests: XCTestCase {
             FramePhotoMotionPlanner.plan(
                 photoID: "photo",
                 placement: placement,
-                importantRects: []
+                importantRects: [
+                    NormalizedRect(x: 0, y: 0.3, width: 0.2, height: 0.2),
+                ]
             )
         )
     }

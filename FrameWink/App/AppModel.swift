@@ -83,6 +83,8 @@ final class AppModel: ObservableObject {
     private var curationGeneration = UUID()
     private var lastCurationProgressUpdate = Date.distantPast
     private var retryItems: [PhotoImportItem] = []
+    private var curatedCandidateCount = 0
+    private var pendingCurationCandidateCount: Int?
 
     init(
         importer: PhotoImporting,
@@ -106,6 +108,7 @@ final class AppModel: ObservableObject {
                     selections: availableSelections
                 )
                 curationPhase = .ready(availableSelections.count)
+                curatedCandidateCount = importedPhotos.count
             }
         }
     }
@@ -143,6 +146,23 @@ final class AppModel: ObservableObject {
         !retryItems.isEmpty
     }
 
+    var remainingPhotoCapacity: Int {
+        ManualPhotoCollectionPolicy.remainingCapacity(after: importedPhotos.count)
+    }
+
+    var canAddPhotos: Bool {
+        remainingPhotoCapacity > 0
+    }
+
+    var isImporting: Bool {
+        switch importPhase {
+        case .importing, .cancelling:
+            return true
+        case .idle, .finished, .deletionFailed:
+            return false
+        }
+    }
+
     var reviewPhotos: [ImportedPhoto] {
         guard let smartReel = smartReel else { return [] }
         let photosByID = Dictionary(uniqueKeysWithValues: importedPhotos.map { ($0.id, $0) })
@@ -160,16 +180,47 @@ final class AppModel: ObservableObject {
     }
 
     func refreshSmartReel() {
-        guard let smartReelBuilder = smartReelBuilder,
-              !importedPhotos.isEmpty else {
+        guard !importedPhotos.isEmpty else {
             return
         }
+
+        requestCuration(
+            candidateCount: importedPhotos.count,
+            supersedesActiveCuration: true
+        )
+    }
+
+    private func requestCuration(
+        candidateCount: Int,
+        supersedesActiveCuration: Bool
+    ) {
+        guard smartReelBuilder != nil, candidateCount > 0 else { return }
+        let boundedCount = min(candidateCount, importedPhotos.count)
+
+        if isCurating, !supersedesActiveCuration {
+            pendingCurationCandidateCount = max(
+                pendingCurationCandidateCount ?? 0,
+                boundedCount
+            )
+            return
+        }
+
+        if !supersedesActiveCuration,
+           boundedCount <= curatedCandidateCount {
+            return
+        }
+
+        startCuration(candidateCount: boundedCount)
+    }
+
+    private func startCuration(candidateCount: Int) {
+        guard let smartReelBuilder = smartReelBuilder else { return }
 
         curationTask?.cancel()
         curationGeneration = UUID()
         lastCurationProgressUpdate = .distantPast
         let generation = curationGeneration
-        let photos = importedPhotos
+        let photos = Array(importedPhotos.prefix(candidateCount))
         let photosByID = Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0) })
         let imageLoader = imageLoader
         curationPhase = .analyzing(
@@ -179,8 +230,12 @@ final class AppModel: ObservableObject {
         curationTask = Task { [weak self] in
             guard let self = self else { return }
             do {
-                let reel = try await smartReelBuilder.build(
+                let reel = try await smartReelBuilder.buildUnbounded(
                     candidates: photos.map(\.candidate),
+                    maximumSelectionCount: min(
+                        photos.count,
+                        ManualPhotoCollectionPolicy.maximumReelSelectionCount
+                    ),
                     imageProvider: { id in
                         guard let photo = photosByID[id] else { return nil }
                         return await imageLoader.image(for: photo)
@@ -201,17 +256,35 @@ final class AppModel: ObservableObject {
                 guard curationGeneration == generation else { return }
                 smartReel = reel
                 curationPhase = .ready(reel.selections.count)
+                curatedCandidateCount = photos.count
+                curationTask = nil
+                startPendingCurationIfNeeded()
             } catch is CancellationError {
                 guard curationGeneration == generation else { return }
                 curationPhase = .cancelled
+                curationTask = nil
             } catch {
                 guard curationGeneration == generation else { return }
                 curationPhase = .failed(error.localizedDescription)
+                curationTask = nil
+                // A later import checkpoint may contain enough stronger photos
+                // to recover from an early no-usable-photos result.
+                startPendingCurationIfNeeded()
             }
         }
     }
 
+    private func startPendingCurationIfNeeded() {
+        guard let pendingCount = pendingCurationCandidateCount else { return }
+        pendingCurationCandidateCount = nil
+        requestCuration(
+            candidateCount: pendingCount,
+            supersedesActiveCuration: false
+        )
+    }
+
     func cancelCuration() {
+        pendingCurationCandidateCount = nil
         curationTask?.cancel()
     }
 
@@ -279,6 +352,8 @@ final class AppModel: ObservableObject {
             importedPhotos = []
             retryItems = []
             smartReel = nil
+            curatedCandidateCount = 0
+            pendingCurationCandidateCount = nil
             collectionMode = .samples
             importPhase = .idle
             curationPhase = .idle
@@ -299,7 +374,10 @@ final class AppModel: ObservableObject {
         importTask?.cancel()
         retryItems = []
         importPhase = .importing(
-            ImportProgress(completedCount: 0, totalCount: min(items.count, 100))
+            ImportProgress(
+                completedCount: 0,
+                totalCount: min(items.count, remainingPhotoCapacity)
+            )
         )
 
         importTask = Task { [weak self] in
@@ -314,6 +392,8 @@ final class AppModel: ObservableObject {
                 } else {
                     self.importPhase = .importing(progress)
                 }
+            } checkpoint: { [weak self] photos in
+                self?.receiveImportCheckpoint(photos)
             }
 
             importedPhotos = (try? importer.loadImportedPhotos()) ?? importedPhotos
@@ -325,9 +405,27 @@ final class AppModel: ObservableObject {
             retryItems = items.filter { retryIDs.contains($0.id) }
             importPhase = .finished(report)
             if !report.imported.isEmpty {
-                refreshSmartReel()
+                requestCuration(
+                    candidateCount: importedPhotos.count,
+                    supersedesActiveCuration: false
+                )
             }
         }
+    }
+
+    private func receiveImportCheckpoint(_ photos: [ImportedPhoto]) {
+        importedPhotos = photos
+        guard !photos.isEmpty else { return }
+        collectionMode = .personal
+        guard let candidateCount = ManualPhotoCollectionPolicy.curationCandidateCount(
+            for: photos.count
+        ) else {
+            return
+        }
+        requestCuration(
+            candidateCount: candidateCount,
+            supersedesActiveCuration: false
+        )
     }
 
     private static let sampleSlides = [

@@ -36,6 +36,23 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Bundled sample photos"].exists)
     }
 
+    func testConsolidatedPhotosSheetOpensSystemPicker() {
+        launch(scenario: "sample")
+
+        app.buttons["More"].tap()
+        app.buttons["Photos…"].tap()
+        XCTAssertTrue(app.navigationBars["Photos"].waitForExistence(timeout: 4))
+        app.buttons["choose-photos-action"].tap()
+
+        let cancel = app.buttons["Cancel"]
+        XCTAssertTrue(
+            cancel.waitForExistence(timeout: 8),
+            "Choose Photos in the consolidated sheet must open PHPicker."
+        )
+        cancel.tap()
+        XCTAssertTrue(app.buttons["Choose Photos"].waitForExistence(timeout: 8))
+    }
+
     func testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples() {
         launch(scenario: "personal-reel")
 
@@ -61,6 +78,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let more = app.buttons["More"]
         XCTAssertTrue(more.waitForExistence(timeout: 8))
         more.tap()
+        app.buttons["Privacy & Data"].tap()
         let deleteImportedPhotos = app.buttons["delete-imported-photos"]
         XCTAssertTrue(deleteImportedPhotos.waitForExistence(timeout: 8))
         deleteImportedPhotos.tap()
@@ -119,7 +137,8 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             app.staticTexts["Bundled sample photos"].waitForExistence(timeout: 8)
         )
         app.buttons["More"].tap()
-        app.buttons["My Selected Photos"].tap()
+        app.buttons["Photos…"].tap()
+        app.buttons["photo-source-personal"].tap()
 
         let startFrame = app.buttons["Start Frame"]
         XCTAssertTrue(startFrame.waitForExistence(timeout: 8))
@@ -291,6 +310,16 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.buttons["frame-speed-5"].exists)
         XCTAssertFalse(app.buttons["frame-layout-fit"].exists)
         XCTAssertFalse(app.buttons["frame-layout-fill"].exists)
+        XCTAssertTrue(app.staticTexts["Photo Duration"].exists)
+
+        let tenSeconds = app.buttons["frame-speed-10"]
+        XCTAssertFalse(tenSeconds.isSelected)
+        tenSeconds.tap()
+        XCTAssertTrue(
+            tenSeconds.isSelected,
+            "A duration must become selected on the first tap."
+        )
+        XCTAssertFalse(app.buttons["frame-speed-30"].isSelected)
 
         let panelScreenshot = XCTAttachment(screenshot: app.screenshot())
         panelScreenshot.name = "Frame Controls panel"
@@ -495,8 +524,24 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         app.buttons["More"].tap()
 
-        XCTAssertTrue(app.buttons["Privacy"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["Photos…"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["Privacy & Data"].exists)
         XCTAssertTrue(app.buttons["More Frame Features"].exists)
+        XCTAssertFalse(app.buttons["Sample Photos"].exists)
+        XCTAssertFalse(app.buttons["Choose an Album…"].exists)
+        XCTAssertFalse(app.buttons["Choose Individual Photos…"].exists)
+
+        app.buttons["Photos…"].tap()
+        XCTAssertTrue(app.navigationBars["Photos"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["choose-photos-action"].exists)
+        XCTAssertTrue(app.buttons["choose-album-action"].exists)
+        XCTAssertTrue(app.buttons["photo-source-samples"].isSelected)
+        XCTAssertTrue(app.staticTexts["0 of 500 photos selected"].exists)
+
+        let photosScreenshot = XCTAttachment(screenshot: app.screenshot())
+        photosScreenshot.name = "Consolidated Photos sheet"
+        photosScreenshot.lifetime = .keepAlways
+        add(photosScreenshot)
     }
 
     func testFrameSettingsKeepsOnlyDisplayGuidanceAndLocalDataControls() {
@@ -505,7 +550,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Frame Settings"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.switches["Night Schedule"].exists)
         XCTAssertTrue(app.staticTexts["Mounted iPad Tips"].exists)
-        XCTAssertTrue(app.staticTexts["Data & Privacy"].exists)
+        XCTAssertFalse(app.staticTexts["Data & Privacy"].exists)
         XCTAssertFalse(app.staticTexts["Photos"].exists)
         XCTAssertFalse(app.staticTexts["Slideshow"].exists)
         XCTAssertFalse(app.buttons["Refresh Album Now"].exists)

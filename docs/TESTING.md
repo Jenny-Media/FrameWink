@@ -92,7 +92,7 @@ observation on the oldest supported device class.
   and feature-print execution must be verified on physical hardware; their
   deterministic consumers are fixture-tested in Simulator.
 
-Still required: physical Vision execution, the complete 100-photo performance
+Still required: physical Vision execution, the complete 500-photo performance
 and peak-memory run on the oldest supported iPad, and a licensed human-labelled
 displayability/duplicate evaluation set.
 
@@ -383,7 +383,7 @@ Minimum practical matrix:
 
 ## Performance scenarios
 
-For 100 picker candidates and representative 1,000/5,000-asset paid albums,
+For 500 picker candidates and representative 1,000/5,000-asset paid albums,
 record:
 
 - Time to first usable reel.
@@ -397,7 +397,10 @@ record:
 
 Provisional gates:
 
-- Personal 100-photo reel in under 30 seconds on the oldest target.
+- First playable personal reel from ten candidates in under 30 seconds on the
+  oldest target.
+- A 500-candidate import completes, remains cancellable/resumable, and refines
+  the active reel without returning to bundled samples.
 - Peak resident memory below approximately 300 MB during analysis.
 - No visible slideshow hitching.
 - No serious/critical thermal state during a 30-minute analysis test.
@@ -418,7 +421,7 @@ Provisional gates:
 - Hidden photos and screenshots are excluded from automatic selection, and the
   app issues no PhotoKit mutation request.
 - No developer-controlled endpoint or third-party SDK exists in the binary.
-- Delete Imported Photos and Delete Automatic Album Cache remove the respective
+- Delete Imported Photos and Remove Downloaded Album Photos remove the respective
   app-controlled photo files without changing originals.
 - Privacy policy, App Privacy answers, and actual implementation agree.
 
@@ -1070,3 +1073,67 @@ explicit owner approval.
   iPadOS rejected the foreground launch after installation. Unlocking either
   device and tapping FrameWink, or rerunning `prepare`, is the remaining device
   smoke step; the install and signing stages already succeeded.
+
+## Larger hand-picked collection and simplified Photos flow — 2026-08-13
+
+- Free hand-picked storage is bounded at 500 imported candidates across picker
+  sessions. Import remains sequential and cancellable, checks for at least 512
+  MiB of free filesystem space before each item, publishes durable checkpoints
+  at 10/30/100/250/500, and reports excess picker selections without treating
+  them as retryable failures. The first ten candidates can produce a playable
+  reel while import continues; later checkpoints refine the active reel to at
+  most 100 recommendations without reverting the selected source to samples.
+- Unit coverage verifies the policy constants, progressive checkpoints,
+  cross-session capacity, low-storage stop, 500-candidate analysis, 100-result
+  selection, and an `AppModel` sequence that exposes a ten-photo reel while a
+  forty-photo import is still active before refining through 30 and 40.
+- Home **More** now contains only **Photos**, **Frame Settings** (or the paid
+  feature entry), and **Privacy & Data**. The Photos sheet consolidates current
+  source, Choose/Add Photos, Choose/Change Album, and Review Photos. Privacy &
+  Data owns `Delete Imported Photos`, `Remove Downloaded Album Photos`, and
+  exclusion reset. An XCUI regression proves the consolidated action opens
+  Apple's PHPicker and returns cleanly after Cancel.
+- Frame Controls labels timing as **Photo Duration**. The selection state is
+  updated before persistence so one tap visibly selects a duration. Manual
+  drags move the current page with the finger and complete with a directional
+  move-plus-opacity transition; automatic changes retain the calmer dissolve.
+  Living Photo motion extends to safe Fit images with a centered 2.5–3.5%
+  deterministic zoom and no pan, and remains disabled for unsafe important
+  regions, Reduce Motion, resize, pause, preview, and multi-photo scenes.
+- Final complete command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F'
+  -derivedDataPath /private/tmp/FrameWink-DerivedData -resultBundlePath
+  /private/tmp/FrameWink-Final-20260813.xcresult test`. Result: 166 passed,
+  four intentional physical-PhotoKit skips, zero failures, zero expected
+  failures, and 170 total on iOS 27 `iPad (A16)` Simulator.
+- The same two private iOS 27 UIKit context-menu hierarchy warnings appear in
+  the native long-press test. Xcode's post-test diagnostic also failed to find
+  `simctl` in its internal environment after the successful run; neither
+  warning changes the zero-failure result.
+- The exact final source passes an unsigned generic iPadOS Release build, Xcode
+  static analysis, and `CI_XCODEBUILD_ACTION=archive
+  ci_scripts/ci_pre_xcodebuild.sh`. The latter validates Info.plist, the privacy
+  manifest, `media.jenny.FrameWink`, Jenny Media LLC team `5736QK4NZX`, iPad
+  family 2, iPadOS 15.0, test identifiers, and the production StoreKit product.
+- Ten 2064 × 2752 JPEG submission screenshots were regenerated with no alpha.
+  Visual inspection covered the sample home, immediate album grid, literal
+  30-second Frame Controls state, centered scene Share action, and paid-feature
+  sheet. The first late-evening capture exposed two black frame screenshots:
+  all entitled debug scenarios had inherited the fixture's 11 p.m. blackout.
+  Screenshot seeding now enables the schedule only for schedule, checklist, and
+  explicit blackout scenarios, so submission images are deterministic at any
+  host time. Regeneration restored the photo-backed Frame Controls and Mosaic
+  images; the affected blackout, timing/share, and multi-photo-share XCUI tests
+  then passed 3/3.
+- The signed Debug physical-acceptance build installed over existing data on
+  the paired iPad Pro 12.9-inch (3rd generation), iPadOS 26.6. The device was
+  locked, so iPadOS rejected only the foreground launch. The paired iPad mini 6
+  was not reachable and could not receive this exact build. This is B-022, an
+  external device-state boundary rather than a source/build failure.
+- Still required on unlocked physical hardware: a large PHPicker selection and
+  second-session accumulation, first-ten time to frame, full 500-photo storage,
+  memory and thermal behavior, cancel/resume and Airplane Mode, one-tap timing,
+  finger-following swipes, safe Fit motion, and Reduce Motion behavior. The
+  permission prompt, picker choices, and low-storage setup remain human-owned.

@@ -16,7 +16,8 @@ protocol PhotoImporting {
     func importPhotos(
         from items: [PhotoImportItem],
         maxPixelDimension: Int,
-        progress: @escaping @MainActor (ImportProgress) -> Void
+        progress: @escaping @MainActor (ImportProgress) -> Void,
+        checkpoint: @escaping @MainActor ([ImportedPhoto]) -> Void
     ) async -> PhotoImportReport
 
     func deleteAllImportedPhotos() throws

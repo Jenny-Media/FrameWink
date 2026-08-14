@@ -61,6 +61,39 @@ final class AppModelRecoveryTests: XCTestCase {
         XCTAssertEqual(model.smartReel?.selections.map(\.candidateID), [photo.id])
     }
 
+    func testLargeManualImportPublishesAPlayableReelBeforeImportFinishes() async throws {
+        let photos = (0..<40).map { index in
+            ImportedPhoto(
+                id: UUID(),
+                filename: "progressive-\(index).jpg",
+                pixelWidth: 1_200,
+                pixelHeight: 800,
+                importedAt: Date(timeIntervalSince1970: Double(index))
+            )
+        }
+        let importer = ProgressiveRecoveryPhotoImporter(photos: photos)
+        let builder = ProgressiveRecoverySmartReelBuilder()
+        let model = AppModel(
+            importer: importer,
+            imageLoader: RecoveryImageLoader(),
+            smartReelBuilder: builder
+        )
+
+        model.importSelectedItems([RecoveryImportItem()])
+
+        try await waitUntil {
+            model.isImporting && model.smartReel?.selections.count == 10
+        }
+        XCTAssertEqual(model.importedPhotos.count, 10)
+        XCTAssertEqual(builder.candidateCounts.first, 10)
+
+        try await waitUntil {
+            !model.isImporting && model.smartReel?.selections.count == 40
+        }
+        XCTAssertEqual(model.importedPhotos.count, 40)
+        XCTAssertEqual(builder.candidateCounts, [10, 30, 40])
+    }
+
     private func waitUntil(
         timeout: TimeInterval = 2,
         condition: @escaping @MainActor () -> Bool
@@ -86,7 +119,8 @@ private final class RecoveryPhotoImporter: PhotoImporting {
     func importPhotos(
         from items: [PhotoImportItem],
         maxPixelDimension: Int,
-        progress: @escaping @MainActor (ImportProgress) -> Void
+        progress: @escaping @MainActor (ImportProgress) -> Void,
+        checkpoint: @escaping @MainActor ([ImportedPhoto]) -> Void
     ) async -> PhotoImportReport {
         PhotoImportReport(
             imported: [],
@@ -100,6 +134,57 @@ private final class RecoveryPhotoImporter: PhotoImporting {
         deleteCount += 1
         photos = []
     }
+}
+
+private final class ProgressiveRecoveryPhotoImporter: PhotoImporting {
+    private let photos: [ImportedPhoto]
+    private var storedPhotos: [ImportedPhoto] = []
+
+    init(photos: [ImportedPhoto]) {
+        self.photos = photos
+    }
+
+    func loadImportedPhotos() throws -> [ImportedPhoto] { storedPhotos }
+
+    func importPhotos(
+        from items: [PhotoImportItem],
+        maxPixelDimension: Int,
+        progress: @escaping @MainActor (ImportProgress) -> Void,
+        checkpoint: @escaping @MainActor ([ImportedPhoto]) -> Void
+    ) async -> PhotoImportReport {
+        await progress(ImportProgress(completedCount: 0, totalCount: photos.count))
+        storedPhotos = Array(photos.prefix(10))
+        await checkpoint(storedPhotos)
+        await progress(ImportProgress(completedCount: 10, totalCount: photos.count))
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        storedPhotos = photos
+        await checkpoint(storedPhotos)
+        await progress(
+            ImportProgress(completedCount: photos.count, totalCount: photos.count)
+        )
+        return PhotoImportReport(
+            imported: photos,
+            failures: [],
+            remainingSourceIDs: [],
+            wasCancelled: false
+        )
+    }
+
+    func deleteAllImportedPhotos() throws {
+        storedPhotos = []
+    }
+}
+
+private struct RecoveryImportItem: PhotoImportItem {
+    let id = UUID()
+
+    func loadFile() async throws -> LoadedImportFile {
+        throw TestRecoveryError.unused
+    }
+}
+
+private enum TestRecoveryError: Error {
+    case unused
 }
 
 private struct RecoveryImageLoader: ImportedPhotoImageLoading {
@@ -235,4 +320,58 @@ private final class DelayedRecoverySmartReelBuilder: SmartReelBuilding {
             ]
         )
     }
+}
+
+private final class ProgressiveRecoverySmartReelBuilder: SmartReelBuilding {
+    var candidateCounts: [Int] = []
+
+    func loadSavedReel() throws -> SmartReel? { nil }
+
+    func build(
+        candidates: [PhotoCandidate],
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
+        try await buildUnbounded(
+            candidates: candidates,
+            maximumSelectionCount: ManualPhotoCollectionPolicy.maximumReelSelectionCount,
+            imageProvider: imageProvider,
+            progress: progress
+        )
+    }
+
+    func buildUnbounded(
+        candidates: [PhotoCandidate],
+        maximumSelectionCount: Int,
+        imageProvider: @escaping (UUID) async -> UIImage?,
+        progress: @escaping @MainActor (ImportProgress) -> Void
+    ) async throws -> SmartReel {
+        candidateCounts.append(candidates.count)
+        try await Task.sleep(nanoseconds: 20_000_000)
+        await progress(
+            ImportProgress(
+                completedCount: candidates.count,
+                totalCount: candidates.count
+            )
+        )
+        return SmartReel(
+            id: UUID(),
+            algorithmRevision: SmartReelCurator.algorithmRevision,
+            createdAt: Date(),
+            selections: candidates.prefix(maximumSelectionCount).map {
+                CuratedPhoto(
+                    candidateID: $0.id,
+                    algorithmRevision: SmartReelCurator.algorithmRevision,
+                    finalScore: 0.9,
+                    reasons: [.quality]
+                )
+            }
+        )
+    }
+
+    func exclude(candidateID: UUID, from reel: SmartReel) throws -> SmartReel {
+        reel
+    }
+
+    func resetExclusions() throws {}
 }

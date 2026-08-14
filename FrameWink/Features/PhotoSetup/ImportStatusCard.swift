@@ -59,6 +59,10 @@ struct ImportStatusCard: View {
         if report.wasCancelled {
             Label("Import stopped", systemImage: "pause.circle.fill")
                 .font(.title3.weight(.semibold))
+        } else if report.limitReachedCount > 0 && report.failures.isEmpty {
+            Label("Photo collection full", systemImage: "photo.stack.fill")
+                .font(.title3.weight(.semibold))
+                .foregroundColor(.accentColor)
         } else if report.failures.isEmpty {
             Label("Photos ready", systemImage: "checkmark.circle.fill")
                 .font(.title3.weight(.semibold))
@@ -99,6 +103,9 @@ struct ImportStatusCard: View {
         }
         if failed > 0 {
             return "\(imported) imported, \(failed) couldn’t be prepared. Successful photos are already saved."
+        }
+        if report.limitReachedCount > 0 {
+            return "\(imported) imported. FrameWink keeps up to \(ManualPhotoCollectionPolicy.maximumCandidateCount) selected photos on this iPad."
         }
         return "\(imported) display-sized copies are stored on this iPad and ready offline."
     }

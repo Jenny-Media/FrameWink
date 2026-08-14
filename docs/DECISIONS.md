@@ -250,3 +250,20 @@ date; do not silently rewrite historical decisions during implementation.
   than effortless. Literal durations remain easy to compare, while automatic
   responsive composition already has enough context to make the layout choice
   better than a persistent manual override.
+
+## D-025 — Hand-picked collections hold 500 candidates and prepare progressively
+
+- **Decision:** Free individual-photo selection supports a total of 500
+  app-controlled display copies across picker sessions. A first Smart Reel is
+  generated from ten imported candidates while the remaining import continues;
+  later checkpoints refine the result, and the active reel contains up to 100
+  recommendations drawn from the full collection. Import remains sequential,
+  cancellable, storage-guarded, and bounded for older iPads. Paid automatic
+  albums continue to consider their full eligible album. This supersedes only
+  the 100-candidate/30-selection limits in D-005.
+- **Reason:** One hundred photos is unnecessarily restrictive for a long-lived
+  frame and made repeated discovery shallow. A bounded 500-photo collection
+  feels substantially broader without pretending PHPicker copies are free in
+  storage or memory. Progressive preparation preserves a quick first result,
+  while a 100-photo recommendation set provides variety without loading every
+  stored photo into playback at once.

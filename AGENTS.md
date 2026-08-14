@@ -39,8 +39,8 @@ Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
 ### Free Smart Reel
 
 - Clearly labelled bundled sample experience with no permission prompt.
-- Import up to 100 candidates through PHPicker.
-- Generate one local 30-photo Smart Reel.
+- Import up to 500 candidates through PHPicker, enforced across sessions.
+- Generate one local Smart Reel with up to 100 recommendations.
 - Include real curation, near-duplicate suppression, face-safe cropping,
   portrait pairing, fit/fill, tap/swipe navigation, adjustable timing, pause,
   `Never Show Again`, and unlimited replay.

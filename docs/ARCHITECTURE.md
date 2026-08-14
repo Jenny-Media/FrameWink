@@ -37,11 +37,15 @@ transactions, or file URLs.
 
 `PhotoImporting` should:
 
-- Accept up to 100 PHPicker results in free mode.
+- Accept up to 500 PHPicker results in free mode, enforced as a total
+  app-controlled collection rather than a per-picker-session limit.
 - Downsample during decode rather than retaining full-resolution bitmaps.
 - Store display-sized copies in an app-controlled directory.
+- Publish durable checkpoints so a first reel can become usable while a large
+  import continues.
 - Produce stable identifiers and minimal metadata.
-- Support cancellation, partial failure, retry, and delete-all.
+- Support cancellation, partial failure, low-storage interruption, retry, and
+  delete-all.
 
 ### Photo library
 

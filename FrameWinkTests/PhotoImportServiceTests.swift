@@ -166,6 +166,99 @@ final class PhotoImportServiceTests: XCTestCase {
         XCTAssertTrue(try store.loadImportedPhotos().isEmpty)
     }
 
+    @MainActor
+    func testImportPublishesInitialAndFinalProgressiveCheckpoints() async throws {
+        let sourceURL = testRoot.appendingPathComponent("checkpoint-source.jpg")
+        try makeJPEG(at: sourceURL, width: 800, height: 600)
+        let items = (0..<12).map { _ in FileImportItem(sourceURL: sourceURL) }
+        var checkpointCounts: [Int] = []
+
+        let report = await service.importPhotos(
+            from: items,
+            maxPixelDimension: 600,
+            progress: { _ in },
+            checkpoint: { checkpointCounts.append($0.count) }
+        )
+
+        XCTAssertEqual(report.imported.count, 12)
+        XCTAssertEqual(checkpointCounts, [10, 12])
+    }
+
+    func testCollectionLimitAppliesAcrossImportSessions() async throws {
+        let sourceURL = testRoot.appendingPathComponent("capacity-source.jpg")
+        try makeJPEG(at: sourceURL, width: 320, height: 240)
+        try store.prepareDirectories()
+
+        let existing = try (0..<499).map { index -> ImportedPhoto in
+            let id = UUID()
+            let filename = "\(id.uuidString).jpg"
+            try FileManager.default.linkItem(
+                at: sourceURL,
+                to: store.imageURL(filename: filename)
+            )
+            return ImportedPhoto(
+                id: id,
+                filename: filename,
+                pixelWidth: 320,
+                pixelHeight: 240,
+                importedAt: Date(timeIntervalSince1970: Double(index))
+            )
+        }
+        try store.saveImportedPhotos(existing)
+
+        let report = await service.importPhotos(
+            from: [
+                FileImportItem(sourceURL: sourceURL),
+                FileImportItem(sourceURL: sourceURL),
+            ],
+            maxPixelDimension: 320,
+            progress: { _ in }
+        )
+
+        XCTAssertEqual(report.imported.count, 1)
+        XCTAssertEqual(report.limitReachedCount, 1)
+        XCTAssertEqual(try store.loadImportedPhotos().count, 500)
+    }
+
+    func testImportStopsBeforeLowStorageCanFillTheDevice() async throws {
+        let sourceURL = testRoot.appendingPathComponent("storage-source.jpg")
+        try makeJPEG(at: sourceURL, width: 800, height: 600)
+        let item = FileImportItem(sourceURL: sourceURL)
+        let guardedService = PhotoImportService(
+            store: store,
+            downsampler: ImageIODownsampler(),
+            availableStorageBytes: { 0 }
+        )
+
+        let report = await guardedService.importPhotos(
+            from: [item],
+            maxPixelDimension: 600,
+            progress: { _ in }
+        )
+
+        XCTAssertTrue(report.imported.isEmpty)
+        XCTAssertEqual(report.failures.map(\.sourceID), [item.id])
+        XCTAssertEqual(report.remainingSourceIDs, [item.id])
+        XCTAssertTrue(try store.loadImportedPhotos().isEmpty)
+    }
+
+    func testManualCollectionPolicyUsesFiveHundredCandidatesAndOneHundredSelections() {
+        XCTAssertEqual(ManualPhotoCollectionPolicy.maximumCandidateCount, 500)
+        XCTAssertEqual(ManualPhotoCollectionPolicy.maximumReelSelectionCount, 100)
+        XCTAssertEqual(
+            ManualPhotoCollectionPolicy.remainingCapacity(after: 137),
+            363
+        )
+        XCTAssertEqual(
+            ManualPhotoCollectionPolicy.curationCandidateCount(for: 499),
+            250
+        )
+        XCTAssertEqual(
+            ManualPhotoCollectionPolicy.curationCandidateCount(for: 500),
+            500
+        )
+    }
+
     private func makeJPEG(at url: URL, width: Int, height: Int) throws {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let context = try XCTUnwrap(

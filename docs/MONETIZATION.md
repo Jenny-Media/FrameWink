@@ -21,7 +21,7 @@ Show the upgrade after the user has:
 
 The current paywall may promise the implemented Wall Mode behavior:
 
-- Any explicitly selected supported Photos album, without the free 100-candidate
+- Any explicitly selected supported Photos album, without the free 500-candidate
   input limit.
 - Automatic change refresh after a user-initiated PhotoKit authorization flow.
 - On-device display history that reduces long-term repeats.

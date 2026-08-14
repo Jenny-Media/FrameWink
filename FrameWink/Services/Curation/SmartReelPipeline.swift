@@ -65,8 +65,13 @@ final class SmartReelPipeline: SmartReelBuilding {
         progress: @escaping @MainActor (ImportProgress) -> Void
     ) async throws -> SmartReel {
         try await build(
-            candidates: Array(candidates.prefix(100)),
-            maximumSelectionCount: 30,
+            candidates: Array(
+                candidates.prefix(ManualPhotoCollectionPolicy.maximumCandidateCount)
+            ),
+            maximumSelectionCount: min(
+                candidates.count,
+                ManualPhotoCollectionPolicy.maximumReelSelectionCount
+            ),
             imageProvider: imageProvider,
             progress: progress
         )

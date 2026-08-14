@@ -1,6 +1,7 @@
 import SwiftUI
 
 private enum SheetDestination: String, Identifiable {
+    case photos
     case photoPicker
     case albumPicker
     case privacy
@@ -56,7 +57,6 @@ struct RootView: View {
     let initialPresentation: RootInitialPresentation?
 
     @State private var presentedSheet: SheetDestination?
-    @State private var showDeleteConfirmation = false
     @State private var isFrameMode = false
     @State private var didApplyInitialPresentation = false
     @AppStorage("preferredPhotoCollectionMode") private var preferredPhotoMode = ""
@@ -117,7 +117,7 @@ struct RootView: View {
                         chrome(isCompact: isCompact)
                     }
 
-                    if model.importPhase != .idle && !isFrameMode {
+                    if shouldShowImportStatus && !isFrameMode {
                         Color.black.opacity(0.2)
                             .ignoresSafeArea()
                             .transition(.opacity)
@@ -140,8 +140,34 @@ struct RootView: View {
         .framePersistentSystemOverlaysHidden(isFrameMode)
         .sheet(item: $presentedSheet) { destination in
             switch destination {
+            case .photos:
+                PhotosSheet(
+                    model: model,
+                    automaticAlbum: automaticAlbum,
+                    purchases: purchases,
+                    currentPhotoMode: $model.collectionMode,
+                    choosePhotos: {
+                        replacePresentedSheet(with: .photoPicker)
+                    },
+                    chooseAlbum: {
+                        replacePresentedSheet(
+                            with: purchases.isWallModeUnlocked
+                                ? .albumPicker
+                                : .wallModePaywall
+                        )
+                        if purchases.isWallModeUnlocked {
+                            automaticAlbum.requestAccessAndLoadAlbums()
+                        }
+                    },
+                    reviewPersonalPhotos: {
+                        replacePresentedSheet(with: .reviewSuggestions)
+                    },
+                    reviewAutomaticAlbum: {
+                        replacePresentedSheet(with: .automaticAlbumReview)
+                    }
+                )
             case .photoPicker:
-                PhotoPickerView(selectionLimit: 100) { items in
+                PhotoPickerView(selectionLimit: model.remainingPhotoCapacity) { items in
                     model.importSelectedItems(items)
                 }
                 .ignoresSafeArea()
@@ -150,7 +176,11 @@ struct RootView: View {
                     selectPhotoMode(.automaticAlbum)
                 }
             case .privacy:
-                PrivacySheet()
+                PrivacyAndDataSheet(
+                    model: model,
+                    automaticAlbum: automaticAlbum,
+                    currentPhotoMode: $model.collectionMode
+                )
             case .reviewSuggestions:
                 ReviewSuggestionsView(model: model)
             case .automaticAlbumReview:
@@ -158,8 +188,6 @@ struct RootView: View {
             case .frameSettings:
                 WallModeSetupView(
                     wallMode: wallMode,
-                    automaticAlbum: automaticAlbum,
-                    currentPhotoMode: $model.collectionMode,
                     initialSection: initialPresentation.wallModeSetupSection
                 )
             case .wallModePaywall:
@@ -169,16 +197,6 @@ struct RootView: View {
                         == .wallModePaywallPurchase
                 )
             }
-        }
-        .alert("Delete Imported Photos?", isPresented: $showDeleteConfirmation) {
-            Button("Delete All Imported Photos", role: .destructive) {
-                model.deleteImportedPhotos()
-                selectPhotoMode(.samples)
-            }
-            .accessibilityIdentifier("confirm-delete-imported-photos")
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This removes every app-controlled photo copy and its derived records. Your Apple Photos library is never changed.")
         }
         .onChange(of: isFrameMode) { isActive in
             wallMode.setFrameModeActive(isActive)
@@ -239,57 +257,17 @@ struct RootView: View {
 
     private var homeMenu: some View {
         Menu {
-            Section("Photos") {
-                if automaticAlbum.canDisplay {
-                    Button(automaticAlbum.selectedAlbumTitle) {
-                        selectPhotoMode(.automaticAlbum)
-                    }
-                }
-                if !model.importedPhotos.isEmpty {
-                    Button("My Selected Photos") {
-                        selectPhotoMode(.personal)
-                    }
-                }
-                Button("Sample Photos") {
-                    selectPhotoMode(.samples)
-                }
-                Button("Choose an Album…") {
-                    chooseAlbum()
-                }
-                Button(model.importedPhotos.isEmpty ? "Choose Individual Photos…" : "Add Individual Photos…") {
-                    presentedSheet = .photoPicker
-                }
+            Button("Photos…") {
+                presentedSheet = .photos
             }
-
-            if model.collectionMode == .automaticAlbum,
-               automaticAlbum.smartReel != nil {
-                Button("Review Photos") {
-                    presentedSheet = .automaticAlbumReview
-                }
-            } else if model.collectionMode == .personal,
-                      model.smartReel != nil {
-                Button("Review Photos") {
-                    presentedSheet = .reviewSuggestions
-                }
-            }
-
-            Divider()
 
             Button(purchases.isWallModeUnlocked ? "Frame Settings" : "More Frame Features") {
                 presentedSheet = purchases.isWallModeUnlocked
                     ? .frameSettings
                     : .wallModePaywall
             }
-            Button("Privacy") {
+            Button("Privacy & Data") {
                 presentedSheet = .privacy
-            }
-
-            if !model.importedPhotos.isEmpty {
-                Divider()
-                Button("Delete Imported Photos", role: .destructive) {
-                    showDeleteConfirmation = true
-                }
-                .accessibilityIdentifier("delete-imported-photos")
             }
         } label: {
             Image(systemName: "ellipsis.circle.fill")
@@ -399,6 +377,7 @@ struct RootView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.large)
                 .frame(maxWidth: .infinity)
+                .disabled(secondaryActionIsDisabled)
                 .accessibilityIdentifier(
                     model.collectionMode == .automaticAlbum
                         ? "album-picker-action"
@@ -512,12 +491,25 @@ struct RootView: View {
     }
 
     private var curationStatus: String {
+        if model.smartReel != nil {
+            switch model.importPhase {
+            case .importing(let progress):
+                return "\(model.smartReel?.selections.count ?? 0) photos in your reel — adding more (\(progress.completedCount) of \(progress.totalCount))…"
+            case .cancelling:
+                return "Your reel is ready. Stopping after the current photo…"
+            case .idle, .finished, .deletionFailed:
+                break
+            }
+        }
         switch model.curationPhase {
         case .idle:
             return "\(model.importedPhotos.count) photos are ready."
         case .analyzing(let progress):
             return "Finding your best photos — \(progress.completedCount) of \(progress.totalCount)…"
         case .ready(let count):
+            if model.importedPhotos.count > count {
+                return "\(count) photos in your reel from \(model.importedPhotos.count) selected."
+            }
             return count == 1 ? "1 photo is ready." : "\(count) photos are ready."
         case .cancelled:
             return "Photo preparation paused."
@@ -622,6 +614,10 @@ struct RootView: View {
         case .automaticAlbum:
             return automaticAlbum.configuration.isConfigured ? "Change Album" : "Choose Photos"
         case .personal:
+            if model.isImporting { return "Stop Adding" }
+            if !model.canAddPhotos {
+                return "\(ManualPhotoCollectionPolicy.maximumCandidateCount) Photos Added"
+            }
             return "Add Photos"
         case .samples:
             if model.importedPhotos.isEmpty {
@@ -647,6 +643,25 @@ struct RootView: View {
         }
     }
 
+    private var secondaryActionIsDisabled: Bool {
+        model.collectionMode == .personal && !model.isImporting && !model.canAddPhotos
+    }
+
+    private var shouldShowImportStatus: Bool {
+        switch model.importPhase {
+        case .idle:
+            return false
+        case .importing, .cancelling:
+            return model.smartReel == nil
+        case .finished(let report):
+            return report.wasCancelled
+                || !report.failures.isEmpty
+                || report.limitReachedCount > 0
+        case .deletionFailed:
+            return true
+        }
+    }
+
     private func primaryAction() {
         if primaryActionTitle == "Choose an Album" {
             chooseAlbum()
@@ -664,7 +679,11 @@ struct RootView: View {
                 ? chooseAlbum()
                 : (presentedSheet = .photoPicker)
         case .personal:
-            presentedSheet = .photoPicker
+            if model.isImporting {
+                model.cancelImport()
+            } else if model.canAddPhotos {
+                presentedSheet = .photoPicker
+            }
         case .samples:
             if model.importedPhotos.isEmpty {
                 if purchases.isWallModeUnlocked {
@@ -685,6 +704,13 @@ struct RootView: View {
         }
         automaticAlbum.requestAccessAndLoadAlbums()
         presentedSheet = .albumPicker
+    }
+
+    private func replacePresentedSheet(with destination: SheetDestination) {
+        presentedSheet = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            presentedSheet = destination
+        }
     }
 
     private func selectPhotoMode(_ mode: PhotoCollectionMode) {
@@ -822,13 +848,180 @@ private extension Optional where Wrapped == RootInitialPresentation {
     }
 }
 
-private struct PrivacySheet: View {
+private struct PhotosSheet: View {
+    @ObservedObject var model: AppModel
+    @ObservedObject var automaticAlbum: AutomaticAlbumController
+    @ObservedObject var purchases: PurchaseController
+    @Binding var currentPhotoMode: PhotoCollectionMode
     @Environment(\.presentationMode) private var presentationMode
+
+    let choosePhotos: () -> Void
+    let chooseAlbum: () -> Void
+    let reviewPersonalPhotos: () -> Void
+    let reviewAutomaticAlbum: () -> Void
 
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+            List {
+                Section("Your Frame") {
+                    if !model.importedPhotos.isEmpty {
+                        sourceButton(
+                            title: "My Selected Photos",
+                            detail: "\(model.importedPhotos.count) selected on this iPad",
+                            systemImage: "photo.stack",
+                            mode: .personal
+                        )
+                        .accessibilityIdentifier("photo-source-personal")
+                    }
+
+                    if automaticAlbum.configuration.isConfigured {
+                        sourceButton(
+                            title: automaticAlbum.selectedAlbumTitle,
+                            detail: "Updates from the album you chose",
+                            systemImage: "rectangle.stack",
+                            mode: .automaticAlbum
+                        )
+                        .accessibilityIdentifier("photo-source-automatic")
+                    }
+
+                    sourceButton(
+                        title: "Sample Photos",
+                        detail: "Bundled examples with no Photos access",
+                        systemImage: "sparkles",
+                        mode: .samples
+                    )
+                    .accessibilityIdentifier("photo-source-samples")
+                }
+
+                Section("Choose Photos") {
+                    Button(action: choosePhotos) {
+                        Label(
+                            model.importedPhotos.isEmpty ? "Choose Photos" : "Add Photos",
+                            systemImage: "photo.badge.plus"
+                        )
+                    }
+                    .disabled(!model.canAddPhotos || model.isImporting)
+                    .accessibilityIdentifier("choose-photos-action")
+
+                    Text(
+                        "\(model.importedPhotos.count) of \(ManualPhotoCollectionPolicy.maximumCandidateCount) photos selected"
+                    )
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+
+                    Button(action: chooseAlbum) {
+                        Label(
+                            automaticAlbum.configuration.isConfigured
+                                ? "Change Album"
+                                : "Choose an Album",
+                            systemImage: purchases.isWallModeUnlocked
+                                ? "photo.on.rectangle.angled"
+                                : "lock.fill"
+                        )
+                    }
+                    .accessibilityIdentifier("choose-album-action")
+
+                    if !purchases.isWallModeUnlocked {
+                        Text("Automatic album updates are included with FrameWink Lifetime.")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                if canReviewCurrentSource {
+                    Section {
+                        Button("Review Photos", action: reviewCurrentSource)
+                            .accessibilityIdentifier("review-photos-action")
+                    }
+                }
+            }
+            .navigationTitle("Photos")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+            }
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+
+    private var canReviewCurrentSource: Bool {
+        switch currentPhotoMode {
+        case .personal:
+            return model.smartReel != nil
+        case .automaticAlbum:
+            return automaticAlbum.smartReel != nil
+        case .samples:
+            return false
+        }
+    }
+
+    private func reviewCurrentSource() {
+        switch currentPhotoMode {
+        case .personal:
+            reviewPersonalPhotos()
+        case .automaticAlbum:
+            reviewAutomaticAlbum()
+        case .samples:
+            break
+        }
+    }
+
+    private func sourceButton(
+        title: String,
+        detail: String,
+        systemImage: String,
+        mode: PhotoCollectionMode
+    ) -> some View {
+        Button {
+            currentPhotoMode = mode
+            presentationMode.wrappedValue.dismiss()
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: systemImage)
+                    .foregroundColor(.accentColor)
+                    .frame(width: 24)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .foregroundColor(.primary)
+                    Text(detail)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                if currentPhotoMode == mode {
+                    Image(systemName: "checkmark")
+                        .font(.body.weight(.semibold))
+                        .foregroundColor(.accentColor)
+                        .accessibilityHidden(true)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .accessibilityAddTraits(currentPhotoMode == mode ? .isSelected : [])
+    }
+}
+
+private struct PrivacyAndDataSheet: View {
+    @ObservedObject var model: AppModel
+    @ObservedObject var automaticAlbum: AutomaticAlbumController
+    @Binding var currentPhotoMode: PhotoCollectionMode
+    @Environment(\.presentationMode) private var presentationMode
+    @State private var showDeleteImportedConfirmation = false
+    @State private var showDeleteAlbumConfirmation = false
+    @State private var showResetNeverShowConfirmation = false
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section {
+                    VStack(alignment: .leading, spacing: 18) {
                     Image(systemName: "lock.shield.fill")
                         .font(.system(size: 54))
                         .foregroundColor(.accentColor)
@@ -857,11 +1050,36 @@ private struct PrivacySheet: View {
                         title: "Delete whenever you want",
                         detail: "Delete Imported Photos and Remove Downloaded Album Photos erase app-controlled copies and derived records without changing Apple Photos."
                     )
+                    }
+                    .padding(.vertical, 8)
                 }
-                .frame(maxWidth: 640, alignment: .leading)
-                .padding(32)
+
+                Section("Data on This iPad") {
+                    if !model.importedPhotos.isEmpty {
+                        Text(
+                            "\(model.importedPhotos.count) selected photo copies are stored locally."
+                        )
+                        Button("Delete Imported Photos", role: .destructive) {
+                            showDeleteImportedConfirmation = true
+                        }
+                        .accessibilityIdentifier("delete-imported-photos")
+                    } else {
+                        Text("No individually selected photo copies are stored.")
+                            .foregroundColor(.secondary)
+                    }
+
+                    if automaticAlbum.configuration.isConfigured {
+                        Button("Reset Hidden Photos") {
+                            showResetNeverShowConfirmation = true
+                        }
+
+                        Button("Remove Downloaded Album Photos", role: .destructive) {
+                            showDeleteAlbumConfirmation = true
+                        }
+                    }
+                }
             }
-            .navigationTitle("Privacy")
+            .navigationTitle("Privacy & Data")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -872,6 +1090,35 @@ private struct PrivacySheet: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .alert("Delete Imported Photos?", isPresented: $showDeleteImportedConfirmation) {
+            Button("Delete All Imported Photos", role: .destructive) {
+                model.deleteImportedPhotos()
+                currentPhotoMode = .samples
+            }
+            .accessibilityIdentifier("confirm-delete-imported-photos")
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes every app-controlled photo copy and its derived records. Your Apple Photos library is never changed.")
+        }
+        .alert("Remove Downloaded Album Photos?", isPresented: $showDeleteAlbumConfirmation) {
+            Button("Remove Downloads", role: .destructive) {
+                automaticAlbum.deleteCachedAlbum()
+                if currentPhotoMode == .automaticAlbum {
+                    currentPhotoMode = .samples
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes only FrameWink’s copies and analysis. It never changes Apple Photos.")
+        }
+        .alert("Reset Hidden Photos?", isPresented: $showResetNeverShowConfirmation) {
+            Button("Reset") {
+                automaticAlbum.resetNeverShowChoices()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Photos you previously chose to never show may appear again. Apple Photos is unchanged.")
+        }
     }
 
     private func privacyPoint(

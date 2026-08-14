@@ -4,26 +4,18 @@ import UIKit
 
 struct WallModeSetupView: View {
     @ObservedObject var wallMode: WallModeController
-    @ObservedObject var automaticAlbum: AutomaticAlbumController
-    @Binding var currentPhotoMode: PhotoCollectionMode
     @Environment(\.presentationMode) private var presentationMode
     @State private var draft: WallModeConfiguration
     @State private var guidedAccessIsEnabled = UIAccessibility.isGuidedAccessEnabled
-    @State private var showDeleteAlbumConfirmation = false
-    @State private var showResetNeverShowConfirmation = false
     @State private var showMountedTips = false
     @State private var showScheduleTimes = false
     let initialSection: WallModeSetupInitialSection?
 
     init(
         wallMode: WallModeController,
-        automaticAlbum: AutomaticAlbumController,
-        currentPhotoMode: Binding<PhotoCollectionMode>,
         initialSection: WallModeSetupInitialSection? = nil
     ) {
         self.wallMode = wallMode
-        self.automaticAlbum = automaticAlbum
-        _currentPhotoMode = currentPhotoMode
         self.initialSection = initialSection
         _draft = State(initialValue: wallMode.configuration)
         _showScheduleTimes = State(initialValue: initialSection == .schedule)
@@ -38,9 +30,6 @@ struct WallModeSetupView: View {
 
                     mountedTipsSection
                         .id(WallModeSetupInitialSection.checklist)
-
-                    dataAndPrivacySection
-                        .id(WallModeSetupInitialSection.automaticAlbum)
                 }
                 .onAppear {
                     guard let initialSection else { return }
@@ -63,31 +52,6 @@ struct WallModeSetupView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .alert(
-            "Remove Downloaded Album Photos?",
-            isPresented: $showDeleteAlbumConfirmation
-        ) {
-            Button("Remove Downloads", role: .destructive) {
-                automaticAlbum.deleteCachedAlbum()
-                if currentPhotoMode == .automaticAlbum {
-                    currentPhotoMode = .samples
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This removes only FrameWink’s copies and analysis. It never changes Apple Photos.")
-        }
-        .alert(
-            "Reset Hidden Photos?",
-            isPresented: $showResetNeverShowConfirmation
-        ) {
-            Button("Reset") {
-                automaticAlbum.resetNeverShowChoices()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Photos you previously chose to never show may appear again. Apple Photos is unchanged.")
-        }
         .onAppear {
             guidedAccessIsEnabled = UIAccessibility.isGuidedAccessEnabled
         }
@@ -133,6 +97,11 @@ struct WallModeSetupView: View {
             Text("The night schedule applies while FrameWink is open. It cannot relaunch the app after an iPad restart.")
                 .font(.footnote)
                 .foregroundColor(.secondary)
+
+            if let error = wallMode.configurationError {
+                Label(error, systemImage: "exclamationmark.triangle.fill")
+                    .foregroundColor(.orange)
+            }
         }
     }
 
@@ -165,29 +134,6 @@ struct WallModeSetupView: View {
                     "After an iPad restart, open FrameWink and start the frame again.",
                     systemImage: "arrow.clockwise"
                 )
-            }
-        }
-    }
-
-    private var dataAndPrivacySection: some View {
-        Section("Data & Privacy") {
-            Text("FrameWink keeps photo preparation and display on this iPad and never changes your Apple Photos library.")
-                .font(.footnote)
-                .foregroundColor(.secondary)
-
-            if automaticAlbum.configuration.isConfigured {
-                Button("Reset Hidden Photos") {
-                    showResetNeverShowConfirmation = true
-                }
-
-                Button("Remove Downloaded Album Photos", role: .destructive) {
-                    showDeleteAlbumConfirmation = true
-                }
-            }
-
-            if let error = wallMode.configurationError {
-                Label(error, systemImage: "exclamationmark.triangle.fill")
-                    .foregroundColor(.orange)
             }
         }
     }

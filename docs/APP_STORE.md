@@ -59,7 +59,7 @@ filters hidden photos and screenshots, and never edits the Photos library.
 FrameWink stores display-sized copies, local curation records, and local display
 history in its private app container. Photo copies, automatic-album cache data,
 and derived curation data are excluded from device backup. `Delete Imported
-Photos` and `Delete Automatic Album Cache` remove the corresponding
+Photos` and `Remove Downloaded Album Photos` remove the corresponding
 app-controlled copies and derived records without deleting or changing the
 originals in Apple Photos.
 Apple Photos may download an iCloud item when an automatic album needs it; that
@@ -79,8 +79,9 @@ support endpoint. Privacy questions and support mail go to
 FrameWink is iPad-only and requires iPadOS 15 or later.
 
 On first launch, the app immediately shows three bundled example photos and does
-not request Photos authorization. `Choose Photos` opens Apple's PHPicker with
-a 100-item limit. The target includes `NSPhotoLibraryUsageDescription`, but the
+not request Photos authorization. `Choose Photos` opens Apple's PHPicker for a
+total collection of up to 500 items. The target includes
+`NSPhotoLibraryUsageDescription`, but the
 full PhotoKit prompt appears only after a verified FrameWink Lifetime entitlement and the
 user taps `Choose an Album`. Display-sized copies and all analysis remain
 in the app container. The app suppresses iOS's automatic Limited-access alert so
@@ -93,7 +94,7 @@ timing, pause/navigation, unlimited replay, and Delete Imported Photos.
 To review the non-consumable purchase, open `More Frame Features` from the main
 screen. The FrameWink Lifetime paywall includes `Restore Purchases`. A verified entitlement
 unlocks automatic refresh for an explicitly selected Photos album, curation of
-all eligible album candidates without the free 100-candidate input limit,
+all eligible album candidates without the free 500-candidate input limit,
 long-term repeat reduction, automatic Mosaic composition when appropriate, a
 persisted active source/timing state, foreground-only Auto-Lock prevention,
 visual dim/blackout schedules, and mounted-iPad guidance.

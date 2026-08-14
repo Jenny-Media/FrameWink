@@ -162,7 +162,7 @@ enum FrameMotionSafety {
         placement: FrameLayoutPlacement,
         importantRects: [NormalizedRect]
     ) -> Bool {
-        guard placement.contentMode == .crop, state.scale >= 1 else { return false }
+        guard state.scale >= 1 else { return false }
         let maximumOffset = (state.scale - 1) / 2
         let tolerance = 0.000_001
         guard abs(state.offsetX) <= maximumOffset + tolerance,
@@ -174,7 +174,18 @@ enum FrameMotionSafety {
             .filter { $0.width > 0 && $0.height > 0 }
         guard !protectedRects.isEmpty else { return true }
 
-        let crop = placement.sourceCrop
+        let crop: NormalizedRect
+        switch placement.contentMode {
+        case .crop:
+            crop = placement.sourceCrop
+        case .fit:
+            guard abs(state.offsetX) <= tolerance,
+                  abs(state.offsetY) <= tolerance,
+                  state.scale <= 1.04 + tolerance else {
+                return false
+            }
+            crop = .unit
+        }
         let visibleWidth = crop.width / state.scale
         let visibleHeight = crop.height / state.scale
         let visibleCrop = NormalizedRect(
@@ -212,7 +223,13 @@ enum FramePhotoMotionPlanner {
         importantRects: [NormalizedRect],
         preferredMaximumScale: Double = 1.07
     ) -> FramePhotoMotionPlan? {
-        guard placement.contentMode == .crop else { return nil }
+        if placement.contentMode == .fit {
+            return fitPlan(
+                photoID: photoID,
+                placement: placement,
+                importantRects: importantRects
+            )
+        }
 
         let scaleCandidates = [
             min(max(preferredMaximumScale, 1.04), 1.07),
@@ -238,6 +255,32 @@ enum FramePhotoMotionPlanner {
                     return candidate
                 }
             }
+        }
+        return nil
+    }
+
+    private static func fitPlan(
+        photoID: String,
+        placement: FrameLayoutPlacement,
+        importantRects: [NormalizedRect]
+    ) -> FramePhotoMotionPlan? {
+        let centered = FramePhotoMotionState(scale: 1, offsetX: 0, offsetY: 0)
+        for scale in [1.035, 1.025] {
+            let zoomed = FramePhotoMotionState(scale: scale, offsetX: 0, offsetY: 0)
+            guard FrameMotionSafety.canApply(
+                state: centered,
+                placement: placement,
+                importantRects: importantRects
+            ), FrameMotionSafety.canApply(
+                state: zoomed,
+                placement: placement,
+                importantRects: importantRects
+            ) else {
+                continue
+            }
+            return stableHash(photoID).isMultiple(of: 2)
+                ? FramePhotoMotionPlan(start: centered, end: zoomed)
+                : FramePhotoMotionPlan(start: zoomed, end: centered)
         }
         return nil
     }

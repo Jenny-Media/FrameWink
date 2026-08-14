@@ -68,7 +68,7 @@ struct WallModePaywallView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Free Smart Reel stays fully useful")
                                 .font(.headline)
-                            Text("The free experience keeps full-quality local curation, up to 100 imported candidates, one 30-photo reel, review and Never Show Again, face-safe automatic layouts, portrait pairing, timing, pause, navigation, and unlimited replay. StoreKit problems never disable it.")
+                            Text("The free experience keeps full-quality local curation, up to 500 selected photos, a Smart Reel with up to 100 recommendations, review and Never Show Again, face-safe automatic layouts, portrait pairing, timing, pause, navigation, and unlimited replay. StoreKit problems never disable it.")
                                 .foregroundColor(.secondary)
                         }
 

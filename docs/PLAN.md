@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 13.5 h | Implementation complete — physical/cloud validation pending |
-| **Total** | **40 h** | **36.5 h** | **In progress** |
+| 6. Hardening and release | 8 h | 16.5 h | Implementation complete — physical/cloud validation pending |
+| **Total** | **40 h** | **39.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -37,7 +37,9 @@ as an archivable app product, and the app installs and launches on the iOS 27
 
 - [x] First launch is implemented as a polished sample experience without Photos access.
 - [x] Sample photos are clearly labelled as examples.
-- [x] PHPicker supports selecting up to 100 personal candidates.
+- [x] PHPicker supports selecting up to 500 personal candidates across sessions.
+- [x] A first reel becomes playable from ten imports while later checkpoints
+      refine up to 100 recommendations without replacing it with samples.
 - [x] Imports are downsampled to display-appropriate local copies.
 - [x] Import progress, cancellation, partial failure, and retry are implemented.
 - [x] `Delete Imported Photos` removes files and derived records.
@@ -96,9 +98,11 @@ blockers to the pure frame engine.
 - [x] Algorithm revision is persisted with cached scores.
 - [x] Ranking is deterministic under test.
 
-Acceptance: 100 candidates produce a 30-photo reel in under 30 seconds on the
-oldest target device, duplicate suppression exceeds 90% in fixtures, and at
-least 80% of a small human-labelled evaluation set is considered displayable.
+Acceptance: the first ten candidates produce a playable reel in under 30
+seconds on the oldest target device, a 500-candidate import completes without
+exceeding the memory gate, duplicate suppression exceeds 90% in fixtures, and
+at least 80% of a small human-labelled evaluation set is considered
+displayable.
 
 Status: implementation complete; physical acceptance remains open. The pure
 100-candidate fixture selects 30 photos in under one second and the bounded
@@ -174,7 +178,7 @@ enabled.
 ## Milestone 6 — Hardening and release
 
 - [ ] Test on the oldest supported 2 GB target and one current iPad.
-- [ ] Peak memory during 100-photo import/analysis is below approximately 300 MB.
+- [ ] Peak memory during 500-photo import/analysis is below approximately 300 MB.
 - [ ] No visible slideshow hitching while background analysis is active.
 - [x] Accessibility labels, Dynamic Type where appropriate, contrast, and Reduce
       Motion are reviewed.
@@ -609,6 +613,31 @@ visually checked; the obsolete saved-configuration asset is replaced by the
 literal timing panel. The signed Debug acceptance build installed on both
 physical iPads, but both were locked and refused only the foreground launch.
 Active work for this refinement was approximately 1.25 hours.
+
+The hand-picked collection refinement raises the cumulative PHPicker boundary
+to 500 display-sized local copies, produces a first playable reel from ten,
+and refines the active result at bounded checkpoints to at most 100
+recommendations. The simplified home menu now routes source selection, picker
+import, and review through one **Photos** sheet; destructive app-data controls
+live under **Privacy & Data**. Frame Controls applies a **Photo Duration** tap
+immediately, manual swipes follow the finger and transition directionally, and
+safe Fit images receive restrained deterministic zoom without bypassing Reduce
+Motion or resize suspension. Unsplash is not integrated: personal images remain
+an explicit system-picker choice, and bundled examples remain project-owned or
+licensed.
+
+The final iOS 27 `iPad (A16)` Simulator scheme passes 166 tests with four
+intentional physical-PhotoKit skips and zero failures out of 170 total. The
+same two private iOS 27 UIKit context-menu hierarchy warnings remain. The
+unsigned generic iPadOS Release build, static analysis, ten-screenshot
+validation, and archive-mode Xcode Cloud guard all pass. Active work for this
+refinement was approximately 3 hours. B-022 records the final device-state
+boundary: the signed build installed over existing data on the physical iPad
+Pro, but its locked screen refused only the foreground launch; the paired iPad
+mini 6 was not reachable and therefore could not receive this exact build.
+Wake and unlock either device, then rerun its `prepare` command. Large real
+PHPicker selection, low-storage behavior, first-ten latency, Fit motion with
+Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ## Timebox rule
 

@@ -30,6 +30,7 @@ struct SampleSlideshowView: View {
     @State private var sharePreparationCount = 0
     @State private var shareTask: Task<Void, Never>?
     @State private var sharedPhotos: SharedFramePhotos?
+    @GestureState private var interactiveDragOffset: CGFloat = 0
     @StateObject private var imageCache = DisplayImageCache()
 
     private let layoutChooser = FrameLayoutChooser()
@@ -56,6 +57,11 @@ struct SampleSlideshowView: View {
                 if let page = activePage(in: pages) {
                     framePage(page, slidesByID: slidesByID)
                         .id(page.id)
+                        .offset(
+                            x: reduceMotion || playback.isInteractingWithResize
+                                ? 0
+                                : interactiveDragOffset
+                        )
                         .transition(
                             reduceMotion || playback.isInteractingWithResize
                                 ? .identity
@@ -385,6 +391,12 @@ struct SampleSlideshowView: View {
             }
             .simultaneousGesture(
                 DragGesture(minimumDistance: 30)
+                    .updating($interactiveDragOffset) { value, offset, _ in
+                        guard abs(value.translation.width) > abs(value.translation.height) else {
+                            return
+                        }
+                        offset = value.translation.width
+                    }
                     .onEnded { value in
                         navigate(
                             with: value,
@@ -420,6 +432,12 @@ struct SampleSlideshowView: View {
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 30)
+                    .updating($interactiveDragOffset) { value, offset, _ in
+                        guard abs(value.translation.width) > abs(value.translation.height) else {
+                            return
+                        }
+                        offset = value.translation.width
+                    }
                     .onEnded { value in
                         navigate(
                             with: value,
@@ -840,6 +858,22 @@ private struct FrameControlsPanel: View {
     let selectInterval: (TimeInterval) -> Void
     let share: ([DisplaySlide]) -> Void
     let dismiss: () -> Void
+    @State private var selectedInterval: TimeInterval
+
+    init(
+        interval: TimeInterval,
+        slides: [DisplaySlide],
+        selectInterval: @escaping (TimeInterval) -> Void,
+        share: @escaping ([DisplaySlide]) -> Void,
+        dismiss: @escaping () -> Void
+    ) {
+        self.interval = interval
+        self.slides = slides
+        self.selectInterval = selectInterval
+        self.share = share
+        self.dismiss = dismiss
+        _selectedInterval = State(initialValue: interval)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -860,14 +894,15 @@ private struct FrameControlsPanel: View {
                 .accessibilityIdentifier("close-frame-controls")
             }
 
-            controlSection(title: "Change Photo Every") {
+            controlSection(title: "Photo Duration") {
                 selectionGrid(columns: 4) {
                     ForEach(FramePlaybackTiming.availableIntervals, id: \.self) { candidate in
                         selectionButton(
                             title: FramePlaybackTiming.title(for: candidate),
-                            isSelected: interval == candidate,
+                            isSelected: selectedInterval == candidate,
                             accessibilityIdentifier: "frame-speed-\(Int(candidate))"
                         ) {
+                            selectedInterval = candidate
                             selectInterval(candidate)
                         }
                     }
@@ -905,6 +940,9 @@ private struct FrameControlsPanel: View {
         .frame(idealWidth: 410, maxWidth: 460, alignment: .leading)
         .foregroundColor(.primary)
         .background(Color(uiColor: .systemBackground))
+        .onChange(of: interval) { newInterval in
+            selectedInterval = newInterval
+        }
     }
 
     @ViewBuilder
@@ -1014,49 +1052,16 @@ private enum FramePageTransitionDirection {
         case .dissolve:
             return .opacity
         case .forward:
-            return directional(insertionOffset: 32, removalOffset: -32)
-        case .backward:
-            return directional(insertionOffset: -32, removalOffset: 32)
-        }
-    }
-
-    private func directional(
-        insertionOffset: CGFloat,
-        removalOffset: CGFloat
-    ) -> AnyTransition {
-        .asymmetric(
-            insertion: .modifier(
-                active: FramePageTransitionModifier(
-                    opacity: 0,
-                    horizontalOffset: insertionOffset
-                ),
-                identity: FramePageTransitionModifier(
-                    opacity: 1,
-                    horizontalOffset: 0
-                )
-            ),
-            removal: .modifier(
-                active: FramePageTransitionModifier(
-                    opacity: 0,
-                    horizontalOffset: removalOffset
-                ),
-                identity: FramePageTransitionModifier(
-                    opacity: 1,
-                    horizontalOffset: 0
-                )
+            return .asymmetric(
+                insertion: .move(edge: .trailing).combined(with: .opacity),
+                removal: .move(edge: .leading).combined(with: .opacity)
             )
-        )
-    }
-}
-
-private struct FramePageTransitionModifier: ViewModifier {
-    let opacity: Double
-    let horizontalOffset: CGFloat
-
-    func body(content: Content) -> some View {
-        content
-            .opacity(opacity)
-            .offset(x: horizontalOffset)
+        case .backward:
+            return .asymmetric(
+                insertion: .move(edge: .leading).combined(with: .opacity),
+                removal: .move(edge: .trailing).combined(with: .opacity)
+            )
+        }
     }
 }
 

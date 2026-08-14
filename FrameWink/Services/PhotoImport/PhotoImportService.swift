@@ -5,15 +5,18 @@ final class PhotoImportService: PhotoImporting {
     private let store: ImportedPhotoStoring
     private let downsampler: ImageDownsampling
     private let now: () -> Date
+    private let availableStorageBytes: () -> Int64?
 
     init(
         store: ImportedPhotoStoring,
         downsampler: ImageDownsampling,
-        now: @escaping () -> Date = Date.init
+        now: @escaping () -> Date = Date.init,
+        availableStorageBytes: @escaping () -> Int64? = PhotoImportService.systemAvailableStorageBytes
     ) {
         self.store = store
         self.downsampler = downsampler
         self.now = now
+        self.availableStorageBytes = availableStorageBytes
     }
 
     func loadImportedPhotos() throws -> [ImportedPhoto] {
@@ -23,16 +26,14 @@ final class PhotoImportService: PhotoImporting {
     func importPhotos(
         from items: [PhotoImportItem],
         maxPixelDimension: Int = 2_560,
-        progress: @escaping @MainActor (ImportProgress) -> Void
+        progress: @escaping @MainActor (ImportProgress) -> Void,
+        checkpoint: @escaping @MainActor ([ImportedPhoto]) -> Void = { _ in }
     ) async -> PhotoImportReport {
-        let selectedItems = Array(items.prefix(100))
-        await progress(ImportProgress(completedCount: 0, totalCount: selectedItems.count))
-
         let storedPhotos: [ImportedPhoto]
         do {
             storedPhotos = try store.loadImportedPhotos()
         } catch {
-            let failures = selectedItems.map {
+            let failures = items.map {
                 PhotoImportFailure(sourceID: $0.id, message: error.localizedDescription)
             }
             return PhotoImportReport(
@@ -43,16 +44,37 @@ final class PhotoImportService: PhotoImporting {
             )
         }
 
+        let remainingCapacity = ManualPhotoCollectionPolicy.remainingCapacity(
+            after: storedPhotos.count
+        )
+        let selectedItems = Array(items.prefix(remainingCapacity))
+        let limitReachedCount = max(items.count - selectedItems.count, 0)
+        await progress(ImportProgress(completedCount: 0, totalCount: selectedItems.count))
+
+        guard !selectedItems.isEmpty else {
+            return PhotoImportReport(
+                imported: [],
+                failures: [],
+                remainingSourceIDs: [],
+                wasCancelled: false,
+                limitReachedCount: limitReachedCount
+            )
+        }
+
         var allPhotos = storedPhotos
         var importedPhotos: [ImportedPhoto] = []
         var failures: [PhotoImportFailure] = []
         var remainingSourceIDs: [UUID] = []
         var completedCount = 0
         var wasCancelled = false
+        var lastCheckpointCount = storedPhotos.count
 
         for (index, item) in selectedItems.enumerated() {
             do {
                 try Task.checkCancellation()
+                guard hasStorageHeadroom else {
+                    throw PhotoImportServiceError.insufficientStorage
+                }
                 let loadedFile = try await item.loadFile()
                 defer { loadedFile.cleanup() }
 
@@ -97,8 +119,26 @@ final class PhotoImportService: PhotoImporting {
 
                 allPhotos = updatedPhotos
                 importedPhotos.append(photo)
+
+                if ManualPhotoCollectionPolicy.shouldPublishCheckpoint(
+                    previousCount: lastCheckpointCount,
+                    currentCount: allPhotos.count,
+                    isFinal: false
+                ) {
+                    lastCheckpointCount = allPhotos.count
+                    await checkpoint(allPhotos)
+                }
             } catch is CancellationError {
                 wasCancelled = true
+                remainingSourceIDs = selectedItems[index...].map(\.id)
+                break
+            } catch PhotoImportServiceError.insufficientStorage {
+                failures.append(
+                    PhotoImportFailure(
+                        sourceID: item.id,
+                        message: PhotoImportServiceError.insufficientStorage.localizedDescription
+                    )
+                )
                 remainingSourceIDs = selectedItems[index...].map(\.id)
                 break
             } catch {
@@ -113,11 +153,20 @@ final class PhotoImportService: PhotoImporting {
             )
         }
 
+        if ManualPhotoCollectionPolicy.shouldPublishCheckpoint(
+            previousCount: lastCheckpointCount,
+            currentCount: allPhotos.count,
+            isFinal: true
+        ) {
+            await checkpoint(allPhotos)
+        }
+
         return PhotoImportReport(
             imported: importedPhotos,
             failures: failures,
             remainingSourceIDs: remainingSourceIDs,
-            wasCancelled: wasCancelled
+            wasCancelled: wasCancelled,
+            limitReachedCount: limitReachedCount
         )
     }
 
@@ -142,5 +191,25 @@ final class PhotoImportService: PhotoImporting {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
         return formatter.date(from: value)
+    }
+
+    private var hasStorageHeadroom: Bool {
+        guard let available = availableStorageBytes() else { return true }
+        return available >= ManualPhotoCollectionPolicy.minimumFreeStorageBytes
+    }
+
+    private static func systemAvailableStorageBytes() -> Int64? {
+        let attributes = try? FileManager.default.attributesOfFileSystem(
+            forPath: NSHomeDirectory()
+        )
+        return (attributes?[.systemFreeSize] as? NSNumber)?.int64Value
+    }
+}
+
+private enum PhotoImportServiceError: LocalizedError {
+    case insufficientStorage
+
+    var errorDescription: String? {
+        "FrameWink paused before the iPad ran low on storage. Free some space, then resume the import."
     }
 }
