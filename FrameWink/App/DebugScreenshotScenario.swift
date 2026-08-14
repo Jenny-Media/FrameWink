@@ -251,7 +251,7 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
             id: ProductConfiguration.productionWallModeProductID,
             displayName: "FrameWink Lifetime",
             description: "One-time FrameWink feature unlock",
-            displayPrice: "$9.99",
+            displayPrice: "$4.99",
             isFamilyShareable: true
         )
     }

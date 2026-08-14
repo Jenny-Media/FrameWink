@@ -963,6 +963,51 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Active implementation, deployment, and validation time is approximately 2.1
   hours.
 
+### Permanent price and website review — 2026-08-14
+
+- Status: implementation and production-price update complete; one submitted
+  metadata correction remains externally gated. The owner selected and
+  confirmed a permanent $4.99 U.S. base price for
+  FrameWink Lifetime while preserving the existing feature boundary and Family
+  Sharing. App Store Connect now reports $4.99 in the United States, $4.24
+  proceeds, and comparable prices across all 175 storefronts. The StoreKit
+  catalog, deterministic purchase fixtures, product and distribution
+  documentation, public website, and website regression tests use that price.
+  Historical records of the former $9.99 plan remain intact.
+- Local validation passes: the targeted 16-test purchase and StoreKit suite on
+  both iPhone 17 Pro Max and iPad (A16) Simulators, six website tests, ESLint, the
+  six-route static production build, `npm audit` with zero known
+  vulnerabilities, and diff hygiene. The StoreKit transaction-update warnings
+  in three direct StoreKitTest cases are unchanged test-harness warnings.
+- The Xcode target now resolves
+  `SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO` in Debug and Release. Xcode
+  destinations no longer contain an eligible compatible Vision Pro target, and
+  the Xcode Cloud archive guard fails closed unless both Mac and Vision Pro
+  compatibility switches remain disabled.
+- All ten iPhone, ten iPad, eleven source-QA, and the private IAP review
+  screenshot in the repository were regenerated from the current `$4.99`
+  source state. `scripts/validate_app_store_assets.sh` passes, and contact-sheet
+  inspection confirms distinct, populated screens. App Store Connect's already
+  submitted galleries and private review image retain the former amount until
+  Apple makes the submission editable.
+- Three independent read-only website reviews covered visual quality,
+  conversion/messaging, and accessibility/interaction. Their shared highest
+  priorities were implemented: price and product-boundary accuracy, WCAG
+  contrast and focus visibility, a working keyboard skip target, compact
+  navigation, a hero launch CTA, shorter mobile FAQ pacing, 44-point touch
+  targets, plain product language, route-specific metadata, image placeholders,
+  and restrained motion that respects Reduce Motion. No launch-blocking visual
+  or conversion finding remains; a broader future image set is optional polish.
+- Production deployment `dpl_9HTSp5UmemJfy3WTT1wU3LFg8Bfk` reached `Ready`
+  and is aliased to `https://frame.jenny.media`. The canonical Home, Privacy,
+  Support, and Terms routes return HTTP 200; the live homepage contains `$4.99`
+  and no `$9.99`. Final keyboard verification confirms the header availability
+  link moves focus to the callout and the next Tab reaches its email action.
+- The submitted version 1.0 description still says `$9.99`. Changing and saving
+  public App Store metadata is a separate external communication and awaits the
+  owner's action-time confirmation. It does not block the local source, website
+  deployment, or release-guard work. Active work is approximately 1.6 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

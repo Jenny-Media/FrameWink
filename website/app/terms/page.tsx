@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "../siteMetadata";
 
-export const metadata: Metadata = {
-  title: "Terms & Purchase Information",
-  description: "FrameWink licensing, purchase, availability, and support information.",
-};
+export const metadata = pageMetadata(
+  "Terms & Purchase Information",
+  "FrameWink licensing, purchase, availability, and support information.",
+  "/terms",
+);
 
 export default function TermsPage() {
   return (
-    <main className="document-page" id="main-content">
+    <main className="document-page" id="main-content" tabIndex={-1}>
       <header className="document-hero">
         <p className="section-kicker">Effective August 14, 2026</p>
         <h1>Terms &amp; Purchase Information</h1>
@@ -26,14 +27,14 @@ export default function TermsPage() {
           <h2>Free Smart Reel</h2>
           <p>
             The free experience includes bundled sample photos and one local Smart Reel created from up to
-            500 imported candidates, with up to 100 recommendations. It has no watermark, advertisements,
+            500 selected photos, with up to 100 highlights. It has no watermark, advertisements,
             forced trial countdown, or subscription.
           </p>
         </section>
         <section>
           <h2>FrameWink Lifetime</h2>
           <p>
-            FrameWink Lifetime is a non-consumable in-app purchase planned at $9.99 in the United States.
+            FrameWink Lifetime is a $4.99 non-consumable in-app purchase in the United States.
             Local price and tax may differ by storefront. It unlocks paid features for the Apple Account
             recognized by StoreKit and supports Family Sharing where Apple makes that entitlement available.
           </p>

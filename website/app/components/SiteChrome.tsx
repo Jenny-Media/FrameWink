@@ -1,7 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function SiteHeader() {
+  const pathname = usePathname();
+
   return (
     <header className="site-header">
       <a className="skip-link" href="#main-content">
@@ -12,16 +17,20 @@ export function SiteHeader() {
         <span>FrameWink</span>
       </Link>
       <nav aria-label="Main navigation">
-        <Link href="/#features">Features</Link>
-        <Link href="/privacy">Privacy</Link>
-        <Link href="/support">Support</Link>
-        <span className="review-pill">In App Review</span>
+        <Link className="features-link" href="/#features">Features</Link>
+        <Link href="/privacy" aria-current={pathname === "/privacy" ? "page" : undefined}>Privacy</Link>
+        <Link href="/support" aria-current={pathname === "/support" ? "page" : undefined}>Support</Link>
+        {/* Native hash navigation transfers keyboard focus to the focusable target. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a className="review-pill" href="/#availability">In App Review</a>
       </nav>
     </header>
   );
 }
 
 export function SiteFooter() {
+  const pathname = usePathname();
+
   return (
     <footer className="site-footer">
       <div className="footer-brand">
@@ -32,9 +41,9 @@ export function SiteFooter() {
         </div>
       </div>
       <nav aria-label="Footer navigation">
-        <Link href="/privacy">Privacy</Link>
-        <Link href="/support">Support</Link>
-        <Link href="/terms">Terms</Link>
+        <Link href="/privacy" aria-current={pathname === "/privacy" ? "page" : undefined}>Privacy</Link>
+        <Link href="/support" aria-current={pathname === "/support" ? "page" : undefined}>Support</Link>
+        <Link href="/terms" aria-current={pathname === "/terms" ? "page" : undefined}>Terms</Link>
         <a href="https://github.com/Jenny-Media/FrameWink">GitHub</a>
       </nav>
       <p>© 2026 Jenny Media LLC. FrameWink supports iPhone and iPad only.</p>

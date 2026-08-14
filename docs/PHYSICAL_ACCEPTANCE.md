@@ -144,7 +144,7 @@ the release gate should use the exact TestFlight binary.
 3. Follow Apple's current TestFlight sandbox sign-in instructions on the device.
    Keep credentials in Apple's UI; never place them in scripts, Git, or Codex
    output.
-4. Open **More Frame Features** and confirm `FrameWink Lifetime`, `$9.99`, the
+4. Open **More Frame Features** and confirm `FrameWink Lifetime`, `$4.99`, the
    one-time-purchase wording, and Family Sharing metadata. Complete the sandbox
    purchase and verify the paid frame features unlock. No real charge should occur in
    sandbox.

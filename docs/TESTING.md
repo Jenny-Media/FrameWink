@@ -1586,3 +1586,49 @@ explicit owner approval.
   explicit skips, and zero failures. Every worker's `test-without-building`
   command succeeded. This closes the cloud validation gate without weakening
   local StoreKit runtime coverage.
+
+## Permanent price, platform bridge, and website verification — 2026-08-14
+
+- App Store Connect's confirmed product view reports the permanent U.S. price
+  as `$4.99`, proceeds as `$4.24`, comparable prices across all 175 storefronts,
+  Family Sharing enabled, and the IAP still `Waiting for Review`.
+- Focused iPhone command:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  test -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE'
+  -derivedDataPath /tmp/framewink-final-iphone
+  -only-testing:FrameWinkTests/PurchaseControllerTests
+  -only-testing:FrameWinkTests/StoreKitConfigurationTests`. Result: 16 passed,
+  zero failed.
+- The same focused command on iPad (A16) destination
+  `B3A8D8D4-D576-4245-A0EC-ED914C0C744F`, using derived data
+  `/tmp/framewink-final-ipad`, also passed all 16 tests with zero failures.
+  Three direct StoreKitTest purchases retain the known transaction-listener
+  test-harness warning; FrameWink itself installs its transaction listener at
+  launch. Xcode's post-success `simctl` diagnostic remains non-failing cleanup
+  noise.
+- Resolved Release settings are `SUPPORTED_PLATFORMS = iphoneos
+  iphonesimulator`, `TARGETED_DEVICE_FAMILY = 1,2`,
+  `SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO`, and
+  `SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO`. The archive-mode command
+  `CI_XCODEBUILD_ACTION=archive
+  DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+  ci_scripts/ci_pre_xcodebuild.sh` passes and now guards both compatibility
+  settings. `xcodebuild -showdestinations` exposes no eligible compatible Mac
+  or Vision Pro destination.
+- The iPhone, iPad, source-QA, and private IAP review images were regenerated
+  from the current `$4.99` source state. The three capture scripts completed,
+  contact-sheet inspection passed, and
+  `scripts/validate_app_store_assets.sh` reports every required count,
+  dimension, alpha, and uniqueness check valid.
+- Website verification covers six Node regression tests, ESLint, a successful
+  static Next.js production build, and `npm audit --audit-level=moderate` with
+  zero known vulnerabilities. Independent visual, conversion, and
+  accessibility reviews found no launch blocker after the fixes. Browser smoke
+  checks cover the keyboard skip target, FAQ behavior, responsive navigation,
+  `$4.99` rendering, and route metadata.
+- Vercel production deployment `dpl_9HTSp5UmemJfy3WTT1wU3LFg8Bfk` reached
+  `Ready` and aliases `https://frame.jenny.media`. Live Home, Privacy, Support,
+  and Terms requests return HTTP 200. Rendered production HTML contains `$4.99`
+  but not `$9.99`, preserves each route's canonical URL, omits homepage social
+  artwork from detail routes, and exposes a focusable `#availability` target.

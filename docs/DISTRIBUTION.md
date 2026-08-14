@@ -614,7 +614,7 @@ blocker affects only a later boundary.
   selection is awaiting Apple's DSA contact verification; B-024 records the
   remaining verification and certification before EU submission.
 - The app is free in all 175 current regions and configured for all future
-  regions; Wall Mode remains a separate $9.99 lifetime IAP whose all-region
+  regions; FrameWink Lifetime is a separate $4.99 lifetime IAP whose all-region
   storefront availability is saved. Public Apple-silicon Mac and Apple Vision
   Pro availability are disabled because FrameWink supports iPhone and iPad
   only. Both corresponding platform-testing options are also `Not Available`

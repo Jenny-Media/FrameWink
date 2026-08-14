@@ -40,7 +40,7 @@ rebuild the broader eleven-image source library in `iPad/`. The 1640 x 2360 PNGs
 remain useful for design iteration, but the 13-inch set above is the upload set.
 
 The capture path is intentionally Debug-only. It uses project-owned bundled
-sample photos, a deterministic local `$9.99` product presentation, and a fake
+sample photos, a deterministic local `$4.99` product presentation, and a fake
 authorized `Family Favorites` album backed by the same bundled images. It never
 opens the system picker, changes Photos permissions, edits Apple Photos, or
 grants a production entitlement. Release builds ignore the screenshot launch
@@ -51,7 +51,7 @@ The source library covers:
 1. Free first-launch Sample Photos with no permission prompt.
 2. Free full-screen Frame Mode controls.
 3. Paid Wall Mode capabilities.
-4. The one-time `$9.99` purchase and Restore Purchases.
+4. The one-time `$4.99` purchase and Restore Purchases.
 5. Paid progressive automatic-album selection.
 6. Paid literal timing choices and scene sharing.
 7. Paid foreground-only dimming and blackout schedule.

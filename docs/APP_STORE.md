@@ -102,7 +102,7 @@ Description:
 >
 > FRAMEWINK LIFETIME
 >
-> A single $9.99 purchase unlocks automatic refresh from one Photos album you explicitly choose, an unlimited supported-album candidate pool, fresher recommendations with longer-term repeat avoidance, additional automatic multi-photo layouts, optional night schedules, foreground Auto-Lock prevention while the frame plays, and practical mounted-display guidance. Family Sharing is supported where available from Apple.
+> A single $4.99 purchase unlocks automatic refresh from one Photos album you explicitly choose, an unlimited supported-album candidate pool, fresher recommendations with longer-term repeat avoidance, additional automatic multi-photo layouts, optional night schedules, foreground Auto-Lock prevention while the frame plays, and practical mounted-display guidance. Family Sharing is supported where available from Apple.
 >
 > PRIVATE BY DESIGN
 >
@@ -159,10 +159,11 @@ account is required; App Review should use its StoreKit sandbox environment.
 
 The App Store Connect product is Apple ID `6800849862`. Its saved reference and
 English (U.S.) display name are `FrameWink Lifetime`; its saved description is
-`Automatic albums, Mosaic, night schedules, and more.` It is priced at a $9.99
+`Automatic albums, Mosaic, night schedules, and more.` It is priced at a $4.99
 U.S. base across all available storefronts and has Family Sharing permanently
-enabled. The version 1.0 product-page copy above is the release source of truth
-and is saved in App Store Connect.
+enabled. The version 1.0 product-page copy above is the release source of truth.
+The submitted App Store Connect description still contains the former `$9.99`
+amount and must be corrected to `$4.99` at the next editable opportunity.
 
 ## Screenshot plan
 
@@ -175,7 +176,7 @@ set. Do not use private tester photos.
    `Never Show Again`.
 3. **Made for an iPad — Free:** landscape Frame Mode with a paired-portrait
    layout and visible Share, pause, and More controls.
-4. **A one-time wall upgrade — Paid:** the $9.99 non-consumable paywall with the
+4. **A one-time wall upgrade — Paid:** the $4.99 non-consumable paywall with the
    full Free Smart Reel comparison and Restore Purchases.
 5. **Fresh from your album — Paid:** the Photos-familiar progressive album grid
    with a clearly selected source.
@@ -199,8 +200,11 @@ sensing, automated Guided Access, or reboot recovery.
 Ten native, upload-ready 13-inch iPad screenshots are committed under
 `AppStore/Screenshots/Submission/iPad-13-inch/`. They are 2064 x 2752 JPEGs
 without alpha and cover three Free Smart Reel screens followed by seven Paid
-Wall Mode screens. The paid sequence includes the `$9.99` one-time purchase and
-Restore Purchases, automatic-album setup, direct Frame Controls, automatic
+Wall Mode screens. The currently submitted paid sequence shows the former
+`$9.99` price. The repository's iPad, iPhone, and source screenshot sets were
+regenerated with the `$4.99` product presentation on 2026-08-14; replace the
+submitted galleries at the next editable screenshot opportunity. The set also covers Restore Purchases,
+automatic-album setup, direct Frame Controls, automatic
 Mosaic playback, night scheduling, mounted-iPad guidance, and the feature overview.
 They use only bundled project-owned media. Run
 `scripts/capture_app_store_submission_screenshots.sh` to regenerate and validate

@@ -54,7 +54,7 @@ Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
 
 ### Paid Wall Mode
 
-- One non-consumable lifetime unlock. Planned US launch price: $9.99.
+- One non-consumable lifetime unlock. US price: $4.99.
 - Unlimited candidate pool and supported albums.
 - Automatic album refresh after explicit PhotoKit authorization.
 - Continuously regenerated recommendations and long-term repeat avoidance.

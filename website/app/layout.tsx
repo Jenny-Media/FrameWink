@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   },
   description:
     "Turn an iPhone or iPad into a private smart photo frame, curated on your device from photos you choose.",
+  alternates: { canonical: "/" },
   applicationName: "FrameWink",
   category: "Photo & Video",
   keywords: [

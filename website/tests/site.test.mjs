@@ -20,22 +20,66 @@ test("publishes every required public route", async () => {
 });
 
 test("keeps product promises aligned with the app contract", async () => {
-  const [home, privacy, support] = await Promise.all([
+  const [home, privacy, support, terms] = await Promise.all([
     source("app/page.tsx"),
     source("app/privacy/page.tsx"),
     source("app/support/page.tsx"),
+    source("app/terms/page.tsx"),
   ]);
 
   assert.match(home, /No account/);
   assert.match(home, /No tracking/);
   assert.match(home, /On-device curation/);
-  assert.match(home, /up to 500 candidates/i);
-  assert.match(home, /up to 100 recommendations/i);
-  assert.match(home, /\$9\.99/);
+  assert.match(home, /up to 500 photos/i);
+  assert.match(home, /up to 100 highlights/i);
+  assert.match(home, /\$4\.99/);
   assert.match(home, /iPhone and iPad only/i);
   assert.match(privacy, /never edits\s+your Photos library/i);
   assert.match(privacy, /Delete Imported Photos/);
   assert.match(support, /iOS or iPadOS 15 or later/);
+  assert.match(terms, /\$4\.99 non-consumable/i);
+});
+
+test("keeps keyboard, touch, and metadata affordances explicit", async () => {
+  const [home, chrome, styles, layout, privacy, routeMetadata] = await Promise.all([
+    source("app/page.tsx"),
+    source("app/components/SiteChrome.tsx"),
+    source("app/globals.css"),
+    source("app/layout.tsx"),
+    source("app/privacy/page.tsx"),
+    source("app/siteMetadata.ts"),
+  ]);
+
+  assert.match(home, /id="main-content" tabIndex=\{-1\}/);
+  assert.match(home, /id="features"[^>]+tabIndex=\{-1\}/);
+  assert.match(home, /id="availability"[^>]+tabIndex=\{-1\}/);
+  assert.match(home, /application\/ld\+json/);
+  assert.match(home, /placeholder="blur"/);
+  assert.match(home, /className="faq-icon" aria-hidden="true"/);
+  assert.match(home, /role="listitem"/);
+  assert.match(chrome, /aria-current=/);
+  assert.match(chrome, /className="review-pill" href="\/#availability"/);
+  assert.match(styles, /min-height: 44px/);
+  assert.match(styles, /prefers-reduced-motion/);
+  assert.doesNotMatch(styles, /infinite/);
+  assert.match(styles, /#availability:focus-visible/);
+  assert.match(layout, /alternates: \{ canonical: "\/" \}/);
+  assert.match(privacy, /pageMetadata\(/);
+  assert.match(routeMetadata, /images: \[\]/);
+  assert.match(routeMetadata, /card: "summary"/);
+  assert.doesNotMatch(routeMetadata, /og\.png/);
+});
+
+test("describes the paid album boundary and foreground behavior precisely", async () => {
+  const [home, terms] = await Promise.all([
+    source("app/page.tsx"),
+    source("app/terms/page.tsx"),
+  ]);
+
+  assert.match(home, /one supported Photos album/i);
+  assert.match(home, /night schedules while FrameWink is open/i);
+  assert.doesNotMatch(home, /removes the import cap|No import cap/i);
+  assert.doesNotMatch(terms, /candidates|recommendations/i);
 });
 
 test("ships without analytics, advertising, or starter preview code", async () => {

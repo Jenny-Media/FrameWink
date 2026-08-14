@@ -4,7 +4,7 @@
 
 - Type: non-consumable In-App Purchase.
 - User-facing name: `FrameWink Lifetime`.
-- Planned US price: $9.99.
+- US price: $4.99.
 - Confirmed identifier: `media.jenny.FrameWink.wallmode`.
 - Family Sharing is enabled for the production non-consumable.
 - Directly launched Debug and Release app builds use the confirmed production

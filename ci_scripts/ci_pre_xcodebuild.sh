@@ -44,6 +44,8 @@ build_settings=$(xcodebuild \
 bundle_identifier=$(read_build_setting PRODUCT_BUNDLE_IDENTIFIER)
 development_team=$(read_build_setting DEVELOPMENT_TEAM)
 device_family=$(read_build_setting TARGETED_DEVICE_FAMILY)
+supports_mac_compatibility=$(read_build_setting SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD)
+supports_xr_compatibility=$(read_build_setting SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD)
 minimum_os=$(read_build_setting IPHONEOS_DEPLOYMENT_TARGET)
 marketing_version=$(read_build_setting MARKETING_VERSION)
 wall_mode_product_id=$(read_build_setting FRAMEWINK_WALL_MODE_PRODUCT_ID)
@@ -68,6 +70,10 @@ ui_test_bundle_identifier=$(xcodebuild \
     || fail "Release development team is '$development_team', expected Jenny Media LLC (5736QK4NZX)."
 [ "$device_family" = "1,2" ] \
     || fail "Release target must support iPhone and iPad (TARGETED_DEVICE_FAMILY = 1,2)."
+[ "$supports_mac_compatibility" = "NO" ] \
+    || fail "Release target must not be available as Designed for iPhone/iPad on Mac."
+[ "$supports_xr_compatibility" = "NO" ] \
+    || fail "Release target must not be available as Designed for iPhone/iPad on Apple Vision Pro."
 [ "$minimum_os" = "15.0" ] \
     || fail "Release deployment target is '$minimum_os', expected iOS/iPadOS 15.0."
 [ "$marketing_version" = "1.0" ] \

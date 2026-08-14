@@ -162,7 +162,7 @@ not exposed as a persistent technical mode.
 
 - One App Store listing.
 - Free Smart Reel preview.
-- One $9.99 non-consumable FrameWink Lifetime unlock.
+- One $4.99 non-consumable FrameWink Lifetime unlock.
 - No subscription, advertising, account, or tip jar in MVP.
 - Evaluate pricing using D35 proceeds per download, not conversion alone.
 

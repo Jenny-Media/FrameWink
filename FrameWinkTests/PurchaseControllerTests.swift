@@ -180,7 +180,7 @@ private final class FakePurchaseClient: PurchaseClient {
         id: ProductConfiguration.productionWallModeProductID,
         displayName: "FrameWink Lifetime",
         description: "Local test product",
-        displayPrice: "$9.99",
+        displayPrice: "$4.99",
         isFamilyShareable: false
     )
     var productError: Error?

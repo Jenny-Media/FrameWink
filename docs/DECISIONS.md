@@ -389,6 +389,8 @@ date; do not silently rewrite historical decisions during implementation.
 
 - **Decision:** Ship and support FrameWink only on iPhone and iPad. Keep Mac
   Catalyst and Designed for iPhone/iPad on Mac disabled in the Xcode target.
+  Set `SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO` for Debug and Release so the
+  binary is not offered as a compatible iPhone/iPad app on Apple Vision Pro.
   Keep public Apple-silicon Mac and Apple Vision Pro availability disabled in
   App Store Connect, and keep both corresponding platform-testing options
   disabled for `Jenny Media Internal`. Apple reporting the iOS build as
@@ -411,3 +413,15 @@ date; do not silently rewrite historical decisions during implementation.
   one reviewed history. Independent build roots and path filters provide that
   consistency without making website edits consume Xcode Cloud builds or
   introducing a developer service into the local-first iOS product.
+
+## D-035 — FrameWink Lifetime launches at $4.99
+
+- **Decision:** Supersede D-006's planned $9.99 price and set one permanent
+  $4.99 U.S. base price for the FrameWink Lifetime non-consumable. Preserve the
+  same paid scope and Family Sharing policy. Experience real conversion,
+  retention, support, and review feedback at this price before considering a
+  future change.
+- **Reason:** FrameWink is a new, unrated product with a generous free reel, and
+  its closest current one-time smart-frame competitor also charges $4.99. This
+  price lowers first-purchase friction without reducing the product to a $2.99
+  utility or introducing a subscription, countdown, or artificial sale.

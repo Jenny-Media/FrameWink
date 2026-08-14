@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "../siteMetadata";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "How FrameWink handles photos, local app data, purchases, and website requests.",
-};
+export const metadata = pageMetadata(
+  "Privacy Policy",
+  "How FrameWink handles photos, local app data, purchases, and website requests.",
+  "/privacy",
+);
 
 export default function PrivacyPage() {
   return (
-    <main className="document-page" id="main-content">
+    <main className="document-page" id="main-content" tabIndex={-1}>
       <header className="document-hero">
         <p className="section-kicker">Effective August 12, 2026</p>
         <h1>Privacy Policy</h1>
