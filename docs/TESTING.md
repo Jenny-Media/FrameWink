@@ -1827,9 +1827,12 @@ explicit owner approval.
   iPhone` compatibility note and no longer reference any
   `iphone-portrait-*.webp` marketing image. The associated two-phone layout
   styles were also removed.
-- Browser review at a 1280 x 720 viewport confirms the 175-pixel compatibility
-  note reads as a restrained transition between the iPad showcase and the
-  three-step product flow. It contains no competing device screenshots or
+- Browser review at a 1280 x 720 viewport confirms the compatibility note reads
+  as a restrained transition between the iPad showcase and the three-step
+  product flow. Wide layouts use one compact row, while narrow layouts stack
+  the same short copy. It contains no competing device screenshots or
   advanced-feature UI.
+- Source-level assertions cover the `From your photos to a frame in a few
+  taps.` heading and reject the former fixed-time Camera Roll claim.
 - No app runtime, App Store screenshot asset, product capability, or platform
   availability setting changed. Production deployment remains untested.

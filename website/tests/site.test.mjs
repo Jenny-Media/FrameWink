@@ -122,6 +122,8 @@ test("shows authentic native captures in a realistic product scene", async () =>
   assert.match(home, /actual landscape app screen/);
   assert.match(home, /Works on iPhone too\./);
   assert.match(home, /The same private reel, adapted for a smaller screen\./);
+  assert.match(home, /From your photos to a frame in a few taps\./);
+  assert.doesNotMatch(home, /From camera roll to frame in minutes\./);
   assert.doesNotMatch(home, /hero-lifestyle-(?:frame|mosaic)-v4\.webp/);
   assert.doesNotMatch(home, /ipad-landscape-(?:mosaic-clean|controls)\.webp/);
   assert.doesNotMatch(home, /steps\.map\(\(\[title, body\], index\)/);
@@ -132,7 +134,8 @@ test("shows authentic native captures in a realistic product scene", async () =>
   assert.doesNotMatch(landscapeGenerator, /room_base|prefix-(?:device|shell)|-strokewidth/);
   assert.doesNotMatch(portraitGenerator, /-bordercolor|-border 2/);
   assert.doesNotMatch(styles, /\.landscape-shot\s*\{[^}]*border:/s);
-  assert.match(styles, /\.iphone-note\s*\{[^}]*grid-template-columns:/s);
+  assert.match(styles, /\.iphone-note\s*\{[^}]*grid-template-columns:\s*auto/s);
+  assert.match(styles, /\.iphone-note\s*\{[^}]*padding-block:\s*30px/s);
   assert.doesNotMatch(styles, /\.iphone-screen-pair/);
   assert.match(styles, /\.feature-card h3\s*\{[^}]*margin:\s*58px 0 18px;/s);
   assert.doesNotMatch(styles, /\.feature-card h3\s*\{[^}]*margin:\s*116px/s);

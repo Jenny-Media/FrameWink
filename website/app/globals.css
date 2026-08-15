@@ -472,33 +472,34 @@ h1 {
 }
 
 .iphone-note {
-  align-items: end;
+  align-items: center;
   border-bottom: 1px solid rgb(17 23 53 / 14%);
   border-top: 1px solid rgb(17 23 53 / 14%);
   display: grid;
-  gap: 18px clamp(36px, 7vw, 108px);
-  grid-template-columns: minmax(260px, 0.8fr) minmax(320px, 1.2fr);
-  padding-block: 48px;
+  gap: clamp(24px, 3vw, 48px);
+  grid-template-columns: auto minmax(260px, 0.75fr) minmax(320px, 1fr);
+  padding-block: 30px;
 }
 
 .iphone-note .section-kicker {
-  grid-column: 1 / -1;
   margin: 0;
+  white-space: nowrap;
 }
 
 .iphone-note h2 {
-  font-size: clamp(2.15rem, 3.5vw, 3.8rem);
+  font-size: clamp(1.65rem, 2.2vw, 2.35rem);
   font-weight: 750;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.045em;
   line-height: 1;
   margin: 0;
+  white-space: nowrap;
 }
 
 .iphone-note > p:last-child {
   color: var(--muted);
-  font-size: 1.08rem;
-  line-height: 1.65;
-  margin: 0 0 4px;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .centered-heading {
@@ -768,7 +769,8 @@ h1 {
   .feature-card { min-height: 250px; }
   .feature-card h3 { margin-top: 52px; }
   .landscape-gallery { margin: 0 auto; max-width: 760px; width: 100%; }
-  .iphone-note { grid-template-columns: 1fr; }
+  .iphone-note { gap: 10px; grid-template-columns: 1fr; padding-block: 32px; }
+  .iphone-note h2 { white-space: normal; }
   .review-callout { grid-template-columns: auto 1fr; margin-inline: 24px; }
   .review-callout .secondary-action { grid-column: 1 / -1; }
   .site-footer { grid-template-columns: 1fr; }
@@ -795,7 +797,7 @@ h1 {
   .landscape-shot { border-radius: 16px; }
   .landscape-shot-main { width: 94%; }
   .landscape-shot-secondary { width: 68%; }
-  .iphone-note { padding-block: 40px; }
+  .iphone-note { padding-block: 28px; }
   .steps-grid, .plan-grid { grid-template-columns: 1fr; }
   .steps-grid { gap: 42px; margin-top: 52px; }
   .steps-grid .step-symbol { margin-bottom: 34px; }

@@ -220,7 +220,7 @@ export default function Home() {
       <section className="steps-section content-section" id="how-it-works" aria-labelledby="steps-heading">
         <div className="section-heading centered-heading">
           <p className="section-kicker">Three simple moments</p>
-          <h2 id="steps-heading">From camera roll to frame in minutes.</h2>
+          <h2 id="steps-heading">From your photos to a frame in a few taps.</h2>
         </div>
         <ol className="steps-grid" role="list">
           {steps.map(({ symbol, title, body }) => (

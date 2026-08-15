@@ -1187,13 +1187,19 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   inspect the iPhone product page.
 - Replaced the removed showcase with a compact compatibility note: `Also on
   iPhone`, `Works on iPhone too.`, and `The same private reel, adapted for a
-  smaller screen.` This preserves clear universal-app positioning without
-  asking the iPhone experience to compete with the iPad story.
+  smaller screen.` On wide layouts the note is a single restrained row rather
+  than another full feature section. This preserves clear universal-app
+  positioning without asking the iPhone experience to compete with the iPad
+  story.
+- Replaced the time promise `From camera roll to frame in minutes.` with `From
+  your photos to a frame in a few taps.` The new wording emphasizes ease,
+  avoids outdated Camera Roll terminology, and does not overpromise a fixed
+  processing time for local curation.
 - Added source-level regression coverage preventing portrait iPhone marketing
   captures and their former layout styles from returning to the homepage.
   Seven website tests, ESLint, the static production build, diff hygiene, and
   local browser review all pass. Active implementation and verification time
-  was approximately 0.3 hours.
+  was approximately 0.4 hours.
 
 ## Timebox rule
 
