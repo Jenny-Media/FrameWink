@@ -120,8 +120,14 @@ validate_submission_set "$iphone_landscape_dir" 2868 1320 \
 validate_submission_set "$ipad_landscape_dir" 2752 2064 \
     01-landscape-frame.jpg \
     02-landscape-mosaic.jpg \
-    03-landscape-controls.jpg \
-    04-landscape-review.jpg
+    03-landscape-review.jpg \
+    04-landscape-album-picker.jpg \
+    05-landscape-controls.jpg \
+    06-landscape-sample.jpg \
+    07-landscape-night-schedule.jpg \
+    08-landscape-mounted-tips.jpg \
+    09-landscape-lifetime-purchase.jpg \
+    10-landscape-lifetime-features.jpg
 
 validate_submission_set "$iphone_landscape_marketing_dir" 2868 1320 \
     01-private-iphone-frame.jpg \
@@ -131,8 +137,14 @@ validate_submission_set "$iphone_landscape_marketing_dir" 2868 1320 \
 validate_submission_set "$ipad_landscape_marketing_dir" 2752 2064 \
     01-private-ipad-frame.jpg \
     02-automatic-landscape-layouts.jpg \
-    03-landscape-controls.jpg \
-    04-review-before-display.jpg
+    03-review-before-display.jpg \
+    04-automatic-album.jpg \
+    05-landscape-controls.jpg \
+    06-sample-before-access.jpg \
+    07-night-schedule.jpg \
+    08-mounted-display.jpg \
+    09-lifetime-upgrade.jpg \
+    10-free-stays-useful.jpg
 
 validate_raster "$iap_review" 1242 2688
 validate_raster "$icon" 1024 1024

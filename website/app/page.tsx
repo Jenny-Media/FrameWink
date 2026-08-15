@@ -2,7 +2,7 @@ import Image from "next/image";
 
 /* eslint-disable jsx-a11y/no-redundant-roles -- Explicit list roles preserve Safari and VoiceOver semantics after list markers are removed. */
 
-const privacyPoints = ["No account", "No tracking", "On-device curation"];
+const privacyPoints = ["No account", "No tracking", "Processed on your device"];
 
 const imagePlaceholder =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%3E%3Crect%20width='32'%20height='32'%20fill='%23e8e0d0'/%3E%3C/svg%3E";
@@ -10,13 +10,13 @@ const imagePlaceholder =
 const features = [
   {
     number: "01",
-    title: "A smarter reel",
-    body: "FrameWink reviews the photos you choose, reduces near-duplicates, and prepares a varied reel without sending your library anywhere.",
+    title: "Your best photos",
+    body: "FrameWink reviews the photos you choose, reduces repeats, and creates a varied slideshow without sending your library anywhere.",
   },
   {
     number: "02",
     title: "Cropping with care",
-    body: "Face- and content-aware framing chooses when to fill the screen, when to fit the whole photo, and when a multi-photo layout genuinely works.",
+    body: "FrameWink keeps faces and important details in view. It knows when to fill the screen, show the whole photo, or arrange several photos together.",
   },
   {
     number: "03",
@@ -26,9 +26,9 @@ const features = [
 ];
 
 const steps = [
-  ["Choose", "Pick a few favorites with Apple’s system photo picker. Full-library access is not required."],
-  ["Review", "FrameWink prepares local highlights you can review before anything reaches the frame."],
-  ["Enjoy", "Start the frame, swipe naturally, pause anytime, or share the photo currently in view."],
+  { symbol: "+", title: "Choose", body: "Pick a few favorites with Apple’s system photo picker. Full-library access is not required." },
+  { symbol: "✓", title: "Review", body: "FrameWink prepares local highlights you can review before anything reaches the frame." },
+  { symbol: "▶", title: "Enjoy", body: "Start the frame, swipe naturally, pause anytime, or share the photo currently in view." },
 ];
 
 const faqItems = [
@@ -86,12 +86,12 @@ export default function Home() {
       />
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
-          <p className="eyebrow">Made for iPad. Ready for iPhone.</p>
-          <h1 id="hero-title">Turn your iPad into a private photo frame.</h1>
+          <p className="eyebrow">A private photo frame for iPad and iPhone</p>
+          <h1 id="hero-title">Your photos. Beautifully framed.</h1>
           <p className="hero-lede">
-            FrameWink turns the screen you already own into a calm, intelligent
-            frame—curated privately on your device from photos you choose.
-            It works beautifully on iPhone too.
+            Turn an iPad you already own into a beautiful photo frame. Choose
+            the photos, review what plays, and keep everything private on your
+            device. FrameWink works on iPhone too.
           </p>
           <div className="hero-actions">
             <a className="primary-action" href="#features">
@@ -110,31 +110,40 @@ export default function Home() {
           </ul>
         </div>
 
-        <div className="hero-visual">
-          <figure className="hero-capture">
-            <Image
-              src="/images/ipad-landscape-frame.webp"
-              alt="Native FrameWink frame view captured in landscape on iPad"
-              width={1600}
-              height={1200}
-              sizes="(max-width: 900px) 100vw, 58vw"
-              preload
-            />
-            <figcaption>
-              <span>Actual in-app screen</span>
-              <strong>FrameWink running in landscape on iPad.</strong>
-            </figcaption>
+        <div className="hero-visual" aria-label="FrameWink on iPad">
+          <figure className="flat-device-stage">
+            <div className="flat-device-cycle">
+              <Image
+                className="flat-device-image flat-device-primary"
+                src="/images/ipad-flat-frame-v1.webp"
+                alt="FrameWink displaying a clean single-photo frame inside an iPad bezel"
+                width={1500}
+                height={1150}
+                sizes="(max-width: 900px) 100vw, 58vw"
+                preload
+              />
+              <Image
+                className="flat-device-image flat-device-secondary"
+                src="/images/ipad-flat-mosaic-v1.webp"
+                alt=""
+                aria-hidden="true"
+                width={1500}
+                height={1150}
+                sizes="(max-width: 900px) 100vw, 58vw"
+              />
+            </div>
+            <figcaption>Actual FrameWink screens</figcaption>
           </figure>
         </div>
       </section>
 
       <section className="privacy-strip" aria-labelledby="privacy-heading">
         <p className="section-kicker">Private by design</p>
-        <h2 id="privacy-heading">No second photo cloud.</h2>
+        <h2 id="privacy-heading">Your photos stay yours.</h2>
         <p>
-          Photo selection, analysis, curation, and display stay on your device.
-          FrameWink has no account or photo server, analytics, ads, or tracking.
-          Apple Photos can still download an iCloud photo you choose.
+          FrameWink chooses, arranges, and displays your photos on your device.
+          There is no FrameWink account, photo server, analytics, advertising,
+          or tracking. Apple Photos can still download an iCloud photo you choose.
         </p>
         <a className="text-link light" href="/privacy">Read the privacy policy <span aria-hidden="true">↗</span></a>
       </section>
@@ -143,7 +152,7 @@ export default function Home() {
         <div className="section-heading split-heading">
           <div>
             <p className="section-kicker">Less setup. Better viewing.</p>
-            <h2 id="features-heading">Your frame makes the decisions that should feel automatic.</h2>
+            <h2 id="features-heading">Beautiful by default.</h2>
           </div>
           <p>
             FrameWink favors a few excellent defaults over a wall of settings.
@@ -161,81 +170,49 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="showcase" aria-labelledby="showcase-heading">
+      <section className="showcase" id="ipad" aria-labelledby="showcase-heading">
         <div className="showcase-copy">
           <p className="section-kicker">iPad-first by design</p>
-          <h2 id="showcase-heading">Made for the places your memories belong.</h2>
+          <h2 id="showcase-heading">Made for the places you love.</h2>
           <p>
-            Set an iPad on a shelf, place it on a desk, or prepare it for a
-            mounted display. FrameWink uses the larger canvas for calm,
-            automatic compositions without turning setup into a project.
+            Use an iPad on a shelf, desk, or mounted display. FrameWink uses the
+            larger canvas for calm, automatic compositions without turning
+            setup into a project.
           </p>
           <CheckList items={[
-            "Landscape single-photo and multi-photo scenes",
-            "Layouts that adapt to the current screen shape",
-            "Controls that recede when you return to the moment",
+            "One photo or several, arranged automatically",
+            "Layouts that adapt as the window changes",
+            "Controls that fade away while photos play",
           ]} />
         </div>
-        <div className="landscape-gallery">
-          <figure className="landscape-shot landscape-shot-main">
-            <Image
-              src="/images/ipad-landscape-mosaic.webp"
-              alt="Native FrameWink iPad capture arranging four photos automatically"
-              width={1600}
-              height={1200}
-              sizes="(max-width: 900px) 92vw, 49vw"
-              placeholder="blur"
-              blurDataURL={imagePlaceholder}
-            />
-            <figcaption>Automatic layouts use the full iPad canvas.</figcaption>
-          </figure>
-          <figure className="landscape-shot landscape-shot-secondary">
-            <Image
-              src="/images/ipad-landscape-controls.webp"
-              alt="Native FrameWink iPad capture with photo-duration controls visible"
-              width={1600}
-              height={1200}
-              sizes="(max-width: 900px) 76vw, 30vw"
-              placeholder="blur"
-              blurDataURL={imagePlaceholder}
-            />
-            <figcaption>Adjust timing, then let the controls disappear.</figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section className="iphone-companion content-section" aria-labelledby="iphone-heading">
-        <figure>
+        <figure className="flat-showcase-device">
           <Image
-            src="/images/iphone-landscape-frame.webp"
-            alt="Native FrameWink capture showing a photo in landscape on iPhone"
-            width={1600}
-            height={736}
-            sizes="(max-width: 760px) 92vw, 46vw"
+            src="/images/ipad-flat-pair-v1.webp"
+            alt="FrameWink showing two compatible portrait photos side by side inside an iPad bezel"
+            width={1500}
+            height={1150}
+            sizes="(max-width: 900px) 92vw, 54vw"
             placeholder="blur"
             blurDataURL={imagePlaceholder}
           />
-          <figcaption>Actual in-app screen · FrameWink in landscape on iPhone.</figcaption>
+          <figcaption>Compatible portraits sit side by side automatically.</figcaption>
         </figure>
-        <div>
-          <p className="section-kicker">Works on iPhone too</p>
-          <h2 id="iphone-heading">A smaller frame for wherever you are.</h2>
-          <p>
-            The same private reel, careful framing, natural swipe navigation,
-            and direct sharing fit the iPhone in your pocket or on your desk.
-          </p>
-        </div>
       </section>
 
-      <section className="steps-section content-section" aria-labelledby="steps-heading">
+      <section className="iphone-note content-section" id="iphone" aria-labelledby="iphone-heading">
+        <h2 id="iphone-heading">Works on iPhone too.</h2>
+        <p>The same private reel, adapted for a smaller screen.</p>
+      </section>
+
+      <section className="steps-section content-section" id="how-it-works" aria-labelledby="steps-heading">
         <div className="section-heading centered-heading">
           <p className="section-kicker">Three simple moments</p>
-          <h2 id="steps-heading">From camera roll to frame in minutes.</h2>
+          <h2 id="steps-heading">From your photos to a frame in a few taps.</h2>
         </div>
         <ol className="steps-grid" role="list">
-          {steps.map(([title, body], index) => (
+          {steps.map(({ symbol, title, body }) => (
             <li key={title} role="listitem">
-              <span>{index + 1}</span>
+              <span className="step-symbol" aria-hidden="true">{symbol}</span>
               <h3>{title}</h3>
               <p>{body}</p>
             </li>
@@ -283,7 +260,7 @@ export default function Home() {
         <Image src="/images/framewink-icon.png" alt="FrameWink app icon" width={120} height={120} />
         <div>
           <p className="section-kicker">Coming to the App Store</p>
-          <h2 id="availability-heading">FrameWink 1.0 is in App Review.</h2>
+          <h2 id="availability-heading">FrameWink 1.0 is being prepared for review.</h2>
           <p>Built for iPhone and iPad only, running iOS or iPadOS 15 and later.</p>
         </div>
         <a

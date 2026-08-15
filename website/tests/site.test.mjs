@@ -29,7 +29,7 @@ test("keeps product promises aligned with the app contract", async () => {
 
   assert.match(home, /No account/);
   assert.match(home, /No tracking/);
-  assert.match(home, /On-device curation/);
+  assert.match(home, /Processed on your device/);
   assert.match(home, /up to 500 photos/i);
   assert.match(home, /up to 100 highlights/i);
   assert.match(home, /\$4\.99/);
@@ -107,15 +107,65 @@ test("uses the intended public domain and support address", async () => {
   assert.match(combined, /framewink@jenny\.media/);
 });
 
-test("shows authentic native captures without simulated Apple hardware", async () => {
-  const [home, generator] = await Promise.all([
+test("shows authentic native captures inside a licensed flat iPad bezel", async () => {
+  const [home, styles, landscapeGenerator, portraitGenerator, lifestyleGenerator] = await Promise.all([
     source("app/page.tsx"),
+    source("app/globals.css"),
     source("../scripts/generate_landscape_marketing_assets.sh"),
+    source("../scripts/generate_app_store_marketing_screenshots.sh"),
+    source("../scripts/generate_website_lifestyle_hero.sh"),
   ]);
 
-  assert.match(home, /ipad-landscape-frame\.webp/);
-  assert.match(home, /Actual in-app screen/);
+  assert.match(home, /ipad-flat-frame-v1\.webp/);
+  assert.match(home, /ipad-flat-mosaic-v1\.webp/);
+  assert.match(home, /ipad-flat-pair-v1\.webp/);
+  assert.match(home, /Compatible portraits sit side by side automatically\./);
+  assert.doesNotMatch(home, /automatic four-photo layout/i);
+  assert.match(home, /Actual FrameWink screens/);
+  assert.doesNotMatch(home, /hero-tabletop|ipad-wall-mounted|hero-lifestyle/);
+  assert.doesNotMatch(home, /tabletop stand|wall-mounted iPad/);
+  assert.match(home, /Works on iPhone too\./);
+  assert.match(home, /The same private reel, adapted for a smaller screen\./);
+  assert.doesNotMatch(home, /Also on iPhone/);
+  assert.match(home, /From your photos to a frame in a few taps\./);
+  assert.doesNotMatch(home, /From camera roll to frame in minutes\./);
+  assert.doesNotMatch(home, /hero-lifestyle-(?:frame|mosaic)-v[4-7]\.webp/);
+  assert.doesNotMatch(home, /ipad-landscape-controls-v3\.webp/);
+  assert.doesNotMatch(home, /steps\.map\(\(\[title, body\], index\)/);
+  assert.match(home, /className="step-symbol"/);
+  assert.doesNotMatch(home, /iphone-portrait-[^"']+\.webp/);
   assert.doesNotMatch(home, /ipad-room-frame|generic tablet/i);
-  assert.match(generator, /ACTUAL IN-APP SCREEN/);
-  assert.doesNotMatch(generator, /room_base|prefix-(?:device|shell)/);
+  assert.match(landscapeGenerator, /ACTUAL IN-APP SCREEN/);
+  assert.doesNotMatch(landscapeGenerator, /room_base|prefix-(?:device|shell)|-strokewidth/);
+  assert.doesNotMatch(portraitGenerator, /-bordercolor|-border 2/);
+  assert.doesNotMatch(styles, /\.landscape-shot|\.landscape-gallery/);
+  assert.match(styles, /\.flat-device-stage\s*\{[^}]*aspect-ratio:\s*4 \/ 3/s);
+  assert.doesNotMatch(styles, /\.flat-device-stage\s*\{[^}]*(?:background|border-radius|box-shadow):/s);
+  assert.match(styles, /\.flat-device-cycle\s*\{[^}]*filter:\s*drop-shadow/s);
+  assert.match(styles, /\.flat-device-image\s*\{[^}]*object-fit:\s*contain/s);
+  assert.match(styles, /\.flat-device-secondary\s*\{[^}]*animation:\s*framewink-screen-cycle 10s ease-in-out 3/s);
+  assert.match(styles, /@keyframes framewink-screen-cycle/);
+  assert.doesNotMatch(styles, /\.flat-showcase-device\s*\{[^}]*(?:background|border-radius|padding):/s);
+  assert.match(styles, /prefers-reduced-motion:[\s\S]*\.flat-device-secondary\s*\{\s*opacity:\s*0 !important;/);
+  assert.match(styles, /\.iphone-note\s*\{[^}]*grid-template-columns:\s*minmax\(260px/s);
+  assert.match(styles, /\.iphone-note\s*\{[^}]*padding-block:\s*30px/s);
+  assert.doesNotMatch(styles, /\.iphone-screen-pair/);
+  assert.match(styles, /h1,\s*h2,\s*h3\s*\{\s*text-wrap:\s*balance;/s);
+  assert.match(styles, /h1\s*\{[^}]*font-size:\s*clamp\(3\.1rem,\s*3\.8vw,\s*4\.8rem\)/s);
+  assert.match(styles, /h1\s*\{[^}]*letter-spacing:\s*-0\.035em/s);
+  assert.doesNotMatch(styles, /letter-spacing:\s*-0\.0(?:6[1-9]|[7-9]\d*)em/);
+  assert.match(styles, /\.showcase h2\s*\{[^}]*font-size:\s*clamp\(2\.55rem,\s*4\.2vw,\s*4\.5rem\)/s);
+  assert.match(styles, /\.feature-card h3\s*\{[^}]*margin:\s*58px 0 18px;/s);
+  assert.doesNotMatch(styles, /\.feature-card h3\s*\{[^}]*margin:\s*116px/s);
+  assert.match(lifestyleGenerator, /FRAMEWINK_IPAD_BEZEL/);
+  assert.match(lifestyleGenerator, /iPad Pro \(M5\) 13" - Space Black - Landscape\.png/);
+  assert.match(lifestyleGenerator, /ipad-landscape-frame-clean-v2\.webp/);
+  assert.match(lifestyleGenerator, /ipad-landscape-mosaic-clean-v2\.webp/);
+  assert.match(lifestyleGenerator, /ipad-landscape-pair-clean-v1\.webp/);
+  assert.match(lifestyleGenerator, /roundrectangle 0,0 2751,2063 58,58/);
+  assert.match(lifestyleGenerator, /ipad-flat-frame-v1\.webp/);
+  assert.match(lifestyleGenerator, /ipad-flat-mosaic-v1\.webp/);
+  assert.match(lifestyleGenerator, /ipad-flat-pair-v1\.webp/);
+  assert.doesNotMatch(lifestyleGenerator, /ipad-lifestyle-.*plate|Perspective|render_scene/);
+  assert.match(lifestyleGenerator, /No generated room, stand, wall, or hardware/);
 });

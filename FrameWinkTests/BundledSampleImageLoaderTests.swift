@@ -52,4 +52,16 @@ final class BundledSampleImageLoaderTests: XCTestCase {
             }
         }
     }
+
+    func testWaterBirdDeclaresItsFullSubjectAsImportant() throws {
+        let bird = try XCTUnwrap(
+            BundledSampleCatalog.photos.first { $0.id == "sample-water-bird" }
+        )
+        let subject = try XCTUnwrap(bird.importantRects.first)
+
+        XCTAssertTrue(subject.isWithinUnitBounds)
+        XCTAssertGreaterThan(subject.width, 0.9)
+        XCTAssertGreaterThan(subject.height, 0.8)
+        XCTAssertEqual(bird.slide.importantRects, bird.importantRects)
+    }
 }

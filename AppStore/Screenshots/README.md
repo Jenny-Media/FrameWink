@@ -58,7 +58,7 @@ environment entirely.
 The source library covers:
 
 1. Free first-launch Sample Photos with no permission prompt.
-2. Free full-screen Frame Mode controls.
+2. Free full-screen Frame Mode with transient controls hidden.
 3. Paid Wall Mode capabilities.
 4. The one-time `$4.99` purchase and Restore Purchases.
 5. Paid progressive automatic-album selection.

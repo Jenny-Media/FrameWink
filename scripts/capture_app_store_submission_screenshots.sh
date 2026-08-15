@@ -7,6 +7,12 @@ FRAMEWINK_XCODE_DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-/Applications/Xco
 FRAMEWINK_DERIVED_DATA=${FRAMEWINK_DERIVED_DATA:-/private/tmp/FrameWink-AppStore-DerivedData}
 FRAMEWINK_SCREENSHOT_DIRECTORY=${FRAMEWINK_SCREENSHOT_DIRECTORY:-$FRAMEWINK_REPOSITORY_ROOT/AppStore/Screenshots/Submission/iPad-13-inch}
 FRAMEWINK_SIMULATOR_ID=${FRAMEWINK_SIMULATOR_ID:-}
+FRAMEWINK_SCREENSHOT_SETTLE_SECONDS=${FRAMEWINK_SCREENSHOT_SETTLE_SECONDS:-6}
+
+command -v magick >/dev/null 2>&1 || {
+    echo "ImageMagick 7 is required to reject blank captures." >&2
+    exit 1
+}
 
 if [ -z "$FRAMEWINK_SIMULATOR_ID" ]; then
     FRAMEWINK_SIMULATOR_ID=$(
@@ -71,10 +77,19 @@ capture_scenario() {
         DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" \
         xcrun simctl launch --terminate-running-process \
         "$FRAMEWINK_SIMULATOR_ID" media.jenny.FrameWink >/dev/null
-    sleep 3
+    sleep "$FRAMEWINK_SCREENSHOT_SETTLE_SECONDS"
     DEVELOPER_DIR="$FRAMEWINK_XCODE_DEVELOPER_DIR" xcrun simctl io \
         "$FRAMEWINK_SIMULATOR_ID" screenshot \
         "$FRAMEWINK_SCREENSHOT_DIRECTORY/$FRAMEWINK_FILENAME"
+
+    FRAMEWINK_DEVIATION=$(magick \
+        "$FRAMEWINK_SCREENSHOT_DIRECTORY/$FRAMEWINK_FILENAME" \
+        -colorspace gray -format '%[fx:standard_deviation]' info:)
+    awk -v deviation="$FRAMEWINK_DEVIATION" \
+        'BEGIN { exit !(deviation >= 0.05) }' || {
+        echo "Rejected blank or unsettled screenshot: $FRAMEWINK_FILENAME" >&2
+        exit 1
+    }
 }
 
 # App Store Connect accepts at most ten screenshots. Keep Free first, then Paid.

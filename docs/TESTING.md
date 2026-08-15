@@ -1671,3 +1671,297 @@ explicit owner approval.
   production build. A settled 1280 x 720 browser capture confirms the iPad-first
   hero uses the native screen without covering FrameWink controls; the iPhone
   companion is explicitly captioned as an actual in-app screen.
+
+## Landscape-first replacement gallery verification — 2026-08-14
+
+- `scripts/capture_app_store_landscape_screenshots.sh` passed on the iPad Pro
+  13-inch (M5) and iPhone 17 Pro Max Simulators. The iPad UI test completed ten
+  deterministic states in 76.5 seconds; the compact iPhone landscape smoke set
+  completed three states in 30.8 seconds. The only build warning is the known
+  StoreKitTest SDK deprecation warning; the debugger emitted its existing host
+  version message.
+- `scripts/generate_landscape_marketing_assets.sh` and
+  `scripts/generate_app_store_marketing_screenshots.sh` generated ten landscape
+  iPad and ten portrait iPhone proposed upload cards without simulated hardware.
+  `scripts/validate_app_store_assets.sh` passes required counts, exact 2752 x
+  2064 and 1320 x 2868 dimensions, no alpha, and uniqueness.
+- Visual contact-sheet inspection confirmed actual app UI on every card and no
+  generic tablet/phone render. The iPad sequence prioritizes playback and
+  automatic layouts before configuration; the iPhone sequence preserves the
+  compact portrait experience.
+- Website verification passes seven Node tests, ESLint, and the static Next.js
+  production build. Headless browser captures at 1920 x 1080 and 500 x 1000
+  confirm the uniform hero background, readable headline, responsive CTA, room
+  scene, and actual native screen treatment. Reduce Motion continues to disable
+  the finite hero crossfade.
+- Not tested: upload and resubmission are intentionally pending owner approval.
+  The owner subsequently approved both screenshot sets and authorized Apple's
+  Design Resources License. The website hero now uses two derivative official-
+  bezel composites; source inspection verifies that the standalone Apple bezel
+  is not included in the repository.
+
+## Lifestyle compositing and portrait iPhone verification — 2026-08-14
+
+- The new hero begins with an AI-assisted 1672 x 941 room scene generated from
+  the licensed iPad reference. Visual inspection confirms a physical stand,
+  plausible console contact, aligned perspective, ordinary materials, and
+  substantially less showroom-like staging than the rejected draft.
+- The final two WebP assets do not rely on generated app UI. Exact native
+  FrameWink single-photo and four-photo Mosaic captures were rounded, projected
+  into the same screen quadrilateral, and composited over the generated screen.
+  Inspection confirms both variants use clean playback with transient close,
+  Share, Pause, More, and guidance controls hidden.
+- A Debug iPhone 17 Pro Max build launched the new `portrait-frame` scenario
+  and produced a native 1320 x 2868 screenshot showing the bundled portrait
+  city-tower sample as one Fit photo rather than a stacked composition. The
+  iPad Pro 13-inch Debug build also passes after the scenario addition.
+- Website validation passes seven Node tests, ESLint, and the static Next.js
+  production build. The local preview was reloaded with the new assets and
+  heading. No App Store Connect or production website mutation was performed.
+
+## Screenshot content and chrome audit verification — 2026-08-14
+
+- `scripts/capture_app_store_landscape_screenshots.sh` passed on the iPad Pro
+  13-inch (M5) and iPhone 17 Pro Max Simulators. The clean Frame and Mosaic UI
+  tests assert that `frame-quick-close-control` and
+  `frame-playback-control` do not exist; the dedicated controls capture asserts
+  that `frame-controls-panel` does exist.
+- `scripts/capture_app_store_submission_screenshots.sh` and
+  `scripts/capture_app_store_iphone_submission_screenshots.sh` passed serially
+  with the new six-second settle interval and post-capture blank-image guard.
+  The guard rejected the earlier unsettled captures and the regenerated native
+  sets passed.
+- Contact-sheet inspection confirms clean playback on the first iPad and first
+  two iPhone marketing cards. Controls appear only on the explicit timing and
+  sharing card; setup, review, scheduling, mounting, and purchase UI appears
+  only on cards describing those functions.
+- `scripts/validate_app_store_assets.sh` reports all required counts,
+  dimensions, alpha, and uniqueness checks valid. In `website/`, `npm test`
+  passes seven tests, `npm run lint` passes, and `npm run build` statically
+  generates all public routes.
+- The only iOS build warning remains Apple's iOS 27 StoreKitTest deprecated
+  header warning. App Store Connect upload, replacement, and resubmission are
+  intentionally untested pending owner approval.
+
+## Subject-safe marketing media verification — 2026-08-15
+
+- Focused command on the iPhone 17 Pro Max Simulator:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet test -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE'
+  -derivedDataPath /private/tmp/framewink-subject-safe-tests
+  -only-testing:FrameWinkTests/FrameLayoutChooserTests
+  -only-testing:FrameWinkTests/BundledSampleImageLoaderTests`. Result: success.
+- The equivalent focused command on iPad Pro 13-inch (M5) destination
+  `1BDA7ABF-4236-406E-8ACD-7E3B10569753`, using derived data
+  `/private/tmp/framewink-subject-safe-tests-ipad`, also succeeds. Coverage
+  includes the 68% minimum retained-source rule and the white-bird sample's
+  protected subject rectangle.
+- `scripts/capture_app_store_landscape_screenshots.sh` passed its ten-screen
+  iPad and three-screen iPhone UI workflow. The refreshed Mosaic visibly shows
+  four bright landscape-compatible photos with no cut bird and no transient
+  controls.
+- `scripts/capture_app_store_iphone_submission_screenshots.sh` and
+  `scripts/capture_app_store_submission_screenshots.sh` regenerated all ten
+  portrait screens per family and passed the post-capture blank-image guard.
+  Visual inspection confirms the complete bird portrait, distinct tower
+  portrait, populated review screen, varied album covers, and aerial coast.
+- `scripts/validate_app_store_assets.sh`, seven website Node tests, ESLint, the
+  static Next.js production build, script syntax checks, and `git diff --check`
+  pass. Local browser inspection confirms both eager iPhone images render and
+  the Choose/Review/Enjoy symbols replace the former numerals.
+- Expected warnings are limited to Apple's iOS 27 StoreKitTest deprecated
+  header warning and the screenshot UI runner's existing debugger-version
+  lookup message. Real-device rendering, production deployment, App Store
+  upload, and resubmission remain intentionally untested.
+
+## Website image-cache invalidation verification — 2026-08-15
+
+- `scripts/generate_landscape_marketing_assets.sh` and
+  `scripts/generate_website_lifestyle_hero.sh` generated new versioned website
+  assets. ImageMagick reports 1672 x 941 lifestyle scenes and 1600 x 1200 iPad
+  showcase captures; both generator scripts pass `bash -n`.
+- In `website/`, `npm test` passes seven tests, `npm run lint` passes, and
+  `npm run build` compiles and statically generates every public route.
+- The restarted local Next.js server returns HTTP-backed optimized images from
+  the new `v5` lifestyle and `v2` iPad paths. Browser inspection confirms the
+  hero and iPad showcase render the aerial, flowers, road, and sunset Mosaic
+  instead of the cached Taipei/bird/leaf composition. The controls example is
+  now aerial, and the iPhone bird and review screens remain populated.
+- Production deployment and external-cache behavior remain untested in this
+  local verification pass.
+
+## Website content-first showcase verification — 2026-08-15
+
+- `scripts/capture_app_store_landscape_screenshots.sh` passed on the iPad Pro
+  13-inch (M5) Simulator and iPhone 17 Pro Max Simulator. The UI workflow built
+  and launched the affected Debug screenshot path on both device families,
+  captured ten iPad states and three iPhone states, and preserved native 2752 x
+  2064 and 2868 x 1320 output. The controls capture visibly uses the distinct
+  `sample-autumn-leaves` image and retains the native duration panel.
+- `scripts/generate_landscape_marketing_assets.sh` generated the versioned
+  1600 x 1200 `ipad-landscape-controls-v3.webp` and the 660 x 1434
+  `iphone-portrait-tower-clean-v1.webp`. The first no longer duplicates the
+  adjacent aerial Mosaic content; the second is a populated, clean playback
+  view with no close button, playback bar, or setup sheet.
+- In `website/`, `npm test` passes seven tests, `npm run lint` passes, and
+  `npm run build` compiles and statically generates all public routes.
+  `scripts/validate_app_store_assets.sh`, generator shell syntax,
+  `git diff --check`, and explicit ImageMagick dimension checks also pass.
+- Browser review at `http://localhost:3010/` confirms the tighter 310-pixel
+  feature cards, the varied iPad Mosaic/autumn-controls pairing, and the clean
+  bird/tower iPhone pairing. The local preview server remains available for
+  owner review.
+- The only iOS warning is Apple's existing iOS 27 StoreKitTest deprecated
+  header warning. The screenshot runner also emits its known debugger-version
+  lookup message. Physical-device behavior was not changed by this Debug-only
+  screenshot-fixture update. Production deployment, App Store upload, and
+  resubmission remain intentionally untested.
+
+## iPad-first website positioning verification — 2026-08-15
+
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route.
+- The website source and rendered homepage contain the compact `Works on
+  iPhone too.` compatibility note without the redundant `Also on iPhone`
+  kicker and no longer reference any `iphone-portrait-*.webp` marketing image.
+  The associated two-phone layout styles were also removed.
+- Browser review at a 1280 x 720 viewport confirms the compatibility note reads
+  as a restrained transition between the iPad showcase and the three-step
+  product flow. Wide layouts use one compact row, while narrow layouts stack
+  the same short copy. It contains no competing device screenshots or
+  advanced-feature UI.
+- Source-level assertions cover the `From your photos to a frame in a few
+  taps.` heading and reject the former fixed-time Camera Roll claim.
+- No app runtime, App Store screenshot asset, product capability, or platform
+  availability setting changed. Production deployment remains untested.
+
+## Website typography and wrapping verification — 2026-08-15
+
+- Browser inspection at a 1280 x 720 viewport covered the complete homepage
+  and the Privacy, Support, and Terms routes. The document width equals the
+  viewport width on every checked route, and no visible heading, paragraph,
+  card, button label, FAQ question, or navigation label crosses the viewport.
+- The homepage audit identified two awkward but unclipped wraps: the three-line
+  hero title and the three-line iPad showcase title. Their targeted fluid type
+  scales now produce balanced two-line treatments at the audited desktop size.
+- Regression assertions require balanced heading wrapping, the revised hero
+  and showcase scales, and safe wrapping for long body and link text.
+- In `website/`, all seven contract tests, ESLint, and the static production
+  build pass. App behavior and native App Store screenshot assets are
+  unaffected; production deployment remains untested.
+
+## Website type-spacing and lifestyle-screen alignment verification — 2026-08-15
+
+- `scripts/generate_website_lifestyle_hero.sh` regenerated the versioned
+  1672 x 941 `hero-lifestyle-frame-v6.webp` and
+  `hero-lifestyle-mosaic-v6.webp` scenes. Shell syntax, exact output
+  dimensions, and focused regression assertions for the screen mask and
+  perspective corners pass.
+- Browser review at a 1280 x 720 viewport confirms the primary hero title uses
+  two lines at 49.6 pixels with `-1.736px` computed tracking. The regenerated
+  lifestyle image loads from the `v6` path, fills the iPad screen opening at
+  the top and lower-right edges, and leaves the physical bezel intact.
+- Automated browser inspection of the homepage, Privacy, Support, and Terms
+  found no overflowing document or text element. In `website/`, all seven
+  contract tests, ESLint, the static production build, generator syntax, and
+  `git diff --check` pass. Production deployment remains untested.
+
+## Regenerated lifestyle hero device-composite verification — 2026-08-15
+
+- The built-in image generation edit workflow produced the 1672 x 941
+  `Design/Website/hero-lifestyle-base-v2.png` source from the existing room and
+  the clean native aerial capture. Visual inspection at 3x confirms even bezel
+  thickness and aligned rounded inner-screen corners without UI chrome.
+- `scripts/generate_website_lifestyle_hero.sh` deterministically generates
+  1672 x 941 `hero-lifestyle-frame-v7.webp` and
+  `hero-lifestyle-mosaic-v7.webp`. The second state uses the same base pixels,
+  an oversized perspective warp, and a destination-space Bezier mask; 3x
+  inspection confirms no old content, seam, gap, or bezel overlap at any edge.
+- Browser review at 1280 x 720 confirms both versioned optimized images load and
+  the 12-second crossfade changes only the iPad display. The room, device,
+  stand, and surrounding objects remain stationary between states. Website
+  tests, lint, production build, generator syntax, dimensions, and diff hygiene
+  pass. Production deployment remains untested.
+
+## Dual-scenario iPad website photography verification — 2026-08-15
+
+- `scripts/generate_website_lifestyle_hero.sh` passes `bash -n` and generates
+  the 1672 x 941 `hero-tabletop-frame-v1.webp`,
+  `hero-tabletop-mosaic-v1.webp`, and
+  `ipad-wall-mounted-mosaic-v1.webp` derivatives. All three combine Apple's
+  licensed iPad Pro bezel with actual native FrameWink captures; visual
+  inspection confirms clean playback without controls and no exposed
+  placeholder-device edge.
+- The tabletop pair shares identical room, stand, bezel, perspective, and
+  shadow pixels so its 12-second crossfade changes only the FrameWink content.
+  The separate mounted scene visibly communicates the wall-display use case.
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. Generator syntax, exact dimensions, and `git diff --check` pass.
+  Production deployment and physical-device behavior remain untested; no app
+  runtime code changed.
+
+## Flat iPad website presentation verification — 2026-08-15
+
+- `scripts/generate_website_lifestyle_hero.sh` passes `bash -n` and generates
+  matching 1500 x 1150 sRGBA `ipad-flat-frame-v1.webp` and
+  `ipad-flat-mosaic-v1.webp` derivatives. Both combine Apple's licensed iPad
+  Pro bezel with the clean native single-photo and Mosaic captures. Visual
+  inspection confirms a consistent bezel, complete rounded screen opening,
+  correct camera and hardware details, and no controls over either capture.
+- Focused assertions require the flat asset paths, fixed graphic stage,
+  finite crossfade, and Reduce Motion fallback while rejecting former room,
+  stand, wall, perspective-warp, and lifestyle references from the homepage
+  and generator.
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. The active local preview at `http://localhost:3010/` serves both flat
+  assets and the `Actual FrameWink screens` caption with no former tabletop or
+  wall asset path. Diff hygiene passes. No app runtime or App Store screenshot
+  asset is changed by this website-only refinement; production deployment and
+  physical-device behavior remain untested.
+
+## Background-free iPad presentation verification — 2026-08-15
+
+- Focused assertions require the hero and iPad showcase figures to remain free
+  of their former background, rounded-card,
+  shadow, and padding treatments while preserving the device-level shadow.
+- The hero must continue using the real clean single-photo and Mosaic captures
+  in a finite ten-second content cycle, with the secondary state disabled when
+  Reduce Motion is enabled.
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. The local preview serves both `ipad-flat-frame-v1.webp` and
+  `ipad-flat-mosaic-v1.webp` plus the authentic-screen caption, and diff
+  hygiene passes. This refinement does not change the app runtime or App Store
+  screenshot set; production deployment remains untested.
+
+## Side-by-side iPad website showcase verification — 2026-08-15
+
+- `scripts/capture_website_pair_screenshot.sh` passes `bash -n` and its focused
+  `MarketingLandscapeScreenshotTests/testCaptureWebsitePairedPhotoScreen` run
+  passes on the iPad Pro 13-inch (M5) iOS 27.0 Simulator. The Debug-only
+  `paired-frame` scenario supplies exactly the bundled water-bird and
+  city-tower portraits to the normal automatic layout path; the UI assertion
+  sees two photo action targets while the exported clean playback capture has
+  no quick-close or playback controls.
+- The capture script exports a 1600 x 1200 sRGB bounded source, and
+  `scripts/generate_website_lifestyle_hero.sh` passes `bash -n` and produces a
+  1500 x 1150 sRGB licensed-iPad-bezel derivative. Visual inspection confirms
+  a genuine 50/50 paired layout, complete subjects, an even bezel, and no
+  screen gaps or repeated hero photos.
+- `xcodebuild -showdestinations` discovers both iPhone and iPad Simulator
+  families. A Debug build passes on the iPhone 17 Pro Max iOS 27.0 Simulator,
+  and `FrameWinkTests/FrameLayoutChooserTests` passes on the iPad Pro 13-inch
+  (M5) iOS 27.0 Simulator. Xcode emits only the existing Apple StoreKitTest
+  `SKPaymentTransactionState` deprecation warning and the screenshot run's
+  existing debugger-version lookup note.
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. The active local preview serves `ipad-flat-pair-v1.webp` and the new
+  side-by-side caption while rejecting the prior four-photo caption. Asset
+  dimensions and `git diff --check` pass. The production app path, App Store
+  screenshot count, and physical-device behavior are unchanged and were not
+  retested; production website deployment remains pending.
