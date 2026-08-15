@@ -1884,3 +1884,21 @@ explicit owner approval.
   stand, and surrounding objects remain stationary between states. Website
   tests, lint, production build, generator syntax, dimensions, and diff hygiene
   pass. Production deployment remains untested.
+
+## Dual-scenario iPad website photography verification — 2026-08-15
+
+- `scripts/generate_website_lifestyle_hero.sh` passes `bash -n` and generates
+  the 1672 x 941 `hero-tabletop-frame-v1.webp`,
+  `hero-tabletop-mosaic-v1.webp`, and
+  `ipad-wall-mounted-mosaic-v1.webp` derivatives. All three combine Apple's
+  licensed iPad Pro bezel with actual native FrameWink captures; visual
+  inspection confirms clean playback without controls and no exposed
+  placeholder-device edge.
+- The tabletop pair shares identical room, stand, bezel, perspective, and
+  shadow pixels so its 12-second crossfade changes only the FrameWink content.
+  The separate mounted scene visibly communicates the wall-display use case.
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. Generator syntax, exact dimensions, and `git diff --check` pass.
+  Production deployment and physical-device behavior remain untested; no app
+  runtime code changed.

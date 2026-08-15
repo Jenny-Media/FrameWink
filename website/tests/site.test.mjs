@@ -116,18 +116,18 @@ test("shows authentic native captures in a realistic product scene", async () =>
     source("../scripts/generate_website_lifestyle_hero.sh"),
   ]);
 
-  assert.match(home, /hero-lifestyle-frame-v7\.webp/);
-  assert.match(home, /hero-lifestyle-mosaic-v7\.webp/);
-  assert.match(home, /ipad-landscape-mosaic-clean-v2\.webp/);
-  assert.match(home, /ipad-landscape-controls-v3\.webp/);
-  assert.match(home, /actual landscape app screen/);
+  assert.match(home, /hero-tabletop-frame-v1\.webp/);
+  assert.match(home, /hero-tabletop-mosaic-v1\.webp/);
+  assert.match(home, /ipad-wall-mounted-mosaic-v1\.webp/);
+  assert.match(home, /actual landscape app screen on an iPad in a tabletop stand/);
+  assert.match(home, /wall-mounted iPad/);
   assert.match(home, /Works on iPhone too\./);
   assert.match(home, /The same private reel, adapted for a smaller screen\./);
   assert.doesNotMatch(home, /Also on iPhone/);
   assert.match(home, /From your photos to a frame in a few taps\./);
   assert.doesNotMatch(home, /From camera roll to frame in minutes\./);
-  assert.doesNotMatch(home, /hero-lifestyle-(?:frame|mosaic)-v4\.webp/);
-  assert.doesNotMatch(home, /ipad-landscape-(?:mosaic-clean|controls)\.webp/);
+  assert.doesNotMatch(home, /hero-lifestyle-(?:frame|mosaic)-v[4-7]\.webp/);
+  assert.doesNotMatch(home, /ipad-landscape-controls-v3\.webp/);
   assert.doesNotMatch(home, /steps\.map\(\(\[title, body\], index\)/);
   assert.match(home, /className="step-symbol"/);
   assert.doesNotMatch(home, /iphone-portrait-[^"']+\.webp/);
@@ -135,7 +135,8 @@ test("shows authentic native captures in a realistic product scene", async () =>
   assert.match(landscapeGenerator, /ACTUAL IN-APP SCREEN/);
   assert.doesNotMatch(landscapeGenerator, /room_base|prefix-(?:device|shell)|-strokewidth/);
   assert.doesNotMatch(portraitGenerator, /-bordercolor|-border 2/);
-  assert.doesNotMatch(styles, /\.landscape-shot\s*\{[^}]*border:/s);
+  assert.doesNotMatch(styles, /\.landscape-shot|\.landscape-gallery/);
+  assert.match(styles, /\.mounted-scene img\s*\{[^}]*border-radius:\s*24px/s);
   assert.match(styles, /\.iphone-note\s*\{[^}]*grid-template-columns:\s*minmax\(260px/s);
   assert.match(styles, /\.iphone-note\s*\{[^}]*padding-block:\s*30px/s);
   assert.doesNotMatch(styles, /\.iphone-screen-pair/);
@@ -146,8 +147,13 @@ test("shows authentic native captures in a realistic product scene", async () =>
   assert.match(styles, /\.showcase h2\s*\{[^}]*font-size:\s*clamp\(2\.55rem,\s*4\.2vw,\s*4\.5rem\)/s);
   assert.match(styles, /\.feature-card h3\s*\{[^}]*margin:\s*58px 0 18px;/s);
   assert.doesNotMatch(styles, /\.feature-card h3\s*\{[^}]*margin:\s*116px/s);
-  assert.match(lifestyleGenerator, /hero-lifestyle-base-v2\.png/);
-  assert.match(lifestyleGenerator, /M 994,349 L 1414,348 C 1425,348 1432,356 1430,368/);
-  assert.match(lifestyleGenerator, /0,0 968,339 1599,0 1442,339 1599,1199 1404,726 0,1199 898,718/);
-  assert.match(lifestyleGenerator, /hero-lifestyle-frame-v7\.webp/);
+  assert.match(lifestyleGenerator, /FRAMEWINK_IPAD_BEZEL/);
+  assert.match(lifestyleGenerator, /iPad Pro \(M5\) 13" - Space Black - Landscape\.png/);
+  assert.match(lifestyleGenerator, /ipad-lifestyle-stand-plate-v2\.png/);
+  assert.match(lifestyleGenerator, /ipad-lifestyle-wall-plate-v1\.png/);
+  assert.match(lifestyleGenerator, /roundrectangle 0,0 2751,2063 58,58/);
+  assert.match(lifestyleGenerator, /hero-tabletop-frame-v1\.webp/);
+  assert.match(lifestyleGenerator, /hero-tabletop-mosaic-v1\.webp/);
+  assert.match(lifestyleGenerator, /ipad-wall-mounted-mosaic-v1\.webp/);
+  assert.match(lifestyleGenerator, /no synthetic hardware edge/);
 });

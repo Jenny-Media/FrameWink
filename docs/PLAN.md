@@ -1260,6 +1260,27 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   Active generation, compositing, and verification time was approximately 0.7
   hours.
 
+### Dual-scenario iPad website photography — 2026-08-15
+
+- Status: implementation and local verification complete; production
+  website deployment remains pending.
+- Replaced the wire-easel hero concept with a restrained matte-black pedestal
+  stand and added a separate wall-mounted room scene to the iPad-first section.
+  The tabletop scene carries the primary everyday-use story; the mounted scene
+  demonstrates the optional long-term display use case without adding another
+  configuration-heavy section.
+- Kept generated imagery limited to the room, stand, mounting context, and
+  natural shadows. The final derivatives cover the generated placeholder
+  device with Apple's licensed iPad Pro bezel and place actual native
+  FrameWink captures beneath that bezel. No generated device hardware is used
+  as product representation.
+- Reworked the lifestyle generator around the official 3000 x 2300 bezel,
+  its exact 2752 x 2064 screen opening, and independent perspective mappings
+  for the tabletop and wall scenes. Seven website contract tests, ESLint, the
+  static production build, generator syntax, exact dimensions, and diff
+  hygiene pass. Active generation, implementation, and verification time was
+  approximately 1.0 hour.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

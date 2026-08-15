@@ -114,8 +114,8 @@ export default function Home() {
           <figure className="hero-room-scene">
             <Image
               className="hero-lifestyle-image hero-lifestyle-primary"
-              src="/images/hero-lifestyle-frame-v7.webp"
-              alt="Concept living room scene with FrameWink displaying an actual landscape app screen on an iPad"
+              src="/images/hero-tabletop-frame-v1.webp"
+              alt="FrameWink displaying an actual landscape app screen on an iPad in a tabletop stand"
               width={1672}
               height={941}
               sizes="(max-width: 900px) 100vw, 58vw"
@@ -123,7 +123,7 @@ export default function Home() {
             />
             <Image
               className="hero-lifestyle-image hero-lifestyle-secondary"
-              src="/images/hero-lifestyle-mosaic-v7.webp"
+              src="/images/hero-tabletop-mosaic-v1.webp"
               alt=""
               aria-hidden="true"
               width={1672}
@@ -182,33 +182,18 @@ export default function Home() {
             "Controls that fade away while photos play",
           ]} />
         </div>
-        <div className="landscape-gallery">
-          <figure className="landscape-shot landscape-shot-main">
-            <Image
-              src="/images/ipad-landscape-mosaic-clean-v2.webp"
-              alt="Native FrameWink iPad capture arranging four photos automatically"
-              width={1600}
-              height={1200}
-              sizes="(max-width: 900px) 92vw, 49vw"
-              placeholder="blur"
-              blurDataURL={imagePlaceholder}
-              loading="eager"
-            />
-            <figcaption>Automatic layouts use the full iPad canvas.</figcaption>
-          </figure>
-          <figure className="landscape-shot landscape-shot-secondary">
-            <Image
-              src="/images/ipad-landscape-controls-v3.webp"
-              alt="Native FrameWink iPad capture with photo-duration controls visible"
-              width={1600}
-              height={1200}
-              sizes="(max-width: 900px) 76vw, 30vw"
-              placeholder="blur"
-              blurDataURL={imagePlaceholder}
-            />
-            <figcaption>Adjust timing, then let the controls disappear.</figcaption>
-          </figure>
-        </div>
+        <figure className="mounted-scene">
+          <Image
+            src="/images/ipad-wall-mounted-mosaic-v1.webp"
+            alt="FrameWink showing an automatic four-photo layout on a wall-mounted iPad"
+            width={1672}
+            height={941}
+            sizes="(max-width: 900px) 92vw, 54vw"
+            placeholder="blur"
+            blurDataURL={imagePlaceholder}
+          />
+          <figcaption>A calm mounted display, with no controls left on screen.</figcaption>
+        </figure>
       </section>
 
       <section className="iphone-note content-section" id="iphone" aria-labelledby="iphone-heading">
