@@ -1817,3 +1817,19 @@ explicit owner approval.
   lookup message. Physical-device behavior was not changed by this Debug-only
   screenshot-fixture update. Production deployment, App Store upload, and
   resubmission remain intentionally untested.
+
+## iPad-first website positioning verification — 2026-08-15
+
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route.
+- The website source and rendered homepage contain the compact `Also on
+  iPhone` compatibility note and no longer reference any
+  `iphone-portrait-*.webp` marketing image. The associated two-phone layout
+  styles were also removed.
+- Browser review at a 1280 x 720 viewport confirms the 175-pixel compatibility
+  note reads as a restrained transition between the iPad showcase and the
+  three-step product flow. It contains no competing device screenshots or
+  advanced-feature UI.
+- No app runtime, App Store screenshot asset, product capability, or platform
+  availability setting changed. Production deployment remains untested.

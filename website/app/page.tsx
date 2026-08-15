@@ -211,42 +211,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="iphone-companion content-section" id="iphone" aria-labelledby="iphone-heading">
-        <div className="iphone-screen-pair" aria-label="Actual FrameWink iPhone playback screens">
-          <figure>
-            <Image
-              src="/images/iphone-portrait-single-clean-v2.webp"
-              alt="Native FrameWink screen fitting one portrait photo on iPhone"
-              width={660}
-              height={1434}
-              sizes="(max-width: 760px) 43vw, 22vw"
-              placeholder="blur"
-              blurDataURL={imagePlaceholder}
-            />
-            <figcaption>Whole-photo framing</figcaption>
-          </figure>
-          <figure>
-            <Image
-              src="/images/iphone-portrait-tower-clean-v1.webp"
-              alt="Native FrameWink screen fitting a city-tower photo on iPhone"
-              width={660}
-              height={1434}
-              sizes="(max-width: 760px) 43vw, 22vw"
-              placeholder="blur"
-              blurDataURL={imagePlaceholder}
-              loading="eager"
-            />
-            <figcaption>Clean playback</figcaption>
-          </figure>
-        </div>
-        <div>
-          <p className="section-kicker">Works on iPhone too</p>
-          <h2 id="iphone-heading">Your photos, wherever you are.</h2>
-          <p>
-            Careful framing, natural swipes, and direct sharing fit the iPhone
-            in your pocket or on your desk.
-          </p>
-        </div>
+      <section className="iphone-note content-section" id="iphone" aria-labelledby="iphone-heading">
+        <p className="section-kicker">Also on iPhone</p>
+        <h2 id="iphone-heading">Works on iPhone too.</h2>
+        <p>The same private reel, adapted for a smaller screen.</p>
       </section>
 
       <section className="steps-section content-section" id="how-it-works" aria-labelledby="steps-heading">

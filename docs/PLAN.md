@@ -1177,6 +1177,24 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   all pass. Active implementation and verification time was approximately 0.6
   hours.
 
+### iPad-first website positioning refinement — 2026-08-15
+
+- Status: local implementation and verification complete; production website
+  deployment remains pending.
+- Removed the oversized two-screen iPhone showcase from the public homepage so
+  the website keeps its visual emphasis on the primary iPad photo-frame use
+  case. The App Store iPhone screenshot set remains available for customers who
+  inspect the iPhone product page.
+- Replaced the removed showcase with a compact compatibility note: `Also on
+  iPhone`, `Works on iPhone too.`, and `The same private reel, adapted for a
+  smaller screen.` This preserves clear universal-app positioning without
+  asking the iPhone experience to compete with the iPad story.
+- Added source-level regression coverage preventing portrait iPhone marketing
+  captures and their former layout styles from returning to the homepage.
+  Seven website tests, ESLint, the static production build, diff hygiene, and
+  local browser review all pass. Active implementation and verification time
+  was approximately 0.3 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

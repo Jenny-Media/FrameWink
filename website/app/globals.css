@@ -471,57 +471,34 @@ h1 {
   z-index: 2;
 }
 
-.iphone-companion {
-  align-items: center;
+.iphone-note {
+  align-items: end;
+  border-bottom: 1px solid rgb(17 23 53 / 14%);
+  border-top: 1px solid rgb(17 23 53 / 14%);
   display: grid;
-  gap: clamp(48px, 8vw, 120px);
-  grid-template-columns: minmax(420px, 1.1fr) minmax(280px, 0.9fr);
+  gap: 18px clamp(36px, 7vw, 108px);
+  grid-template-columns: minmax(260px, 0.8fr) minmax(320px, 1.2fr);
+  padding-block: 48px;
 }
 
-.iphone-screen-pair {
-  align-items: flex-start;
-  display: flex;
-  gap: clamp(14px, 2vw, 24px);
-  justify-content: center;
-}
-
-.iphone-screen-pair figure {
+.iphone-note .section-kicker {
+  grid-column: 1 / -1;
   margin: 0;
-  width: min(48%, 340px);
 }
 
-.iphone-screen-pair figure:nth-child(2) { margin-top: 52px; }
-
-.iphone-screen-pair figure img {
-  border-radius: 18px;
-  box-shadow: 0 30px 70px rgb(17 23 53 / 18%);
-  display: block;
-  height: auto;
-  width: 100%;
-}
-
-.iphone-screen-pair figcaption {
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 680;
-  letter-spacing: 0.02em;
-  padding: 13px 4px 0;
-  text-align: center;
-}
-
-.iphone-companion h2 {
-  font-size: clamp(2.55rem, 5vw, 5rem);
+.iphone-note h2 {
+  font-size: clamp(2.15rem, 3.5vw, 3.8rem);
   font-weight: 750;
   letter-spacing: -0.06em;
-  line-height: 0.98;
+  line-height: 1;
   margin: 0;
 }
 
-.iphone-companion div > p:last-child {
+.iphone-note > p:last-child {
   color: var(--muted);
   font-size: 1.08rem;
   line-height: 1.65;
-  margin: 28px 0 0;
+  margin: 0 0 4px;
 }
 
 .centered-heading {
@@ -791,8 +768,7 @@ h1 {
   .feature-card { min-height: 250px; }
   .feature-card h3 { margin-top: 52px; }
   .landscape-gallery { margin: 0 auto; max-width: 760px; width: 100%; }
-  .iphone-companion { grid-template-columns: 1fr; }
-  .iphone-screen-pair { max-width: 700px; }
+  .iphone-note { grid-template-columns: 1fr; }
   .review-callout { grid-template-columns: auto 1fr; margin-inline: 24px; }
   .review-callout .secondary-action { grid-column: 1 / -1; }
   .site-footer { grid-template-columns: 1fr; }
@@ -819,8 +795,7 @@ h1 {
   .landscape-shot { border-radius: 16px; }
   .landscape-shot-main { width: 94%; }
   .landscape-shot-secondary { width: 68%; }
-  .iphone-companion { gap: 46px; }
-  .iphone-screen-pair figure { border-radius: 14px; }
+  .iphone-note { padding-block: 40px; }
   .steps-grid, .plan-grid { grid-template-columns: 1fr; }
   .steps-grid { gap: 42px; margin-top: 52px; }
   .steps-grid .step-symbol { margin-bottom: 34px; }
