@@ -1937,3 +1937,31 @@ explicit owner approval.
   `ipad-flat-mosaic-v1.webp` plus the authentic-screen caption, and diff
   hygiene passes. This refinement does not change the app runtime or App Store
   screenshot set; production deployment remains untested.
+
+## Side-by-side iPad website showcase verification — 2026-08-15
+
+- `scripts/capture_website_pair_screenshot.sh` passes `bash -n` and its focused
+  `MarketingLandscapeScreenshotTests/testCaptureWebsitePairedPhotoScreen` run
+  passes on the iPad Pro 13-inch (M5) iOS 27.0 Simulator. The Debug-only
+  `paired-frame` scenario supplies exactly the bundled water-bird and
+  city-tower portraits to the normal automatic layout path; the UI assertion
+  sees two photo action targets while the exported clean playback capture has
+  no quick-close or playback controls.
+- The capture script exports a 1600 x 1200 sRGB bounded source, and
+  `scripts/generate_website_lifestyle_hero.sh` passes `bash -n` and produces a
+  1500 x 1150 sRGB licensed-iPad-bezel derivative. Visual inspection confirms
+  a genuine 50/50 paired layout, complete subjects, an even bezel, and no
+  screen gaps or repeated hero photos.
+- `xcodebuild -showdestinations` discovers both iPhone and iPad Simulator
+  families. A Debug build passes on the iPhone 17 Pro Max iOS 27.0 Simulator,
+  and `FrameWinkTests/FrameLayoutChooserTests` passes on the iPad Pro 13-inch
+  (M5) iOS 27.0 Simulator. Xcode emits only the existing Apple StoreKitTest
+  `SKPaymentTransactionState` deprecation warning and the screenshot run's
+  existing debugger-version lookup note.
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. The active local preview serves `ipad-flat-pair-v1.webp` and the new
+  side-by-side caption while rejecting the prior four-photo caption. Asset
+  dimensions and `git diff --check` pass. The production app path, App Store
+  screenshot count, and physical-device behavior are unchanged and were not
+  retested; production website deployment remains pending.

@@ -118,6 +118,9 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
 
   assert.match(home, /ipad-flat-frame-v1\.webp/);
   assert.match(home, /ipad-flat-mosaic-v1\.webp/);
+  assert.match(home, /ipad-flat-pair-v1\.webp/);
+  assert.match(home, /Compatible portraits sit side by side automatically\./);
+  assert.doesNotMatch(home, /automatic four-photo layout/i);
   assert.match(home, /Actual FrameWink screens/);
   assert.doesNotMatch(home, /hero-tabletop|ipad-wall-mounted|hero-lifestyle/);
   assert.doesNotMatch(home, /tabletop stand|wall-mounted iPad/);
@@ -158,9 +161,11 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.match(lifestyleGenerator, /iPad Pro \(M5\) 13" - Space Black - Landscape\.png/);
   assert.match(lifestyleGenerator, /ipad-landscape-frame-clean-v2\.webp/);
   assert.match(lifestyleGenerator, /ipad-landscape-mosaic-clean-v2\.webp/);
+  assert.match(lifestyleGenerator, /ipad-landscape-pair-clean-v1\.webp/);
   assert.match(lifestyleGenerator, /roundrectangle 0,0 2751,2063 58,58/);
   assert.match(lifestyleGenerator, /ipad-flat-frame-v1\.webp/);
   assert.match(lifestyleGenerator, /ipad-flat-mosaic-v1\.webp/);
+  assert.match(lifestyleGenerator, /ipad-flat-pair-v1\.webp/);
   assert.doesNotMatch(lifestyleGenerator, /ipad-lifestyle-.*plate|Perspective|render_scene/);
   assert.match(lifestyleGenerator, /No generated room, stand, wall, or hardware/);
 });

@@ -72,11 +72,24 @@ final class MarketingLandscapeScreenshotTests: XCTestCase {
         )
     }
 
+    func testCaptureWebsitePairedPhotoScreen() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("The website pair capture is iPad-specific.")
+        }
+        try capture(
+            scenario: "paired-frame",
+            name: "website-landscape-pair",
+            expectsCleanPlayback: true,
+            expectedVisiblePhotoCount: 2
+        )
+    }
+
     private func capture(
         scenario: String,
         name: String,
         expectsCleanPlayback: Bool = false,
         expectsControlsPanel: Bool = false,
+        expectedVisiblePhotoCount: Int? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
@@ -111,6 +124,21 @@ final class MarketingLandscapeScreenshotTests: XCTestCase {
             XCTAssertTrue(
                 app.descendants(matching: .any)["frame-controls-panel"].waitForExistence(timeout: 2),
                 "The controls-specific capture should show the duration panel.",
+                file: file,
+                line: line
+            )
+        }
+        if let expectedVisiblePhotoCount {
+            let photoTargets = app.descendants(matching: .any).matching(
+                NSPredicate(
+                    format: "identifier BEGINSWITH %@",
+                    "frame-photo-actions-"
+                )
+            )
+            XCTAssertEqual(
+                photoTargets.count,
+                expectedVisiblePhotoCount,
+                "The capture should expose one action target per visible photo.",
                 file: file,
                 line: line
             )

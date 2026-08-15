@@ -8,6 +8,7 @@ default_bezel='/Volumes/Bezel-iPad-Pro-(M5)/PNG/iPad Pro (M5) 13" - Space Black 
 bezel=${FRAMEWINK_IPAD_BEZEL:-$default_bezel}
 frame_capture="$repo_root/website/public/images/ipad-landscape-frame-clean-v2.webp"
 mosaic_capture="$repo_root/website/public/images/ipad-landscape-mosaic-clean-v2.webp"
+pair_capture="$repo_root/website/public/images/ipad-landscape-pair-clean-v1.webp"
 website_images="$repo_root/website/public/images"
 working_directory=$(mktemp -d "${TMPDIR:-/tmp}/framewink-flat-ipad.XXXXXX")
 
@@ -18,7 +19,7 @@ trap 'rm -rf "$working_directory"' EXIT
     exit 1
 }
 
-for required_file in "$bezel" "$frame_capture" "$mosaic_capture"; do
+for required_file in "$bezel" "$frame_capture" "$mosaic_capture" "$pair_capture"; do
     [ -f "$required_file" ] || {
         echo "Required iPad presentation source is missing: $required_file" >&2
         exit 1
@@ -65,5 +66,6 @@ build_device() {
 
 build_device "$frame_capture" "$website_images/ipad-flat-frame-v1.webp"
 build_device "$mosaic_capture" "$website_images/ipad-flat-mosaic-v1.webp"
+build_device "$pair_capture" "$website_images/ipad-flat-pair-v1.webp"
 
 echo "Generated flat FrameWink iPad presentation assets in $website_images"

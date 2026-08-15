@@ -28,6 +28,7 @@ enum DebugScreenshotScenario: String {
     case sample
     case smartFrame = "smart-frame"
     case portraitFrame = "portrait-frame"
+    case pairedFrame = "paired-frame"
     case paywall
     case paywallFeatures = "paywall-features"
     case wallModeSetup = "wall-mode-setup"
@@ -56,7 +57,7 @@ enum DebugScreenshotScenario: String {
         switch self {
         case .sample, .personalReel, .sourceIntegrity, .personalImport, .albumPicker:
             return nil
-        case .smartFrame, .portraitFrame, .blackoutFrame, .frameControls:
+        case .smartFrame, .portraitFrame, .pairedFrame, .blackoutFrame, .frameControls:
             return .frameMode
         case .paywall:
             return .wallModePaywallPurchase
@@ -90,7 +91,7 @@ enum DebugScreenshotScenario: String {
 
     var hidesFrameChrome: Bool {
         switch self {
-        case .smartFrame, .portraitFrame, .mosaicFrame, .blackoutFrame:
+        case .smartFrame, .portraitFrame, .pairedFrame, .mosaicFrame, .blackoutFrame:
             return true
         default:
             return false

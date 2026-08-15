@@ -1318,6 +1318,25 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   production build, preview source verification, and diff hygiene pass. Active
   implementation and verification time was approximately 0.3 hours.
 
+### Side-by-side iPad website showcase — 2026-08-15
+
+- Status: implementation and local verification complete; production
+  website deployment remains pending.
+- Replaced the repeated four-photo Mosaic in the iPad-first section with an
+  actual clean two-photo side-by-side FrameWink capture. It uses the automatic
+  paired-portrait layout with the bundled water-bird and city-tower samples so
+  this section introduces a distinct layout and does not repeat the hero's
+  coast, flower, road, or sunset images.
+- Added a Debug-only deterministic screenshot scenario and a focused iPad UI
+  capture that verifies two visible photo targets and no playback chrome. Keep
+  the existing App Store screenshot set unchanged; the new capture is a
+  website-only source.
+- Native iPad capture, licensed-bezel generation, the focused UI and layout
+  tests, an iPhone Simulator build, all seven website tests, lint, the static
+  production build, preview verification, script syntax, asset dimensions,
+  and diff hygiene pass. Active implementation and verification time was
+  approximately 0.5 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

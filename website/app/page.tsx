@@ -187,15 +187,15 @@ export default function Home() {
         </div>
         <figure className="flat-showcase-device">
           <Image
-            src="/images/ipad-flat-mosaic-v1.webp"
-            alt="FrameWink showing an automatic four-photo layout inside an iPad bezel"
+            src="/images/ipad-flat-pair-v1.webp"
+            alt="FrameWink showing two compatible portrait photos side by side inside an iPad bezel"
             width={1500}
             height={1150}
             sizes="(max-width: 900px) 92vw, 54vw"
             placeholder="blur"
             blurDataURL={imagePlaceholder}
           />
-          <figcaption>Automatic layouts use the iPad canvas without adding another setting.</figcaption>
+          <figcaption>Compatible portraits sit side by side automatically.</figcaption>
         </figure>
       </section>
 
