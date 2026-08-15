@@ -31,6 +31,7 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
     private let compactImportantCenterTolerance = 0.18
     private let compactImportantEdgeInset = 0.07
     private let compactSingleMinimumSourceFraction = 0.70
+    private let multiPhotoMinimumSourceFraction = 0.68
     private let largeMinimumDimension = 900
     private let compatibilityLookahead = 4
     private let nearbyEventInterval: TimeInterval = 12 * 60 * 60
@@ -288,7 +289,8 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
         cellAspectRatio: Double,
         id: String
     ) -> FrameLayoutPlacement? {
-        if let crop = safeCrop(for: item, targetAspectRatio: cellAspectRatio) {
+        if let crop = safeCrop(for: item, targetAspectRatio: cellAspectRatio),
+           crop.width * crop.height >= multiPhotoMinimumSourceFraction {
             return FrameLayoutPlacement(
                 id: id,
                 photoID: item.id,

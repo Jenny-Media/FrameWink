@@ -174,8 +174,8 @@ set. Do not use private tester photos.
    badge and no permission dialog.
 2. **Your best 30 — Free:** Smart Reel review grid showing local suggestions and
    `Never Show Again`.
-3. **Made for an iPad — Free:** landscape Frame Mode with a paired-portrait
-   layout and visible Share, pause, and More controls.
+3. **Made for an iPad — Free:** clean landscape Frame Mode featuring the
+   project-owned aerial coast photo with no transient playback chrome.
 4. **A one-time wall upgrade — Paid:** the $4.99 non-consumable paywall with the
    full Free Smart Reel comparison and Restore Purchases.
 5. **Fresh from your album — Paid:** the Photos-familiar progressive album grid
@@ -184,7 +184,8 @@ set. Do not use private tester photos.
    with the selected 30-second default and direct 10-second, 30-second,
    1-minute, and 5-minute choices.
 7. **Made for every photo — Paid:** An automatic multi-photo frame that shows
-   a balanced Mosaic without exposing another layout setting.
+   the aerial coast, spring flowers, open road, and sunset in a balanced Mosaic
+   without exposing another layout setting.
 8. **Quiet at night — Paid:** Frame Settings with the optional schedule and
    foreground-only language visible.
 9. **Mount it honestly — Paid:** concise power, ventilation, Guided Access, and
@@ -219,11 +220,16 @@ Ten native 1320 x 2868 JPEGs for the 6.9-inch iPhone slot are committed under
 Free/Paid sequence while showing compact single-photo playback instead of
 forcing an iPad Mosaic into a narrow viewport. Regenerate and validate them
 with `scripts/capture_app_store_iphone_submission_screenshots.sh`.
+The current primary Frame image fits the complete white-bird portrait rather
+than cropping its head or reflection. The second playback card uses the city
+tower, while review and album-selection screens introduce the aerial coast,
+flowers, open road, and sunset so the gallery does not repeat one city image.
 
 Ten benefit-led marketing candidates for each device family are committed
 under `AppStore/Screenshots/Marketing/`. They keep the exact 6.9-inch iPhone and
 13-inch iPad dimensions while adding a short headline, restrained FrameWink
-background, and angled device presentation around the real native capture.
+background, and a straight, unmodified native app screen. They do not draw or
+simulate Apple hardware.
 Run `scripts/generate_app_store_marketing_screenshots.sh` to regenerate them
 and `scripts/validate_app_store_assets.sh` to validate both the native and
 marketing sets. The visual pattern is intentionally generic—one benefit per
@@ -232,7 +238,7 @@ iconography, typography, or unsupported claims.
 
 An additional iPad-first landscape library is committed under
 `AppStore/Screenshots/Landscape/` and
-`AppStore/Screenshots/Marketing-Landscape/`. It contains four native and four
+`AppStore/Screenshots/Marketing-Landscape/`. It contains ten native and ten
 captioned 2752 x 2064 iPad images, plus three native and three captioned
 2868 x 1320 iPhone images. The captioned variants place an unmodified native
 screen capture beside the message and intentionally contain no simulated
@@ -240,15 +246,22 @@ iPhone/iPad shell. Website derivatives use the same native captures. Run
 `scripts/capture_app_store_landscape_screenshots.sh` and then
 `scripts/generate_landscape_marketing_assets.sh` to regenerate them.
 
+The proposed replacement gallery is landscape-first on iPad and portrait on
+iPhone. Use all ten files from
+`AppStore/Screenshots/Marketing-Landscape/iPad-13-inch/` in filename order for
+the 13-inch iPad slot, and all ten files from
+`AppStore/Screenshots/Marketing/iPhone-6.9-inch/` in filename order for the
+6.9-inch iPhone slot. This combination leads with the mounted/tabletop iPad use
+case while keeping the portable iPhone presentation native to its geometry.
+
 For any future lifestyle image, use authentic custom photography or an
 Apple-provided product bezel under Apple's current marketing terms. Do not use
 AI-generated or hand-drawn hardware as though it were an iPhone or iPad.
 
-Version 1.0 is already `Waiting for Review`. Apple does not allow replacement
-screenshots in that state. Updating the live gallery now requires explicitly
-withdrawing the two-item submission, which changes it to `Developer Rejected`
-and requires resubmission; otherwise retain the current review queue and use
-these candidates for the next editable version.
+The owner withdrew version 1.0 from review on 2026-08-14 so the screenshot
+gallery can be replaced. The app and lifetime IAP must be put back into a
+two-item submission after the replacement galleries are approved and uploaded.
+Do not upload or resubmit until the owner approves the contact sheets.
 
 ## Xcode Cloud workflow recipe
 
@@ -299,10 +312,9 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:
   `https://github.com/Jenny-Media/FrameWink/blob/main/PRIVACY.md`
-- Website URL transition: version 1.0 is already `Waiting for Review`, so do
-  not withdraw or mutate its review package only to change URLs. At the next
-  editable metadata opportunity, use `https://frame.jenny.media` for marketing,
-  `https://frame.jenny.media/support` for support, and
+- Website URL transition: version 1.0 is editable after the owner-requested
+  withdrawal. Before resubmission, use `https://frame.jenny.media` for
+  marketing, `https://frame.jenny.media/support` for support, and
   `https://frame.jenny.media/privacy` for privacy after confirming the deployed
   routes remain live.
 - Paid Apps and Free Apps agreements: active for all regions
@@ -320,21 +332,23 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   Vision Pro: disabled (`Not Available`).
 - Product-page copy: current universal promotional text, description, keywords,
   subtitle, support, marketing, and copyright are saved.
-- App Store screenshots: both the 6.9-inch iPhone and 13-inch iPad slots have
-  their current ten-shot sets in the documented `01` through `10` order.
+- App Store screenshots: both slots still have the former submitted galleries.
+  Replace the 13-inch iPad slot with the ten landscape marketing files and the
+  6.9-inch iPhone slot with the ten portrait marketing files documented above,
+  after owner contact-sheet approval.
 - App Review contact: Yihong Chen is saved, but a final live-field audit found
   the phone and email inputs empty. Re-enter the owner-approved review contact
   immediately before submission; the private phone number is not copied into
   this public repository.
 - App Privacy is published as `Data Not Collected`; content rights are
   confirmed, and the completed all-No/None questionnaire produced a 4+ age
-  rating. B-011 is resolved by the two-item review draft.
+  rating. B-011 is reopened only for gallery replacement and resubmission.
 - The owner chose trader status for Jenny Media LLC. Apple's DSA contact
   verification is in progress under B-024; do not submit for EU distribution
   until Apple accepts the required email, phone, and business verification.
-- Review package: the submitted two-item package contains iOS 1.0 (8) and
-  `FrameWink Lifetime`; App Store Connect reports version 1.0 `Waiting for
-  Review`.
+- Review package: the owner withdrew the two-item iOS 1.0 (8) and `FrameWink
+  Lifetime` package on 2026-08-14. Recreate and resubmit that same two-item
+  package after screenshot replacement and the final metadata check.
 - Version release mode is saved as **Manually release this version**. App
   Review approval will therefore not publish version 1.0 until the Account
   Holder deliberately releases it.

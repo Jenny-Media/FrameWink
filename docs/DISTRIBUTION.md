@@ -252,7 +252,7 @@ blocker affects only a later boundary.
 
 ### B-011 — App Store declarations and review package
 
-- Status: Resolved on 2026-08-14
+- Status: Reopened on 2026-08-14 for owner-requested screenshot replacement
 - First recorded: 2026-08-12
 - Evidence: after owner confirmation on 2026-08-14, the universal subtitle,
   current promotional text, description, keywords, content-rights answer,
@@ -266,12 +266,17 @@ blocker affects only a later boundary.
   8 for version 1.0. The two-item package containing iOS 1.0 (8) and FrameWink
   Lifetime was subsequently submitted, and version 1.0 reports `Waiting for
   Review` with manual release enabled.
-- Impact: none on submission readiness. Build 6 remains internal-only by
-  design and is not the customer release candidate.
+- Current state: the owner withdrew the review submission after the original
+  package reached `Waiting for Review`. Build 8 and the lifetime IAP remain the
+  intended two-item package, but the app is not presently queued for review.
+- Impact: the new landscape-first iPad and portrait iPhone galleries must be
+  approved, uploaded, and the two-item package resubmitted. Build 6 remains
+  internal-only by design and is not the customer release candidate.
 - Does not block: Xcode Cloud setup, internal TestFlight builds, local
   validation, or repository work.
-- Next action: monitor App Review, finish the EU trader verification, and keep
-  the manual release gate closed until the remaining owner checks pass.
+- Next action: obtain owner approval of both screenshot contact sheets, replace
+  the two galleries, re-check review contact metadata, and resubmit with manual
+  release still enabled.
 
 ### B-012 — Physical PhotoKit album picker stalled after authorization
 
@@ -550,7 +555,7 @@ blocker affects only a later boundary.
 - First recorded: 2026-08-14
 - Evidence: live App Information identifies Jenny Media LLC as a non-trader for
   FrameWink, while availability covers all 175 regions and the app offers a
-  $9.99 lifetime IAP. Apple's current trader self-assessment guidance says that
+  $4.99 lifetime IAP. Apple's current trader self-assessment guidance says that
   app revenue, business activity, and a legal status associated with business
   activity are factors that may indicate trader status. Apple explicitly says
   it cannot make the legal determination for the developer. See
@@ -564,9 +569,10 @@ blocker affects only a later boundary.
   setup has advanced through trader selection and business-contact entry to
   Apple's email-code verification step. Email verification, any subsequent
   phone/document checks, and the final legally binding certification remain.
-  The review package is already submitted with manual release enabled; do not
-  release it while EU availability remains enabled until Apple accepts the
-  verification and App Information reflects the trader disclosure.
+  The owner withdrew the review package to replace screenshots. When it is
+  resubmitted, retain manual release and do not release it while EU availability
+  remains enabled until Apple accepts the verification and App Information
+  reflects the trader disclosure.
 
 ### B-025 — Automatic website deployment needs GitHub App authorization
 
@@ -585,6 +591,24 @@ blocker affects only a later boundary.
   and configure the project to ignore changes outside `website/`. Separately,
   add an Xcode Cloud Files and Folders condition that ignores website-only
   commits.
+
+### B-026 — Authentic Apple product bezel needs license acceptance
+
+- Status: Resolved on 2026-08-14
+- First recorded: 2026-08-14
+- Evidence: Apple provides official current-generation product bezels through
+  Apple Design Resources. The official iPad bezel disk image presents an Apple
+  Design Resources License that requires acceptance before its assets can be
+  mounted and used. The agent did not accept that legal agreement on behalf of
+  Jenny Media LLC without explicit owner authorization.
+- Resolution: the owner explicitly authorized acceptance on behalf of Jenny
+  Media LLC. The license was displayed through the official disk image and
+  accepted before use. Two derivative hero assets combine the official 13-inch
+  iPad Pro (M5) Space Black landscape bezel with actual FrameWink captures; the
+  standalone Apple resource is not copied into the repository.
+- Impact: none. The website room hero now reads as an authentic iPad while the
+  App Store galleries continue to use direct native screens without unnecessary
+  device decoration.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
@@ -619,17 +643,19 @@ blocker affects only a later boundary.
   Pro availability are disabled because FrameWink supports iPhone and iPad
   only. Both corresponding platform-testing options are also `Not Available`
   in `Jenny Media Internal`.
-- The English (U.S.) product page now uses `Private smart photo frame`, the
-  current universal copy and keywords, Photo & Video primary category,
-  marketing/support URLs, and the current ordered ten-shot iPhone and iPad
-  galleries. App Privacy is published as `Data Not Collected`, content rights
-  are confirmed, and App Store Connect calculated a 4+ rating. App
-  Accessibility setup is optional and has not been started.
+- The English (U.S.) product page uses `Private smart photo frame`, the current
+  universal copy and keywords, Photo & Video primary category, and the saved
+  marketing/support URLs. App Privacy is published as `Data Not Collected`,
+  content rights are confirmed, and App Store Connect calculated a 4+ rating.
+  The owner withdrew the review submission on 2026-08-14 so the existing
+  galleries can be replaced with the approved landscape-first iPad and portrait
+  iPhone sets. App Accessibility setup is optional and has not been started.
 - The `FrameWink Lifetime` IAP has its required private review screenshot. The
   accepted 1242 × 2688 JPEG is retained in the repository; public promotional
   imagery remains unset by design. Version 1.0 has submission-capable Build 8
-  selected in the same two-item review package. App Store Connect reports
-  version 1.0 `Waiting for Review`, with manual release enabled.
+  intended for the same two-item review package. Version 1.0 is no longer in
+  the review queue after the owner-requested withdrawal; manual release remains
+  the required release mode when it is resubmitted.
 
 ## Committed Xcode Cloud guardrail
 
@@ -645,13 +671,13 @@ without preventing Build, Analyze, or Test workflows.
 - The Account Holder is now a tester in `Jenny Media Internal`; install and
   smoke-test Build 8 from TestFlight on a physical iPhone or iPad.
 - Confirm the distributed-test repair in the automatic Validation workflow.
-- Release mode is set to manual. The two-item iOS 1.0 (8) and FrameWink
-  Lifetime package is submitted and `Waiting for Review`; do not withdraw or
-  replace it without an explicit owner decision or an Apple-requested change.
-- The public description now says `$4.99`. Benefit-led iPhone and iPad
-  marketing screenshot candidates are validated locally, but Apple does not
-  permit replacing screenshots while the version remains `Waiting for Review`.
-  Preserve the review queue unless the owner explicitly chooses withdrawal.
+- Release mode must remain manual. The owner withdrew the two-item iOS 1.0 (8)
+  and FrameWink Lifetime package to replace its screenshots; it must be
+  resubmitted after the new galleries and review metadata are rechecked.
+- The public description says `$4.99`. The proposed benefit-led sets are ten
+  2752 x 2064 landscape iPad images and ten 1320 x 2868 portrait iPhone images.
+  They pass local asset validation and await owner visual approval before
+  upload.
 - Finish Apple's EU trader contact verification and certification under B-024.
 - After StoreKit metadata propagation, repeat product loading through a sandbox
   or TestFlight device build and submit the first lifetime IAP with the first

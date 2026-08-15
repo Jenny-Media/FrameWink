@@ -27,6 +27,7 @@ enum DebugPhysicalAcceptanceMode {
 enum DebugScreenshotScenario: String {
     case sample
     case smartFrame = "smart-frame"
+    case portraitFrame = "portrait-frame"
     case paywall
     case paywallFeatures = "paywall-features"
     case wallModeSetup = "wall-mode-setup"
@@ -55,7 +56,7 @@ enum DebugScreenshotScenario: String {
         switch self {
         case .sample, .personalReel, .sourceIntegrity, .personalImport, .albumPicker:
             return nil
-        case .smartFrame, .blackoutFrame, .frameControls:
+        case .smartFrame, .portraitFrame, .blackoutFrame, .frameControls:
             return .frameMode
         case .paywall:
             return .wallModePaywallPurchase
@@ -81,6 +82,15 @@ enum DebugScreenshotScenario: String {
         case .wallModeSetup, .wallSchedule, .wallChecklist,
                 .automaticAlbumReview, .mosaicFrame, .blackoutFrame, .albumPicker,
                 .sourceIntegrity, .frameControls:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var hidesFrameChrome: Bool {
+        switch self {
+        case .smartFrame, .portraitFrame, .mosaicFrame, .blackoutFrame:
             return true
         default:
             return false
@@ -204,9 +214,17 @@ extension DebugScreenshotScenario {
     }
 
     private func seedFreeReview(importedStore: ImportedPhotoStoring) {
+        let reviewPhotoIDs = [
+            "sample-coast-aerial",
+            "sample-spring-flowers",
+            "sample-sunset-city",
+        ]
+        let photosByID = Dictionary(
+            uniqueKeysWithValues: BundledSampleCatalog.photos.map { ($0.id, $0) }
+        )
         let samples = zip(
             Self.importedPhotoFixtureIDs,
-            BundledSampleCatalog.photos.prefix(Self.importedPhotoFixtureIDs.count)
+            reviewPhotoIDs.compactMap { photosByID[$0] }
         )
         do {
             try importedStore.prepareDirectories()
@@ -276,10 +294,14 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
 @MainActor
 final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
     private let sampleAssets = [
+        (id: "sample-coast-aerial", resource: "sample-coast-aerial", width: 2_048, height: 1_536),
+        (id: "sample-spring-flowers", resource: "sample-spring-flowers", width: 2_048, height: 1_365),
+        (id: "sample-open-road", resource: "sample-open-road", width: 2_048, height: 1_365),
+        (id: "sample-sunset-city", resource: "sample-sunset-city", width: 2_048, height: 1_536),
         (id: "sample-city-skyline", resource: "sample-city-skyline", width: 2_048, height: 1_365),
-        (id: "sample-city-tower", resource: "sample-city-tower", width: 1_365, height: 2_048),
+        (id: "sample-evening-sail", resource: "sample-evening-sail", width: 1_365, height: 2_048),
+        (id: "sample-mountain-volcano", resource: "sample-mountain-volcano", width: 2_048, height: 1_365),
         (id: "sample-autumn-leaves", resource: "sample-autumn-leaves", width: 2_048, height: 1_365),
-        (id: "sample-city-skyline-alt", resource: "sample-city-skyline", width: 1_024, height: 1_365),
     ]
 
     func authorizationState() -> PhotoLibraryAuthorizationState {
@@ -329,7 +351,12 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         albumIdentifier: String,
         maxPixelDimension: Int
     ) async -> UIImage? {
-        let resources = BundledSampleCatalog.photos.prefix(3).map(\.resourceName)
+        let resources = [
+            "sample-coast-aerial",
+            "sample-spring-flowers",
+            "sample-sunset-city",
+            "sample-open-road",
+        ]
         let index = abs(albumIdentifier.hashValue) % resources.count
         guard let url = BundledSampleImageLoader.url(named: resources[index]) else {
             return nil
@@ -363,21 +390,6 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         guard let sample = sampleAssets.first(where: { $0.id == assetIdentifier }),
               let sourceURL = BundledSampleImageLoader.url(named: sample.resource) else {
             throw PhotoLibraryClientError.assetUnavailable
-        }
-        if assetIdentifier == "sample-city-skyline-alt",
-           let image = UIImage(contentsOfFile: sourceURL.path),
-           let cgImage = image.cgImage,
-           let detail = cgImage.cropping(
-            to: CGRect(
-                x: cgImage.width / 2,
-                y: 0,
-                width: cgImage.width / 2,
-                height: cgImage.height
-            )
-           ),
-           let data = UIImage(cgImage: detail).jpegData(compressionQuality: 0.9) {
-            try data.write(to: destinationURL, options: .atomic)
-            return
         }
         try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
     }

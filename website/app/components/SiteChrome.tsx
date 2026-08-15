@@ -22,7 +22,7 @@ export function SiteHeader() {
         <Link href="/support" aria-current={pathname === "/support" ? "page" : undefined}>Support</Link>
         {/* Native hash navigation transfers keyboard focus to the focusable target. */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a className="review-pill" href="/#availability">In App Review</a>
+        <a className="review-pill" href="/#availability">Coming Soon</a>
       </nav>
     </header>
   );

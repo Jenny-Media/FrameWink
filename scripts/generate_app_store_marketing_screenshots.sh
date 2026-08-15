@@ -29,7 +29,7 @@ find "$iphone_output" "$ipad_output" -type f -name '*.jpg' -delete
 
 iphone_files=(
     03-free-frame-mode.jpg
-    03-free-frame-mode.jpg
+    07-paid-responsive-frame.jpg
     02-free-review-grid.jpg
     05-paid-automatic-album.jpg
     06-paid-frame-controls.jpg
@@ -54,16 +54,16 @@ iphone_names=(
 )
 
 iphone_headlines=(
-    $'Turn this iPhone\ninto a private frame'
-    $'Beautiful layouts,\nautomatically'
-    $'Your best photos,\nready to enjoy'
+    $'Your photos.\nBeautifully framed.'
+    $'Made for\nevery screen.'
+    $'Review first.\nThen press play.'
     $'Choose an album.\nKeep it fresh.'
-    $'Simple controls.\nNothing to learn.'
-    $'Quiet at night,\nwhile the app is open'
-    $'Private by design.\nNo photo server.'
-    $'Built for\nmounted displays'
-    $'One $4.99 upgrade.\nNo subscription.'
-    $'Free stays useful.\nUpgrade when ready.'
+    $'Choose your pace.\nShare in a tap.'
+    $'Quiet at night,\nwhile the app is open.'
+    $'Your photos\nstay yours.'
+    $'Mount it with\nhelpful guidance.'
+    $'$4.99 once.\nNo subscription.'
+    $'Try it free.\nUpgrade when ready.'
 )
 
 ipad_files=(
@@ -93,16 +93,16 @@ ipad_names=(
 )
 
 ipad_headlines=(
-    $'Turn this iPad\ninto a private frame'
+    $'Your photos.\nBeautifully framed.'
     $'More photos,\nbeautifully arranged'
-    $'Review before they\nreach the frame'
+    $'Review first.\nThen press play.'
     $'Choose an album.\nKeep it fresh.'
-    $'Controls that stay\nout of the way'
-    $'Quiet at night,\nwhile FrameWink is open'
-    $'Private by design.\nNo photo server.'
-    $'Built for\nmounted displays'
-    $'One $4.99 upgrade.\nNo subscription.'
-    $'Free stays useful.\nUpgrade when ready.'
+    $'Choose your pace.\nShare in a tap.'
+    $'Quiet at night,\nwhile the app is open.'
+    $'Your photos\nstay yours.'
+    $'Mount it with\nhelpful guidance.'
+    $'$4.99 once.\nNo subscription.'
+    $'Try it free.\nUpgrade when ready.'
 )
 
 backgrounds=(
@@ -127,40 +127,33 @@ render_card() {
     if [ "$family" = iphone ]; then
         canvas_width=1320
         canvas_height=2868
-        device_width=1010
-        device_height=2194
-        bezel=18
-        corner_radius=96
+        screen_width=1060
+        screen_height=2301
         headline_width=1120
-        headline_point_size=100
+        headline_point_size=94
         eyebrow_point_size=30
         headline_x=96
-        headline_y=145
+        headline_y=142
         eyebrow_x=100
         eyebrow_y=88
-        device_y=650
-        if [ $((index % 2)) -eq 0 ]; then angle=-2.2; else angle=2.2; fi
+        screen_x=130
+        screen_y=520
     else
         canvas_width=2064
         canvas_height=2752
-        device_width=1740
-        device_height=2320
-        bezel=24
-        corner_radius=72
+        screen_width=1680
+        screen_height=2240
         headline_width=1740
-        headline_point_size=142
+        headline_point_size=126
         eyebrow_point_size=38
         headline_x=142
         headline_y=150
         eyebrow_x=148
         eyebrow_y=92
-        device_y=610
-        if [ $((index % 2)) -eq 0 ]; then angle=-1.5; else angle=1.5; fi
+        screen_x=192
+        screen_y=480
     fi
 
-    screen_width=$((device_width - bezel * 2))
-    screen_height=$((device_height - bezel * 2))
-    screen_radius=$((corner_radius - bezel / 2))
     prefix="$working_directory/${family}-${index}"
 
     "$magick_bin" -size "${canvas_width}x${canvas_height}" "xc:$background" \
@@ -174,34 +167,10 @@ render_card() {
 
     "$magick_bin" "$source_file" -auto-orient \
         -resize "${screen_width}x${screen_height}!" \
-        "$prefix-screen-source.png"
-
-    "$magick_bin" -size "${screen_width}x${screen_height}" xc:none \
-        -fill white \
-        -draw "roundrectangle 0,0,$((screen_width - 1)),$((screen_height - 1)),$screen_radius,$screen_radius" \
-        "$prefix-screen-mask.png"
-
-    "$magick_bin" "$prefix-screen-source.png" "$prefix-screen-mask.png" \
-        -alpha off -compose CopyOpacity -composite \
         "$prefix-screen.png"
 
-    "$magick_bin" -size "${device_width}x${device_height}" xc:none \
-        -fill '#090a0e' \
-        -draw "roundrectangle 0,0,$((device_width - 1)),$((device_height - 1)),$corner_radius,$corner_radius" \
-        "$prefix-device-shell.png"
-
-    "$magick_bin" "$prefix-device-shell.png" "$prefix-screen.png" \
-        -geometry "+${bezel}+${bezel}" -composite \
-        -fill '#ffffff33' -stroke none \
-        -draw "circle $((device_width / 2)),$((bezel / 2 + 2)) $((device_width / 2 + 3)),$((bezel / 2 + 2))" \
-        "$prefix-device.png"
-
-    "$magick_bin" "$prefix-device.png" \
-        -background none -rotate "$angle" \
-        "$prefix-device-rotated.png"
-
-    "$magick_bin" "$prefix-background.png" \
-        "$prefix-device-rotated.png" -gravity North -geometry "+0+${device_y}" -composite \
+    "$magick_bin" "$prefix-background.png" "$prefix-screen.png" \
+        -gravity northwest -geometry "+${screen_x}+${screen_y}" -composite \
         "$prefix-composed.png"
 
     "$magick_bin" -background none -fill '#111735' \
@@ -215,6 +184,9 @@ render_card() {
         -fill '#a93618' -font "$font_file" -weight 700 -pointsize "$eyebrow_point_size" \
         -kerning 3 -gravity northwest \
         -annotate "+${eyebrow_x}+${eyebrow_y}" 'FRAMEWINK · PRIVATE SMART PHOTO FRAME' \
+        -fill '#666b7d' -font "$font_file" -weight 600 -pointsize 24 \
+        -kerning 0 -gravity southeast -annotate '+72+34' \
+        'ACTUAL IN-APP SCREEN' \
         -strip -sampling-factor 4:2:0 -quality 94 \
         "$output_file"
 }

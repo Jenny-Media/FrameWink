@@ -7,6 +7,7 @@ magick_bin=${FRAMEWINK_MAGICK_BIN:-$(command -v magick || true)}
 font_file=${FRAMEWINK_SCREENSHOT_FONT:-/System/Library/Fonts/SFNSRounded.ttf}
 ipad_source="$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"
 iphone_source="$repo_root/AppStore/Screenshots/Landscape/iPhone-6.9-inch"
+iphone_portrait_source="$repo_root/AppStore/Screenshots/Submission/iPhone-6.9-inch"
 ipad_output="$repo_root/AppStore/Screenshots/Marketing-Landscape/iPad-13-inch"
 iphone_output="$repo_root/AppStore/Screenshots/Marketing-Landscape/iPhone-6.9-inch"
 website_images="$repo_root/website/public/images"
@@ -69,8 +70,6 @@ render_card() {
 
     "$magick_bin" "$prefix-background.png" "$prefix-screen.png" \
         -geometry "+${screen_x}+${screen_y}" -composite \
-        -stroke '#11173522' -strokewidth 2 -fill none \
-        -draw "rectangle $screen_x,$screen_y,$((screen_x + screen_width - 1)),$((screen_y + screen_height - 1))" \
         "$prefix-composed.png"
 
     "$magick_bin" -background none -fill '#111735' \
@@ -92,16 +91,34 @@ render_card() {
 
 render_card ipad "$ipad_source/01-landscape-frame.jpg" \
     "$ipad_output/01-private-ipad-frame.jpg" \
-    $'Make your iPad\na private frame' '#fff8e9' '#ffc94d'
+    $'Your photos.\nBeautifully framed.' '#fff8e9' '#ffc94d'
 render_card ipad "$ipad_source/02-landscape-mosaic.jpg" \
     "$ipad_output/02-automatic-landscape-layouts.jpg" \
     $'More photos,\nbeautifully arranged' '#f2f6ea' '#a9bf7b'
-render_card ipad "$ipad_source/03-landscape-controls.jpg" \
-    "$ipad_output/03-landscape-controls.jpg" \
-    $'Controls stay\nout of the way' '#edf6f6' '#12606a'
-render_card ipad "$ipad_source/04-landscape-review.jpg" \
-    "$ipad_output/04-review-before-display.jpg" \
+render_card ipad "$ipad_source/03-landscape-review.jpg" \
+    "$ipad_output/03-review-before-display.jpg" \
     $'Review first.\nEnjoy with confidence.' '#fff1eb' '#f45e36'
+render_card ipad "$ipad_source/04-landscape-album-picker.jpg" \
+    "$ipad_output/04-automatic-album.jpg" \
+    $'Choose an album.\nKeep it fresh.' '#edf6f6' '#12606a'
+render_card ipad "$ipad_source/05-landscape-controls.jpg" \
+    "$ipad_output/05-landscape-controls.jpg" \
+    $'Simple timing.\nDirect sharing.' '#fff8e9' '#ffc94d'
+render_card ipad "$ipad_source/06-landscape-sample.jpg" \
+    "$ipad_output/06-sample-before-access.jpg" \
+    $'See it first.\nChoose photos later.' '#f2f6ea' '#a9bf7b'
+render_card ipad "$ipad_source/07-landscape-night-schedule.jpg" \
+    "$ipad_output/07-night-schedule.jpg" \
+    $'Quiet at night,\nwhile the app is open.' '#eef0f6' '#111735'
+render_card ipad "$ipad_source/08-landscape-mounted-tips.jpg" \
+    "$ipad_output/08-mounted-display.jpg" \
+    $'Mounted iPad\ntips included.' '#edf6f6' '#12606a'
+render_card ipad "$ipad_source/09-landscape-lifetime-purchase.jpg" \
+    "$ipad_output/09-lifetime-upgrade.jpg" \
+    $'Just $4.99.\nNo subscription.' '#fff1eb' '#f45e36'
+render_card ipad "$ipad_source/10-landscape-lifetime-features.jpg" \
+    "$ipad_output/10-free-stays-useful.jpg" \
+    $'Free stays useful.\nUpgrade when ready.' '#fff8e9' '#ffc94d'
 
 render_card iphone "$iphone_source/01-landscape-frame.jpg" \
     "$iphone_output/01-private-iphone-frame.jpg" \
@@ -113,16 +130,38 @@ render_card iphone "$iphone_source/03-landscape-review.jpg" \
     "$iphone_output/03-review-before-display.jpg" \
     $'Review first.\nThen press play.' '#fff1eb' '#f45e36'
 
-for source_name in frame mosaic controls review; do
-    source_file=$(find "$ipad_source" -maxdepth 1 -type f -name "*-${source_name}.jpg" | head -1)
-    "$magick_bin" "$source_file" -resize '1600x1200!' -strip -quality 86 \
-        "$website_images/ipad-landscape-${source_name}.webp"
-done
+copy_website_image() {
+    source=$1
+    destination=$2
+    "$magick_bin" "$source" -resize '1600x1200!' -strip -quality 86 "$destination"
+}
+
+copy_website_image "$ipad_source/01-landscape-frame.jpg" \
+    "$website_images/ipad-landscape-frame-clean-v2.webp"
+copy_website_image "$ipad_source/02-landscape-mosaic.jpg" \
+    "$website_images/ipad-landscape-mosaic-clean-v2.webp"
+copy_website_image "$ipad_source/03-landscape-review.jpg" \
+    "$website_images/ipad-landscape-review-v2.webp"
+copy_website_image "$ipad_source/05-landscape-controls.jpg" \
+    "$website_images/ipad-landscape-controls-v3.webp"
 for source_name in frame controls review; do
     source_file=$(find "$iphone_source" -maxdepth 1 -type f -name "*-${source_name}.jpg" | head -1)
     "$magick_bin" "$source_file" -resize '1600x736!' -strip -quality 86 \
         "$website_images/iphone-landscape-${source_name}.webp"
 done
+
+"$magick_bin" "$iphone_portrait_source/03-free-frame-mode.jpg" \
+    -resize '660x1434!' -strip -quality 86 \
+    "$website_images/iphone-portrait-single-clean-v2.webp"
+"$magick_bin" "$iphone_portrait_source/06-paid-frame-controls.jpg" \
+    -resize '660x1434!' -strip -quality 86 \
+    "$website_images/iphone-portrait-controls.webp"
+"$magick_bin" "$iphone_portrait_source/02-free-review-grid.jpg" \
+    -resize '660x1434!' -strip -quality 86 \
+    "$website_images/iphone-portrait-review-v2.webp"
+"$magick_bin" "$iphone_portrait_source/07-paid-responsive-frame.jpg" \
+    -resize '660x1434!' -strip -quality 86 \
+    "$website_images/iphone-portrait-tower-clean-v1.webp"
 
 echo "Generated landscape App Store and website assets:"
 echo "  $ipad_output"

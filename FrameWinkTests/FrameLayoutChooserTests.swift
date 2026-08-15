@@ -670,6 +670,26 @@ final class FrameLayoutChooserTests: XCTestCase {
         XCTAssertTrue(pages.allSatisfy { $0.placements.count == 1 })
     }
 
+    func testMosaicDoesNotDiscardHalfOfAPortraitWhenSubjectSignalsAreMissing() throws {
+        let landscapes = (0..<3).map { index in
+            fixture(id: "landscape-\(index)", width: 1_600, height: 1_200)
+        }
+        let portrait = fixture(id: "portrait", width: 1_000, height: 1_500)
+
+        let pages = chooser.pages(
+            for: landscapes + [portrait],
+            viewport: landscapeViewport,
+            preference: .mosaic
+        )
+
+        XCTAssertFalse(
+            pages.filter { $0.placements.count > 1 }.contains { page in
+                page.placements.contains { $0.photoID == portrait.id }
+            },
+            "The portrait should move out of the collage instead of losing half its source."
+        )
+    }
+
     func testEveryMosaicFitTileMeetsTheOccupancyThreshold() throws {
         let edgeContent = [
             NormalizedRect(x: 0.2, y: 0.01, width: 0.2, height: 0.08),

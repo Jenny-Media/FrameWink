@@ -818,6 +818,15 @@ struct SampleSlideshowView: View {
     }
 
     private func showInitialGuidance() {
+#if DEBUG
+        if DebugScreenshotScenario.current?.hidesFrameChrome == true {
+            hideControlsTask?.cancel()
+            hideHintTask?.cancel()
+            controlsVisible = false
+            hintVisible = false
+            return
+        }
+#endif
         setControlsVisible(true)
         setHintVisible(!voiceOverEnabled)
         scheduleHintToRecede()

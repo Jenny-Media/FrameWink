@@ -1030,9 +1030,152 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   checks across the native and captioned portrait and landscape sets. Seven
   website regression tests, ESLint, and the static Next.js production build
   pass. Local browser inspection covers the settled hero and landscape/iPhone
-  showcase. Live App Store replacement remains unavailable while version 1.0
-  is `Waiting for Review`; the new files are candidates for the next editable
-  gallery. Active work was approximately 1.1 hours.
+  showcase. The owner subsequently withdrew version 1.0 so the galleries can be
+  replaced; approval and upload are tracked below. Active work was approximately
+  1.1 hours.
+
+### Landscape-first gallery and authentic website pass — 2026-08-14
+
+- Status: local implementation and verification complete; owner visual approval
+  and App Store upload remain pending. The owner withdrew version 1.0 from
+  review to make the galleries editable.
+- Expanded the 13-inch iPad landscape capture from four to ten current native
+  screens: single frame, Mosaic, review, automatic album selection, controls,
+  zero-permission sample, night schedule, mounted guidance, lifetime purchase,
+  and lifetime features. The proposed iPhone gallery remains ten portrait
+  images so each family is presented in its natural geometry.
+- Removed all pseudo-device shells from the marketing generators. Each card now
+  labels and shows the unmodified native screen directly. Generated contact
+  sheets are committed under `AppStore/Screenshots/Review/ContactSheets/` for
+  owner review before any App Store Connect mutation.
+- Reworked the local website hero: the wide yellow corner glow is gone, the
+  oversized sentence headline is replaced by `Your photos. Beautifully
+  framed.`, and `No second photo cloud.` is replaced by the connected promise
+  `Your photos stay yours.` The hero uses a project-owned room background with
+  a restrained, finite crossfade of actual landscape FrameWink screens, while
+  the iPhone section shows actual portrait Frame and Review screens.
+- Browser inspection passes at 1920 x 1080 and 500 x 1000. Seven website tests,
+  ESLint, the static production build, the expanded UI capture, and the complete
+  App Store asset validator pass. The owner then authorized Apple's Design
+  Resources License, B-026 was resolved, and the temporary floating-screen hero
+  was replaced by actual FrameWink captures composited into Apple's official
+  13-inch iPad Pro landscape bezel. Active work was approximately 2.2 hours.
+
+### Realistic lifestyle hero and portrait iPhone refinement — 2026-08-14
+
+- Status: implemented and available in the retained local website preview.
+  The owner rejected the first pristine room composition because the device
+  lacked a believable physical relationship with the scene.
+- Generated one new restrained apartment scene using the licensed official
+  iPad-bezel composite as the product reference. The device now rests on a real
+  tabletop stand with matching perspective, ambient light, contact shadow, and
+  ordinary room texture. To protect product accuracy, the AI-rendered screen was
+  replaced deterministically with exact FrameWink single-photo and Mosaic
+  captures using the same perspective transform. The two otherwise identical
+  scene assets crossfade only the screen content and still honor Reduce Motion.
+- Added a Debug-only `portrait-frame` scenario that presents the bundled
+  portrait city-tower sample as one iPhone frame page. The website now uses that
+  native 1320 x 2868 capture instead of another stacked layout, and the iPhone
+  heading is shortened to `Your photos, wherever you are.`
+- Both iPhone 17 Pro Max and iPad Pro 13-inch Simulator Debug builds pass. The
+  portrait scenario was launched and visually inspected on the iPhone
+  Simulator. Seven website tests, ESLint, and the static production build pass.
+  Active work was approximately 1.2 hours.
+
+### Website and screenshot content audit — 2026-08-14
+
+- Status: local implementation and verification complete; owner review and App
+  Store Connect upload remain pending. The audit covers every image currently
+  referenced by the website plus all proposed iPhone and iPad App Store cards.
+- Playback imagery now uses deterministic Debug-only clean-frame states. The
+  close button, playback bar, hint, and bottom options are absent from single-
+  photo and Mosaic marketing captures. Native controls remain only where the
+  card explicitly demonstrates timing, sharing, review, album selection,
+  scheduling, mounted guidance, or purchase behavior.
+- Removed artificial screenshot outlines, white figure cards, dark caption
+  bands, and the nested-card presentation from the website and marketing asset
+  generators. Images retain only restrained corner rounding and a shadow where
+  separation from the page background is useful.
+- Simplified the public copy around the direct product benefits: `Your photos.
+  Beautifully framed.`, `Beautiful by default.`, `Made for the places you
+  love.`, and `Your photos, wherever you are.` The iPhone showcase now pairs
+  two clean playback captures instead of prioritizing controls or review UI.
+- Rejected early blank/unsettled portrait captures during visual review. Both
+  portrait capture scripts now wait six seconds by default and fail if a
+  captured image has insufficient luminance variance, preventing blank cards
+  from silently reaching the generated gallery.
+- The replacement contact sheets pass visual inspection. The App Store asset
+  validator, seven website tests, ESLint, and the static production build all
+  pass. Active audit, recapture, and verification time was approximately 1.4
+  hours.
+
+### Subject-safe screenshot and website flow refinement — 2026-08-15
+
+- Status: local implementation and verification complete; production website
+  deployment and App Store Connect upload remain pending owner approval.
+- Fixed the reported bird failure at the layout-policy level. Multi-photo
+  placements now reject crops that retain less than 68% of the source, even
+  when Vision produced no subject rectangle. The bundled white-bird sample also
+  carries an explicit protected region covering the bird and its reflection,
+  so it falls back to Fit instead of losing the head or body.
+- Reworked deterministic screenshot fixtures to use more of the approved sample
+  set. The iPad Mosaic now combines the aerial coast, spring flowers, open road,
+  and sunset; review and album grids use the same brighter varied group. The
+  primary iPhone frame shows the complete bird portrait, and the second frame
+  uses the city tower instead of repeating the aerial image.
+- Fixed the apparently blank website iPhone card by replacing it with a newly
+  versioned Review Suggestions asset and loading both iPhone showcase images
+  eagerly. The second card now visibly contains aerial, flower, and sunset
+  review rows.
+- Replaced the bare `1`, `2`, and `3` treatment in the camera-roll flow with
+  compact Choose, Review, and Play symbols in restrained cards. The ordered-list
+  semantics remain available to assistive technology without displaying the
+  visually heavy numerals.
+- Focused layout and sample-catalog tests pass on iPhone 17 Pro Max and iPad Pro
+  13-inch Simulators. Landscape and portrait capture scripts pass their clean-
+  chrome and blank-image guards; App Store asset validation, seven website
+  tests, ESLint, production build, shell syntax, and diff hygiene pass. Active
+  implementation and verification time was approximately 1.5 hours.
+
+### Website image-cache invalidation — 2026-08-15
+
+- Status: local implementation and browser verification complete; production
+  deployment remains pending.
+- Diagnosed the apparent return of the cut-bird Mosaic and repeated Taipei
+  screenshots as stale Next.js image-optimizer output. The regenerated source
+  WebP files were correct, but their reused public paths allowed an earlier
+  transformed response to survive a development-server restart.
+- Versioned the regenerated iPad showcase and lifestyle-scene filenames, wired
+  both generation scripts to the new paths, and added regression assertions so
+  the page cannot silently return to the stale paths.
+- Seven website tests, ESLint, the static production build, generator shell
+  syntax, asset dimensions, and browser rendering pass. The local hero now
+  displays aerial, flower, road, and sunset imagery; the iPad showcase uses the
+  same varied Mosaic and a distinct autumn-leaf controls example; the iPhone
+  showcase uses clean bird and city-tower playback. Active work was
+  approximately 0.4 hours.
+
+### Website content-first showcase refinement — 2026-08-15
+
+- Status: local implementation and verification complete; production website
+  deployment and App Store Connect upload remain pending.
+- Reduced the feature-card dead space by lowering the desktop card height from
+  360 to 310 pixels and the number-to-title margin from 116 to 58 pixels, with
+  proportional tablet and compact adjustments. The numbers remain useful as a
+  scanning cue without floating apart from their content.
+- Gave the deterministic Frame Controls capture its own bright autumn-leaf
+  photo. It no longer repeats the aerial photo already visible in the adjacent
+  four-photo Mosaic; the versioned website asset prevents the previous
+  optimized image from reappearing through cache reuse.
+- Replaced the iPhone Review Suggestions card with the clean, native city-tower
+  playback capture. The iPhone showcase now demonstrates the primary product
+  experience twice—whole-photo bird framing and clean tower playback—without
+  transient controls or advanced setup UI.
+- The ten-state iPad and three-state iPhone landscape screenshot workflow,
+  App Store asset validation, seven website tests, ESLint, static production
+  build, generator syntax, diff hygiene, dimensions, and local browser review
+  all pass. Active implementation and verification time was approximately 0.6
+  hours.
 
 ## Timebox rule
 

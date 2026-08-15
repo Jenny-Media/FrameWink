@@ -7,6 +7,25 @@ struct BundledSamplePhoto {
     let title: LocalizedStringKey
     let caption: LocalizedStringKey
     let accessibilityLabel: LocalizedStringKey
+    let importantRects: [NormalizedRect]
+
+    init(
+        id: String,
+        resourceName: String,
+        pixelSize: PixelSize,
+        title: LocalizedStringKey,
+        caption: LocalizedStringKey,
+        accessibilityLabel: LocalizedStringKey,
+        importantRects: [NormalizedRect] = []
+    ) {
+        self.id = id
+        self.resourceName = resourceName
+        self.pixelSize = pixelSize
+        self.title = title
+        self.caption = caption
+        self.accessibilityLabel = accessibilityLabel
+        self.importantRects = importantRects
+    }
 
     var slide: DisplaySlide {
         DisplaySlide(
@@ -15,6 +34,7 @@ struct BundledSamplePhoto {
             caption: caption,
             accessibilityLabel: accessibilityLabel,
             source: .bundled(resourceName: resourceName),
+            importantRects: importantRects,
             bundledPixelSize: pixelSize
         )
     }
@@ -52,7 +72,10 @@ enum BundledSampleCatalog {
             pixelSize: PixelSize(width: 1_365, height: 2_048),
             title: "Quiet moments in nature",
             caption: "Bundled example · no Photos access needed",
-            accessibilityLabel: "Portrait sample photo of a white wading bird and its reflection"
+            accessibilityLabel: "Portrait sample photo of a white wading bird and its reflection",
+            importantRects: [
+                NormalizedRect(x: 0.02, y: 0.08, width: 0.96, height: 0.84),
+            ]
         ),
         BundledSamplePhoto(
             id: "sample-coast-aerial",

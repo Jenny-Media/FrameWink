@@ -118,6 +118,46 @@ final class AppModel: ObservableObject {
     }
 
     var slides: [DisplaySlide] {
+#if DEBUG
+        if let scenario = DebugScreenshotScenario.current {
+            if scenario == .portraitFrame,
+               let portrait = BundledSampleCatalog.photos.first(where: {
+                   $0.id == "sample-water-bird"
+               }) {
+                return [portrait.slide]
+            }
+            if scenario == .mosaicFrame,
+               UIDevice.current.userInterfaceIdiom == .phone,
+               let compactPhoto = BundledSampleCatalog.photos.first(where: {
+                   $0.id == "sample-city-tower"
+               }) {
+                return [compactPhoto.slide]
+            }
+            if scenario == .frameControls,
+               let controlsPhoto = BundledSampleCatalog.photos.first(where: {
+                   $0.id == "sample-autumn-leaves"
+               }) {
+                return [controlsPhoto.slide]
+            }
+            if [.smartFrame, .mosaicFrame, .frameControls, .blackoutFrame]
+                .contains(scenario) {
+                let marketingOrder = [
+                    "sample-coast-aerial",
+                    "sample-spring-flowers",
+                    "sample-open-road",
+                    "sample-sunset-city",
+                    "sample-city-skyline",
+                    "sample-evening-sail",
+                    "sample-mountain-volcano",
+                    "sample-autumn-leaves",
+                ]
+                let photosByID = Dictionary(
+                    uniqueKeysWithValues: BundledSampleCatalog.photos.map { ($0.id, $0) }
+                )
+                return marketingOrder.compactMap { photosByID[$0]?.slide }
+            }
+        }
+#endif
         if collectionMode == .personal, !importedPhotos.isEmpty {
             let photosByID = Dictionary(uniqueKeysWithValues: importedPhotos.map { ($0.id, $0) })
             let selections: [(ImportedPhoto, [NormalizedRect])]

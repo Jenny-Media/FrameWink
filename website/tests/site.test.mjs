@@ -29,7 +29,7 @@ test("keeps product promises aligned with the app contract", async () => {
 
   assert.match(home, /No account/);
   assert.match(home, /No tracking/);
-  assert.match(home, /On-device curation/);
+  assert.match(home, /Processed on your device/);
   assert.match(home, /up to 500 photos/i);
   assert.match(home, /up to 100 highlights/i);
   assert.match(home, /\$4\.99/);
@@ -107,15 +107,34 @@ test("uses the intended public domain and support address", async () => {
   assert.match(combined, /framewink@jenny\.media/);
 });
 
-test("shows authentic native captures without simulated Apple hardware", async () => {
-  const [home, generator] = await Promise.all([
+test("shows authentic native captures in a realistic product scene", async () => {
+  const [home, styles, landscapeGenerator, portraitGenerator] = await Promise.all([
     source("app/page.tsx"),
+    source("app/globals.css"),
     source("../scripts/generate_landscape_marketing_assets.sh"),
+    source("../scripts/generate_app_store_marketing_screenshots.sh"),
   ]);
 
-  assert.match(home, /ipad-landscape-frame\.webp/);
-  assert.match(home, /Actual in-app screen/);
+  assert.match(home, /hero-lifestyle-frame-v5\.webp/);
+  assert.match(home, /hero-lifestyle-mosaic-v5\.webp/);
+  assert.match(home, /ipad-landscape-mosaic-clean-v2\.webp/);
+  assert.match(home, /ipad-landscape-controls-v3\.webp/);
+  assert.match(home, /actual landscape app screen/);
+  assert.match(home, /Your photos, wherever you are\./);
+  assert.match(home, /iphone-portrait-single-clean-v2\.webp/);
+  assert.match(home, /iphone-portrait-tower-clean-v1\.webp/);
+  assert.doesNotMatch(home, /hero-lifestyle-(?:frame|mosaic)-v4\.webp/);
+  assert.doesNotMatch(home, /ipad-landscape-(?:mosaic-clean|controls)\.webp/);
+  assert.doesNotMatch(home, /steps\.map\(\(\[title, body\], index\)/);
+  assert.match(home, /className="step-symbol"/);
+  assert.doesNotMatch(home, /iphone-portrait-controls\.webp/);
+  assert.doesNotMatch(home, /iphone-portrait-review-v2\.webp/);
   assert.doesNotMatch(home, /ipad-room-frame|generic tablet/i);
-  assert.match(generator, /ACTUAL IN-APP SCREEN/);
-  assert.doesNotMatch(generator, /room_base|prefix-(?:device|shell)/);
+  assert.match(landscapeGenerator, /ACTUAL IN-APP SCREEN/);
+  assert.doesNotMatch(landscapeGenerator, /room_base|prefix-(?:device|shell)|-strokewidth/);
+  assert.doesNotMatch(portraitGenerator, /-bordercolor|-border 2/);
+  assert.doesNotMatch(styles, /\.landscape-shot\s*\{[^}]*border:/s);
+  assert.doesNotMatch(styles, /\.iphone-screen-pair figure\s*\{[^}]*border:/s);
+  assert.match(styles, /\.feature-card h3\s*\{[^}]*margin:\s*58px 0 18px;/s);
+  assert.doesNotMatch(styles, /\.feature-card h3\s*\{[^}]*margin:\s*116px/s);
 });
