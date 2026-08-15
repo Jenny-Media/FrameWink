@@ -86,11 +86,12 @@ export default function Home() {
       />
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
-          <p className="eyebrow">Your photos. Your frame. Your device.</p>
-          <h1 id="hero-title">Beautiful memories, quietly in motion.</h1>
+          <p className="eyebrow">Made for iPad. Ready for iPhone.</p>
+          <h1 id="hero-title">Turn your iPad into a private photo frame.</h1>
           <p className="hero-lede">
-            Turn the iPhone or iPad you already own into a private smart photo
-            frame, curated on your device from photos you choose.
+            FrameWink turns the screen you already own into a calm, intelligent
+            frame—curated privately on your device from photos you choose.
+            It works beautifully on iPhone too.
           </p>
           <div className="hero-actions">
             <a className="primary-action" href="#features">
@@ -110,22 +111,20 @@ export default function Home() {
         </div>
 
         <div className="hero-visual">
-          <div className="sun-orbit" aria-hidden="true" />
-          <div className="device ipad">
-            <div className="device-camera" aria-hidden="true" />
+          <figure className="hero-capture">
             <Image
-              src="/images/framewink-mosaic-ipad.jpg"
-              alt="FrameWink showing an automatic four-photo layout on an iPad"
-              width={1200}
-              height={1600}
-              sizes="(max-width: 900px) 80vw, 40vw"
-              priority
+              src="/images/ipad-landscape-frame.webp"
+              alt="Native FrameWink frame view captured in landscape on iPad"
+              width={1600}
+              height={1200}
+              sizes="(max-width: 900px) 100vw, 58vw"
+              preload
             />
-          </div>
-          <div className="icon-card" aria-hidden="true">
-            <Image src="/images/framewink-icon.png" alt="" width={96} height={96} />
-            <span>Made for iPhone &amp; iPad</span>
-          </div>
+            <figcaption>
+              <span>Actual in-app screen</span>
+              <strong>FrameWink running in landscape on iPad.</strong>
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -164,42 +163,67 @@ export default function Home() {
 
       <section className="showcase" aria-labelledby="showcase-heading">
         <div className="showcase-copy">
-          <p className="section-kicker">Made for every orientation</p>
-          <h2 id="showcase-heading">One frame that understands the space it has.</h2>
+          <p className="section-kicker">iPad-first by design</p>
+          <h2 id="showcase-heading">Made for the places your memories belong.</h2>
           <p>
-            A compact iPhone gets one clear focal image. A larger iPad can pair
-            portraits or build a calm mosaic. Resize an iPad window and the scene
-            adapts instead of leaving awkward empty space.
+            Set an iPad on a shelf, place it on a desk, or prepare it for a
+            mounted display. FrameWink uses the larger canvas for calm,
+            automatic compositions without turning setup into a project.
           </p>
           <CheckList items={[
-            "Face-safe framing that knows when to fill the screen or show the whole photo",
-            "Automatic portrait pairing and mosaics",
-            "Swipe, pause, share, and adjustable timing",
+            "Landscape single-photo and multi-photo scenes",
+            "Layouts that adapt to the current screen shape",
+            "Controls that recede when you return to the moment",
           ]} />
         </div>
-        <div className="showcase-gallery">
-          <figure className="shot shot-tall">
+        <div className="landscape-gallery">
+          <figure className="landscape-shot landscape-shot-main">
             <Image
-              src="/images/frame-iphone.jpg"
-              alt="FrameWink showing a photo in full-screen frame mode on iPhone"
-              width={737}
-              height={1600}
-              sizes="(max-width: 760px) 55vw, 25vw"
+              src="/images/ipad-landscape-mosaic.webp"
+              alt="Native FrameWink iPad capture arranging four photos automatically"
+              width={1600}
+              height={1200}
+              sizes="(max-width: 900px) 92vw, 49vw"
               placeholder="blur"
               blurDataURL={imagePlaceholder}
             />
+            <figcaption>Automatic layouts use the full iPad canvas.</figcaption>
           </figure>
-          <figure className="shot shot-wide">
+          <figure className="landscape-shot landscape-shot-secondary">
             <Image
-              src="/images/review-ipad.jpg"
-              alt="FrameWink review suggestions grid on iPad"
-              width={1200}
-              height={1600}
-              sizes="(max-width: 760px) 70vw, 34vw"
+              src="/images/ipad-landscape-controls.webp"
+              alt="Native FrameWink iPad capture with photo-duration controls visible"
+              width={1600}
+              height={1200}
+              sizes="(max-width: 900px) 76vw, 30vw"
               placeholder="blur"
               blurDataURL={imagePlaceholder}
             />
+            <figcaption>Adjust timing, then let the controls disappear.</figcaption>
           </figure>
+        </div>
+      </section>
+
+      <section className="iphone-companion content-section" aria-labelledby="iphone-heading">
+        <figure>
+          <Image
+            src="/images/iphone-landscape-frame.webp"
+            alt="Native FrameWink capture showing a photo in landscape on iPhone"
+            width={1600}
+            height={736}
+            sizes="(max-width: 760px) 92vw, 46vw"
+            placeholder="blur"
+            blurDataURL={imagePlaceholder}
+          />
+          <figcaption>Actual in-app screen · FrameWink in landscape on iPhone.</figcaption>
+        </figure>
+        <div>
+          <p className="section-kicker">Works on iPhone too</p>
+          <h2 id="iphone-heading">A smaller frame for wherever you are.</h2>
+          <p>
+            The same private reel, careful framing, natural swipe navigation,
+            and direct sharing fit the iPhone in your pocket or on your desk.
+          </p>
         </div>
       </section>
 

@@ -1652,3 +1652,22 @@ explicit owner approval.
 - Live upload remains intentionally untested: Apple prevents screenshot
   replacement while version 1.0 is `Waiting for Review`. Withdrawing would
   change the submission to `Developer Rejected` and require resubmission.
+
+## Landscape screenshot and website authenticity verification — 2026-08-14
+
+- `MarketingLandscapeScreenshotTests` passed on the iPad Pro 13-inch (M5)
+  Simulator and iPhone 17 Pro Max Simulator. `XCUIScreen` captures were rotated
+  without scaling to native 2752 x 2064 and 2868 x 1320 landscape output.
+- Four distinct iPad scenes cover single-photo playback, a four-photo Mosaic,
+  direct Frame Controls, and Review Suggestions. Three distinct iPhone scenes
+  cover playback, controls, and review; the redundant compact Mosaic capture
+  is deliberately omitted.
+- `scripts/generate_landscape_marketing_assets.sh` produces captioned cards
+  with the native screen shown directly and no generated or illustrated Apple
+  hardware. `scripts/validate_app_store_assets.sh` passes exact count,
+  dimension, alpha, and uniqueness validation for all portrait and landscape
+  source and marketing sets.
+- Website verification passes seven Node tests, ESLint, and the Next.js
+  production build. A settled 1280 x 720 browser capture confirms the iPad-first
+  hero uses the native screen without covering FrameWink controls; the iPhone
+  companion is explicitly captioned as an actual in-app screen.

@@ -1014,6 +1014,26 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   the marketing cards remain local candidates pending an owner decision or the
   next editable version. Active work is approximately 2.2 hours.
 
+### Authentic landscape screenshot expansion — 2026-08-14
+
+- Added a deterministic landscape UI capture test and regeneration script for
+  a 13-inch iPad and 6.9-inch iPhone. The native source library now contains
+  four distinct 2752 x 2064 iPad scenes and three distinct 2868 x 1320 iPhone
+  scenes; the intentionally compact iPhone layout no longer wastes a slot on a
+  duplicate Mosaic capture.
+- Rejected the first AI-generated lifestyle draft because its generic tablet
+  did not read as authentic Apple hardware. The replacement App Store cards
+  use native FrameWink output directly, label it as an actual in-app screen,
+  and contain no simulated device shell. The website is now iPad-first and
+  uses the same native landscape captures for its hero and showcase.
+- The expanded asset validator passes counts, dimensions, alpha, and uniqueness
+  checks across the native and captioned portrait and landscape sets. Seven
+  website regression tests, ESLint, and the static Next.js production build
+  pass. Local browser inspection covers the settled hero and landscape/iPhone
+  showcase. Live App Store replacement remains unavailable while version 1.0
+  is `Waiting for Review`; the new files are candidates for the next editable
+  gallery. Active work was approximately 1.1 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

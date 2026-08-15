@@ -230,6 +230,20 @@ marketing sets. The visual pattern is intentionally generic—one benefit per
 card plus a large app view—and does not reuse competitor artwork, copy,
 iconography, typography, or unsupported claims.
 
+An additional iPad-first landscape library is committed under
+`AppStore/Screenshots/Landscape/` and
+`AppStore/Screenshots/Marketing-Landscape/`. It contains four native and four
+captioned 2752 x 2064 iPad images, plus three native and three captioned
+2868 x 1320 iPhone images. The captioned variants place an unmodified native
+screen capture beside the message and intentionally contain no simulated
+iPhone/iPad shell. Website derivatives use the same native captures. Run
+`scripts/capture_app_store_landscape_screenshots.sh` and then
+`scripts/generate_landscape_marketing_assets.sh` to regenerate them.
+
+For any future lifestyle image, use authentic custom photography or an
+Apple-provided product bezel under Apple's current marketing terms. Do not use
+AI-generated or hand-drawn hardware as though it were an iPhone or iPad.
+
 Version 1.0 is already `Waiting for Review`. Apple does not allow replacement
 screenshots in that state. Updating the live gallery now requires explicitly
 withdrawing the two-item submission, which changes it to `Developer Rejected`

@@ -7,6 +7,10 @@ iphone_dir="$repo_root/AppStore/Screenshots/Submission/iPhone-6.9-inch"
 ipad_dir="$repo_root/AppStore/Screenshots/Submission/iPad-13-inch"
 iphone_marketing_dir="$repo_root/AppStore/Screenshots/Marketing/iPhone-6.9-inch"
 ipad_marketing_dir="$repo_root/AppStore/Screenshots/Marketing/iPad-13-inch"
+iphone_landscape_dir="$repo_root/AppStore/Screenshots/Landscape/iPhone-6.9-inch"
+ipad_landscape_dir="$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"
+iphone_landscape_marketing_dir="$repo_root/AppStore/Screenshots/Marketing-Landscape/iPhone-6.9-inch"
+ipad_landscape_marketing_dir="$repo_root/AppStore/Screenshots/Marketing-Landscape/iPad-13-inch"
 iap_review="$repo_root/AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg"
 icon="$repo_root/FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png"
 icon_contents="$repo_root/FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json"
@@ -107,6 +111,28 @@ validate_submission_set "$ipad_marketing_dir" 2064 2752 \
     08-mounted-display.jpg \
     09-lifetime-upgrade.jpg \
     10-free-stays-useful.jpg
+
+validate_submission_set "$iphone_landscape_dir" 2868 1320 \
+    01-landscape-frame.jpg \
+    02-landscape-controls.jpg \
+    03-landscape-review.jpg
+
+validate_submission_set "$ipad_landscape_dir" 2752 2064 \
+    01-landscape-frame.jpg \
+    02-landscape-mosaic.jpg \
+    03-landscape-controls.jpg \
+    04-landscape-review.jpg
+
+validate_submission_set "$iphone_landscape_marketing_dir" 2868 1320 \
+    01-private-iphone-frame.jpg \
+    02-landscape-controls.jpg \
+    03-review-before-display.jpg
+
+validate_submission_set "$ipad_landscape_marketing_dir" 2752 2064 \
+    01-private-ipad-frame.jpg \
+    02-automatic-landscape-layouts.jpg \
+    03-landscape-controls.jpg \
+    04-review-before-display.jpg
 
 validate_raster "$iap_review" 1242 2688
 validate_raster "$icon" 1024 1024

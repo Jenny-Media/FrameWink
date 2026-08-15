@@ -106,3 +106,16 @@ test("uses the intended public domain and support address", async () => {
   assert.match(combined, /https:\/\/frame\.jenny\.media/);
   assert.match(combined, /framewink@jenny\.media/);
 });
+
+test("shows authentic native captures without simulated Apple hardware", async () => {
+  const [home, generator] = await Promise.all([
+    source("app/page.tsx"),
+    source("../scripts/generate_landscape_marketing_assets.sh"),
+  ]);
+
+  assert.match(home, /ipad-landscape-frame\.webp/);
+  assert.match(home, /Actual in-app screen/);
+  assert.doesNotMatch(home, /ipad-room-frame|generic tablet/i);
+  assert.match(generator, /ACTUAL IN-APP SCREEN/);
+  assert.doesNotMatch(generator, /room_base|prefix-(?:device|shell)/);
+});
