@@ -1851,3 +1851,19 @@ explicit owner approval.
 - In `website/`, all seven contract tests, ESLint, and the static production
   build pass. App behavior and native App Store screenshot assets are
   unaffected; production deployment remains untested.
+
+## Website type-spacing and lifestyle-screen alignment verification — 2026-08-15
+
+- `scripts/generate_website_lifestyle_hero.sh` regenerated the versioned
+  1672 x 941 `hero-lifestyle-frame-v6.webp` and
+  `hero-lifestyle-mosaic-v6.webp` scenes. Shell syntax, exact output
+  dimensions, and focused regression assertions for the screen mask and
+  perspective corners pass.
+- Browser review at a 1280 x 720 viewport confirms the primary hero title uses
+  two lines at 49.6 pixels with `-1.736px` computed tracking. The regenerated
+  lifestyle image loads from the `v6` path, fills the iPad screen opening at
+  the top and lower-right edges, and leaves the physical bezel intact.
+- Automated browser inspection of the homepage, Privacy, Support, and Terms
+  found no overflowing document or text element. In `website/`, all seven
+  contract tests, ESLint, the static production build, generator syntax, and
+  `git diff --check` pass. Production deployment remains untested.

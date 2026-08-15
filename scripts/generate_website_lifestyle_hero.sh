@@ -18,7 +18,7 @@ trap 'rm -rf "$working_directory"' EXIT
 
 "$magick_bin" -size 1600x1200 xc:black \
     -fill white \
-    -draw 'roundrectangle 0,0,1599,1199,48,48' \
+    -draw 'roundrectangle 0,0,1599,1199,36,36' \
     "$working_directory/screen-mask.png"
 
 render_scene() {
@@ -34,7 +34,7 @@ render_scene() {
     "$magick_bin" "$masked" \
         -virtual-pixel transparent \
         -distort Perspective \
-        '0,0 986,353 1599,0 1426,353 1599,1199 1382,703 0,1199 916,698' \
+        '0,0 981,348 1599,0 1431,348 1599,1199 1388,709 0,1199 910,704' \
         "$warped"
 
     "$magick_bin" "$base" "$warped" \
@@ -45,9 +45,9 @@ render_scene() {
 
 render_scene \
     "$website_images/ipad-landscape-frame-clean-v2.webp" \
-    "$website_images/hero-lifestyle-frame-v5.webp"
+    "$website_images/hero-lifestyle-frame-v6.webp"
 render_scene \
     "$website_images/ipad-landscape-mosaic-clean-v2.webp" \
-    "$website_images/hero-lifestyle-mosaic-v5.webp"
+    "$website_images/hero-lifestyle-mosaic-v6.webp"
 
 echo "Generated clean FrameWink lifestyle hero scenes in $website_images"

@@ -1222,6 +1222,25 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   browser review pass. Active audit and implementation time was approximately
   0.5 hours.
 
+### Website type-spacing and lifestyle-screen alignment — 2026-08-15
+
+- Status: implementation and local verification complete; production website
+  deployment remains pending.
+- Relaxed the negative tracking used by the hero, section headings, feature
+  cards, workflow cards, pricing, and document headings. The hero scale was
+  adjusted at the same time so `Your photos.` and `Beautifully framed.` remain
+  a deliberate two-line composition at the audited desktop width instead of
+  returning to an awkward third line.
+- Corrected the lifestyle generator's perspective mask and target corners with
+  a restrained screen-only overscan. The generated photo now reaches the real
+  iPad display boundary without exposing the older screen at the top or lower-
+  right edges, while preserving the physical bezel and stand.
+- Versioned both lifestyle scenes as `v6` so the local and deployed Next.js
+  image caches cannot serve the misaligned composite. Added focused source
+  coverage for the looser type settings, screen-mask radius, perspective
+  corners, and versioned output paths. Active implementation and verification
+  time was approximately 0.4 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

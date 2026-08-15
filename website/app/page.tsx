@@ -114,7 +114,7 @@ export default function Home() {
           <figure className="hero-room-scene">
             <Image
               className="hero-lifestyle-image hero-lifestyle-primary"
-              src="/images/hero-lifestyle-frame-v5.webp"
+              src="/images/hero-lifestyle-frame-v6.webp"
               alt="Concept living room scene with FrameWink displaying an actual landscape app screen on an iPad"
               width={1672}
               height={941}
@@ -123,7 +123,7 @@ export default function Home() {
             />
             <Image
               className="hero-lifestyle-image hero-lifestyle-secondary"
-              src="/images/hero-lifestyle-mosaic-v5.webp"
+              src="/images/hero-lifestyle-mosaic-v6.webp"
               alt=""
               aria-hidden="true"
               width={1672}

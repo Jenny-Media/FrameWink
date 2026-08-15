@@ -108,15 +108,16 @@ test("uses the intended public domain and support address", async () => {
 });
 
 test("shows authentic native captures in a realistic product scene", async () => {
-  const [home, styles, landscapeGenerator, portraitGenerator] = await Promise.all([
+  const [home, styles, landscapeGenerator, portraitGenerator, lifestyleGenerator] = await Promise.all([
     source("app/page.tsx"),
     source("app/globals.css"),
     source("../scripts/generate_landscape_marketing_assets.sh"),
     source("../scripts/generate_app_store_marketing_screenshots.sh"),
+    source("../scripts/generate_website_lifestyle_hero.sh"),
   ]);
 
-  assert.match(home, /hero-lifestyle-frame-v5\.webp/);
-  assert.match(home, /hero-lifestyle-mosaic-v5\.webp/);
+  assert.match(home, /hero-lifestyle-frame-v6\.webp/);
+  assert.match(home, /hero-lifestyle-mosaic-v6\.webp/);
   assert.match(home, /ipad-landscape-mosaic-clean-v2\.webp/);
   assert.match(home, /ipad-landscape-controls-v3\.webp/);
   assert.match(home, /actual landscape app screen/);
@@ -139,8 +140,13 @@ test("shows authentic native captures in a realistic product scene", async () =>
   assert.match(styles, /\.iphone-note\s*\{[^}]*padding-block:\s*30px/s);
   assert.doesNotMatch(styles, /\.iphone-screen-pair/);
   assert.match(styles, /h1,\s*h2,\s*h3\s*\{\s*text-wrap:\s*balance;/s);
-  assert.match(styles, /h1\s*\{[^}]*font-size:\s*clamp\(3\.25rem,\s*4\.15vw,\s*5\.05rem\)/s);
+  assert.match(styles, /h1\s*\{[^}]*font-size:\s*clamp\(3\.1rem,\s*3\.8vw,\s*4\.8rem\)/s);
+  assert.match(styles, /h1\s*\{[^}]*letter-spacing:\s*-0\.035em/s);
+  assert.doesNotMatch(styles, /letter-spacing:\s*-0\.0(?:6[1-9]|[7-9]\d*)em/);
   assert.match(styles, /\.showcase h2\s*\{[^}]*font-size:\s*clamp\(2\.55rem,\s*4\.2vw,\s*4\.5rem\)/s);
   assert.match(styles, /\.feature-card h3\s*\{[^}]*margin:\s*58px 0 18px;/s);
   assert.doesNotMatch(styles, /\.feature-card h3\s*\{[^}]*margin:\s*116px/s);
+  assert.match(lifestyleGenerator, /roundrectangle 0,0,1599,1199,36,36/);
+  assert.match(lifestyleGenerator, /0,0 981,348 1599,0 1431,348 1599,1199 1388,709 0,1199 910,704/);
+  assert.match(lifestyleGenerator, /hero-lifestyle-frame-v6\.webp/);
 });

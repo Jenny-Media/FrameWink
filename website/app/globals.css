@@ -136,9 +136,9 @@ nav a[aria-current="page"] { opacity: 1; text-decoration: underline; text-underl
 }
 
 h1 {
-  font-size: clamp(3.25rem, 4.15vw, 5.05rem);
+  font-size: clamp(3.1rem, 3.8vw, 4.8rem);
   font-weight: 760;
-  letter-spacing: -0.068em;
+  letter-spacing: -0.035em;
   line-height: 0.94;
   margin: 0;
   max-width: 760px;
@@ -284,7 +284,7 @@ h1 {
 
 .privacy-strip h2 {
   font-size: clamp(2.5rem, 5.4vw, 5.8rem);
-  letter-spacing: -0.06em;
+  letter-spacing: -0.03em;
   line-height: 0.98;
   margin: 0;
   max-width: 900px;
@@ -323,7 +323,7 @@ h1 {
 .system-requirements h2 {
   font-size: clamp(2.55rem, 5vw, 5.4rem);
   font-weight: 750;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.03em;
   line-height: 0.98;
   margin: 0;
 }
@@ -370,7 +370,7 @@ h1 {
 
 .feature-card h3 {
   font-size: clamp(1.75rem, 2.5vw, 2.75rem);
-  letter-spacing: -0.045em;
+  letter-spacing: -0.018em;
   line-height: 1;
   margin: 58px 0 18px;
 }
@@ -496,7 +496,7 @@ h1 {
 .iphone-note h2 {
   font-size: clamp(1.65rem, 2.2vw, 2.35rem);
   font-weight: 750;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.018em;
   line-height: 1;
   margin: 0;
   white-space: nowrap;
@@ -553,7 +553,7 @@ h1 {
 
 .steps-grid h3 {
   font-size: 2rem;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.012em;
   margin: 0 0 14px;
 }
 
@@ -598,7 +598,7 @@ h1 {
 .price {
   font-size: clamp(3.5rem, 6vw, 6rem);
   font-weight: 780;
-  letter-spacing: -0.07em;
+  letter-spacing: -0.035em;
   line-height: 1;
   margin: 22px 0;
 }
@@ -720,7 +720,7 @@ h1 {
 
 .document-content { margin: 90px auto 0; max-width: 850px; }
 .document-content section { border-top: 1px solid rgb(17 23 53 / 14%); padding: 38px 0 34px; }
-.document-content h2 { font-size: clamp(1.55rem, 3vw, 2.2rem); letter-spacing: -0.035em; margin: 0 0 18px; }
+.document-content h2 { font-size: clamp(1.55rem, 3vw, 2.2rem); letter-spacing: -0.015em; margin: 0 0 18px; }
 .document-content p { color: #515668; font-size: 1.02rem; line-height: 1.75; margin: 0 0 18px; }
 .document-content p:last-child { margin-bottom: 0; }
 .document-content a { color: var(--teal); font-weight: 690; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
@@ -738,7 +738,7 @@ h1 {
 
 .help-grid h2 { font-size: clamp(2.5rem, 5vw, 4.7rem); }
 .help-grid article { border-top: 1px solid rgb(17 23 53 / 14%); padding: 28px 0; }
-.help-grid article h3 { font-size: 1.28rem; letter-spacing: -0.025em; margin: 0 0 13px; }
+.help-grid article h3 { font-size: 1.28rem; letter-spacing: -0.01em; margin: 0 0 13px; }
 .help-grid article p { color: var(--muted); line-height: 1.65; margin: 0; }
 
 .system-requirements {
