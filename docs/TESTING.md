@@ -1922,3 +1922,18 @@ explicit owner approval.
   wall asset path. Diff hygiene passes. No app runtime or App Store screenshot
   asset is changed by this website-only refinement; production deployment and
   physical-device behavior remain untested.
+
+## Background-free iPad presentation verification — 2026-08-15
+
+- Focused assertions require the hero and iPad showcase figures to remain free
+  of their former background, rounded-card,
+  shadow, and padding treatments while preserving the device-level shadow.
+- The hero must continue using the real clean single-photo and Mosaic captures
+  in a finite ten-second content cycle, with the secondary state disabled when
+  Reduce Motion is enabled.
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. The local preview serves both `ipad-flat-frame-v1.webp` and
+  `ipad-flat-mosaic-v1.webp` plus the authentic-screen caption, and diff
+  hygiene passes. This refinement does not change the app runtime or App Store
+  screenshot set; production deployment remains untested.

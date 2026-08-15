@@ -1301,6 +1301,23 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   verification pass. Active implementation and verification time was
   approximately 0.5 hours.
 
+### Background-free iPad presentation — 2026-08-15
+
+- Status: implementation and local verification complete; production
+  website deployment remains pending.
+- Removed the rounded graphic backdrop around the hero device and the nested
+  light card behind the iPad-first showcase. Kept the pale-green section
+  background as the only sectional boundary so the licensed iPad bezel can be
+  larger and visually direct.
+- Kept the hero grounded in actual clean FrameWink captures. The fixed bezel
+  crossfades between the real single-photo and automatic Mosaic states
+  three times, then settle, while Reduce Motion remains static.
+- Focused style regression coverage confirms that neither figure can regain
+  the removed card treatments and that the real-capture cycle remains finite
+  and Reduce Motion-safe. Seven website contract tests, ESLint, the static
+  production build, preview source verification, and diff hygiene pass. Active
+  implementation and verification time was approximately 0.3 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

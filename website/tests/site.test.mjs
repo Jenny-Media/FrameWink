@@ -137,9 +137,12 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.doesNotMatch(portraitGenerator, /-bordercolor|-border 2/);
   assert.doesNotMatch(styles, /\.landscape-shot|\.landscape-gallery/);
   assert.match(styles, /\.flat-device-stage\s*\{[^}]*aspect-ratio:\s*4 \/ 3/s);
+  assert.doesNotMatch(styles, /\.flat-device-stage\s*\{[^}]*(?:background|border-radius|box-shadow):/s);
   assert.match(styles, /\.flat-device-cycle\s*\{[^}]*filter:\s*drop-shadow/s);
   assert.match(styles, /\.flat-device-image\s*\{[^}]*object-fit:\s*contain/s);
-  assert.match(styles, /\.flat-device-secondary\s*\{[^}]*animation:\s*flat-device-cycle 12s ease-in-out 3/s);
+  assert.match(styles, /\.flat-device-secondary\s*\{[^}]*animation:\s*framewink-screen-cycle 10s ease-in-out 3/s);
+  assert.match(styles, /@keyframes framewink-screen-cycle/);
+  assert.doesNotMatch(styles, /\.flat-showcase-device\s*\{[^}]*(?:background|border-radius|padding):/s);
   assert.match(styles, /prefers-reduced-motion:[\s\S]*\.flat-device-secondary\s*\{\s*opacity:\s*0 !important;/);
   assert.match(styles, /\.iphone-note\s*\{[^}]*grid-template-columns:\s*minmax\(260px/s);
   assert.match(styles, /\.iphone-note\s*\{[^}]*padding-block:\s*30px/s);
