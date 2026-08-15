@@ -1185,12 +1185,12 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   the website keeps its visual emphasis on the primary iPad photo-frame use
   case. The App Store iPhone screenshot set remains available for customers who
   inspect the iPhone product page.
-- Replaced the removed showcase with a compact compatibility note: `Also on
-  iPhone`, `Works on iPhone too.`, and `The same private reel, adapted for a
-  smaller screen.` On wide layouts the note is a single restrained row rather
-  than another full feature section. This preserves clear universal-app
-  positioning without asking the iPhone experience to compete with the iPad
-  story.
+- Replaced the removed showcase with the compact compatibility note `Works on
+  iPhone too.` and `The same private reel, adapted for a smaller screen.` The
+  redundant `Also on iPhone` kicker was removed. On wide layouts the note is a
+  single restrained row rather than another full feature section. This
+  preserves clear universal-app positioning without asking the iPhone
+  experience to compete with the iPad story.
 - Replaced the time promise `From camera roll to frame in minutes.` with `From
   your photos to a frame in a few taps.` The new wording emphasizes ease,
   avoids outdated Camera Roll terminology, and does not overpromise a fixed

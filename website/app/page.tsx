@@ -212,7 +212,6 @@ export default function Home() {
       </section>
 
       <section className="iphone-note content-section" id="iphone" aria-labelledby="iphone-heading">
-        <p className="section-kicker">Also on iPhone</p>
         <h2 id="iphone-heading">Works on iPhone too.</h2>
         <p>The same private reel, adapted for a smaller screen.</p>
       </section>

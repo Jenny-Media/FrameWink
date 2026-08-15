@@ -477,13 +477,8 @@ h1 {
   border-top: 1px solid rgb(17 23 53 / 14%);
   display: grid;
   gap: clamp(24px, 3vw, 48px);
-  grid-template-columns: auto minmax(260px, 0.75fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(260px, 0.75fr) minmax(320px, 1fr);
   padding-block: 30px;
-}
-
-.iphone-note .section-kicker {
-  margin: 0;
-  white-space: nowrap;
 }
 
 .iphone-note h2 {

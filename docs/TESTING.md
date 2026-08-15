@@ -1823,10 +1823,10 @@ explicit owner approval.
 - In `website/`, `npm test` passes all seven contract tests, `npm run lint`
   passes, and `npm run build` compiles and statically generates every public
   route.
-- The website source and rendered homepage contain the compact `Also on
-  iPhone` compatibility note and no longer reference any
-  `iphone-portrait-*.webp` marketing image. The associated two-phone layout
-  styles were also removed.
+- The website source and rendered homepage contain the compact `Works on
+  iPhone too.` compatibility note without the redundant `Also on iPhone`
+  kicker and no longer reference any `iphone-portrait-*.webp` marketing image.
+  The associated two-phone layout styles were also removed.
 - Browser review at a 1280 x 720 viewport confirms the compatibility note reads
   as a restrained transition between the iPad showcase and the three-step
   product flow. Wide layouts use one compact row, while narrow layouts stack
