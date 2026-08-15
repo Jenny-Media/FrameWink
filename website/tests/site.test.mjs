@@ -107,7 +107,7 @@ test("uses the intended public domain and support address", async () => {
   assert.match(combined, /framewink@jenny\.media/);
 });
 
-test("shows authentic native captures in a realistic product scene", async () => {
+test("shows authentic native captures inside a licensed flat iPad bezel", async () => {
   const [home, styles, landscapeGenerator, portraitGenerator, lifestyleGenerator] = await Promise.all([
     source("app/page.tsx"),
     source("app/globals.css"),
@@ -116,11 +116,11 @@ test("shows authentic native captures in a realistic product scene", async () =>
     source("../scripts/generate_website_lifestyle_hero.sh"),
   ]);
 
-  assert.match(home, /hero-tabletop-frame-v1\.webp/);
-  assert.match(home, /hero-tabletop-mosaic-v1\.webp/);
-  assert.match(home, /ipad-wall-mounted-mosaic-v1\.webp/);
-  assert.match(home, /actual landscape app screen on an iPad in a tabletop stand/);
-  assert.match(home, /wall-mounted iPad/);
+  assert.match(home, /ipad-flat-frame-v1\.webp/);
+  assert.match(home, /ipad-flat-mosaic-v1\.webp/);
+  assert.match(home, /Actual FrameWink screens/);
+  assert.doesNotMatch(home, /hero-tabletop|ipad-wall-mounted|hero-lifestyle/);
+  assert.doesNotMatch(home, /tabletop stand|wall-mounted iPad/);
   assert.match(home, /Works on iPhone too\./);
   assert.match(home, /The same private reel, adapted for a smaller screen\./);
   assert.doesNotMatch(home, /Also on iPhone/);
@@ -136,7 +136,11 @@ test("shows authentic native captures in a realistic product scene", async () =>
   assert.doesNotMatch(landscapeGenerator, /room_base|prefix-(?:device|shell)|-strokewidth/);
   assert.doesNotMatch(portraitGenerator, /-bordercolor|-border 2/);
   assert.doesNotMatch(styles, /\.landscape-shot|\.landscape-gallery/);
-  assert.match(styles, /\.mounted-scene img\s*\{[^}]*border-radius:\s*24px/s);
+  assert.match(styles, /\.flat-device-stage\s*\{[^}]*aspect-ratio:\s*4 \/ 3/s);
+  assert.match(styles, /\.flat-device-cycle\s*\{[^}]*filter:\s*drop-shadow/s);
+  assert.match(styles, /\.flat-device-image\s*\{[^}]*object-fit:\s*contain/s);
+  assert.match(styles, /\.flat-device-secondary\s*\{[^}]*animation:\s*flat-device-cycle 12s ease-in-out 3/s);
+  assert.match(styles, /prefers-reduced-motion:[\s\S]*\.flat-device-secondary\s*\{\s*opacity:\s*0 !important;/);
   assert.match(styles, /\.iphone-note\s*\{[^}]*grid-template-columns:\s*minmax\(260px/s);
   assert.match(styles, /\.iphone-note\s*\{[^}]*padding-block:\s*30px/s);
   assert.doesNotMatch(styles, /\.iphone-screen-pair/);
@@ -149,11 +153,11 @@ test("shows authentic native captures in a realistic product scene", async () =>
   assert.doesNotMatch(styles, /\.feature-card h3\s*\{[^}]*margin:\s*116px/s);
   assert.match(lifestyleGenerator, /FRAMEWINK_IPAD_BEZEL/);
   assert.match(lifestyleGenerator, /iPad Pro \(M5\) 13" - Space Black - Landscape\.png/);
-  assert.match(lifestyleGenerator, /ipad-lifestyle-stand-plate-v2\.png/);
-  assert.match(lifestyleGenerator, /ipad-lifestyle-wall-plate-v1\.png/);
+  assert.match(lifestyleGenerator, /ipad-landscape-frame-clean-v2\.webp/);
+  assert.match(lifestyleGenerator, /ipad-landscape-mosaic-clean-v2\.webp/);
   assert.match(lifestyleGenerator, /roundrectangle 0,0 2751,2063 58,58/);
-  assert.match(lifestyleGenerator, /hero-tabletop-frame-v1\.webp/);
-  assert.match(lifestyleGenerator, /hero-tabletop-mosaic-v1\.webp/);
-  assert.match(lifestyleGenerator, /ipad-wall-mounted-mosaic-v1\.webp/);
-  assert.match(lifestyleGenerator, /no synthetic hardware edge/);
+  assert.match(lifestyleGenerator, /ipad-flat-frame-v1\.webp/);
+  assert.match(lifestyleGenerator, /ipad-flat-mosaic-v1\.webp/);
+  assert.doesNotMatch(lifestyleGenerator, /ipad-lifestyle-.*plate|Perspective|render_scene/);
+  assert.match(lifestyleGenerator, /No generated room, stand, wall, or hardware/);
 });

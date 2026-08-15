@@ -1902,3 +1902,23 @@ explicit owner approval.
   route. Generator syntax, exact dimensions, and `git diff --check` pass.
   Production deployment and physical-device behavior remain untested; no app
   runtime code changed.
+
+## Flat iPad website presentation verification — 2026-08-15
+
+- `scripts/generate_website_lifestyle_hero.sh` passes `bash -n` and generates
+  matching 1500 x 1150 sRGBA `ipad-flat-frame-v1.webp` and
+  `ipad-flat-mosaic-v1.webp` derivatives. Both combine Apple's licensed iPad
+  Pro bezel with the clean native single-photo and Mosaic captures. Visual
+  inspection confirms a consistent bezel, complete rounded screen opening,
+  correct camera and hardware details, and no controls over either capture.
+- Focused assertions require the flat asset paths, fixed graphic stage,
+  finite crossfade, and Reduce Motion fallback while rejecting former room,
+  stand, wall, perspective-warp, and lifestyle references from the homepage
+  and generator.
+- In `website/`, `npm test` passes all seven contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. The active local preview at `http://localhost:3010/` serves both flat
+  assets and the `Actual FrameWink screens` caption with no former tabletop or
+  wall asset path. Diff hygiene passes. No app runtime or App Store screenshot
+  asset is changed by this website-only refinement; production deployment and
+  physical-device behavior remain untested.

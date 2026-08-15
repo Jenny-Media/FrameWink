@@ -1281,6 +1281,26 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   hygiene pass. Active generation, implementation, and verification time was
   approximately 1.0 hour.
 
+### Flat iPad website presentation — 2026-08-15
+
+- Status: implementation and local verification complete; production
+  website deployment remains pending.
+- Replacing the tabletop and wall-room composites after owner review found
+  that the generated environments made the iPad feel less credible. The new
+  presentation uses Apple's licensed iPad Pro bezel with actual clean
+  FrameWink single-photo and Mosaic captures on a simple graphic stage.
+- The bezel and stage remain fixed while a finite crossfade changes only the
+  displayed FrameWink screen. Reduce Motion keeps the initial single-photo
+  state static. Review and configuration screens are intentionally excluded
+  from the hero so the primary experience remains clear and control-free.
+- The prior lifestyle assets remain available in Git history but are no longer
+  referenced by the public homepage or retained in the branch output. The
+  generator produces two matching 1500 x 1150 transparent device derivatives.
+  Seven website contract tests, generator syntax and output inspection,
+  ESLint, the static production build, diff hygiene, and local preview source
+  verification pass. Active implementation and verification time was
+  approximately 0.5 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

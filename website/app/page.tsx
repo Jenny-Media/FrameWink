@@ -110,26 +110,29 @@ export default function Home() {
           </ul>
         </div>
 
-        <div className="hero-visual" aria-label="FrameWink in a home setting">
-          <figure className="hero-room-scene">
-            <Image
-              className="hero-lifestyle-image hero-lifestyle-primary"
-              src="/images/hero-tabletop-frame-v1.webp"
-              alt="FrameWink displaying an actual landscape app screen on an iPad in a tabletop stand"
-              width={1672}
-              height={941}
-              sizes="(max-width: 900px) 100vw, 58vw"
-              preload
-            />
-            <Image
-              className="hero-lifestyle-image hero-lifestyle-secondary"
-              src="/images/hero-tabletop-mosaic-v1.webp"
-              alt=""
-              aria-hidden="true"
-              width={1672}
-              height={941}
-              sizes="(max-width: 900px) 100vw, 58vw"
-            />
+        <div className="hero-visual" aria-label="FrameWink on iPad">
+          <figure className="flat-device-stage">
+            <div className="flat-device-cycle">
+              <Image
+                className="flat-device-image flat-device-primary"
+                src="/images/ipad-flat-frame-v1.webp"
+                alt="FrameWink displaying a clean single-photo frame inside an iPad bezel"
+                width={1500}
+                height={1150}
+                sizes="(max-width: 900px) 100vw, 58vw"
+                preload
+              />
+              <Image
+                className="flat-device-image flat-device-secondary"
+                src="/images/ipad-flat-mosaic-v1.webp"
+                alt=""
+                aria-hidden="true"
+                width={1500}
+                height={1150}
+                sizes="(max-width: 900px) 100vw, 58vw"
+              />
+            </div>
+            <figcaption>Actual FrameWink screens</figcaption>
           </figure>
         </div>
       </section>
@@ -172,9 +175,9 @@ export default function Home() {
           <p className="section-kicker">iPad-first by design</p>
           <h2 id="showcase-heading">Made for the places you love.</h2>
           <p>
-            Set an iPad on a shelf, place it on a desk, or prepare it for a
-            mounted display. FrameWink uses the larger canvas for calm,
-            automatic compositions without turning setup into a project.
+            Use an iPad on a shelf, desk, or mounted display. FrameWink uses the
+            larger canvas for calm, automatic compositions without turning
+            setup into a project.
           </p>
           <CheckList items={[
             "One photo or several, arranged automatically",
@@ -182,17 +185,17 @@ export default function Home() {
             "Controls that fade away while photos play",
           ]} />
         </div>
-        <figure className="mounted-scene">
+        <figure className="flat-showcase-device">
           <Image
-            src="/images/ipad-wall-mounted-mosaic-v1.webp"
-            alt="FrameWink showing an automatic four-photo layout on a wall-mounted iPad"
-            width={1672}
-            height={941}
+            src="/images/ipad-flat-mosaic-v1.webp"
+            alt="FrameWink showing an automatic four-photo layout inside an iPad bezel"
+            width={1500}
+            height={1150}
             sizes="(max-width: 900px) 92vw, 54vw"
             placeholder="blur"
             blurDataURL={imagePlaceholder}
           />
-          <figcaption>A calm mounted display, with no controls left on screen.</figcaption>
+          <figcaption>Automatic layouts use the iPad canvas without adding another setting.</figcaption>
         </figure>
       </section>
 

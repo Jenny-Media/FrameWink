@@ -233,11 +233,14 @@ h1 {
   position: relative;
 }
 
-.hero-room-scene {
-  aspect-ratio: 16 / 10;
-  background: #ded2bc;
+.flat-device-stage {
+  aspect-ratio: 4 / 3;
+  background:
+    radial-gradient(circle at 18% 22%, rgb(255 201 77 / 46%) 0 9%, transparent 25%),
+    radial-gradient(circle at 88% 76%, rgb(18 96 106 / 18%) 0 10%, transparent 30%),
+    #edf2e3;
   border-radius: 32px;
-  box-shadow: 0 38px 90px rgb(17 23 53 / 24%);
+  box-shadow: 0 38px 90px rgb(17 23 53 / 18%);
   margin: 0;
   overflow: hidden;
   position: absolute;
@@ -247,18 +250,37 @@ h1 {
   width: 100%;
 }
 
-.hero-lifestyle-image {
+.flat-device-cycle {
+  filter: drop-shadow(0 28px 30px rgb(17 23 53 / 25%));
+  inset: 4% 2% 9%;
+  position: absolute;
+}
+
+.flat-device-image {
   display: block;
   height: 100%;
   inset: 0;
-  object-fit: cover;
+  object-fit: contain;
   position: absolute;
   width: 100%;
 }
 
-.hero-lifestyle-secondary {
-  animation: hero-screen-cycle 12s ease-in-out 3;
+.flat-device-secondary {
+  animation: flat-device-cycle 12s ease-in-out 3;
   opacity: 0;
+}
+
+.flat-device-stage figcaption {
+  bottom: 20px;
+  color: rgb(17 23 53 / 62%);
+  font-size: 0.72rem;
+  font-weight: 760;
+  left: 0;
+  letter-spacing: 0.1em;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .privacy-strip {
@@ -442,24 +464,27 @@ h1 {
   width: 7px;
 }
 
-.mounted-scene {
+.flat-showcase-device {
+  background: rgb(255 253 247 / 55%);
+  border-radius: 32px;
   margin: 0;
+  padding: clamp(22px, 3vw, 44px);
 }
 
-.mounted-scene img {
-  border-radius: 24px;
-  box-shadow: 0 30px 70px rgb(17 23 53 / 22%);
+.flat-showcase-device img {
+  filter: drop-shadow(0 24px 28px rgb(17 23 53 / 20%));
   display: block;
   height: auto;
   width: 100%;
 }
 
-.mounted-scene figcaption {
+.flat-showcase-device figcaption {
   color: #4f5748;
   font-size: 0.82rem;
   font-weight: 680;
   line-height: 1.4;
-  padding: 12px 4px 0;
+  padding: 4px 8px 0;
+  text-align: center;
 }
 
 .iphone-note {
@@ -740,7 +765,7 @@ h1 {
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-@keyframes hero-screen-cycle {
+@keyframes flat-device-cycle {
   0%, 42%, 100% { opacity: 0; }
   50%, 92% { opacity: 1; }
 }
@@ -749,12 +774,12 @@ h1 {
   .hero { grid-template-columns: 1fr; padding-top: 140px; }
   .hero-copy { max-width: 720px; }
   .hero-visual { min-height: min(64vw, 620px); }
-  .hero-room-scene { position: relative; top: auto; transform: none; }
+  .flat-device-stage { position: relative; top: auto; transform: none; }
   .split-heading, .showcase, .help-grid, .system-requirements { grid-template-columns: 1fr; }
   .feature-grid { grid-template-columns: 1fr; }
   .feature-card { min-height: 250px; }
   .feature-card h3 { margin-top: 52px; }
-  .mounted-scene { margin: 0 auto; max-width: 760px; width: 100%; }
+  .flat-showcase-device { margin: 0 auto; max-width: 760px; width: 100%; }
   .iphone-note { gap: 10px; grid-template-columns: 1fr; padding-block: 32px; }
   .iphone-note h2 { white-space: normal; }
   .review-callout { grid-template-columns: auto 1fr; margin-inline: 24px; }
@@ -772,14 +797,15 @@ h1 {
   h1 { font-size: clamp(2.65rem, 10.5vw, 3.5rem); }
   .hero-actions { align-items: flex-start; flex-direction: column; }
   .hero-visual { min-height: 78vw; }
-  .hero-room-scene { border-radius: 22px; }
+  .flat-device-stage { border-radius: 22px; }
+  .flat-device-cycle { inset: 5% 1% 11%; }
   .privacy-strip::after { height: 40px; right: 8%; top: 14%; width: 40px; }
   .content-section { padding-block: 68px; }
   .feature-grid { margin-top: 50px; }
   .feature-card { min-height: 0; padding: 27px; }
   .feature-card h3 { margin-top: 40px; }
   .showcase { grid-template-columns: 1fr; }
-  .mounted-scene img { border-radius: 16px; }
+  .flat-showcase-device { border-radius: 22px; padding: 18px; }
   .iphone-note { padding-block: 28px; }
   .steps-grid, .plan-grid { grid-template-columns: 1fr; }
   .steps-grid { gap: 42px; margin-top: 52px; }
@@ -801,5 +827,5 @@ h1 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .hero-lifestyle-secondary { opacity: 0 !important; }
+  .flat-device-secondary { opacity: 0 !important; }
 }
