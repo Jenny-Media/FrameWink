@@ -1201,6 +1201,27 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   local browser review all pass. Active implementation and verification time
   was approximately 0.4 hours.
 
+### Website typography and wrapping audit — 2026-08-15
+
+- Status: implementation and local verification complete; production website
+  deployment remains pending.
+- Audited every homepage heading and supporting copy block at a 1280 x 720
+  desktop viewport, then reviewed the Privacy, Support, and Terms routes. No
+  route has horizontal document overflow, clipped text, or an unbroken string
+  escaping its container.
+- Reduced the hero headline's fluid desktop scale so `Your photos.` and
+  `Beautifully framed.` form two deliberate lines instead of leaving
+  `Beautifully` alone. Reduced the iPad showcase heading so `Made for the
+  places you love.` forms a balanced two-line statement instead of three short
+  lines in its narrower column.
+- Added balanced heading wrapping and safe long-word wrapping across the site,
+  plus a calmer compact-screen hero scale. The existing feature, workflow,
+  pricing, availability, FAQ, Privacy, Support, and Terms typography required
+  no copy or structural changes.
+- Seven website tests, ESLint, the static production build, diff hygiene, and
+  browser review pass. Active audit and implementation time was approximately
+  0.5 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

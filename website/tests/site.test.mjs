@@ -138,6 +138,9 @@ test("shows authentic native captures in a realistic product scene", async () =>
   assert.match(styles, /\.iphone-note\s*\{[^}]*grid-template-columns:\s*minmax\(260px/s);
   assert.match(styles, /\.iphone-note\s*\{[^}]*padding-block:\s*30px/s);
   assert.doesNotMatch(styles, /\.iphone-screen-pair/);
+  assert.match(styles, /h1,\s*h2,\s*h3\s*\{\s*text-wrap:\s*balance;/s);
+  assert.match(styles, /h1\s*\{[^}]*font-size:\s*clamp\(3\.25rem,\s*4\.15vw,\s*5\.05rem\)/s);
+  assert.match(styles, /\.showcase h2\s*\{[^}]*font-size:\s*clamp\(2\.55rem,\s*4\.2vw,\s*4\.5rem\)/s);
   assert.match(styles, /\.feature-card h3\s*\{[^}]*margin:\s*58px 0 18px;/s);
   assert.doesNotMatch(styles, /\.feature-card h3\s*\{[^}]*margin:\s*116px/s);
 });

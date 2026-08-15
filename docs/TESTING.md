@@ -1836,3 +1836,18 @@ explicit owner approval.
   taps.` heading and reject the former fixed-time Camera Roll claim.
 - No app runtime, App Store screenshot asset, product capability, or platform
   availability setting changed. Production deployment remains untested.
+
+## Website typography and wrapping verification — 2026-08-15
+
+- Browser inspection at a 1280 x 720 viewport covered the complete homepage
+  and the Privacy, Support, and Terms routes. The document width equals the
+  viewport width on every checked route, and no visible heading, paragraph,
+  card, button label, FAQ question, or navigation label crosses the viewport.
+- The homepage audit identified two awkward but unclipped wraps: the three-line
+  hero title and the three-line iPad showcase title. Their targeted fluid type
+  scales now produce balanced two-line treatments at the audited desktop size.
+- Regression assertions require balanced heading wrapping, the revised hero
+  and showcase scales, and safe wrapping for long body and link text.
+- In `website/`, all seven contract tests, ESLint, and the static production
+  build pass. App behavior and native App Store screenshot assets are
+  unaffected; production deployment remains untested.
