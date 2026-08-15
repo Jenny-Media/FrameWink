@@ -5,6 +5,8 @@ set -eu
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 iphone_dir="$repo_root/AppStore/Screenshots/Submission/iPhone-6.9-inch"
 ipad_dir="$repo_root/AppStore/Screenshots/Submission/iPad-13-inch"
+iphone_marketing_dir="$repo_root/AppStore/Screenshots/Marketing/iPhone-6.9-inch"
+ipad_marketing_dir="$repo_root/AppStore/Screenshots/Marketing/iPad-13-inch"
 iap_review="$repo_root/AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg"
 icon="$repo_root/FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png"
 icon_contents="$repo_root/FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json"
@@ -81,6 +83,30 @@ validate_submission_set "$ipad_dir" 2064 2752 \
     08-paid-night-schedule.jpg \
     09-paid-commissioning-checklist.jpg \
     10-paid-wall-mode-features.jpg
+
+validate_submission_set "$iphone_marketing_dir" 1320 2868 \
+    01-private-frame.jpg \
+    02-automatic-layouts.jpg \
+    03-smart-reel.jpg \
+    04-fresh-album.jpg \
+    05-simple-controls.jpg \
+    06-night-schedule.jpg \
+    07-private-by-design.jpg \
+    08-mounted-display.jpg \
+    09-lifetime-upgrade.jpg \
+    10-free-stays-useful.jpg
+
+validate_submission_set "$ipad_marketing_dir" 2064 2752 \
+    01-private-frame.jpg \
+    02-automatic-layouts.jpg \
+    03-smart-reel.jpg \
+    04-fresh-album.jpg \
+    05-simple-controls.jpg \
+    06-night-schedule.jpg \
+    07-private-by-design.jpg \
+    08-mounted-display.jpg \
+    09-lifetime-upgrade.jpg \
+    10-free-stays-useful.jpg
 
 validate_raster "$iap_review" 1242 2688
 validate_raster "$icon" 1024 1024

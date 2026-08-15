@@ -1632,3 +1632,23 @@ explicit owner approval.
   and Terms requests return HTTP 200. Rendered production HTML contains `$4.99`
   but not `$9.99`, preserves each route's canonical URL, omits homepage social
   artwork from detail routes, and exposes a focusable `#availability` target.
+
+## App Store marketing screenshot verification — 2026-08-14
+
+- App Store Connect's submitted public description was changed from `$9.99` to
+  `$4.99`, saved, and re-read with no former price remaining in the field.
+- `scripts/generate_app_store_marketing_screenshots.sh` deterministically
+  generated ten 1320 × 2868 iPhone JPEGs and ten 2064 × 2752 iPad JPEGs from
+  the current native submission captures. The generator uses ImageMagick 7,
+  project-owned media, real app UI, and no third-party artwork.
+- Contact-sheet inspection confirmed that all twenty cards are populated and
+  distinct, titles stay clear of the device compositions, and the screens do
+  not overpromise weather, remote upload, automatic relaunch, whole-library
+  access, or background scheduling.
+- `bash -n scripts/generate_app_store_marketing_screenshots.sh` and
+  `scripts/validate_app_store_assets.sh` pass. The validator covers counts,
+  exact dimensions, alpha absence, and per-set uniqueness for both native and
+  marketing galleries.
+- Live upload remains intentionally untested: Apple prevents screenshot
+  replacement while version 1.0 is `Waiting for Review`. Withdrawing would
+  change the submission to `Developer Rejected` and require resubmission.

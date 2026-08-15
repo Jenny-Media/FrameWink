@@ -648,6 +648,10 @@ without preventing Build, Analyze, or Test workflows.
 - Release mode is set to manual. The two-item iOS 1.0 (8) and FrameWink
   Lifetime package is submitted and `Waiting for Review`; do not withdraw or
   replace it without an explicit owner decision or an Apple-requested change.
+- The public description now says `$4.99`. Benefit-led iPhone and iPad
+  marketing screenshot candidates are validated locally, but Apple does not
+  permit replacing screenshots while the version remains `Waiting for Review`.
+  Preserve the review queue unless the owner explicitly chooses withdrawal.
 - Finish Apple's EU trader contact verification and certification under B-024.
 - After StoreKit metadata propagation, repeat product loading through a sandbox
   or TestFlight device build and submit the first lifetime IAP with the first

@@ -162,8 +162,8 @@ English (U.S.) display name are `FrameWink Lifetime`; its saved description is
 `Automatic albums, Mosaic, night schedules, and more.` It is priced at a $4.99
 U.S. base across all available storefronts and has Family Sharing permanently
 enabled. The version 1.0 product-page copy above is the release source of truth.
-The submitted App Store Connect description still contains the former `$9.99`
-amount and must be corrected to `$4.99` at the next editable opportunity.
+The submitted App Store Connect description was corrected to `$4.99` and saved
+on 2026-08-14.
 
 ## Screenshot plan
 
@@ -219,6 +219,22 @@ Ten native 1320 x 2868 JPEGs for the 6.9-inch iPhone slot are committed under
 Free/Paid sequence while showing compact single-photo playback instead of
 forcing an iPad Mosaic into a narrow viewport. Regenerate and validate them
 with `scripts/capture_app_store_iphone_submission_screenshots.sh`.
+
+Ten benefit-led marketing candidates for each device family are committed
+under `AppStore/Screenshots/Marketing/`. They keep the exact 6.9-inch iPhone and
+13-inch iPad dimensions while adding a short headline, restrained FrameWink
+background, and angled device presentation around the real native capture.
+Run `scripts/generate_app_store_marketing_screenshots.sh` to regenerate them
+and `scripts/validate_app_store_assets.sh` to validate both the native and
+marketing sets. The visual pattern is intentionally generic—one benefit per
+card plus a large app view—and does not reuse competitor artwork, copy,
+iconography, typography, or unsupported claims.
+
+Version 1.0 is already `Waiting for Review`. Apple does not allow replacement
+screenshots in that state. Updating the live gallery now requires explicitly
+withdrawing the two-item submission, which changes it to `Developer Rejected`
+and requires resubmission; otherwise retain the current review queue and use
+these candidates for the next editable version.
 
 ## Xcode Cloud workflow recipe
 

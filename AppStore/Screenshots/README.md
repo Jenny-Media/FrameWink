@@ -28,6 +28,15 @@ The filename and visible product UI distinguish Free from Paid Wall Mode. These
 native app screenshots are valid submission assets without marketing overlays;
 caption composition remains optional marketing polish, not a release gate.
 
+Run `scripts/generate_app_store_marketing_screenshots.sh` to turn the current
+native iPhone and iPad submission captures into a separate, deterministic
+candidate set under `Marketing/`. These cards use short benefit-led headlines,
+real FrameWink UI, Jenny Media-owned sample photos, and FrameWink's cream,
+coral, sage, teal, gold, and indigo palette. They intentionally borrow only the
+common App Store storytelling pattern of one benefit per card plus a large
+device view; they do not reuse another app's artwork, copy, iconography, or
+device compositions. Keep the native `Submission/` files as the source captures.
+
 Apple references:
 
 - [Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)

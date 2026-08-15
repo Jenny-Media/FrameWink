@@ -963,10 +963,10 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Active implementation, deployment, and validation time is approximately 2.1
   hours.
 
-### Permanent price and website review — 2026-08-14
+### Permanent price, website review, and marketing screenshots — 2026-08-14
 
-- Status: implementation and production-price update complete; one submitted
-  metadata correction remains externally gated. The owner selected and
+- Status: implementation, production-price update, and public description
+  correction are complete. The owner selected and
   confirmed a permanent $4.99 U.S. base price for
   FrameWink Lifetime while preserving the existing feature boundary and Family
   Sharing. App Store Connect now reports $4.99 in the United States, $4.24
@@ -1003,10 +1003,16 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   Support, and Terms routes return HTTP 200; the live homepage contains `$4.99`
   and no `$9.99`. Final keyboard verification confirms the header availability
   link moves focus to the callout and the next Tab reaches its email action.
-- The submitted version 1.0 description still says `$9.99`. Changing and saving
-  public App Store metadata is a separate external communication and awaits the
-  owner's action-time confirmation. It does not block the local source, website
-  deployment, or release-guard work. Active work is approximately 1.6 hours.
+- After the owner's action-time confirmation, the submitted version 1.0
+  description was corrected from `$9.99` to `$4.99` and saved in App Store
+  Connect. A separate deterministic marketing-card generator now produces ten
+  iPhone and ten iPad candidates from the native source captures. The cards use
+  one benefit-led headline per image, real FrameWink UI, project-owned media,
+  and the FrameWink palette; visual contact-sheet review and the App Store asset
+  validator pass. Apple's `Waiting for Review` state prevents replacing the
+  submitted screenshot galleries without first withdrawing the submission, so
+  the marketing cards remain local candidates pending an owner decision or the
+  next editable version. Active work is approximately 2.2 hours.
 
 ## Timebox rule
 
