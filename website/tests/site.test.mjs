@@ -116,8 +116,8 @@ test("shows authentic native captures in a realistic product scene", async () =>
     source("../scripts/generate_website_lifestyle_hero.sh"),
   ]);
 
-  assert.match(home, /hero-lifestyle-frame-v6\.webp/);
-  assert.match(home, /hero-lifestyle-mosaic-v6\.webp/);
+  assert.match(home, /hero-lifestyle-frame-v7\.webp/);
+  assert.match(home, /hero-lifestyle-mosaic-v7\.webp/);
   assert.match(home, /ipad-landscape-mosaic-clean-v2\.webp/);
   assert.match(home, /ipad-landscape-controls-v3\.webp/);
   assert.match(home, /actual landscape app screen/);
@@ -146,7 +146,8 @@ test("shows authentic native captures in a realistic product scene", async () =>
   assert.match(styles, /\.showcase h2\s*\{[^}]*font-size:\s*clamp\(2\.55rem,\s*4\.2vw,\s*4\.5rem\)/s);
   assert.match(styles, /\.feature-card h3\s*\{[^}]*margin:\s*58px 0 18px;/s);
   assert.doesNotMatch(styles, /\.feature-card h3\s*\{[^}]*margin:\s*116px/s);
-  assert.match(lifestyleGenerator, /roundrectangle 0,0,1599,1199,36,36/);
-  assert.match(lifestyleGenerator, /0,0 981,348 1599,0 1431,348 1599,1199 1388,709 0,1199 910,704/);
-  assert.match(lifestyleGenerator, /hero-lifestyle-frame-v6\.webp/);
+  assert.match(lifestyleGenerator, /hero-lifestyle-base-v2\.png/);
+  assert.match(lifestyleGenerator, /M 994,349 L 1414,348 C 1425,348 1432,356 1430,368/);
+  assert.match(lifestyleGenerator, /0,0 968,339 1599,0 1442,339 1599,1199 1404,726 0,1199 898,718/);
+  assert.match(lifestyleGenerator, /hero-lifestyle-frame-v7\.webp/);
 });

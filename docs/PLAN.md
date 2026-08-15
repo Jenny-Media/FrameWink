@@ -1241,6 +1241,25 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   corners, and versioned output paths. Active implementation and verification
   time was approximately 0.4 hours.
 
+### Regenerated lifestyle hero device composite — 2026-08-15
+
+- Status: implementation and local browser verification complete; production
+  website deployment remains pending.
+- Replaced the earlier approximate screen overlay with a regenerated
+  photorealistic base whose iPad display, inner corners, bezel, stand, lighting,
+  and room read as one physical scene. The generation pass used the existing
+  room as the edit target and the clean native aerial capture as the exact
+  screen-content reference.
+- Kept the regenerated single-photo scene as the authoritative base and built
+  the Mosaic state from those same room pixels. A destination-space Bezier mask
+  now traces the real inner display, while an oversized perspective warp is
+  clipped beneath it. This removes gaps and bezel overlap without introducing
+  background shimmer during the automatic crossfade.
+- Versioned both website hero outputs as `v7` and added focused source coverage
+  for the new base, traced screen path, perspective overscan, and public paths.
+  Active generation, compositing, and verification time was approximately 0.7
+  hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

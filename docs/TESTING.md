@@ -1867,3 +1867,20 @@ explicit owner approval.
   found no overflowing document or text element. In `website/`, all seven
   contract tests, ESLint, the static production build, generator syntax, and
   `git diff --check` pass. Production deployment remains untested.
+
+## Regenerated lifestyle hero device-composite verification — 2026-08-15
+
+- The built-in image generation edit workflow produced the 1672 x 941
+  `Design/Website/hero-lifestyle-base-v2.png` source from the existing room and
+  the clean native aerial capture. Visual inspection at 3x confirms even bezel
+  thickness and aligned rounded inner-screen corners without UI chrome.
+- `scripts/generate_website_lifestyle_hero.sh` deterministically generates
+  1672 x 941 `hero-lifestyle-frame-v7.webp` and
+  `hero-lifestyle-mosaic-v7.webp`. The second state uses the same base pixels,
+  an oversized perspective warp, and a destination-space Bezier mask; 3x
+  inspection confirms no old content, seam, gap, or bezel overlap at any edge.
+- Browser review at 1280 x 720 confirms both versioned optimized images load and
+  the 12-second crossfade changes only the iPad display. The room, device,
+  stand, and surrounding objects remain stationary between states. Website
+  tests, lint, production build, generator syntax, dimensions, and diff hygiene
+  pass. Production deployment remains untested.
