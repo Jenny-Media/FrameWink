@@ -19,12 +19,16 @@ trap 'rm -rf "$working_directory"' EXIT
     exit 1
 }
 
-for required_file in "$bezel" "$frame_capture" "$mosaic_capture" "$pair_capture"; do
+for required_file in "$frame_capture" "$mosaic_capture" "$pair_capture"; do
     [ -f "$required_file" ] || {
         echo "Required iPad presentation source is missing: $required_file" >&2
         exit 1
     }
 done
+
+if [ ! -f "$bezel" ]; then
+    echo "Licensed bezel source is not mounted; preserving the bezel from the existing rendered website assets."
+fi
 
 # Apple's licensed 3000 x 2300 iPad Pro bezel has a 2752 x 2064 transparent
 # screen opening at +124+118. Keep the device flat and exact: the native 4:3
@@ -55,10 +59,28 @@ build_device() {
         -composite \
         "$rounded"
 
-    "$magick_bin" -size 3000x2300 xc:none \
-        "$rounded" -geometry +124+118 -compose over -composite \
-        "$bezel" -geometry +0+0 -compose over -composite \
-        -resize 1500x1150 \
+    if [ -f "$bezel" ]; then
+        "$magick_bin" -size 3000x2300 xc:none \
+            "$rounded" -geometry +124+118 -compose over -composite \
+            "$bezel" -geometry +0+0 -compose over -composite \
+            -resize 1500x1150 \
+            -strip \
+            -quality 90 \
+            "$destination"
+        return
+    fi
+
+    [ -f "$destination" ] || {
+        echo "Existing rendered bezel fallback is missing: $destination" >&2
+        exit 1
+    }
+    template="$working_directory/$(basename "$destination" .webp)-template.webp"
+    cp "$destination" "$template"
+    "$magick_bin" "$template" \
+        \( "$rounded" -resize 1376x1032! \) \
+        -geometry +62+59 \
+        -compose over \
+        -composite \
         -strip \
         -quality 90 \
         "$destination"
@@ -66,6 +88,6 @@ build_device() {
 
 build_device "$frame_capture" "$website_images/ipad-flat-frame-v1.webp"
 build_device "$mosaic_capture" "$website_images/ipad-flat-mosaic-v1.webp"
-build_device "$pair_capture" "$website_images/ipad-flat-pair-v1.webp"
+build_device "$pair_capture" "$website_images/ipad-flat-pair-v2.webp"
 
 echo "Generated flat FrameWink iPad presentation assets in $website_images"

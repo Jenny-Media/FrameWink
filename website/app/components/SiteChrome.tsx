@@ -1,36 +1,29 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { ActiveNavLink } from "./ActiveNavLink";
+import { appStoreURL } from "../siteMetadata";
 
 export function SiteHeader() {
-  const pathname = usePathname();
-
   return (
     <header className="site-header">
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
       <Link className="brand" href="/" aria-label="FrameWink home">
-        <Image src="/images/framewink-icon.png" alt="" width={44} height={44} priority />
+        <Image src="/images/framewink-icon.png" alt="" width={44} height={44} preload />
         <span>FrameWink</span>
       </Link>
       <nav aria-label="Main navigation">
         <Link className="features-link" href="/#features">Features</Link>
-        <Link href="/privacy" aria-current={pathname === "/privacy" ? "page" : undefined}>Privacy</Link>
-        <Link href="/support" aria-current={pathname === "/support" ? "page" : undefined}>Support</Link>
-        {/* Native hash navigation transfers keyboard focus to the focusable target. */}
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a className="review-pill" href="/#availability">Coming Soon</a>
+        <ActiveNavLink href="/privacy">Privacy</ActiveNavLink>
+        <ActiveNavLink href="/support">Support</ActiveNavLink>
+        <a className="review-pill" href={appStoreURL}>Download</a>
       </nav>
     </header>
   );
 }
 
 export function SiteFooter() {
-  const pathname = usePathname();
-
   return (
     <footer className="site-footer">
       <div className="footer-brand">
@@ -41,12 +34,15 @@ export function SiteFooter() {
         </div>
       </div>
       <nav aria-label="Footer navigation">
-        <Link href="/privacy" aria-current={pathname === "/privacy" ? "page" : undefined}>Privacy</Link>
-        <Link href="/support" aria-current={pathname === "/support" ? "page" : undefined}>Support</Link>
-        <Link href="/terms" aria-current={pathname === "/terms" ? "page" : undefined}>Terms</Link>
+        <ActiveNavLink href="/privacy">Privacy</ActiveNavLink>
+        <ActiveNavLink href="/support">Support</ActiveNavLink>
+        <ActiveNavLink href="/terms">Terms</ActiveNavLink>
         <a href="https://github.com/Jenny-Media/FrameWink">GitHub</a>
       </nav>
-      <p>© 2026 Jenny Media LLC. FrameWink supports iPhone and iPad only.</p>
+      <div className="footer-legal">
+        <p>© 2026 Jenny Media LLC. FrameWink supports iPhone and iPad only.</p>
+        <p>Apple, the Apple logo, App Store, iPhone, and iPad are trademarks of Apple Inc., registered in the U.S. and other countries and regions.</p>
+      </div>
     </footer>
   );
 }

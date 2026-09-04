@@ -129,7 +129,7 @@ final class AppModel: ObservableObject {
             if scenario == .pairedFrame {
                 let pairOrder = [
                     "sample-water-bird",
-                    "sample-city-tower",
+                    "sample-evening-sail",
                 ]
                 let photosByID = Dictionary(
                     uniqueKeysWithValues: BundledSampleCatalog.photos.map { ($0.id, $0) }
@@ -139,27 +139,29 @@ final class AppModel: ObservableObject {
             if scenario == .mosaicFrame,
                UIDevice.current.userInterfaceIdiom == .phone,
                let compactPhoto = BundledSampleCatalog.photos.first(where: {
-                   $0.id == "sample-city-tower"
+                   $0.id == "sample-taipei-skyline"
                }) {
                 return [compactPhoto.slide]
             }
             if scenario == .frameControls,
                let controlsPhoto = BundledSampleCatalog.photos.first(where: {
-                   $0.id == "sample-autumn-leaves"
+                   $0.id == "sample-antelope-canyon"
                }) {
                 return [controlsPhoto.slide]
             }
             if [.smartFrame, .mosaicFrame, .frameControls, .blackoutFrame]
                 .contains(scenario) {
                 let marketingOrder = [
-                    "sample-coast-aerial",
-                    "sample-spring-flowers",
-                    "sample-open-road",
-                    "sample-sunset-city",
-                    "sample-city-skyline",
-                    "sample-evening-sail",
-                    "sample-mountain-volcano",
-                    "sample-autumn-leaves",
+                    "sample-yellowstone-falls",
+                    "sample-san-francisco-sunset",
+                    "sample-golden-gate",
+                    "sample-antelope-canyon",
+                    "sample-horseshoe-bend",
+                    "sample-sun-rays-ocean",
+                    "sample-autumn-waterfall",
+                    "sample-taipei-skyline",
+                    "sample-mountain-icicles",
+                    "sample-autumn-cyclist",
                 ]
                 let photosByID = Dictionary(
                     uniqueKeysWithValues: BundledSampleCatalog.photos.map { ($0.id, $0) }

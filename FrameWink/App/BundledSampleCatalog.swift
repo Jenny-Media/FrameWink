@@ -125,6 +125,86 @@ enum BundledSampleCatalog {
             caption: "Bundled example · no Photos access needed",
             accessibilityLabel: "Sample photo of a city beneath a vivid pink sunset"
         ),
+        BundledSamplePhoto(
+            id: "sample-taipei-skyline",
+            resourceName: "sample-taipei-skyline",
+            pixelSize: PixelSize(width: 2_048, height: 1_365),
+            title: "City lights at dusk",
+            caption: "Bundled example · stays on this device",
+            accessibilityLabel: "Sample photo of the Taipei skyline at dusk"
+        ),
+        BundledSamplePhoto(
+            id: "sample-autumn-waterfall",
+            resourceName: "sample-autumn-waterfall",
+            pixelSize: PixelSize(width: 2_048, height: 1_366),
+            title: "A waterfall through autumn",
+            caption: "Bundled example · works offline",
+            accessibilityLabel: "Sample photo of a waterfall beneath a bridge in autumn"
+        ),
+        BundledSamplePhoto(
+            id: "sample-sun-rays-ocean",
+            resourceName: "sample-sun-rays-ocean",
+            pixelSize: PixelSize(width: 2_048, height: 1_152),
+            title: "Sunlight over open water",
+            caption: "Bundled example · no Photos access needed",
+            accessibilityLabel: "Sample photo of sun rays breaking through clouds over the ocean"
+        ),
+        BundledSamplePhoto(
+            id: "sample-autumn-cyclist",
+            resourceName: "sample-autumn-cyclist",
+            pixelSize: PixelSize(width: 2_048, height: 1_365),
+            title: "The road through autumn",
+            caption: "Bundled example · stays on this device",
+            accessibilityLabel: "Sample photo of a cyclist riding along an autumn road"
+        ),
+        BundledSamplePhoto(
+            id: "sample-mountain-icicles",
+            resourceName: "sample-mountain-icicles",
+            pixelSize: PixelSize(width: 2_048, height: 1_365),
+            title: "Winter in the details",
+            caption: "Bundled example · works offline",
+            accessibilityLabel: "Sample photo of icicles beneath layered mountain rock"
+        ),
+        BundledSamplePhoto(
+            id: "sample-yellowstone-falls",
+            resourceName: "sample-yellowstone-falls",
+            pixelSize: PixelSize(width: 2_048, height: 1_365),
+            title: "A wider view of wonder",
+            caption: "Bundled example · no Photos access needed",
+            accessibilityLabel: "Sample photo of Lower Yellowstone Falls in a snowy canyon"
+        ),
+        BundledSamplePhoto(
+            id: "sample-san-francisco-sunset",
+            resourceName: "sample-san-francisco-sunset",
+            pixelSize: PixelSize(width: 2_048, height: 1_536),
+            title: "A city under color",
+            caption: "Bundled example · stays on this device",
+            accessibilityLabel: "Sample photo of San Francisco City Hall beneath a vivid sunset"
+        ),
+        BundledSamplePhoto(
+            id: "sample-horseshoe-bend",
+            resourceName: "sample-horseshoe-bend",
+            pixelSize: PixelSize(width: 2_048, height: 1_536),
+            title: "Weather over the canyon",
+            caption: "Bundled example · works offline",
+            accessibilityLabel: "Sample photo of Horseshoe Bend beneath storm clouds"
+        ),
+        BundledSamplePhoto(
+            id: "sample-antelope-canyon",
+            resourceName: "sample-antelope-canyon",
+            pixelSize: PixelSize(width: 2_048, height: 1_536),
+            title: "Light shaped by stone",
+            caption: "Bundled example · no Photos access needed",
+            accessibilityLabel: "Sample photo of warm layered sandstone in Antelope Canyon"
+        ),
+        BundledSamplePhoto(
+            id: "sample-golden-gate",
+            resourceName: "sample-golden-gate",
+            pixelSize: PixelSize(width: 2_048, height: 1_365),
+            title: "Across the bay",
+            caption: "Bundled example · stays on this device",
+            accessibilityLabel: "Sample photo of the Golden Gate Bridge across blue water"
+        ),
     ]
 
     static let slides = photos.map(\.slide)

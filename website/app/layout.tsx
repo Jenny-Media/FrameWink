@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s · FrameWink",
   },
   description:
-    "Turn an iPhone or iPad into a private smart photo frame, curated on your device from photos you choose.",
+    "Turn an iPad or iPhone into a calm, private photo frame. FrameWink never uploads your photos.",
   alternates: { canonical: "/" },
   applicationName: "FrameWink",
   category: "Photo & Video",
@@ -23,10 +23,6 @@ export const metadata: Metadata = {
   authors: [{ name: "Jenny Media LLC", url: "https://jenny.media" }],
   creator: "Jenny Media LLC",
   publisher: "Jenny Media LLC",
-  icons: {
-    icon: "/images/framewink-icon.png",
-    apple: "/images/framewink-icon.png",
-  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -34,13 +30,13 @@ export const metadata: Metadata = {
     siteName: "FrameWink",
     title: "FrameWink — Your private smart photo frame",
     description:
-      "Effortless smart highlights from photos you choose, curated privately on your iPhone or iPad.",
+      "Turn an iPad or iPhone into a calm, private photo frame. FrameWink never uploads your photos.",
     images: [
       {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "FrameWink — Beautiful memories, quietly in motion.",
+        alt: "FrameWink — Your photos. Beautifully framed.",
       },
     ],
   },
@@ -48,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "FrameWink — Your private smart photo frame",
     description:
-      "Effortless smart highlights from photos you choose, curated privately on your iPhone or iPad.",
+      "Turn an iPad or iPhone into a calm, private photo frame. FrameWink never uploads your photos.",
     images: ["/og.png"],
   },
 };

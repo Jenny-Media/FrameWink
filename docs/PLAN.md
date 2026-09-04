@@ -1337,6 +1337,80 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   and diff hygiene pass. Active implementation and verification time was
   approximately 0.5 hours.
 
+### Released-app website and expanded sample reel — 2026-09-03
+
+- Status: implementation and local verification complete. Website deployment
+  and a future App Store build containing the expanded bundled reel remain
+  pending owner approval.
+- Replaced pre-release calls to action with Apple's official, unmodified
+  Download on the App Store badge linked to the released FrameWink listing.
+  Updated availability copy, structured data, header/footer links, release
+  documentation, and Apple trademark attribution to match the live product.
+- Added ten publisher-supplied photos while retaining the original ten so the
+  sample reel now contains twenty varied images and keeps the portrait pair
+  needed for the side-by-side layout. Every new derivative is sRGB JPEG,
+  bounded to a 2,048-pixel longest edge, and stripped of EXIF, GPS, IPTC, TIFF,
+  and XMP metadata. The user-supplied originals remain unchanged.
+- Updated deterministic review, album, single-frame, Mosaic, and controls
+  scenarios to use the new photography. Regenerated the three website-only
+  native iPad capture sources and flat-bezel derivatives without changing the
+  released App Store screenshot galleries.
+- The focused sample-loader/privacy tests pass on iPhone 17 Pro Max and iPad
+  Pro 13-inch (M5) simulators. The focused website capture UI test passes on
+  iPad, all eight website tests pass, ESLint is clean, the production build
+  succeeds, both desktop and mobile browser checks return HTTP 200 with no
+  console/page/network errors, shell syntax passes, asset dimensions are
+  correct, and metadata inspection is clean. The beta SDK emits only its known
+  StoreKitTest deprecation warning. Active implementation and verification
+  time was approximately 1.5 hours.
+
+### Experience-led website refinement — 2026-09-03
+
+- Status: implementation and local verification complete; production website
+  deployment remains pending owner approval.
+- Kept the warm light presentation rather than adding a theme switch. The
+  existing dark sections continue to provide contrast without adding another
+  preference control or a second visual system to maintain.
+- Made the official App Store badge the hero's sole primary action and replaced
+  the competing filled Explore button with a quieter `See how it works` link.
+  The download note now has its own row, and the responsive layout stacks the
+  actions cleanly on narrow screens.
+- Replaced the site-wide rounded body face with the native system text stack,
+  reserving the rounded face for the brand, labels, and controls. Relaxed the
+  hero tracking and line height while preserving the approved headline and its
+  deliberate two-line desktop composition.
+- Rewrote the hero, feature cards, three-step flow, and iPad showcase around
+  what visitors choose, see, and enjoy. Detailed privacy, entitlement, and
+  purchase boundaries remain available in the pricing, FAQ, and policy copy.
+- All eight website tests, ESLint, and the static production build pass.
+  Desktop and mobile Chrome checks return HTTP 200 with no console, page,
+  overlay, or failed-network errors; the App Store badge, CTA hierarchy,
+  relaxed headline metrics, and all three iPad images render correctly. Active
+  implementation and verification time was approximately 0.4 hours.
+
+### Post-review website hardening — 2026-09-04
+
+- Status: implementation and local verification complete; the refreshed site
+  remains uncommitted and production deployment is pending owner approval.
+- Repaired the hero between 901 and 1,180 pixels, corrected the privacy-summary
+  selector, and resolved the two reported contrast failures. The shared header
+  and footer now remain server-rendered while a small client component owns only
+  active-route state.
+- Reworked the hero, privacy, Lifetime, pricing, workflow, iPhone, and final-call
+  copy around the visitor experience while preserving the exact local-only,
+  foreground-only, one-album, free-limit, and compatibility boundaries. The
+  price now identifies the U.S. storefront and notes that local pricing can vary.
+- Added a compact iPhone proof using the supplied cyclist photo, regenerated the
+  authentic iPad pair with the bird and sail captures, tightened the Free plan,
+  and gave the workflow cards restrained boundaries and tints. Added lightweight
+  48-pixel and 180-pixel icon routes and replaced the stale 854 KB social image
+  with a verified 1200 x 630, 165 KB card using the current headline.
+- All eight website contract tests, ESLint, the static production build, native
+  website capture UI test, browser accessibility checks, target-width overflow
+  checks, and diff hygiene pass. The local preview is active at
+  `http://127.0.0.1:3001/`. Active implementation and verification time was
+  approximately 0.9 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

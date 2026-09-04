@@ -5,7 +5,6 @@ set -euo pipefail
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 xcode_developer_dir=${FRAMEWINK_XCODE_DEVELOPER_DIR:-/Applications/Xcode-beta.app/Contents/Developer}
 simulator_id=${FRAMEWINK_IPAD_LANDSCAPE_SIMULATOR_ID:-1BDA7ABF-4236-406E-8ACD-7E3B10569753}
-output="$repo_root/website/public/images/ipad-landscape-pair-clean-v1.webp"
 working_directory=$(mktemp -d "${TMPDIR:-/tmp}/framewink-website-pair.XXXXXX")
 result_bundle="$working_directory/FrameWink-Website-Pair.xcresult"
 attachment_directory="$working_directory/attachments"
@@ -52,7 +51,7 @@ xcrun simctl status_bar "$simulator_id" override \
     --batteryState discharging \
     --batteryLevel 100
 
-mkdir -p "$attachment_directory" "$(dirname "$output")"
+mkdir -p "$attachment_directory" "$repo_root/website/public/images"
 xcodebuild -quiet \
     -project "$repo_root/FrameWink.xcodeproj" \
     -scheme FrameWink \
@@ -60,37 +59,43 @@ xcodebuild -quiet \
     -destination "platform=iOS Simulator,id=$simulator_id" \
     -derivedDataPath "$derived_data" \
     -resultBundlePath "$result_bundle" \
-    -only-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests/testCaptureWebsitePairedPhotoScreen \
+    -only-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests/testCaptureWebsiteFrameScreens \
     test
 
 xcrun xcresulttool export attachments \
     --path "$result_bundle" \
     --output-path "$attachment_directory" >/dev/null
 
-exported_filename=$(jq -r '
-    .[].attachments[]
-    | select(.suggestedHumanReadableName | startswith("website-landscape-pair_"))
-    | .exportedFileName
-' "$attachment_directory/manifest.json")
-[ -n "$exported_filename" ] && [ "$exported_filename" != null ] || {
-    echo "Missing website pair screenshot attachment." >&2
-    exit 1
-}
+for capture_name in frame mosaic pair; do
+    case "$capture_name" in
+        frame) output="$repo_root/website/public/images/ipad-landscape-frame-clean-v2.webp" ;;
+        mosaic) output="$repo_root/website/public/images/ipad-landscape-mosaic-clean-v2.webp" ;;
+        pair) output="$repo_root/website/public/images/ipad-landscape-pair-clean-v1.webp" ;;
+    esac
+    exported_filename=$(jq -r --arg prefix "website-landscape-${capture_name}_" '
+        .[].attachments[]
+        | select(.suggestedHumanReadableName | startswith($prefix))
+        | .exportedFileName
+    ' "$attachment_directory/manifest.json")
+    [ -n "$exported_filename" ] && [ "$exported_filename" != null ] || {
+        echo "Missing website ${capture_name} screenshot attachment." >&2
+        exit 1
+    }
 
-# XCUIScreen exports the landscape device buffer in its natural portrait
-# orientation. Rotate once, then create the bounded website source derivative.
-magick "$attachment_directory/$exported_filename" \
-    -rotate -90 \
-    -resize '1600x1200!' \
-    -strip \
-    -quality 86 \
-    "$output"
+    # XCUIScreen exports the landscape device buffer in its natural portrait
+    # orientation. Rotate once, then create the bounded website source derivative.
+    magick "$attachment_directory/$exported_filename" \
+        -rotate -90 \
+        -resize '1600x1200!' \
+        -strip \
+        -quality 86 \
+        "$output"
 
-dimensions=$(identify -format '%wx%h' "$output")
-[ "$dimensions" = "1600x1200" ] || {
-    echo "Invalid website pair screenshot dimensions: $dimensions" >&2
-    exit 1
-}
-
-echo "Captured the native FrameWink side-by-side iPad screen:"
-echo "  $output"
+    dimensions=$(identify -format '%wx%h' "$output")
+    [ "$dimensions" = "1600x1200" ] || {
+        echo "Invalid website ${capture_name} screenshot dimensions: $dimensions" >&2
+        exit 1
+    }
+    echo "Captured the native FrameWink ${capture_name} iPad screen:"
+    echo "  $output"
+done
