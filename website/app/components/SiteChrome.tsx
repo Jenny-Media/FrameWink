@@ -30,7 +30,7 @@ export function SiteFooter() {
         <Image src="/images/framewink-icon.png" alt="" width={52} height={52} />
         <div>
           <strong>FrameWink</strong>
-          <span>Private smart photo frame for iPhone and iPad.</span>
+          <span>A private photo frame for iPhone and iPad.</span>
         </div>
       </div>
       <nav aria-label="Footer navigation">

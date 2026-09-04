@@ -1408,6 +1408,11 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Restyled the hero's `See how it works` link as a restrained secondary pill,
   with a consistent vector down arrow, 52-pixel touch target, and coordinated
   hover and keyboard-focus treatment beside the official App Store badge.
+- Enlarged the iPhone proof so the photo reads as product evidence rather than
+  decoration. Audited the home, privacy, support, terms, metadata, navigation,
+  alt text, and FAQ copy; replaced internal terms such as StoreKit, entitlement,
+  cache, curation records, authorization, and Mac Catalyst with plain-language
+  explanations while preserving every product and privacy boundary.
 - All eight website contract tests, ESLint, the static production build, native
   website capture UI test, browser accessibility checks, target-width overflow
   checks, and diff hygiene pass. The local preview is active at

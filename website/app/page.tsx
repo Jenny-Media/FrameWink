@@ -12,7 +12,7 @@ const features = [
   {
     number: "01",
     title: "Your best photos",
-    body: "FrameWink creates a varied mix from the photos you choose, without showing the same moments over and over.",
+    body: "FrameWink creates a varied mix from the photos you choose, so the same moments don’t keep appearing.",
   },
   {
     number: "02",
@@ -22,32 +22,32 @@ const features = [
   {
     number: "03",
     title: "A frame that feels alive",
-    body: "Gentle fades, pans, and zooms keep the frame feeling alive without asking for your attention. If you prefer less motion, FrameWink respects that.",
+    body: "Gentle fades, pans, and zooms bring your photos to life without demanding attention. If you prefer less motion, FrameWink respects your setting.",
   },
 ];
 
 const steps = [
   { symbol: "+", title: "Choose", body: "Pick the photos you want to see—and nothing else." },
-  { symbol: "✓", title: "Review", body: "Preview the reel and remove any photo you don’t want displayed from it." },
+  { symbol: "✓", title: "Review", body: "Preview your frame and remove anything you don’t want to see." },
   { symbol: "▶", title: "Enjoy", body: "Start the frame, swipe when you want, and let your photos change quietly." },
 ];
 
 const faqItems = [
   [
     "Does the free version expire?",
-    "No. Free Smart Reel has no countdown. You can import up to 500 photos, keep one reel with up to 100 highlights, and replay it as often as you like.",
+    "No. Choose up to 500 photos, enjoy a reel with up to 100 highlights, and replay it as often as you like.",
   ],
   [
     "Does FrameWink upload my photos?",
-    "No. Jenny Media LLC has no FrameWink photo server. Selection, analysis, curation, and display happen on your device. Apple Photos may download an iCloud item when you ask FrameWink to use an automatic album.",
+    "No. Choosing your best shots, arranging them, and showing them all happen on your device. If a photo is stored in iCloud, Apple Photos may download it to your device before FrameWink can show it.",
   ],
   [
     "Do I need to give access to my whole library?",
-    "No. Free Smart Reel uses Apple’s system picker and receives only the photos you select. Full Photos access is requested only if you explicitly enable a paid automatic album.",
+    "No. For the free reel, Apple’s photo picker shares only the photos you choose. FrameWink asks for access to your photo library only when you turn on automatic updates for an album with Lifetime.",
   ],
   [
     "What does FrameWink Lifetime add?",
-    "FrameWink Lifetime lets you build a frame from one Apple Photos album you choose, without the 500-photo limit. While FrameWink is open, it keeps the reel fresh as the album changes, avoids recent repeats for longer, adds more arrangements, and lets you schedule the display to dim or go dark at night. It also includes help for setting up a mounted iPad.",
+    "FrameWink Lifetime removes the 500-photo limit for one Apple Photos album you choose. While FrameWink is open, new album photos can appear automatically, recent photos repeat less often, and you can schedule the screen to dim or go dark at night. You also get more arrangements and help setting up a mounted iPad.",
   ],
 ];
 
@@ -137,7 +137,7 @@ export default function Home() {
               <Image
                 className="flat-device-image flat-device-primary"
                 src="/images/ipad-flat-frame-v1.webp"
-                alt="FrameWink displaying a clean single-photo frame inside an iPad bezel"
+                alt="FrameWink showing a favorite photo on an iPad"
                 width={1500}
                 height={1150}
                 sizes="(max-width: 1180px) 100vw, 58vw"
@@ -162,9 +162,9 @@ export default function Home() {
         <p className="section-kicker">Private by design</p>
         <h2 id="privacy-heading">Your photos stay yours.</h2>
         <p className="privacy-summary">
-          FrameWink never uploads your photos. Choosing, arranging, and displaying
-          happen on your device, with no account, ads, or tracking. If you choose
-          an automatic album, Apple Photos may download an iCloud photo to your device.
+          Everything happens on your iPhone or iPad. There’s no FrameWink account,
+          ads, or tracking. If a photo is stored in iCloud, Apple Photos may download
+          it to your device before FrameWink can show it.
         </p>
         <a className="text-link light" href="/privacy">Read the privacy policy <span aria-hidden="true">↗</span></a>
       </section>
@@ -197,7 +197,7 @@ export default function Home() {
           <h2 id="showcase-heading">Made for the places you love.</h2>
           <p>
             Set an iPad on a shelf, desk, or wall and let the moments you love
-            become part of the room. FrameWink adapts the view as your screen changes.
+            become part of the room. FrameWink arranges each view to suit the screen.
           </p>
           <CheckList items={[
             "One favorite photo or a thoughtful mix",
@@ -208,29 +208,29 @@ export default function Home() {
         <figure className="flat-showcase-device">
           <Image
             src="/images/ipad-flat-pair-v2.webp"
-            alt="FrameWink showing two compatible portrait photos side by side inside an iPad bezel"
+            alt="FrameWink showing two portrait photos side by side on an iPad"
             width={1500}
             height={1150}
             sizes="(max-width: 900px) 92vw, 54vw"
             placeholder="blur"
             blurDataURL={imagePlaceholder}
           />
-          <figcaption>When they fit well, portrait photos sit side by side automatically.</figcaption>
+          <figcaption>Portrait photos can sit side by side when they look good together.</figcaption>
         </figure>
       </section>
 
       <section className="iphone-note content-section" id="iphone" aria-labelledby="iphone-heading">
         <div className="iphone-note-copy">
           <h2 id="iphone-heading">A private photo frame in your pocket.</h2>
-          <p>FrameWink works on iPhone too, with the same private reel adapted for a smaller screen.</p>
+          <p>Enjoy the same private photo frame on iPhone, sized for the smaller screen.</p>
         </div>
-        <div className="iphone-mini-preview" aria-hidden="true">
+        <div className="iphone-mini-preview">
           <Image
             src="/images/iphone-cyclist-demo.webp"
-            alt=""
+            alt="FrameWink showing a cyclist photo on an iPhone"
             width={240}
             height={520}
-            sizes="120px"
+            sizes="(max-width: 560px) 112px, (max-width: 1180px) 118px, 132px"
           />
         </div>
       </section>
@@ -262,11 +262,11 @@ export default function Home() {
             <div>
               <h3 className="plan-label">Free Smart Reel</h3>
               <p className="price">$0</p>
-              <p>Choose up to 500 photos and keep one local reel with up to 100 highlights.</p>
+              <p>Choose up to 500 photos and enjoy one reel with up to 100 highlights.</p>
             </div>
             <CheckList items={[
-              "Thoughtfully curated on your device",
-              "Review and Never Show Again",
+              "Your highlights are chosen on your device",
+              "Review every photo and choose Never Show Again",
               "Beautiful arrangements, gentle motion, and unlimited replay",
             ]} />
           </article>
@@ -274,13 +274,12 @@ export default function Home() {
             <div>
               <h3 className="plan-label">FrameWink Lifetime</h3>
               <p className="price">$4.99 <small>once in the U.S.</small></p>
-              <p>Keep one Apple Photos album refreshed while FrameWink remains open. Local App Store price may vary.</p>
+              <p>Choose one Apple Photos album with no 500-photo limit. While FrameWink is open, new photos can join your frame automatically. Local App Store price may vary.</p>
             </div>
             <CheckList items={[
-              "One Apple Photos album, with no 500-photo limit",
-              "New album photos appear automatically, with fewer recent repeats",
-              "Set the frame to dim or go dark at night while the app is open",
-              "More arrangements and help setting up a mounted iPad",
+              "See new album photos automatically and fewer recent repeats",
+              "Schedule dimming or a dark screen at night while FrameWink is open",
+              "Enjoy more arrangements and help setting up a mounted iPad",
               "Family Sharing where supported by Apple",
             ]} />
           </article>
@@ -292,7 +291,7 @@ export default function Home() {
         <div>
           <p className="section-kicker">Available on the App Store</p>
           <h2 id="availability-heading">Give your iPhone or iPad a new purpose.</h2>
-          <p>Download FrameWink from the App Store. Requires iOS or iPadOS 15 or later.</p>
+          <p>Works with iPhone and iPad running iOS or iPadOS 15 or later.</p>
         </div>
         <a
           className="secondary-action"

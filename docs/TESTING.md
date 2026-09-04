@@ -1995,3 +1995,21 @@ explicit owner approval.
   Apple touch icon are 48 x 48 and 180 x 180 respectively. A local development
   vitals run recorded CLS 0, FCP 76 ms, LCP 96 ms, and TTFB 47 ms; production
   Core Web Vitals remain untested until deployment.
+
+## Public copy and iPhone proof verification — 2026-09-04
+
+- Audited every public route, shared navigation, metadata, FAQ, image alt text,
+  and purchase, privacy, and compatibility copy. Internal implementation terms
+  such as Mac Catalyst, StoreKit, entitlement, analytics SDK, private app
+  container, and derived curation data no longer appear in public copy. The
+  revised language keeps the concrete device, privacy, purchase, photo-limit,
+  and app-open behavior users need to understand.
+- Enlarged the compact iPhone proof from a 62–72 pixel treatment to a responsive
+  112–132 pixel treatment. Browser inspection confirms it remains sharp,
+  balanced with the adjacent copy, and centered cleanly when the section stacks
+  on a phone-sized viewport.
+- In `website/`, `npm test` passes all nine contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. Browser checks confirm `/`, `/privacy`, `/support`, and `/terms` render
+  the revised copy and contain none of the audited internal terms. Production
+  verification remains pending until the pull-request deployment completes.

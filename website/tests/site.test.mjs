@@ -37,10 +37,10 @@ test("keeps product promises aligned with the app contract", async () => {
   assert.match(home, /\$4\.99/);
   assert.match(home, /iPhone or iPad/i);
   assert.match(home, /FrameWink never uploads your photos/i);
-  assert.match(privacy, /never edits\s+your Photos library/i);
+  assert.match(privacy, /never changes anything in your Photos library/i);
   assert.match(privacy, /Delete Imported Photos/);
   assert.match(support, /iOS or iPadOS 15 or later/);
-  assert.match(terms, /\$4\.99 non-consumable/i);
+  assert.match(terms, /\$4\.99 one-time/i);
 });
 
 test("keeps keyboard, touch, and metadata affordances explicit", async () => {
@@ -114,7 +114,7 @@ test("describes the paid album boundary and foreground behavior precisely", asyn
   ]);
 
   assert.match(home, /one Apple Photos album/i);
-  assert.match(home, /dim or go dark at night while the app is open/i);
+  assert.match(home, /Schedule dimming or a dark screen at night while FrameWink is open/i);
   assert.match(home, /Local App Store price may vary/i);
   assert.doesNotMatch(home, /removes the import cap|No import cap/i);
   assert.doesNotMatch(terms, /candidates|recommendations/i);
@@ -157,13 +157,13 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.match(home, /ipad-flat-frame-v1\.webp/);
   assert.match(home, /ipad-flat-mosaic-v1\.webp/);
   assert.match(home, /ipad-flat-pair-v2\.webp/);
-  assert.match(home, /When they fit well, portrait photos sit side by side automatically\./);
+  assert.match(home, /Portrait photos can sit side by side when they look good together\./);
   assert.doesNotMatch(home, /automatic four-photo layout/i);
   assert.match(home, /Actual FrameWink screens/);
   assert.doesNotMatch(home, /hero-tabletop|ipad-wall-mounted|hero-lifestyle/);
   assert.doesNotMatch(home, /tabletop stand|wall-mounted iPad/);
   assert.match(home, /A private photo frame in your pocket\./);
-  assert.match(home, /FrameWink works on iPhone too/);
+  assert.match(home, /Enjoy the same private photo frame on iPhone/);
   assert.doesNotMatch(home, /Also on iPhone/);
   assert.match(home, /From your photos to a frame in a few taps\./);
   assert.doesNotMatch(home, /From camera roll to frame in minutes\./);
@@ -187,7 +187,8 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.match(styles, /prefers-reduced-motion:[\s\S]*\.flat-device-secondary\s*\{\s*opacity:\s*0 !important;/);
   assert.match(styles, /\.iphone-note\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto/s);
   assert.match(styles, /\.iphone-note\s*\{[^}]*padding-block:\s*30px/s);
-  assert.match(styles, /\.iphone-mini-preview/);
+  assert.match(styles, /\.iphone-mini-preview\s*\{[^}]*width:\s*clamp\(112px, 10vw, 132px\)/s);
+  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.iphone-mini-preview\s*\{[^}]*width:\s*112px/s);
   assert.match(styles, /@media \(max-width: 1180px\)[\s\S]*\.hero\s*\{[^}]*grid-template-columns:\s*1fr/s);
   assert.match(styles, /\.privacy-strip \.privacy-summary/);
   assert.match(styles, /h1,\s*h2,\s*h3\s*\{\s*text-wrap:\s*balance;/s);
@@ -209,4 +210,23 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.match(lifestyleGenerator, /ipad-flat-pair-v2\.webp/);
   assert.doesNotMatch(lifestyleGenerator, /ipad-lifestyle-.*plate|Perspective|render_scene/);
   assert.match(lifestyleGenerator, /No generated room, stand, wall, or hardware/);
+});
+
+test("keeps public copy focused on people instead of implementation details", async () => {
+  const [home, privacy, support, terms, chrome] = await Promise.all([
+    source("app/page.tsx"),
+    source("app/privacy/page.tsx"),
+    source("app/support/page.tsx"),
+    source("app/terms/page.tsx"),
+    source("app/components/SiteChrome.tsx"),
+  ]);
+  const publicCopy = `${home}\n${privacy}\n${support}\n${terms}\n${chrome}`;
+
+  assert.doesNotMatch(
+    publicCopy,
+    /Mac Catalyst|StoreKit|entitlement|analytics SDK|private app container|derived curation|cover cache|Photos authorization|operating-system|non-consumable|first release/i,
+  );
+  assert.match(support, /currently available for iPhone and iPad/);
+  assert.match(terms, /Schedules work only\s+while FrameWink is open/);
+  assert.match(privacy, /Apple handles FrameWink Lifetime purchases/);
 });

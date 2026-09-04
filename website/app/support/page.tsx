@@ -2,22 +2,22 @@ import { pageMetadata } from "../siteMetadata";
 
 export const metadata = pageMetadata(
   "Support",
-  "Get help with FrameWink setup, Photos access, purchases, and playback.",
+  "Get help choosing photos, using albums, restoring a purchase, and enjoying your frame.",
   "/support",
 );
 
 const helpItems = [
-  ["The album chooser looks empty or slow", "Keep FrameWink open while covers load progressively. An iCloud-only cover may need Apple Photos to download it. Close and reopen the chooser to reuse the local cover cache."],
-  ["A photo is cropped unexpectedly", "FrameWink automatically chooses Fit or Fill from the screen shape and important content. Resize the window or swipe away and back after the scene changes. If a suggestion should never return, use Never Show Again during review."],
-  ["Restore FrameWink Lifetime", "Open the FrameWink Lifetime screen and choose Restore Purchases while signed into the Apple Account that made or shares the purchase."],
-  ["Remove imported photos", "Open FrameWink settings and choose Delete Imported Photos. This removes FrameWink’s local copies and curation records without touching originals in Apple Photos."],
+  ["Album covers are missing or slow to appear", "Album covers may take a moment to appear, especially for photos stored in iCloud. Keep FrameWink open. If a cover still does not appear, close and reopen the album list."],
+  ["A photo is cropped unexpectedly", "FrameWink fits each photo to the screen while trying to keep faces and important details visible. Turn or resize the screen, then swipe away and back to refresh the view. To keep a photo out of the frame, choose Never Show Again while reviewing."],
+  ["Restore FrameWink Lifetime", "Go to FrameWink Lifetime and choose Restore Purchases. Make sure the device uses the Apple Account that bought or shares the purchase."],
+  ["Remove imported photos", "Open FrameWink settings and choose Delete Imported Photos. This removes copies saved inside FrameWink without touching the originals in Apple Photos."],
 ];
 
 const productQuestions = [
-  ["Can family members send photos to the frame remotely?", "No. FrameWink has no remote upload or administration service. Family Sharing can share the purchase entitlement, but it does not send photos between devices."],
-  ["Does FrameWink play videos or Live Photo motion?", "Not in the first release. FrameWink displays still photos and does not play videos or Live Photo motion."],
+  ["Can family members send photos to the frame remotely?", "No. FrameWink does not send photos between devices. Family Sharing can share the Lifetime purchase with eligible family members, but each person chooses photos on their own device."],
+  ["Does FrameWink play videos or Live Photo motion?", "FrameWink shows still photos only. Videos and Live Photo motion are not currently supported."],
   ["Can FrameWink change or delete originals?", "No. FrameWink never edits, deletes, favorites, hides, or otherwise changes your Apple Photos library."],
-  ["Does it support Mac or Apple Vision Pro?", "The first release supports iPhone and iPad only. Mac, Mac Catalyst, and Apple Vision Pro availability are disabled."],
+  ["Does it work on Mac or Apple Vision Pro?", "No. FrameWink is currently available for iPhone and iPad."],
 ];
 
 export default function SupportPage() {
@@ -26,7 +26,7 @@ export default function SupportPage() {
       <header className="document-hero support-hero">
         <p className="section-kicker">We’re here to help</p>
         <h1>FrameWink Support</h1>
-        <p>Start with the quick answers below, or contact Jenny Media directly.</p>
+        <p>Start with the quick answers below, or contact us directly.</p>
         <div className="support-actions">
           <a className="primary-action" href="mailto:framewink@jenny.media?subject=FrameWink%20Support">Email support</a>
           <a className="secondary-action" href="https://github.com/Jenny-Media/FrameWink/issues/new">Open a public issue</a>
@@ -47,9 +47,9 @@ export default function SupportPage() {
       <section className="system-requirements">
         <div>
           <p className="section-kicker">Compatibility</p>
-          <h2>iPhone and iPad only.</h2>
+          <h2>Made for iPhone and iPad.</h2>
         </div>
-        <p>FrameWink requires iOS or iPadOS 15 or later. Mac, Mac Catalyst, Apple Vision Pro, Android, and web playback are not supported in the first release.</p>
+        <p>FrameWink works with iPhone and iPad running iOS or iPadOS 15 or later. It is not currently available for Mac, Apple Vision Pro, Android, or the web.</p>
       </section>
       <section className="faq-section support-faq" aria-labelledby="support-faq-heading">
         <div className="section-heading centered-heading">
