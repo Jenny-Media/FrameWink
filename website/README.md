@@ -24,6 +24,10 @@ The site intentionally has no account, contact form, product analytics,
 advertising, tracking scripts, or marketing cookies. Support is provided by
 email and the repository's public issue tracker.
 
+FrameWink is available on the App Store at
+[apps.apple.com/us/app/framewink/id6800849400](https://apps.apple.com/us/app/framewink/id6800849400).
+The homepage uses Apple's official, unmodified Download on the App Store badge.
+
 ## Deployment
 
 Configure the Vercel project with `website` as its Root Directory and `main` as

@@ -1965,3 +1965,33 @@ explicit owner approval.
   dimensions and `git diff --check` pass. The production app path, App Store
   screenshot count, and physical-device behavior are unchanged and were not
   retested; production website deployment remains pending.
+
+## Post-review website hardening verification — 2026-09-04
+
+- `scripts/capture_website_pair_screenshot.sh` passed on the iPad Pro 13-inch
+  (M5) iOS 27.0 Simulator and exported clean single, Mosaic, and paired screens.
+  `scripts/generate_website_lifestyle_hero.sh` then regenerated the licensed
+  flat-bezel derivatives. The paired screen visibly contains the bundled
+  water-bird and evening-sail photos, exposes two photo targets, and contains no
+  playback chrome. Xcode emitted only the existing StoreKitTest deprecation and
+  debugger-version lookup notes.
+- In `website/`, `npm test` passes all eight contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates `/`, `/privacy`,
+  `/support`, `/terms`, `/robots.txt`, `/sitemap.xml`, `/icon.png`, and
+  `/apple-icon.png`. `git diff --check` passes.
+- Browser verification against `http://127.0.0.1:3001/` confirms meaningful
+  content, no framework overlay, no page errors, no application console errors,
+  and the expected navigation and section landmarks. The document width equals
+  the viewport at 1,181, 1,024, 901, and 390 pixels; the formerly broken hero
+  remains wholly inside the viewport and changes to one column at 1,180 pixels.
+- Visual checks confirm the sail-pair asset is served under its versioned path,
+  the 1,024-pixel iPhone strip has no text collision, and the 390-pixel layout
+  stacks its compact cyclist preview cleanly. Axe reports zero WCAG A/AA
+  violations on the homepage and Support page; the homepage retains five manual
+  contrast checks for decorative glyphs or elements whose pseudo-elements hide
+  their computed background from Axe.
+- The refreshed `og.png` is 1200 x 630, contains the exact current FrameWink
+  headline, and is reduced from 854 KB to 165 KB. The dedicated favicon and
+  Apple touch icon are 48 x 48 and 180 x 180 respectively. A local development
+  vitals run recorded CLS 0, FCP 76 ms, LCP 96 ms, and TTFB 47 ms; production
+  Core Web Vitals remain untested until deployment.

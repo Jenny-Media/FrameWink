@@ -4,9 +4,9 @@ import XCTest
 
 final class BundledSampleImageLoaderTests: XCTestCase {
     func testEveryBundledSampleImageLoadsFromTheAppBundle() {
-        XCTAssertEqual(BundledSampleCatalog.photos.count, 10)
-        XCTAssertEqual(Set(BundledSampleCatalog.photos.map(\.id)).count, 10)
-        XCTAssertEqual(Set(BundledSampleCatalog.photos.map(\.resourceName)).count, 10)
+        XCTAssertEqual(BundledSampleCatalog.photos.count, 20)
+        XCTAssertEqual(Set(BundledSampleCatalog.photos.map(\.id)).count, 20)
+        XCTAssertEqual(Set(BundledSampleCatalog.photos.map(\.resourceName)).count, 20)
 
         for photo in BundledSampleCatalog.photos {
             let image = BundledSampleImageLoader.image(named: photo.resourceName)

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+export const appStoreURL = "https://apps.apple.com/us/app/framewink/id6800849400";
+
 export function pageMetadata(
   title: string,
   description: string,

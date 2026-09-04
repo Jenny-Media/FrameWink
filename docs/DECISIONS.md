@@ -425,3 +425,16 @@ date; do not silently rewrite historical decisions during implementation.
   its closest current one-time smart-frame competitor also charges $4.99. This
   price lowers first-purchase friction without reducing the product to a $2.99
   utility or introducing a subscription, countdown, or artificial sale.
+
+## D-036 — Publisher photography expands the bundled sample reel
+
+- **Decision:** Keep the original ten display-sized sample photographs and add
+  ten new publisher-supplied travel and nature photographs. Normalize every new
+  derivative to an ordinary metadata-free sRGB JPEG with a maximum 2,048-pixel
+  edge. Preserve the existing portrait samples so the sample reel continues to
+  exercise automatic portrait pairing. Use the new landscape set for the
+  deterministic frame, Mosaic, review, album, and website capture scenarios.
+- **Reason:** The expanded set makes the first-run reel brighter and more varied
+  without using third-party media or exposing full-resolution originals. A
+  bounded derivative pipeline keeps private GPS/camera metadata out of the app
+  and repository, avoids a JPEG XL runtime dependency, and limits bundle growth.
