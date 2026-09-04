@@ -2020,12 +2020,15 @@ explicit owner approval.
   Resources after owner authorization and selected the official Deep Blue
   iPhone 17 Pro Max portrait PNG. The 1470 x 3000 bezel remains unmodified; the
   FrameWink cyclist frame sits beneath its exact 1320 x 2868 transparent screen
-  opening at +75+66, then the complete composite is resized to 735 x 1500.
+  opening at +75+66. A 190-pixel rounded-rectangle alpha mask clips the screen
+  content before compositing so the photo cannot escape through the transparent
+  outer corners; the complete composite is then resized to 735 x 1500.
 - The homepage displays the device at 200–230 pixels wide, meeting Apple's
   200-pixel minimum onscreen size. No CSS border, synthetic hardware detail,
   added reflection, or added device shadow is applied to the product image.
 - Browser inspection confirms the complete bezel, side controls, rounded
-  display, and Dynamic Island remain visible at a 1,280-pixel desktop width and
+  display, masked photo corners, and Dynamic Island remain visible at a
+  1,280-pixel desktop width and
   at a 390-pixel phone width. The responsive section has no horizontal overflow,
   and the phone-sized layout centers the 200 x 408 pixel rendered device without
   colliding with either adjacent section.

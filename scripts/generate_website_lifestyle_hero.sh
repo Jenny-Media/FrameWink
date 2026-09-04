@@ -97,15 +97,29 @@ iphone_destination="$website_images/iphone-17-pro-max-cyclist.webp"
 if [ -f "$iphone_bezel" ]; then
     # Apple's official iPhone 17 Pro Max portrait bezel is 1470 x 3000 and
     # exposes the native 1320 x 2868 screen at +75+66. Keep the supplied bezel
-    # unchanged and place FrameWink's real sample-frame content beneath it.
+    # unchanged, clip FrameWink's real sample-frame content to the display's
+    # rounded corners, and place that screen beneath the hardware artwork.
     "$magick_bin" "$iphone_capture" \
         -resize 1320x2868^ \
         -gravity center \
         -extent 1320x2868 \
         "$working_directory/iphone-screen.png"
 
+    "$magick_bin" -size 1320x2868 xc:none \
+        -fill white \
+        -stroke none \
+        -draw "roundrectangle 0,0 1319,2867 190,190" \
+        "$working_directory/iphone-screen-mask.png"
+
+    "$magick_bin" "$working_directory/iphone-screen.png" \
+        "$working_directory/iphone-screen-mask.png" \
+        -alpha off \
+        -compose CopyOpacity \
+        -composite \
+        "$working_directory/iphone-screen-rounded.png"
+
     "$magick_bin" -size 1470x3000 xc:none \
-        "$working_directory/iphone-screen.png" -geometry +75+66 -compose over -composite \
+        "$working_directory/iphone-screen-rounded.png" -geometry +75+66 -compose over -composite \
         "$iphone_bezel" -geometry +0+0 -compose over -composite \
         -resize 735x1500 \
         -strip \

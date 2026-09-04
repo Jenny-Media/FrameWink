@@ -206,6 +206,10 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.match(lifestyleGenerator, /FRAMEWINK_IPHONE_BEZEL/);
   assert.match(lifestyleGenerator, /iPhone 17 Pro Max - Deep Blue - Portrait\.png/);
   assert.match(lifestyleGenerator, /1320x2868/);
+  assert.match(lifestyleGenerator, /roundrectangle 0,0 1319,2867 190,190/);
+  assert.match(lifestyleGenerator, /iphone-screen-mask\.png/);
+  assert.match(lifestyleGenerator, /iphone-screen-rounded\.png/);
+  assert.match(lifestyleGenerator, /CopyOpacity/);
   assert.match(lifestyleGenerator, /ipad-landscape-frame-clean-v2\.webp/);
   assert.match(lifestyleGenerator, /ipad-landscape-mosaic-clean-v2\.webp/);
   assert.match(lifestyleGenerator, /ipad-landscape-pair-clean-v1\.webp/);
