@@ -1,6 +1,6 @@
 # Bundled sample asset record
 
-The publisher supplied and approved the ten personal photographs used for the
+The publisher supplied and approved the twenty personal photographs used for the
 current Sample Photos experience. The repository contains only display-sized
 derivatives. The original files remain outside the repository and were not
 modified. No third-party or web-downloaded photo is bundled.
@@ -12,6 +12,13 @@ creator, copyright, date, or XMP data in the resulting files. The remaining
 JPEG file/JFIF fields contain only format, dimensions, encoding, and resolution.
 `BundledSampleImageLoaderTests` independently rejects private metadata and
 checks the catalog dimensions against every bundled file.
+
+On 2026-09-03, ten additional publisher-supplied photographs were normalized
+with the same privacy boundary. One input used a `.jxl` filename for ordinary
+JPEG data and one was a true JPEG XL file; both were decoded into ordinary sRGB
+JPEG derivatives so the app does not depend on JPEG XL support. The added
+derivatives use a maximum 2,048-pixel edge, quality 88, and contain no EXIF,
+GPS, IPTC, TIFF, creator, date, camera, or XMP metadata.
 
 | Resource | Pixels | Visible content |
 |---|---:|---|
@@ -25,10 +32,20 @@ checks the catalog dimensions against every bundled file.
 | `sample-evening-sail.jpg` | 1365 × 2048 | Sailboat at sunset |
 | `sample-mountain-volcano.jpg` | 2048 × 1365 | Lava at night |
 | `sample-sunset-city.jpg` | 2048 × 1536 | City beneath a pink sunset |
+| `sample-taipei-skyline.jpg` | 2048 × 1365 | Taipei skyline at dusk |
+| `sample-autumn-waterfall.jpg` | 2048 × 1366 | Waterfall and bridge in autumn |
+| `sample-sun-rays-ocean.jpg` | 2048 × 1152 | Sun rays over the ocean |
+| `sample-autumn-cyclist.jpg` | 2048 × 1365 | Cyclist on an autumn road |
+| `sample-mountain-icicles.jpg` | 2048 × 1365 | Icicles beneath layered rock |
+| `sample-yellowstone-falls.jpg` | 2048 × 1365 | Lower Yellowstone Falls in winter |
+| `sample-san-francisco-sunset.jpg` | 2048 × 1536 | San Francisco beneath a pink sunset |
+| `sample-horseshoe-bend.jpg` | 2048 × 1536 | Horseshoe Bend beneath storm clouds |
+| `sample-antelope-canyon.jpg` | 2048 × 1536 | Warm layered sandstone |
+| `sample-golden-gate.jpg` | 2048 × 1365 | Golden Gate Bridge across blue water |
 
 The three earlier AI-generated PNG samples were removed rather than left as
-unused bundle weight. The ten JPEG derivatives total approximately 5.1 MiB,
-less than the previous three PNGs, and include three portrait photos so the
+unused bundle weight. The twenty JPEG derivatives total approximately 11 MiB
+and include three portrait photos so the
 sample experience exercises the same pairing and responsive-layout paths as a
 personal reel.
 

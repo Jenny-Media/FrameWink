@@ -3,6 +3,12 @@
 This file is release input, not proof of App Store Connect configuration. Keep
 it aligned with the shipping build and update it before every submitted version.
 
+## Current availability
+
+FrameWink 1.0 is approved and available on the App Store at
+`https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
+Apple's official unmodified Download on the App Store badge for this listing.
+
 ## App privacy
 
 Recommended App Store Connect answer for the current build:
@@ -13,9 +19,9 @@ Recommended App Store Connect answer for the current build:
   SDKs.
 
 App Store Connect Apple ID `6800849400` has the policy URL and `Data Not
-Collected` answer saved. Publication remains an owner action because Apple's
-final dialog includes a legal accuracy/compliance attestation; see B-009 in
-`docs/DISTRIBUTION.md`.
+Collected` answer published. Any future privacy-answer change remains an owner
+action because Apple's final dialog includes a legal accuracy/compliance
+attestation; see B-009 in `docs/DISTRIBUTION.md`.
 
 Picker-selected photos and photos from a paid, explicitly selected album are
 copied at display size into the app's private container and do not leave the
@@ -122,7 +128,7 @@ FrameWink is a universal iPhone and iPad app and requires iOS/iPadOS 15 or
 later. Compact iPhone playback prioritizes one large photo; iPad and larger
 windows can use responsive multi-photo compositions when appropriate.
 
-On first launch, the app immediately shows ten bundled example photos and does
+On first launch, the next app update immediately shows twenty bundled example photos and does
 not request Photos authorization. `Choose Photos` opens Apple's PHPicker for a
 total collection of up to 500 items. The target includes
 `NSPhotoLibraryUsageDescription`, but the
@@ -312,11 +318,9 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:
   `https://github.com/Jenny-Media/FrameWink/blob/main/PRIVACY.md`
-- Website URL transition: version 1.0 is editable after the owner-requested
-  withdrawal. Before resubmission, use `https://frame.jenny.media` for
-  marketing, `https://frame.jenny.media/support` for support, and
-  `https://frame.jenny.media/privacy` for privacy after confirming the deployed
-  routes remain live.
+- Production URLs: `https://frame.jenny.media` for marketing,
+  `https://frame.jenny.media/support` for support, and
+  `https://frame.jenny.media/privacy` for privacy.
 - Paid Apps and Free Apps agreements: active for all regions
 - Banking, U.S. W-9, and Digital Services Act compliance: active
 - Primary category: Photo & Video
@@ -332,10 +336,9 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   Vision Pro: disabled (`Not Available`).
 - Product-page copy: current universal promotional text, description, keywords,
   subtitle, support, marketing, and copyright are saved.
-- App Store screenshots: both slots still have the former submitted galleries.
-  Replace the 13-inch iPad slot with the ten landscape marketing files and the
-  6.9-inch iPhone slot with the ten portrait marketing files documented above,
-  after owner contact-sheet approval.
+- App Store screenshots: the released 1.0 listing uses the approved iPad and
+  iPhone galleries without pricing references. Repository screenshot sources
+  remain regeneration inputs; never upload price-bearing variants.
 - App Review contact: Yihong Chen is saved, but a final live-field audit found
   the phone and email inputs empty. Re-enter the owner-approved review contact
   immediately before submission; the private phone number is not copied into
@@ -346,12 +349,8 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - The owner chose trader status for Jenny Media LLC. Apple's DSA contact
   verification is in progress under B-024; do not submit for EU distribution
   until Apple accepts the required email, phone, and business verification.
-- Review package: the owner withdrew the two-item iOS 1.0 (8) and `FrameWink
-  Lifetime` package on 2026-08-14. Recreate and resubmit that same two-item
-  package after screenshot replacement and the final metadata check.
-- Version release mode is saved as **Manually release this version**. App
-  Review approval will therefore not publish version 1.0 until the Account
-  Holder deliberately releases it.
+- Release package: iOS 1.0 (8) and `FrameWink Lifetime` were approved and
+  released. The public listing is Apple ID `6800849400`.
 - Release validation: Xcode Cloud Build 10 at `d6d7026` succeeded in Analyze
   and Test across all eight recommended iPhone/iPad destinations: 174 passed,
   eight explicit environment-limited skips, and zero failures out of 182.

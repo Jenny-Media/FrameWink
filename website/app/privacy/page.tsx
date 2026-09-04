@@ -2,7 +2,7 @@ import { pageMetadata } from "../siteMetadata";
 
 export const metadata = pageMetadata(
   "Privacy Policy",
-  "How FrameWink handles photos, local app data, purchases, and website requests.",
+  "How FrameWink protects your photos and handles purchases and support.",
   "/privacy",
 );
 
@@ -18,54 +18,54 @@ export default function PrivacyPage() {
         <section>
           <h2>The short version</h2>
           <p>
-            The FrameWink app has no Jenny Media LLC account or server and does not upload photos,
-            app activity, identifiers, diagnostics, purchases, or other personal data to Jenny Media LLC.
-            It does not use advertising, tracking, or third-party analytics SDKs.
+            FrameWink does not send your photos, app activity, device details, or purchase
+            information to Jenny Media LLC. You do not need an account, and the app has no
+            ads, tracking, or third-party analytics.
           </p>
         </section>
         <section>
           <h2>Photos</h2>
           <p>
-            Apple’s system photo picker gives FrameWink only the free-mode photos you choose. After a
-            FrameWink Lifetime purchase, you may explicitly authorize Photos and select an album for
-            automatic refresh. FrameWink lists album names and photo counts for that chooser, reads photo
-            content only from the selected album, filters hidden photos and screenshots, and never edits
-            your Photos library.
+            In the free version, Apple’s photo picker shares only the photos you choose. With
+            FrameWink Lifetime, you can give FrameWink access to one album so new photos can
+            appear automatically while the app is open. FrameWink shows album names and photo
+            counts while you choose, then reads photos only from the album you select. It skips
+            hidden photos and screenshots and never changes anything in your Photos library.
           </p>
           <p>
-            Apple Photos may download an iCloud item when an automatic album needs it. That is Apple Photos
-            behavior, not a FrameWink upload or a connection to Jenny Media LLC.
+            If a photo you chose is stored in iCloud, Apple Photos may download it to your device
+            before FrameWink can show it. FrameWink does not upload it or send it to Jenny Media LLC.
           </p>
         </section>
         <section>
           <h2>Local storage and deletion</h2>
           <p>
-            FrameWink stores display-sized copies, local curation records, and local display history in its
-            private app container. Photo copies, automatic-album cache data, and derived curation data are
-            excluded from device backup.
+            FrameWink keeps screen-sized copies and the information it needs to choose, arrange,
+            and rotate photos inside the app on your device. These copies and records are not
+            included in device backups.
           </p>
           <p>
-            <strong>Delete Imported Photos</strong> and <strong>Delete Automatic Album Cache</strong> remove
-            corresponding app-controlled copies and derived records without deleting or changing originals
-            in Apple Photos. Removing the app also removes its private local container through normal iOS or
-            iPadOS behavior.
+            <strong>Delete Imported Photos</strong> removes copies of photos you selected in the
+            free version. <strong>Delete Automatic Album Cache</strong> removes local copies from
+            the album you chose. Both also clear related app records without deleting or changing
+            originals in Apple Photos. Removing FrameWink from your device removes its local data.
           </p>
         </section>
         <section>
           <h2>Purchases and Family Sharing</h2>
           <p>
-            FrameWink Lifetime purchases, restoration, and Family Sharing use Apple’s StoreKit and App Store
-            services. Jenny Media LLC does not receive payment-card details through FrameWink. Apple’s
-            processing is governed by <a href="https://www.apple.com/legal/privacy/">Apple’s Privacy Policy</a>.
+            Apple handles FrameWink Lifetime purchases, restoring purchases, and Family Sharing.
+            Jenny Media LLC never receives your payment-card details. Apple’s handling of purchase
+            information is covered by <a href="https://www.apple.com/legal/privacy/">Apple’s Privacy Policy</a>.
           </p>
         </section>
         <section>
           <h2>This website</h2>
           <p>
-            This static website does not use product analytics, advertising pixels, tracking scripts, contact
-            forms, or marketing cookies. Its hosting provider may process ordinary request information needed
-            to deliver and secure the site under its own privacy terms. Email and GitHub support are separate
-            services you choose to use.
+            This website does not use analytics, ads, tracking, contact forms, or marketing cookies.
+            Our hosting provider may process basic request information needed to load and protect the
+            site under its own privacy terms. If you contact us by email or GitHub, those services
+            handle your message under their own privacy terms.
           </p>
         </section>
         <section>

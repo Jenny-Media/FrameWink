@@ -1,8 +1,9 @@
 import Image from "next/image";
+import { appStoreURL } from "./siteMetadata";
 
 /* eslint-disable jsx-a11y/no-redundant-roles -- Explicit list roles preserve Safari and VoiceOver semantics after list markers are removed. */
 
-const privacyPoints = ["No account", "No tracking", "Processed on your device"];
+const privacyPoints = ["No account", "No tracking", "Your photos stay private"];
 
 const imagePlaceholder =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%3E%3Crect%20width='32'%20height='32'%20fill='%23e8e0d0'/%3E%3C/svg%3E";
@@ -11,42 +12,42 @@ const features = [
   {
     number: "01",
     title: "Your best photos",
-    body: "FrameWink reviews the photos you choose, reduces repeats, and creates a varied slideshow without sending your library anywhere.",
+    body: "FrameWink creates a varied mix from the photos you choose, so the same moments don’t keep appearing.",
   },
   {
     number: "02",
-    title: "Cropping with care",
-    body: "FrameWink keeps faces and important details in view. It knows when to fill the screen, show the whole photo, or arrange several photos together.",
+    title: "Everyone stays in the picture",
+    body: "Faces and important details stay in view, whether one photo fills the screen or several share it.",
   },
   {
     number: "03",
-    title: "Quietly alive",
-    body: "Restrained fades, slow zooms, and gentle pans add life without becoming a distraction—and Reduce Motion is always respected.",
+    title: "A frame that feels alive",
+    body: "Gentle fades, pans, and zooms bring your photos to life without demanding attention. If you prefer less motion, FrameWink respects your setting.",
   },
 ];
 
 const steps = [
-  { symbol: "+", title: "Choose", body: "Pick a few favorites with Apple’s system photo picker. Full-library access is not required." },
-  { symbol: "✓", title: "Review", body: "FrameWink prepares local highlights you can review before anything reaches the frame." },
-  { symbol: "▶", title: "Enjoy", body: "Start the frame, swipe naturally, pause anytime, or share the photo currently in view." },
+  { symbol: "+", title: "Choose", body: "Pick the photos you want to see—and nothing else." },
+  { symbol: "✓", title: "Review", body: "Preview your frame and remove anything you don’t want to see." },
+  { symbol: "▶", title: "Enjoy", body: "Start the frame, swipe when you want, and let your photos change quietly." },
 ];
 
 const faqItems = [
   [
     "Does the free version expire?",
-    "No. Free Smart Reel has no countdown. You can import up to 500 photos, keep one reel with up to 100 highlights, and replay it as often as you like.",
+    "No. Choose up to 500 photos, enjoy a reel with up to 100 highlights, and replay it as often as you like.",
   ],
   [
     "Does FrameWink upload my photos?",
-    "No. Jenny Media LLC has no FrameWink photo server. Selection, analysis, curation, and display happen on your device. Apple Photos may download an iCloud item when you ask FrameWink to use an automatic album.",
+    "No. Choosing your best shots, arranging them, and showing them all happen on your device. If a photo is stored in iCloud, Apple Photos may download it to your device before FrameWink can show it.",
   ],
   [
     "Do I need to give access to my whole library?",
-    "No. Free Smart Reel uses Apple’s system picker and receives only the photos you select. Full Photos access is requested only if you explicitly enable a paid automatic album.",
+    "No. For the free reel, Apple’s photo picker shares only the photos you choose. FrameWink asks for access to your photo library only when you turn on automatic updates for an album with Lifetime.",
   ],
   [
     "What does FrameWink Lifetime add?",
-    "The one-time upgrade can use every eligible photo from one supported Photos album you choose, refreshes that album while FrameWink is open, avoids recent repeats for longer, and adds visual night schedules while the app is open, more automatic layouts, and mounted-display guidance.",
+    "FrameWink Lifetime removes the 500-photo limit for one Apple Photos album you choose. While FrameWink is open, new album photos can appear automatically, recent photos repeat less often, and you can schedule the screen to dim or go dark at night. You also get more arrangements and help setting up a mounted iPad.",
   ],
 ];
 
@@ -57,7 +58,9 @@ const structuredData = {
   applicationCategory: "MultimediaApplication",
   operatingSystem: "iOS 15 or later; iPadOS 15 or later",
   description:
-    "A private smart photo frame for iPhone and iPad, curated on your device from photos you choose.",
+    "Turn an iPad or iPhone into a calm, private photo frame. FrameWink never uploads your photos.",
+  url: "https://frame.jenny.media",
+  installUrl: appStoreURL,
   offers: [
     { "@type": "Offer", name: "Free Smart Reel", price: "0", priceCurrency: "USD" },
     { "@type": "Offer", name: "FrameWink Lifetime", price: "4.99", priceCurrency: "USD" },
@@ -86,40 +89,58 @@ export default function Home() {
       />
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
-          <p className="eyebrow">A private photo frame for iPad and iPhone</p>
+          <p className="eyebrow">Your best digital frame may already be in your drawer</p>
           <h1 id="hero-title">Your photos. Beautifully framed.</h1>
           <p className="hero-lede">
-            Turn an iPad you already own into a beautiful photo frame. Choose
-            the photos, review what plays, and keep everything private on your
-            device. FrameWink works on iPhone too.
+            Turn an iPad you already own into a calm, private photo frame. Choose
+            the moments you love, decide what appears, and enjoy them throughout
+            your day. FrameWink never uploads your photos.
           </p>
           <div className="hero-actions">
-            <a className="primary-action" href="#features">
-              Explore FrameWink <span aria-hidden="true">↓</span>
-            </a>
             <a
-              className="launch-action"
-              href="mailto:framewink@jenny.media?subject=FrameWink%20launch&amp;body=Please%20let%20me%20know%20when%20FrameWink%20is%20available%20on%20the%20App%20Store."
+              className="app-store-badge-link"
+              href={appStoreURL}
+              aria-label="Download FrameWink on the App Store"
             >
-              Email me at launch
+              <Image
+                src="/images/download-on-the-app-store.svg"
+                alt="Download on the App Store"
+                width={359}
+                height={120}
+                preload
+              />
             </a>
-            <p>Free Smart Reel · Optional $4.99 lifetime upgrade</p>
+            <a className="hero-explore-link" href="#features">
+              <span>See how it works</span>
+              <span className="hero-explore-icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" fill="none">
+                  <path
+                    d="M10 3.75v10.5m0 0 4-4m-4 4-4-4"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </a>
+            <p>Free to download · Optional one-time upgrade</p>
           </div>
           <ul className="trust-list" aria-label="FrameWink privacy highlights" role="list">
             {privacyPoints.map((point) => <li key={point} role="listitem">{point}</li>)}
           </ul>
         </div>
 
-        <div className="hero-visual" aria-label="FrameWink on iPad">
+        <div className="hero-visual">
           <figure className="flat-device-stage">
             <div className="flat-device-cycle">
               <Image
                 className="flat-device-image flat-device-primary"
                 src="/images/ipad-flat-frame-v1.webp"
-                alt="FrameWink displaying a clean single-photo frame inside an iPad bezel"
+                alt="FrameWink showing a favorite photo on an iPad"
                 width={1500}
                 height={1150}
-                sizes="(max-width: 900px) 100vw, 58vw"
+                sizes="(max-width: 1180px) 100vw, 58vw"
                 preload
               />
               <Image
@@ -129,7 +150,7 @@ export default function Home() {
                 aria-hidden="true"
                 width={1500}
                 height={1150}
-                sizes="(max-width: 900px) 100vw, 58vw"
+                sizes="(max-width: 1180px) 100vw, 58vw"
               />
             </div>
             <figcaption>Actual FrameWink screens</figcaption>
@@ -140,10 +161,10 @@ export default function Home() {
       <section className="privacy-strip" aria-labelledby="privacy-heading">
         <p className="section-kicker">Private by design</p>
         <h2 id="privacy-heading">Your photos stay yours.</h2>
-        <p>
-          FrameWink chooses, arranges, and displays your photos on your device.
-          There is no FrameWink account, photo server, analytics, advertising,
-          or tracking. Apple Photos can still download an iCloud photo you choose.
+        <p className="privacy-summary">
+          Everything happens on your iPhone or iPad. There’s no FrameWink account,
+          ads, or tracking. If a photo is stored in iCloud, Apple Photos may download
+          it to your device before FrameWink can show it.
         </p>
         <a className="text-link light" href="/privacy">Read the privacy policy <span aria-hidden="true">↗</span></a>
       </section>
@@ -155,8 +176,8 @@ export default function Home() {
             <h2 id="features-heading">Beautiful by default.</h2>
           </div>
           <p>
-            FrameWink favors a few excellent defaults over a wall of settings.
-            Choose photos, review the reel, and let the current screen shape guide the presentation.
+            Your photos arrive beautifully arranged, without complicated setup.
+            You stay in control of what appears.
           </p>
         </div>
         <div className="feature-grid">
@@ -175,38 +196,48 @@ export default function Home() {
           <p className="section-kicker">iPad-first by design</p>
           <h2 id="showcase-heading">Made for the places you love.</h2>
           <p>
-            Use an iPad on a shelf, desk, or mounted display. FrameWink uses the
-            larger canvas for calm, automatic compositions without turning
-            setup into a project.
+            Set an iPad on a shelf, desk, or wall and let the moments you love
+            become part of the room. FrameWink arranges each view to suit the screen.
           </p>
           <CheckList items={[
-            "One photo or several, arranged automatically",
-            "Layouts that adapt as the window changes",
-            "Controls that fade away while photos play",
+            "One favorite photo or a thoughtful mix",
+            "Beautiful arrangements that fit your screen",
+            "Controls stay out of the way until you need them",
           ]} />
         </div>
         <figure className="flat-showcase-device">
           <Image
-            src="/images/ipad-flat-pair-v1.webp"
-            alt="FrameWink showing two compatible portrait photos side by side inside an iPad bezel"
+            src="/images/ipad-flat-pair-v2.webp"
+            alt="FrameWink showing two portrait photos side by side on an iPad"
             width={1500}
             height={1150}
             sizes="(max-width: 900px) 92vw, 54vw"
             placeholder="blur"
             blurDataURL={imagePlaceholder}
           />
-          <figcaption>Compatible portraits sit side by side automatically.</figcaption>
+          <figcaption>Portrait photos can sit side by side when they look good together.</figcaption>
         </figure>
       </section>
 
       <section className="iphone-note content-section" id="iphone" aria-labelledby="iphone-heading">
-        <h2 id="iphone-heading">Works on iPhone too.</h2>
-        <p>The same private reel, adapted for a smaller screen.</p>
+        <div className="iphone-note-copy">
+          <h2 id="iphone-heading">A private photo frame in your pocket.</h2>
+          <p>Enjoy the same private photo frame on iPhone, sized for the smaller screen.</p>
+        </div>
+        <div className="iphone-mini-preview">
+          <Image
+            src="/images/iphone-17-pro-max-cyclist.webp"
+            alt="FrameWink showing a cyclist photo on an iPhone 17 Pro Max"
+            width={735}
+            height={1500}
+            sizes="(max-width: 560px) 200px, (max-width: 1180px) 210px, 230px"
+          />
+        </div>
       </section>
 
       <section className="steps-section content-section" id="how-it-works" aria-labelledby="steps-heading">
         <div className="section-heading centered-heading">
-          <p className="section-kicker">Three simple moments</p>
+          <p className="section-kicker">Simple from the start</p>
           <h2 id="steps-heading">From your photos to a frame in a few taps.</h2>
         </div>
         <ol className="steps-grid" role="list">
@@ -231,25 +262,24 @@ export default function Home() {
             <div>
               <h3 className="plan-label">Free Smart Reel</h3>
               <p className="price">$0</p>
-              <p>Choose up to 500 photos and keep one local reel with up to 100 highlights.</p>
+              <p>Choose up to 500 photos and enjoy one reel with up to 100 highlights.</p>
             </div>
             <CheckList items={[
-              "Full-quality local curation",
-              "Review and Never Show Again",
-              "Automatic layouts, motion, and replay",
+              "Your highlights are chosen on your device",
+              "Review every photo and choose Never Show Again",
+              "Beautiful arrangements, gentle motion, and unlimited replay",
             ]} />
           </article>
           <article className="plan-card lifetime-plan">
             <div>
               <h3 className="plan-label">FrameWink Lifetime</h3>
-              <p className="price">$4.99 <small>once</small></p>
-              <p>Keep the Photos album you choose refreshed while FrameWink remains open.</p>
+              <p className="price">$4.99 <small>once in the U.S.</small></p>
+              <p>Choose one Apple Photos album with no 500-photo limit. While FrameWink is open, new photos can join your frame automatically. Local App Store price may vary.</p>
             </div>
             <CheckList items={[
-              "Use one supported Photos album without the free 500-photo cap",
-              "Automatic refresh and longer repeat avoidance",
-              "Visual night schedules while FrameWink is open",
-              "Extra layouts and mounted-display guidance",
+              "See new album photos automatically and fewer recent repeats",
+              "Schedule dimming or a dark screen at night while FrameWink is open",
+              "Enjoy more arrangements and help setting up a mounted iPad",
               "Family Sharing where supported by Apple",
             ]} />
           </article>
@@ -259,15 +289,15 @@ export default function Home() {
       <section className="review-callout" id="availability" aria-labelledby="availability-heading" tabIndex={-1}>
         <Image src="/images/framewink-icon.png" alt="FrameWink app icon" width={120} height={120} />
         <div>
-          <p className="section-kicker">Coming to the App Store</p>
-          <h2 id="availability-heading">FrameWink 1.0 is being prepared for review.</h2>
-          <p>Built for iPhone and iPad only, running iOS or iPadOS 15 and later.</p>
+          <p className="section-kicker">Available on the App Store</p>
+          <h2 id="availability-heading">Give your iPhone or iPad a new purpose.</h2>
+          <p>Works with iPhone and iPad running iOS or iPadOS 15 or later.</p>
         </div>
         <a
           className="secondary-action"
-          href="mailto:framewink@jenny.media?subject=FrameWink%20launch&amp;body=Please%20let%20me%20know%20when%20FrameWink%20is%20available%20on%20the%20App%20Store."
+          href={appStoreURL}
         >
-          Email me when it launches
+          View on the App Store
         </a>
       </section>
 

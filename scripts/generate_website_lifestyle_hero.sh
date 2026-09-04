@@ -6,9 +6,12 @@ repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 magick_bin=${FRAMEWINK_MAGICK_BIN:-$(command -v magick || true)}
 default_bezel='/Volumes/Bezel-iPad-Pro-(M5)/PNG/iPad Pro (M5) 13" - Space Black - Landscape.png'
 bezel=${FRAMEWINK_IPAD_BEZEL:-$default_bezel}
+default_iphone_bezel='/Volumes/Bezel-iPhone-17/PNG/iPhone 17 Pro Max/iPhone 17 Pro Max - Deep Blue - Portrait.png'
+iphone_bezel=${FRAMEWINK_IPHONE_BEZEL:-$default_iphone_bezel}
 frame_capture="$repo_root/website/public/images/ipad-landscape-frame-clean-v2.webp"
 mosaic_capture="$repo_root/website/public/images/ipad-landscape-mosaic-clean-v2.webp"
 pair_capture="$repo_root/website/public/images/ipad-landscape-pair-clean-v1.webp"
+iphone_capture="$repo_root/FrameWink/Resources/SamplePhotos/sample-autumn-cyclist.jpg"
 website_images="$repo_root/website/public/images"
 working_directory=$(mktemp -d "${TMPDIR:-/tmp}/framewink-flat-ipad.XXXXXX")
 
@@ -19,12 +22,16 @@ trap 'rm -rf "$working_directory"' EXIT
     exit 1
 }
 
-for required_file in "$bezel" "$frame_capture" "$mosaic_capture" "$pair_capture"; do
+for required_file in "$frame_capture" "$mosaic_capture" "$pair_capture" "$iphone_capture"; do
     [ -f "$required_file" ] || {
         echo "Required iPad presentation source is missing: $required_file" >&2
         exit 1
     }
 done
+
+if [ ! -f "$bezel" ]; then
+    echo "Licensed bezel source is not mounted; preserving the bezel from the existing rendered website assets."
+fi
 
 # Apple's licensed 3000 x 2300 iPad Pro bezel has a 2752 x 2064 transparent
 # screen opening at +124+118. Keep the device flat and exact: the native 4:3
@@ -55,10 +62,28 @@ build_device() {
         -composite \
         "$rounded"
 
-    "$magick_bin" -size 3000x2300 xc:none \
-        "$rounded" -geometry +124+118 -compose over -composite \
-        "$bezel" -geometry +0+0 -compose over -composite \
-        -resize 1500x1150 \
+    if [ -f "$bezel" ]; then
+        "$magick_bin" -size 3000x2300 xc:none \
+            "$rounded" -geometry +124+118 -compose over -composite \
+            "$bezel" -geometry +0+0 -compose over -composite \
+            -resize 1500x1150 \
+            -strip \
+            -quality 90 \
+            "$destination"
+        return
+    fi
+
+    [ -f "$destination" ] || {
+        echo "Existing rendered bezel fallback is missing: $destination" >&2
+        exit 1
+    }
+    template="$working_directory/$(basename "$destination" .webp)-template.webp"
+    cp "$destination" "$template"
+    "$magick_bin" "$template" \
+        \( "$rounded" -resize 1376x1032! \) \
+        -geometry +62+59 \
+        -compose over \
+        -composite \
         -strip \
         -quality 90 \
         "$destination"
@@ -66,6 +91,45 @@ build_device() {
 
 build_device "$frame_capture" "$website_images/ipad-flat-frame-v1.webp"
 build_device "$mosaic_capture" "$website_images/ipad-flat-mosaic-v1.webp"
-build_device "$pair_capture" "$website_images/ipad-flat-pair-v1.webp"
+build_device "$pair_capture" "$website_images/ipad-flat-pair-v2.webp"
 
-echo "Generated flat FrameWink iPad presentation assets in $website_images"
+iphone_destination="$website_images/iphone-17-pro-max-cyclist.webp"
+if [ -f "$iphone_bezel" ]; then
+    # Apple's official iPhone 17 Pro Max portrait bezel is 1470 x 3000 and
+    # exposes the native 1320 x 2868 screen at +75+66. Keep the supplied bezel
+    # unchanged, clip FrameWink's real sample-frame content to the display's
+    # rounded corners, and place that screen beneath the hardware artwork.
+    "$magick_bin" "$iphone_capture" \
+        -resize 1320x2868^ \
+        -gravity center \
+        -extent 1320x2868 \
+        "$working_directory/iphone-screen.png"
+
+    "$magick_bin" -size 1320x2868 xc:none \
+        -fill white \
+        -stroke none \
+        -draw "roundrectangle 0,0 1319,2867 190,190" \
+        "$working_directory/iphone-screen-mask.png"
+
+    "$magick_bin" "$working_directory/iphone-screen.png" \
+        "$working_directory/iphone-screen-mask.png" \
+        -alpha off \
+        -compose CopyOpacity \
+        -composite \
+        "$working_directory/iphone-screen-rounded.png"
+
+    "$magick_bin" -size 1470x3000 xc:none \
+        "$working_directory/iphone-screen-rounded.png" -geometry +75+66 -compose over -composite \
+        "$iphone_bezel" -geometry +0+0 -compose over -composite \
+        -resize 735x1500 \
+        -strip \
+        -quality 90 \
+        "$iphone_destination"
+elif [ ! -f "$iphone_destination" ]; then
+    echo "Licensed iPhone bezel source is not mounted and the rendered website asset is missing: $iphone_destination" >&2
+    exit 1
+else
+    echo "Licensed iPhone bezel source is not mounted; preserving the existing rendered iPhone asset."
+fi
+
+echo "Generated flat FrameWink device presentation assets in $website_images"

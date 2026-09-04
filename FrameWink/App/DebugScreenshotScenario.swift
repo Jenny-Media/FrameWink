@@ -216,9 +216,9 @@ extension DebugScreenshotScenario {
 
     private func seedFreeReview(importedStore: ImportedPhotoStoring) {
         let reviewPhotoIDs = [
-            "sample-coast-aerial",
-            "sample-spring-flowers",
-            "sample-sunset-city",
+            "sample-yellowstone-falls",
+            "sample-san-francisco-sunset",
+            "sample-golden-gate",
         ]
         let photosByID = Dictionary(
             uniqueKeysWithValues: BundledSampleCatalog.photos.map { ($0.id, $0) }
@@ -295,14 +295,16 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
 @MainActor
 final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
     private let sampleAssets = [
-        (id: "sample-coast-aerial", resource: "sample-coast-aerial", width: 2_048, height: 1_536),
-        (id: "sample-spring-flowers", resource: "sample-spring-flowers", width: 2_048, height: 1_365),
-        (id: "sample-open-road", resource: "sample-open-road", width: 2_048, height: 1_365),
-        (id: "sample-sunset-city", resource: "sample-sunset-city", width: 2_048, height: 1_536),
-        (id: "sample-city-skyline", resource: "sample-city-skyline", width: 2_048, height: 1_365),
-        (id: "sample-evening-sail", resource: "sample-evening-sail", width: 1_365, height: 2_048),
-        (id: "sample-mountain-volcano", resource: "sample-mountain-volcano", width: 2_048, height: 1_365),
-        (id: "sample-autumn-leaves", resource: "sample-autumn-leaves", width: 2_048, height: 1_365),
+        (id: "sample-yellowstone-falls", resource: "sample-yellowstone-falls", width: 2_048, height: 1_365),
+        (id: "sample-san-francisco-sunset", resource: "sample-san-francisco-sunset", width: 2_048, height: 1_536),
+        (id: "sample-golden-gate", resource: "sample-golden-gate", width: 2_048, height: 1_365),
+        (id: "sample-antelope-canyon", resource: "sample-antelope-canyon", width: 2_048, height: 1_536),
+        (id: "sample-horseshoe-bend", resource: "sample-horseshoe-bend", width: 2_048, height: 1_536),
+        (id: "sample-sun-rays-ocean", resource: "sample-sun-rays-ocean", width: 2_048, height: 1_152),
+        (id: "sample-autumn-waterfall", resource: "sample-autumn-waterfall", width: 2_048, height: 1_366),
+        (id: "sample-taipei-skyline", resource: "sample-taipei-skyline", width: 2_048, height: 1_365),
+        (id: "sample-mountain-icicles", resource: "sample-mountain-icicles", width: 2_048, height: 1_365),
+        (id: "sample-autumn-cyclist", resource: "sample-autumn-cyclist", width: 2_048, height: 1_365),
     ]
 
     func authorizationState() -> PhotoLibraryAuthorizationState {
@@ -353,10 +355,10 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         maxPixelDimension: Int
     ) async -> UIImage? {
         let resources = [
-            "sample-coast-aerial",
-            "sample-spring-flowers",
-            "sample-sunset-city",
-            "sample-open-road",
+            "sample-yellowstone-falls",
+            "sample-san-francisco-sunset",
+            "sample-golden-gate",
+            "sample-antelope-canyon",
         ]
         let index = abs(albumIdentifier.hashValue) % resources.count
         guard let url = BundledSampleImageLoader.url(named: resources[index]) else {

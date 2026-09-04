@@ -72,10 +72,21 @@ final class MarketingLandscapeScreenshotTests: XCTestCase {
         )
     }
 
-    func testCaptureWebsitePairedPhotoScreen() throws {
+    func testCaptureWebsiteFrameScreens() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
-            throw XCTSkip("The website pair capture is iPad-specific.")
+            throw XCTSkip("The website frame captures are iPad-specific.")
         }
+        try capture(
+            scenario: "smart-frame",
+            name: "website-landscape-frame",
+            expectsCleanPlayback: true
+        )
+        try capture(
+            scenario: "mosaic-frame",
+            name: "website-landscape-mosaic",
+            expectsCleanPlayback: true,
+            expectedVisiblePhotoCount: 4
+        )
         try capture(
             scenario: "paired-frame",
             name: "website-landscape-pair",

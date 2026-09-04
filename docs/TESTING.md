@@ -1965,3 +1965,73 @@ explicit owner approval.
   dimensions and `git diff --check` pass. The production app path, App Store
   screenshot count, and physical-device behavior are unchanged and were not
   retested; production website deployment remains pending.
+
+## Post-review website hardening verification — 2026-09-04
+
+- `scripts/capture_website_pair_screenshot.sh` passed on the iPad Pro 13-inch
+  (M5) iOS 27.0 Simulator and exported clean single, Mosaic, and paired screens.
+  `scripts/generate_website_lifestyle_hero.sh` then regenerated the licensed
+  flat-bezel derivatives. The paired screen visibly contains the bundled
+  water-bird and evening-sail photos, exposes two photo targets, and contains no
+  playback chrome. Xcode emitted only the existing StoreKitTest deprecation and
+  debugger-version lookup notes.
+- In `website/`, `npm test` passes all eight contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates `/`, `/privacy`,
+  `/support`, `/terms`, `/robots.txt`, `/sitemap.xml`, `/icon.png`, and
+  `/apple-icon.png`. `git diff --check` passes.
+- Browser verification against `http://127.0.0.1:3001/` confirms meaningful
+  content, no framework overlay, no page errors, no application console errors,
+  and the expected navigation and section landmarks. The document width equals
+  the viewport at 1,181, 1,024, 901, and 390 pixels; the formerly broken hero
+  remains wholly inside the viewport and changes to one column at 1,180 pixels.
+- Visual checks confirm the sail-pair asset is served under its versioned path,
+  the 1,024-pixel iPhone strip has no text collision, and the 390-pixel layout
+  stacks its compact cyclist preview cleanly. Axe reports zero WCAG A/AA
+  violations on the homepage and Support page; the homepage retains five manual
+  contrast checks for decorative glyphs or elements whose pseudo-elements hide
+  their computed background from Axe.
+- The refreshed `og.png` is 1200 x 630, contains the exact current FrameWink
+  headline, and is reduced from 854 KB to 165 KB. The dedicated favicon and
+  Apple touch icon are 48 x 48 and 180 x 180 respectively. A local development
+  vitals run recorded CLS 0, FCP 76 ms, LCP 96 ms, and TTFB 47 ms; production
+  Core Web Vitals remain untested until deployment.
+
+## Public copy and iPhone proof verification — 2026-09-04
+
+- Audited every public route, shared navigation, metadata, FAQ, image alt text,
+  and purchase, privacy, and compatibility copy. Internal implementation terms
+  such as Mac Catalyst, StoreKit, entitlement, analytics SDK, private app
+  container, and derived curation data no longer appear in public copy. The
+  revised language keeps the concrete device, privacy, purchase, photo-limit,
+  and app-open behavior users need to understand.
+- Enlarged the compact iPhone proof from a 62–72 pixel treatment to a responsive
+  112–132 pixel treatment. Browser inspection confirms it remains sharp,
+  balanced with the adjacent copy, and centered cleanly when the section stacks
+  on a phone-sized viewport.
+- In `website/`, `npm test` passes all nine contract tests, `npm run lint`
+  passes, and `npm run build` compiles and statically generates every public
+  route. Browser checks confirm `/`, `/privacy`, `/support`, and `/terms` render
+  the revised copy and contain none of the audited internal terms. Production
+  verification remains pending until the pull-request deployment completes.
+
+## Official iPhone 17 Pro Max bezel verification — 2026-09-04
+
+- Downloaded Apple's current iPhone 17 product-bezel package from Apple Design
+  Resources after owner authorization and selected the official Deep Blue
+  iPhone 17 Pro Max portrait PNG. The 1470 x 3000 bezel remains unmodified; the
+  FrameWink cyclist frame sits beneath its exact 1320 x 2868 transparent screen
+  opening at +75+66. A 190-pixel rounded-rectangle alpha mask clips the screen
+  content before compositing so the photo cannot escape through the transparent
+  outer corners; the complete composite is then resized to 735 x 1500.
+- The homepage displays the device at 200–230 pixels wide, meeting Apple's
+  200-pixel minimum onscreen size. No CSS border, synthetic hardware detail,
+  added reflection, or added device shadow is applied to the product image.
+- Browser inspection confirms the complete bezel, side controls, rounded
+  display, masked photo corners, and Dynamic Island remain visible at a
+  1,280-pixel desktop width and
+  at a 390-pixel phone width. The responsive section has no horizontal overflow,
+  and the phone-sized layout centers the 200 x 408 pixel rendered device without
+  colliding with either adjacent section.
+- In `website/`, all nine contract tests, ESLint, and the static production build
+  pass. The generator script passes `bash -n`, the rendered WebP is 735 x 1500
+  with transparency, and `git diff --check` passes.
