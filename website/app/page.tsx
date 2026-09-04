@@ -226,11 +226,11 @@ export default function Home() {
         </div>
         <div className="iphone-mini-preview">
           <Image
-            src="/images/iphone-cyclist-demo.webp"
-            alt="FrameWink showing a cyclist photo on an iPhone"
-            width={240}
-            height={520}
-            sizes="(max-width: 560px) 112px, (max-width: 1180px) 118px, 132px"
+            src="/images/iphone-17-pro-max-cyclist.webp"
+            alt="FrameWink showing a cyclist photo on an iPhone 17 Pro Max"
+            width={735}
+            height={1500}
+            sizes="(max-width: 560px) 200px, (max-width: 1180px) 210px, 230px"
           />
         </div>
       </section>

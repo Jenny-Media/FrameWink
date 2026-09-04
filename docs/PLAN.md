@@ -1413,6 +1413,10 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   alt text, and FAQ copy; replaced internal terms such as StoreKit, entitlement,
   cache, curation records, authorization, and Mac Catalyst with plain-language
   explanations while preserving every product and privacy boundary.
+- Replaced the hand-styled iPhone proof with Apple's licensed, unmodified Deep
+  Blue iPhone 17 Pro Max bezel. The real FrameWink cyclist frame is aligned to
+  the bezel's exact 1320 x 2868 screen opening and displayed at a legible
+  200–230 pixel width without added shadows or simulated device details.
 - All eight website contract tests, ESLint, the static production build, native
   website capture UI test, browser accessibility checks, target-width overflow
   checks, and diff hygiene pass. The local preview is active at

@@ -171,7 +171,8 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.doesNotMatch(home, /ipad-landscape-controls-v3\.webp/);
   assert.doesNotMatch(home, /steps\.map\(\(\[title, body\], index\)/);
   assert.match(home, /className="step-symbol"/);
-  assert.match(home, /iphone-cyclist-demo\.webp/);
+  assert.match(home, /iphone-17-pro-max-cyclist\.webp/);
+  assert.match(home, /FrameWink showing a cyclist photo on an iPhone 17 Pro Max/);
   assert.doesNotMatch(home, /ipad-room-frame|generic tablet/i);
   assert.match(landscapeGenerator, /ACTUAL IN-APP SCREEN/);
   assert.doesNotMatch(landscapeGenerator, /room_base|prefix-(?:device|shell)|-strokewidth/);
@@ -187,8 +188,9 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.match(styles, /prefers-reduced-motion:[\s\S]*\.flat-device-secondary\s*\{\s*opacity:\s*0 !important;/);
   assert.match(styles, /\.iphone-note\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto/s);
   assert.match(styles, /\.iphone-note\s*\{[^}]*padding-block:\s*30px/s);
-  assert.match(styles, /\.iphone-mini-preview\s*\{[^}]*width:\s*clamp\(112px, 10vw, 132px\)/s);
-  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.iphone-mini-preview\s*\{[^}]*width:\s*112px/s);
+  assert.match(styles, /\.iphone-mini-preview\s*\{[^}]*width:\s*clamp\(200px, 16vw, 230px\)/s);
+  assert.doesNotMatch(styles, /\.iphone-mini-preview\s*\{[^}]*(?:background|border|box-shadow|padding):/s);
+  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.iphone-mini-preview\s*\{[^}]*width:\s*200px/s);
   assert.match(styles, /@media \(max-width: 1180px\)[\s\S]*\.hero\s*\{[^}]*grid-template-columns:\s*1fr/s);
   assert.match(styles, /\.privacy-strip \.privacy-summary/);
   assert.match(styles, /h1,\s*h2,\s*h3\s*\{\s*text-wrap:\s*balance;/s);
@@ -201,6 +203,9 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.doesNotMatch(styles, /\.feature-card h3\s*\{[^}]*margin:\s*116px/s);
   assert.match(lifestyleGenerator, /FRAMEWINK_IPAD_BEZEL/);
   assert.match(lifestyleGenerator, /iPad Pro \(M5\) 13" - Space Black - Landscape\.png/);
+  assert.match(lifestyleGenerator, /FRAMEWINK_IPHONE_BEZEL/);
+  assert.match(lifestyleGenerator, /iPhone 17 Pro Max - Deep Blue - Portrait\.png/);
+  assert.match(lifestyleGenerator, /1320x2868/);
   assert.match(lifestyleGenerator, /ipad-landscape-frame-clean-v2\.webp/);
   assert.match(lifestyleGenerator, /ipad-landscape-mosaic-clean-v2\.webp/);
   assert.match(lifestyleGenerator, /ipad-landscape-pair-clean-v1\.webp/);

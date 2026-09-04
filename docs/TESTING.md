@@ -2013,3 +2013,22 @@ explicit owner approval.
   route. Browser checks confirm `/`, `/privacy`, `/support`, and `/terms` render
   the revised copy and contain none of the audited internal terms. Production
   verification remains pending until the pull-request deployment completes.
+
+## Official iPhone 17 Pro Max bezel verification — 2026-09-04
+
+- Downloaded Apple's current iPhone 17 product-bezel package from Apple Design
+  Resources after owner authorization and selected the official Deep Blue
+  iPhone 17 Pro Max portrait PNG. The 1470 x 3000 bezel remains unmodified; the
+  FrameWink cyclist frame sits beneath its exact 1320 x 2868 transparent screen
+  opening at +75+66, then the complete composite is resized to 735 x 1500.
+- The homepage displays the device at 200–230 pixels wide, meeting Apple's
+  200-pixel minimum onscreen size. No CSS border, synthetic hardware detail,
+  added reflection, or added device shadow is applied to the product image.
+- Browser inspection confirms the complete bezel, side controls, rounded
+  display, and Dynamic Island remain visible at a 1,280-pixel desktop width and
+  at a 390-pixel phone width. The responsive section has no horizontal overflow,
+  and the phone-sized layout centers the 200 x 408 pixel rendered device without
+  colliding with either adjacent section.
+- In `website/`, all nine contract tests, ESLint, and the static production build
+  pass. The generator script passes `bash -n`, the rendered WebP is 735 x 1500
+  with transparency, and `git diff --check` passes.
