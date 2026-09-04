@@ -92,10 +92,14 @@ test("links the released app through Apple's official badge", async () => {
   assert.doesNotMatch(home, /Email me at launch|being prepared for review|Email me when it launches/);
   assert.doesNotMatch(home, /Explore FrameWink/);
   assert.match(home, /See how it works/);
+  assert.match(home, /hero-explore-icon/);
+  assert.match(home, /M10 3\.75v10\.5/);
   assert.ok(home.indexOf("app-store-badge-link") < home.indexOf("hero-explore-link"));
   assert.match(chrome, /Download/);
   assert.match(badge, /Download_on_the_App_Store_Badge/);
   assert.match(styles, /grid-template-columns: max-content max-content/);
+  assert.match(styles, /\.hero-explore-link[\s\S]*border-radius: 999px/);
+  assert.match(styles, /\.hero-explore-icon[\s\S]*background: rgb\(244 94 54 \/ 11%\)/);
   assert.match(styles, /letter-spacing: -0\.02em/);
   assert.match(styles, /line-height: 0\.99/);
   assert.match(layout, /colorScheme: "light"/);

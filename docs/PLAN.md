@@ -1390,8 +1390,8 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### Post-review website hardening — 2026-09-04
 
-- Status: implementation and local verification complete; the refreshed site
-  remains uncommitted and production deployment is pending owner approval.
+- Status: implementation is committed in PR #4 and local verification is
+  complete; production deployment remains pending owner approval.
 - Repaired the hero between 901 and 1,180 pixels, corrected the privacy-summary
   selector, and resolved the two reported contrast failures. The shared header
   and footer now remain server-rendered while a small client component owns only
@@ -1405,6 +1405,9 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   and gave the workflow cards restrained boundaries and tints. Added lightweight
   48-pixel and 180-pixel icon routes and replaced the stale 854 KB social image
   with a verified 1200 x 630, 165 KB card using the current headline.
+- Restyled the hero's `See how it works` link as a restrained secondary pill,
+  with a consistent vector down arrow, 52-pixel touch target, and coordinated
+  hover and keyboard-focus treatment beside the official App Store badge.
 - All eight website contract tests, ESLint, the static production build, native
   website capture UI test, browser accessibility checks, target-width overflow
   checks, and diff hygiene pass. The local preview is active at

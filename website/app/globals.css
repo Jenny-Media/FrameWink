@@ -208,21 +208,53 @@ h1 {
 
 .hero-explore-link {
   align-items: center;
+  background: rgb(255 255 255 / 68%);
+  border: 1px solid rgb(17 23 53 / 14%);
+  border-radius: 999px;
+  box-shadow: 0 10px 28px rgb(17 23 53 / 8%);
+  color: var(--ink);
   display: inline-flex;
   font-weight: 720;
-  gap: 12px;
-  min-height: 44px;
-  padding: 4px 2px;
-  text-decoration: underline;
-  text-decoration-color: rgb(17 23 53 / 28%);
-  text-underline-offset: 6px;
-  transition: color 160ms ease, text-decoration-color 160ms ease;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 10px 0 18px;
+  transition: background-color 180ms ease, border-color 180ms ease,
+    box-shadow 180ms ease, transform 180ms ease;
+  width: fit-content;
+}
+
+.hero-explore-icon {
+  align-items: center;
+  background: rgb(244 94 54 / 11%);
+  border-radius: 50%;
+  color: var(--accent-text);
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 32px;
+  justify-content: center;
+  transition: background-color 180ms ease, color 180ms ease,
+    transform 180ms ease;
+  width: 32px;
+}
+
+.hero-explore-icon svg {
+  height: 18px;
+  width: 18px;
 }
 
 .hero-explore-link:hover,
 .hero-explore-link:focus-visible {
-  color: var(--accent-text);
-  text-decoration-color: currentColor;
+  background: white;
+  border-color: rgb(169 54 24 / 32%);
+  box-shadow: 0 14px 34px rgb(17 23 53 / 13%);
+  transform: translateY(-2px);
+}
+
+.hero-explore-link:hover .hero-explore-icon,
+.hero-explore-link:focus-visible .hero-explore-icon {
+  background: var(--orange);
+  color: white;
+  transform: translateY(1px);
 }
 
 .hero-actions p {

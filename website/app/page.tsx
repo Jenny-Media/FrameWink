@@ -111,7 +111,18 @@ export default function Home() {
               />
             </a>
             <a className="hero-explore-link" href="#features">
-              See how it works <span aria-hidden="true">↓</span>
+              <span>See how it works</span>
+              <span className="hero-explore-icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" fill="none">
+                  <path
+                    d="M10 3.75v10.5m0 0 4-4m-4 4-4-4"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
             </a>
             <p>Free to download · Optional one-time upgrade</p>
           </div>
