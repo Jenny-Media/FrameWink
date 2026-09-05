@@ -265,8 +265,10 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         launch(scenario: "blackout-frame")
 
         let playbackOptions = app.buttons["More playback options"]
-        XCTAssertTrue(playbackOptions.waitForExistence(timeout: 8))
-        XCTAssertTrue(waitForNonexistence(playbackOptions, timeout: 7))
+        XCTAssertFalse(
+            playbackOptions.waitForExistence(timeout: 1),
+            "The clean blackout scenario must begin without playback chrome."
+        )
 
         app.tap()
         XCTAssertTrue(
@@ -382,12 +384,19 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         launch(scenario: "mosaic-frame")
 
         let shareAction = app.buttons["frame-share-current-photos"]
+        XCTAssertFalse(
+            shareAction.waitForExistence(timeout: 1),
+            "The clean Mosaic scenario must begin without playback chrome."
+        )
+        app.tap()
         XCTAssertTrue(shareAction.waitForExistence(timeout: 8))
-        let window = app.windows.firstMatch.frame
-        let usesCompactSinglePhotoLayout = window.width < 560 || window.height < 500
+        let visiblePhotoActions = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'frame-photo-actions-'")
+        )
+        XCTAssertGreaterThanOrEqual(visiblePhotoActions.count, 1)
         XCTAssertEqual(
             shareAction.label,
-            usesCompactSinglePhotoLayout ? "Share Photo" : "Share Photos",
+            visiblePhotoActions.count == 1 ? "Share Photo" : "Share Photos",
             "The stable share action must match the photos in the responsive scene."
         )
         XCTAssertFalse(app.buttons["frame-share-photo-menu"].exists)
