@@ -2035,3 +2035,35 @@ explicit owner approval.
 - In `website/`, all nine contract tests, ESLint, and the static production build
   pass. The generator script passes `bash -n`, the rendered WebP is 735 x 1500
   with transparency, and `git diff --check` passes.
+
+## Xcode Cloud playback-test alignment verification — 2026-09-05
+
+- Reproduced the failed Validation action locally before editing. Both the
+  iPhone 17 Pro Max and iPad (A16) runs failed
+  `testBlackoutTapRevealsEscapeControl` and
+  `testSceneOffersOneShareActionMatchingTheResponsiveLayout` because the tests
+  looked for controls before tapping the intentionally clean screenshot
+  scenarios. Captured accessibility hierarchies confirmed the photos and
+  scheduled blackout were rendered while playback chrome was absent.
+- Focused verification passed on iPhone destination
+  `B41C6094-A3CA-48E6-AA25-1E08D0B98BCE` and iPad destination
+  `B3A8D8D4-D576-4245-A0EC-ED914C0C744F` with:
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination
+  'platform=iOS Simulator,id=<device-id>'
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testBlackoutTapRevealsEscapeControl
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSceneOffersOneShareActionMatchingTheResponsiveLayout
+  test`.
+- Complete shared-scheme verification passed on both destinations. The iPhone
+  result bundle reports 186 tests: 181 passed, 5 skipped, and 0 failed. The
+  iPad result bundle reports 186 tests: 182 passed, 4 skipped, and 0 failed.
+  Result bundles are
+  `/private/tmp/FrameWink-Full-Fix-iPhone.xcresult` and
+  `/private/tmp/FrameWink-Full-Fix-iPad.xcresult`.
+- Release Analyze passed with the generic iOS Simulator destination, and
+  `CI_XCODEBUILD_ACTION=analyze ci_scripts/ci_pre_xcodebuild.sh` passed the
+  plist, privacy, identity, device-family, deployment-target, version, and test
+  bundle checks. Xcode emitted only the existing StoreKitTest deprecation and
+  debugger-version notes; its post-test diagnostic collector also reported a
+  local `simctl` lookup warning after successful runs. No physical-device test
+  is required for this test-only change. Xcode Cloud rerun remains pending.

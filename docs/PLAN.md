@@ -1424,6 +1424,25 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   `http://127.0.0.1:3001/`. Active implementation and verification time was
   approximately 0.9 hours.
 
+### Xcode Cloud playback-test alignment — 2026-09-05
+
+- Status: implementation and local validation complete; the replacement Xcode
+  Cloud Validation run remains pending the resulting main-branch update.
+- Reproduced the failed main-branch Validation action on both device families.
+  The app correctly opened the clean `blackout-frame` and `mosaic-frame`
+  scenarios without playback chrome, while two older UI assertions still
+  expected controls to be visible immediately.
+- Updated the tests to verify the clean initial state, reveal controls with the
+  same tap a user performs, and derive the singular or plural Share label from
+  the photos actually visible rather than from screen dimensions. No app
+  runtime, product behavior, release metadata, or bundled photo changed.
+- The focused tests and the complete shared scheme pass on iPhone 17 Pro Max
+  and iPad (A16) iOS 27.0 Simulators. Release Analyze and the Xcode Cloud
+  release guard also pass. Because the change is test-only, no additional
+  physical-device check is required; a real Xcode Cloud run remains the final
+  infrastructure confirmation. Active diagnosis, implementation, and
+  verification time was approximately 0.6 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight
