@@ -2311,3 +2311,20 @@ explicit owner approval.
   diagnostics remain Apple's StoreKitTest deprecation, test-only transaction
   listener notices, system SwiftUI hosting warnings, and Xcode's debugger and
   post-test diagnostic-collector notes.
+
+## Xcode Cloud review-card regression — 2026-09-07
+
+- Validation Build 20 tested exact merge commit
+  `c950c5b2c4bbe08b2556dca33b9cc60c7b552b8e`. Analyze succeeded; Test passed
+  187 of 197 tests and failed two assertions in
+  `testReviewNeverShowUsesNativeActionAndCanUndo`.
+- The hosted destination correctly reported an off-screen third review action
+  as not currently hittable and rendered the SwiftUI 44-point minimum as
+  `43.99999999999994`. The updated regression scrolls each identified action
+  into view and accepts only sub-half-point layout rounding. The production
+  review-card layout remains unchanged.
+- The focused corrected test passes on iPhone 17 Pro Max and iPad (A16) iOS
+  27.0 Simulators. Result bundles:
+  `/private/tmp/FrameWink-ReviewCardFix2-iPhone.xcresult` and
+  `/private/tmp/FrameWink-ReviewCardFix2-iPad.xcresult`. The only compiler
+  diagnostic is Apple's existing StoreKitTest deprecation warning.
