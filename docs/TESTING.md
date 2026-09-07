@@ -2067,3 +2067,33 @@ explicit owner approval.
   debugger-version notes; its post-test diagnostic collector also reported a
   local `simctl` lookup warning after successful runs. No physical-device test
   is required for this test-only change. Xcode Cloud rerun remains pending.
+
+## Version 1.0.1 release-candidate verification — 2026-09-06
+
+- The complete shared scheme passed on the iPhone 17 Pro Max iOS 27.0
+  Simulator: 186 total, 181 passed, 5 skipped, and 0 failed. Result bundle:
+  `/private/tmp/FrameWink-101-iPhone.xcresult`.
+- The complete shared scheme passed on the iPad (A16) iOS 27.0 Simulator: 186
+  total, 182 passed, 4 skipped, and 0 failed. Result bundle:
+  `/private/tmp/FrameWink-101-iPad.xcresult`.
+- An unsigned Release build passed for `generic/platform=iOS`, and Release
+  Analyze passed for `generic/platform=iOS Simulator`. The archive preflight
+  guard passed with `CI_XCODEBUILD_ACTION=archive`.
+- The resolved Release settings retain bundle identifier
+  `media.jenny.FrameWink`, purchase identifier
+  `media.jenny.FrameWink.wallmode`, device families 1 and 2, and disabled Mac
+  and Apple Vision Pro designed-for-iPhone/iPad distribution. The built app
+  reports marketing version 1.0.1, minimum OS 15.0, device families 1 and 2,
+  and `ITSAppUsesNonExemptEncryption=false`; its privacy manifest is present.
+- `plutil -lint` passes for `Info.plist` and `PrivacyInfo.xcprivacy`; `jq empty`
+  passes for the StoreKit configuration; `sh -n` passes for the release guard;
+  and `git diff --check` passes.
+- Xcode reports the existing StoreKitTest deprecation, test-only transaction
+  listener notices, SwiftUI hosting-view hierarchy notices, debugger-version
+  lookup note, and post-test `simctl` diagnostic-collector note. None caused a
+  build, analysis, or test failure, and this release-preparation branch does not
+  change those code paths.
+- Still required: review and merge the release branch, run the manual Xcode
+  Cloud Internal TestFlight archive from the exact merged commit, and smoke-test
+  that binary on physical iPhone and iPad hardware. App Store submission remains
+  owner-gated.

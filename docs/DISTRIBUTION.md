@@ -610,6 +610,27 @@ blocker affects only a later boundary.
   App Store galleries continue to use direct native screens without unnecessary
   device decoration.
 
+### B-027 — Version 1.0.1 release candidate
+
+- Status: Local verification complete; review and distribution pending
+- First recorded: 2026-09-06
+- Scope: ship the expanded twenty-photo sample reel, protected portrait-sample
+  framing, and the stricter multi-photo crop-retention policy as a focused
+  1.0.1 update. The approved $4.99 FrameWink Lifetime product, privacy answers,
+  platform scope, and free/paid boundary are unchanged.
+- Source baseline: current `origin/main` at `aa2c343` passed the Xcode Cloud
+  Analyze and Test actions before release preparation. The release branch bumps
+  `MARKETING_VERSION` to 1.0.1 and updates the release guard and tester notes.
+- Local verification: the complete shared scheme passed on iPhone 17 Pro Max
+  and iPad (A16) iOS 27.0 Simulators with zero failures. The unsigned Release
+  build, Release Analyze, archive guard, plist/privacy checks, StoreKit JSON,
+  and shell syntax also pass. The built app reports version 1.0.1, minimum OS
+  15.0, device families 1 and 2, and non-exempt encryption disabled.
+- Remaining gates: review and merge the release branch, run the manual Xcode
+  Cloud Internal TestFlight archive from the exact merged commit, and perform
+  physical iPhone/iPad smoke checks on that TestFlight binary. App Store
+  submission remains a separate owner-approved action.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue

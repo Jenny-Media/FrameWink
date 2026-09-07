@@ -1,13 +1,14 @@
 FrameWink turns an iPhone or iPad into a private local photo frame.
 
 Please test:
-- Launch and watch the clearly labelled bundled sample reel without a Photos permission prompt.
+- Launch and watch the expanded twenty-photo bundled sample reel without a Photos permission prompt. Confirm the new travel and nature photos appear varied and well framed.
 - Choose photos with the system picker, confirm the count is shown out of 500, and verify a first Smart Reel becomes playable while a larger import continues. Review suggestions and use Never Show Again.
 - Start the frame, navigate in both directions, pause/resume, change Photo Duration from More, rotate the device, and close the frame.
 - Open More Frame Features, verify the FrameWink Lifetime one-time purchase copy, complete or cancel the test purchase, and try Restore Purchases.
 - With FrameWink Lifetime unlocked, choose an album, accept or deny Photos access, review its suggestions, and confirm FrameWink never changes the originals.
 - Use an album containing a local and an iCloud-only photo. Confirm preparation continues without restarting as Apple Photos downloads what is needed. Then add/remove an album photo in Photos and return to FrameWink.
 - Change the active frame's source and timing; confirm the choices survive relaunch and automatic composition adapts to the window.
+- Watch several paired or multi-photo scenes and confirm FrameWink preserves the important parts of each photo instead of forcing an aggressive crop.
 - Review the collapsed Mounted Display Tips and the foreground-only night schedule wording in Frame Settings.
 - Delete Imported Photos and Remove Downloaded Album Photos; confirm the originals remain in Apple Photos.
 

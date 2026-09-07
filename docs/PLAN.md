@@ -1443,6 +1443,26 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   infrastructure confirmation. Active diagnosis, implementation, and
   verification time was approximately 0.6 hours.
 
+### Version 1.0.1 release preparation — 2026-09-06
+
+- Status: local verification complete; review and distribution pending. The app
+  marketing version, release guard, TestFlight notes, and App Store release
+  record now describe the focused 1.0.1 update.
+- Scope is intentionally narrow: twenty bundled sample photos, safer protected
+  portrait framing, and less aggressive multi-photo cropping. There is no
+  entitlement, privacy, platform, product-ID, or pricing change.
+- Verification: the complete shared scheme passed on iPhone 17 Pro Max with
+  181 passed, 5 skipped, and 0 failed tests, and on iPad (A16) with 182 passed,
+  4 skipped, and 0 failed tests. The unsigned Release build, Release Analyze,
+  archive guard, resolved settings, plist/privacy files, StoreKit JSON, shell
+  syntax, and diff checks pass. The built app reports version 1.0.1, minimum OS
+  15.0, device families 1 and 2, and non-exempt encryption disabled.
+- Remaining release path: merge through review; create the authoritative archive
+  with the manual Xcode Cloud Internal TestFlight workflow; then complete the
+  physical iPhone/iPad smoke checks before requesting owner approval for App
+  Store submission. Active release-preparation and verification time was
+  approximately 0.6 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

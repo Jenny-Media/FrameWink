@@ -9,6 +9,26 @@ FrameWink 1.0 is approved and available on the App Store at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
+## Version 1.0.1 release candidate
+
+Version 1.0.1 is a focused first-update candidate. It expands the clearly
+labelled, permission-free sample reel from ten to twenty publisher-supplied
+photos, improves the protected framing of portrait samples, and avoids
+multi-photo arrangements that would discard too much of an image. It does not
+change the free/paid boundary, privacy behavior, supported platforms, purchase
+identifier, or lifetime price.
+
+Release notes draft:
+
+> A richer built-in sample reel with ten new photos, improved framing, and
+> smarter multi-photo layouts that keep more of every image in view.
+
+Keep the released, approved screenshot galleries unless a final review finds
+that they no longer represent the app accurately. The existing FrameWink
+Lifetime non-consumable is already approved and remains live; do not add it as
+a new review item for this update unless App Store Connect explicitly requires
+it.
+
 ## App privacy
 
 Recommended App Store Connect answer for the current build:
@@ -128,12 +148,12 @@ FrameWink is a universal iPhone and iPad app and requires iOS/iPadOS 15 or
 later. Compact iPhone playback prioritizes one large photo; iPad and larger
 windows can use responsive multi-photo compositions when appropriate.
 
-On first launch, the next app update immediately shows twenty bundled example photos and does
-not request Photos authorization. `Choose Photos` opens Apple's PHPicker for a
-total collection of up to 500 items. The target includes
+On first launch, version 1.0.1 immediately shows twenty bundled example photos
+and does not request Photos authorization. `Choose Photos` opens Apple's
+PHPicker for a total collection of up to 500 items. The target includes
 `NSPhotoLibraryUsageDescription`, but the
-full PhotoKit prompt appears only after a verified FrameWink Lifetime entitlement and the
-user taps `Choose an Album`. Display-sized copies and all analysis remain
+full PhotoKit prompt appears only after a verified FrameWink Lifetime entitlement
+and the user taps `Choose an Album`. Display-sized copies and all analysis remain
 in the app container. The app suppresses iOS's automatic Limited-access alert so
 later prompts remain tied to explicit album-management actions.
 
