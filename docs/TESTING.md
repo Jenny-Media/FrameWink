@@ -2328,3 +2328,12 @@ explicit owner approval.
   `/private/tmp/FrameWink-ReviewCardFix2-iPhone.xcresult` and
   `/private/tmp/FrameWink-ReviewCardFix2-iPad.xcresult`. The only compiler
   diagnostic is Apple's existing StoreKitTest deprecation warning.
+- PR #8 merged the correction as exact main commit
+  `2f23f472c73966757e144ec2d4ca97eeb7e028db`. Xcode Cloud Validation Build 21
+  passed both Analyze and Test for that commit. Internal TestFlight Build 22
+  then passed its clean iOS Archive action and `TestFlight Internal Testing -
+  iOS` post-action using Xcode 26.6 on macOS Tahoe 26.6.2.
+- App Store Connect independently shows version 1.0.1 build 22 as
+  `Ready to Submit`, assigned to `Jenny Media Internal`. This proves cloud
+  archive, processing, and internal distribution; physical installation and
+  interaction checks of build 22 are still required and were not inferred.
