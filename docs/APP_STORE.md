@@ -332,8 +332,8 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 
 ## App Store Connect readiness
 
-- Internal testing group: `Jenny Media Internal` (currently 1 tester; Build 6
-  is internal-only and Build 8 is the App Store-eligible release candidate)
+- Internal testing group: `Jenny Media Internal` (currently 1 tester; version
+  1.0.1 Build 22 is `Ready to Submit` and assigned to the group)
 - TestFlight feedback email: `framewink@jenny.media`
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:

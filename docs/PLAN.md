@@ -1577,8 +1577,8 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### Hosted review-card test resilience — 2026-09-07
 
-- Status: focused iPhone and iPad Simulator verification passes; exact-head
-  hosted verification remains pending.
+- Status: complete. Focused Simulator verification and exact-head Xcode Cloud
+  validation pass; the corrected build is available to internal testers.
 - Exact-head Xcode Cloud Validation Build 20 passed Analyze but reported two
   assertions in one review-card UI test. The test treated all three controls in
   a scroll view as simultaneously tappable on every cloud destination and
@@ -1587,6 +1587,13 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   before checking tappability and allows a half-point rendering tolerance while
   preserving the 44-point design target. The focused test passes on iPhone 17
   Pro Max and iPad (A16) iOS 27.0 Simulators. No production UI behavior changed.
+- PR #8 merged the focused test correction as
+  `2f23f472c73966757e144ec2d4ca97eeb7e028db`. Exact-head Xcode Cloud Validation
+  Build 21 passed both Analyze and Test. Manual Internal TestFlight Build 22
+  then passed Archive and its internal-distribution post-action. App Store
+  Connect shows FrameWink 1.0.1 (22) as `Ready to Submit` in
+  `Jenny Media Internal`. Physical interaction and VoiceOver checks of the new
+  binary remain a separate acceptance step; no App Review submission occurred.
 
 ## Timebox rule
 
