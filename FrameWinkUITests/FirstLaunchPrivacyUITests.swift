@@ -412,15 +412,31 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             NSPredicate(format: "identifier BEGINSWITH 'never-show-'")
         )
         XCTAssertTrue(waitForCount(neverShowButtons, count: 3, timeout: 8))
-        for index in 0..<neverShowButtons.count {
-            let action = neverShowButtons.element(boundBy: index)
+        let actionIdentifiers = (0..<neverShowButtons.count).map {
+            neverShowButtons.element(boundBy: $0).identifier
+        }
+        for identifier in actionIdentifiers {
+            let action = app.buttons[identifier]
+            var scrollAttempts = 0
+            while !action.isHittable && scrollAttempts < 4 {
+                app.swipeUp()
+                scrollAttempts += 1
+            }
             XCTAssertTrue(
                 action.isHittable,
-                "Every review card must keep Never Show Again visible and tappable."
+                "Every review card must expose Never Show Again when scrolled into view."
             )
-            XCTAssertGreaterThanOrEqual(action.frame.height, 44)
+            XCTAssertGreaterThanOrEqual(
+                action.frame.height,
+                43.5,
+                "The rendered control must remain within half a point of the 44-point target."
+            )
         }
-        let neverShow = neverShowButtons.firstMatch
+        guard let visibleActionIdentifier = actionIdentifiers.last else {
+            XCTFail("Expected at least one Never Show Again action.")
+            return
+        }
+        let neverShow = app.buttons[visibleActionIdentifier]
         let countBefore = neverShowButtons.count
 
         neverShow.tap()

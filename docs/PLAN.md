@@ -1575,6 +1575,19 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   193 passed, 4 environment-limited skips, and 0 failures on iPad (A16).
   Release Analyze and the archive release guard also pass.
 
+### Hosted review-card test resilience — 2026-09-07
+
+- Status: focused iPhone and iPad Simulator verification passes; exact-head
+  hosted verification remains pending.
+- Exact-head Xcode Cloud Validation Build 20 passed Analyze but reported two
+  assertions in one review-card UI test. The test treated all three controls in
+  a scroll view as simultaneously tappable on every cloud destination and
+  compared a rendered 44-point target without allowing sub-pixel rounding.
+- The regression now scrolls each stable `Never Show Again` control into view
+  before checking tappability and allows a half-point rendering tolerance while
+  preserving the 44-point design target. The focused test passes on iPhone 17
+  Pro Max and iPad (A16) iOS 27.0 Simulators. No production UI behavior changed.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight
