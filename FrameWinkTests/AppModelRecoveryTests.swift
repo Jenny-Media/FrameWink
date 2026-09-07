@@ -4,6 +4,36 @@ import XCTest
 
 @MainActor
 final class AppModelRecoveryTests: XCTestCase {
+    func testOlderNeverShowChoiceCanBeRestoredFromTheHiddenPhotoList() async throws {
+        let photo = ImportedPhoto(
+            id: UUID(),
+            filename: "hidden.jpg",
+            pixelWidth: 1_200,
+            pixelHeight: 800,
+            importedAt: Date(timeIntervalSince1970: 100)
+        )
+        let builder = RecoverySmartReelBuilder(photoID: photo.id)
+        let model = AppModel(
+            importer: RecoveryPhotoImporter(photos: [photo]),
+            imageLoader: RecoveryImageLoader(),
+            smartReelBuilder: builder
+        )
+
+        model.neverShow(candidateID: photo.id)
+        model.clearNeverShowUndo()
+
+        XCTAssertEqual(model.excludedReviewPhotos, [photo])
+        XCTAssertFalse(model.canUndoNeverShow)
+
+        model.restoreNeverShowChoice(candidateID: photo.id)
+        try await waitUntil {
+            model.excludedReviewPhotos.isEmpty
+                && model.smartReel?.selections.map(\.candidateID) == [photo.id]
+        }
+
+        XCTAssertEqual(builder.exclusions, [])
+    }
+
     func testResetNeverShowPreservesImportedPhotosAndRebuildsReel() async throws {
         let photo = ImportedPhoto(
             id: UUID(),
@@ -202,12 +232,14 @@ private final class RecoverySmartReelBuilder: SmartReelBuilding {
     let photoID: UUID
     var resetCount = 0
     var buildCount = 0
+    var exclusions: Set<UUID> = []
 
     init(photoID: UUID) {
         self.photoID = photoID
     }
 
     func loadSavedReel() throws -> SmartReel? { reel() }
+    func loadExclusions() throws -> Set<UUID> { exclusions }
 
     func build(
         candidates: [PhotoCandidate],
@@ -238,10 +270,21 @@ private final class RecoverySmartReelBuilder: SmartReelBuilding {
     }
 
     func exclude(candidateID: UUID, from reel: SmartReel) throws -> SmartReel {
-        reel
+        exclusions.insert(candidateID)
+        return SmartReel(
+            id: reel.id,
+            algorithmRevision: reel.algorithmRevision,
+            createdAt: reel.createdAt,
+            selections: reel.selections.filter { $0.candidateID != candidateID }
+        )
+    }
+
+    func restoreExcluded(candidateID: UUID) throws {
+        exclusions.remove(candidateID)
     }
 
     func resetExclusions() throws {
+        exclusions.removeAll()
         resetCount += 1
     }
 
@@ -250,7 +293,7 @@ private final class RecoverySmartReelBuilder: SmartReelBuilding {
             id: UUID(uuidString: "06813F9A-BB15-4611-8E30-0CA11AE96854")!,
             algorithmRevision: SmartReelCurator.algorithmRevision,
             createdAt: Date(timeIntervalSince1970: 100),
-            selections: [
+            selections: exclusions.contains(photoID) ? [] : [
                 CuratedPhoto(
                     candidateID: photoID,
                     algorithmRevision: SmartReelCurator.algorithmRevision,
@@ -270,6 +313,7 @@ private final class DelayedRecoverySmartReelBuilder: SmartReelBuilding {
     }
 
     func loadSavedReel() throws -> SmartReel? { nil }
+    func loadExclusions() throws -> Set<UUID> { [] }
 
     func build(
         candidates: [PhotoCandidate],
@@ -303,6 +347,7 @@ private final class DelayedRecoverySmartReelBuilder: SmartReelBuilding {
         reel
     }
 
+    func restoreExcluded(candidateID: UUID) throws {}
     func resetExclusions() throws {}
 
     private func reel() -> SmartReel {
@@ -326,6 +371,7 @@ private final class ProgressiveRecoverySmartReelBuilder: SmartReelBuilding {
     var candidateCounts: [Int] = []
 
     func loadSavedReel() throws -> SmartReel? { nil }
+    func loadExclusions() throws -> Set<UUID> { [] }
 
     func build(
         candidates: [PhotoCandidate],
@@ -373,5 +419,6 @@ private final class ProgressiveRecoverySmartReelBuilder: SmartReelBuilding {
         reel
     }
 
+    func restoreExcluded(candidateID: UUID) throws {}
     func resetExclusions() throws {}
 }

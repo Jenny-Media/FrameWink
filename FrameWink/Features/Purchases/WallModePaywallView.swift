@@ -119,11 +119,7 @@ struct WallModePaywallView: View {
     private var purchaseControls: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button {
-                if purchases.product == nil {
-                    purchases.refreshProduct()
-                } else {
-                    Task { await purchases.purchase() }
-                }
+                Task { await purchases.purchase() }
             } label: {
                 if purchases.actionState == .purchasing || purchases.isLoadingProduct {
                     ProgressView()
@@ -135,6 +131,7 @@ struct WallModePaywallView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+            .accessibilityIdentifier("purchase-framewink-lifetime")
             .disabled(purchases.actionState == .purchasing || purchases.isLoadingProduct)
 
             Button("Restore Purchases") {
@@ -151,7 +148,7 @@ struct WallModePaywallView: View {
         if let product = purchases.product {
             return "Unlock for \(product.displayPrice)"
         }
-        return "Try Again"
+        return "Purchase FrameWink Lifetime"
     }
 
     @ViewBuilder

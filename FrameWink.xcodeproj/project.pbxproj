@@ -39,6 +39,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Resources/FrameWink.storekit,
 			);
 			target = A00000000000000000000001 /* FrameWink */;
 		};

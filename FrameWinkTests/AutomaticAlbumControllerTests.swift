@@ -123,6 +123,96 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertEqual(client.preheatedPixelDimension, 384)
     }
 
+    func testAlbumCatalogPublishesBeforeEligiblePhotoCountsAndCountsSequentially() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        client.albumsValue = [
+            PhotoLibraryAlbum(id: "favorites", title: "Favorites", photoCount: nil),
+            PhotoLibraryAlbum(id: "videos-only", title: "Videos Only", photoCount: nil),
+        ]
+        client.eligiblePhotoCountValues = [
+            "favorites": 7,
+            "videos-only": 0,
+        ]
+        client.eligiblePhotoCountDelayNanoseconds = 100_000_000
+        let controller = makeController(client: client, store: ControllerAlbumStore())
+
+        controller.setEntitled(true)
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { controller.albums.count == 2 }
+
+        XCTAssertEqual(controller.albums.map(\.title), ["Favorites", "Videos Only"])
+        XCTAssertEqual(controller.albums.map(\.photoCount), [nil, nil])
+
+        try await waitUntil {
+            controller.albums.map(\.photoCount) == [7, 0]
+        }
+        XCTAssertEqual(client.eligiblePhotoCountRequestIDs, ["favorites", "videos-only"])
+        XCTAssertEqual(client.maximumConcurrentEligiblePhotoCountRequests, 1)
+    }
+
+    func testFavoritesFallbackIsAddedOnlyWhenPhotoKitOmitsIt() {
+        let regularAlbum = PhotoLibraryAlbum(
+            id: "family",
+            title: "Family",
+            photoCount: nil
+        )
+
+        let withFallback = PhotoKitLibraryClient.addingFavoritesFallbackIfNeeded(
+            to: [regularAlbum],
+            hasFavoritesCollection: false
+        )
+        XCTAssertEqual(withFallback.map(\.title), ["Family", "Favorites"])
+        XCTAssertNil(withFallback.last?.photoCount)
+        XCTAssertEqual(withFallback.last?.kind, .favorites)
+
+        let unchanged = PhotoKitLibraryClient.addingFavoritesFallbackIfNeeded(
+            to: [regularAlbum],
+            hasFavoritesCollection: true
+        )
+        XCTAssertEqual(unchanged, [regularAlbum])
+
+        let nativeFavorites = PhotoLibraryAlbum(
+            id: "native-favorites",
+            title: "Favorites",
+            photoCount: nil,
+            kind: .favorites
+        )
+        let alphabeticallyEarlierAlbum = PhotoLibraryAlbum(
+            id: "all-photos",
+            title: "All Photos",
+            photoCount: nil
+        )
+        XCTAssertEqual(
+            PhotoKitLibraryClient.sortedAlbums([
+                regularAlbum,
+                alphabeticallyEarlierAlbum,
+                nativeFavorites,
+            ]).map(\.id),
+            ["native-favorites", "all-photos", "family"]
+        )
+    }
+
+    func testSelectingAlbumCancelsRemainingEligiblePhotoCounts() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        client.albumsValue = [
+            PhotoLibraryAlbum(id: "first", title: "First", photoCount: nil),
+            PhotoLibraryAlbum(id: "second", title: "Second", photoCount: nil),
+        ]
+        client.eligiblePhotoCountValues = ["first": 5, "second": 6]
+        client.eligiblePhotoCountDelayNanoseconds = 500_000_000
+        let controller = makeController(client: client, store: ControllerAlbumStore())
+
+        controller.setEntitled(true)
+        controller.requestAccessAndLoadAlbums()
+        try await waitUntil { client.eligiblePhotoCountRequestIDs == ["first"] }
+
+        controller.selectAlbum(client.albumsValue[0])
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertEqual(client.eligiblePhotoCountRequestIDs, ["first"])
+        XCTAssertEqual(client.activeEligiblePhotoCountRequests, 0)
+    }
+
     func testReopeningAlbumPickerKeepsCachedCatalogVisibleWhileRefreshing() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         let cachedAlbum = PhotoLibraryAlbum(
@@ -380,6 +470,42 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertEqual(synchronizer.syncCount, 1)
     }
 
+    func testOlderNeverShowChoiceCanBeRestoredFromCachedAlbumPhotos() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        let synchronizer = ControllerAlbumSynchronizer()
+        let builder = ControllerSmartReelBuilder()
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: builder,
+            changeRefreshDelayNanoseconds: 1
+        )
+        controller.setEntitled(true)
+        try await waitUntil { controller.smartReel != nil }
+        let excluded = try XCTUnwrap(controller.smartReel?.selections.first?.candidateID)
+
+        controller.neverShow(candidateID: excluded)
+        controller.clearNeverShowUndo()
+
+        XCTAssertEqual(controller.excludedReviewPhotos.map(\.id), [excluded])
+        XCTAssertFalse(controller.canUndoNeverShow)
+
+        controller.restoreNeverShowChoice(candidateID: excluded)
+        try await waitUntil {
+            controller.excludedReviewPhotos.isEmpty
+                && controller.smartReel?.selections.contains {
+                    $0.candidateID == excluded
+                } == true
+        }
+
+        XCTAssertEqual(builder.exclusions, [])
+        XCTAssertEqual(synchronizer.syncCount, 1)
+    }
+
     func testResetNeverShowPreservesCachedPhotosAndRefreshesSuggestions() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         let store = ControllerAlbumStore()
@@ -400,7 +526,7 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         builder.exclusions = [try XCTUnwrap(controller.smartReel?.selections.first?.candidateID)]
 
         controller.resetNeverShowChoices()
-        try await waitUntil { builder.resetExclusionsCount == 1 && synchronizer.syncCount == 2 }
+        try await waitUntil { builder.resetExclusionsCount == 1 && synchronizer.syncCount == 1 }
         try await waitUntil {
             if case .ready = controller.phase { return true }
             return false
@@ -518,6 +644,11 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     var preheatCallCount = 0
     var albumsCallCount = 0
     var albumsDelayNanoseconds: UInt64 = 0
+    var eligiblePhotoCountValues: [String: Int] = [:]
+    var eligiblePhotoCountDelayNanoseconds: UInt64 = 0
+    var eligiblePhotoCountRequestIDs: [String] = []
+    var activeEligiblePhotoCountRequests = 0
+    var maximumConcurrentEligiblePhotoCountRequests = 0
     private var changeContinuation: AsyncStream<Void>.Continuation?
 
     init(authorization: PhotoLibraryAuthorizationState) {
@@ -539,6 +670,20 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
         }
         if let albumsError = albumsError { throw albumsError }
         return albumsValue
+    }
+
+    func eligiblePhotoCount(in album: PhotoLibraryAlbum) async throws -> Int? {
+        eligiblePhotoCountRequestIDs.append(album.id)
+        activeEligiblePhotoCountRequests += 1
+        maximumConcurrentEligiblePhotoCountRequests = max(
+            maximumConcurrentEligiblePhotoCountRequests,
+            activeEligiblePhotoCountRequests
+        )
+        defer { activeEligiblePhotoCountRequests -= 1 }
+        if eligiblePhotoCountDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: eligiblePhotoCountDelayNanoseconds)
+        }
+        return eligiblePhotoCountValues[album.id] ?? album.photoCount
     }
 
     func albumThumbnail(
@@ -699,6 +844,7 @@ private final class ControllerSmartReelBuilder: SmartReelBuilding {
     var resetExclusionsCount = 0
 
     func loadSavedReel() throws -> SmartReel? { savedReel }
+    func loadExclusions() throws -> Set<UUID> { exclusions }
 
     func build(
         candidates: [PhotoCandidate],
@@ -772,5 +918,9 @@ private final class ControllerSmartReelBuilder: SmartReelBuilding {
     func resetExclusions() throws {
         exclusions = []
         resetExclusionsCount += 1
+    }
+
+    func restoreExcluded(candidateID: UUID) throws {
+        exclusions.remove(candidateID)
     }
 }

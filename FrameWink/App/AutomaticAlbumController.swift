@@ -15,6 +15,7 @@ final class AutomaticAlbumController: ObservableObject {
     @Published private(set) var smartReel: SmartReel?
     @Published private(set) var phase: AutomaticAlbumPhase = .idle
     @Published private(set) var lastSyncReport: AlbumSyncReport?
+    @Published private(set) var excludedPhotoIDs: Set<UUID> = []
 
     private let client: PhotoLibraryClient
     private let store: AlbumSourceStoring
@@ -25,6 +26,8 @@ final class AutomaticAlbumController: ObservableObject {
     private var isEntitled = false
     private var syncTask: Task<Void, Never>?
     private var albumCatalogTask: Task<Void, Never>?
+    private var albumCountTask: Task<Void, Never>?
+    private var albumCatalogGeneration = UUID()
     private var observationTask: Task<Void, Never>?
     private var debounceTask: Task<Void, Never>?
     private var generation = UUID()
@@ -57,6 +60,7 @@ final class AutomaticAlbumController: ObservableObject {
         }
         configuration = loadedConfiguration
         records = (try? store.loadRecords()) ?? []
+        excludedPhotoIDs = (try? smartReelBuilder.loadExclusions()) ?? []
         if let saved = try? smartReelBuilder.loadSavedReel() {
             let availableIDs = Set(records.map(\.photo.id))
             let selections = saved.selections.filter {
@@ -80,6 +84,7 @@ final class AutomaticAlbumController: ObservableObject {
     deinit {
         syncTask?.cancel()
         albumCatalogTask?.cancel()
+        albumCountTask?.cancel()
         observationTask?.cancel()
         debounceTask?.cancel()
     }
@@ -101,6 +106,10 @@ final class AutomaticAlbumController: ObservableObject {
             uniqueKeysWithValues: records.map { ($0.photo.id, $0.photo) }
         )
         return smartReel.selections.compactMap { photosByID[$0.candidateID] }
+    }
+
+    var excludedReviewPhotos: [ImportedPhoto] {
+        records.map(\.photo).filter { excludedPhotoIDs.contains($0.id) }
     }
 
     var slides: [DisplaySlide] {
@@ -134,6 +143,9 @@ final class AutomaticAlbumController: ObservableObject {
             generation = UUID()
             albumCatalogTask?.cancel()
             albumCatalogTask = nil
+            albumCountTask?.cancel()
+            albumCountTask = nil
+            albumCatalogGeneration = UUID()
             albumCatalogPhase = .idle
             syncTask?.cancel()
             syncTask = nil
@@ -173,6 +185,9 @@ final class AutomaticAlbumController: ObservableObject {
             phase = .loadingAlbums
         }
         albumCatalogTask?.cancel()
+        albumCountTask?.cancel()
+        albumCatalogGeneration = UUID()
+        let catalogGeneration = albumCatalogGeneration
         albumCatalogTask = Task { [weak self] in
             guard let self = self else { return }
             var status = client.authorizationState()
@@ -198,6 +213,10 @@ final class AutomaticAlbumController: ObservableObject {
                 }
                 startObservingIfNeeded()
                 preheatAlbumCovers(maxPixelDimension: 384)
+                loadEligiblePhotoCounts(
+                    for: discoveredAlbums,
+                    catalogGeneration: catalogGeneration
+                )
             } catch is CancellationError {
                 return
             } catch {
@@ -208,6 +227,39 @@ final class AutomaticAlbumController: ObservableObject {
                     phase = currentReadyPhase
                 }
             }
+        }
+    }
+
+    private func loadEligiblePhotoCounts(
+        for discoveredAlbums: [PhotoLibraryAlbum],
+        catalogGeneration: UUID
+    ) {
+        albumCountTask?.cancel()
+        albumCountTask = Task(priority: .utility) { [weak self] in
+            guard let self else { return }
+            for album in discoveredAlbums {
+                guard !Task.isCancelled else { return }
+                let count: Int
+                do {
+                    guard let discoveredCount = try await client.eligiblePhotoCount(in: album) else {
+                        continue
+                    }
+                    count = discoveredCount
+                } catch is CancellationError {
+                    return
+                } catch {
+                    continue
+                }
+                guard !Task.isCancelled,
+                      self.albumCatalogGeneration == catalogGeneration,
+                      let index = self.albums.firstIndex(where: { $0.id == album.id }) else {
+                    return
+                }
+                self.albums[index] = self.albums[index].updatingPhotoCount(count)
+                await Task.yield()
+            }
+            guard !Task.isCancelled else { return }
+            self.albumCountTask = nil
         }
     }
 
@@ -228,6 +280,7 @@ final class AutomaticAlbumController: ObservableObject {
     }
 
     func selectAlbum(_ album: PhotoLibraryAlbum) {
+        cancelAlbumCountLoading()
         let isSwitchingAlbums = configuration.albumIdentifier != album.id
         var updatedConfiguration = configuration
         updatedConfiguration.albumIdentifier = album.id
@@ -243,6 +296,12 @@ final class AutomaticAlbumController: ObservableObject {
         } catch {
             phase = .failed(error.localizedDescription)
         }
+    }
+
+    func cancelAlbumCountLoading() {
+        albumCountTask?.cancel()
+        albumCountTask = nil
+        albumCatalogGeneration = UUID()
     }
 
     func setAutomaticRefresh(_ enabled: Bool) {
@@ -367,6 +426,7 @@ final class AutomaticAlbumController: ObservableObject {
                 from: smartReel
             )
             self.smartReel = updated
+            excludedPhotoIDs.insert(candidateID)
             mostRecentExclusion = (selection, index)
             phase = .ready(
                 photoCount: records.count,
@@ -393,6 +453,7 @@ final class AutomaticAlbumController: ObservableObject {
                 to: smartReel
             )
             self.smartReel = restored
+            excludedPhotoIDs.remove(mostRecentExclusion.selection.candidateID)
             self.mostRecentExclusion = nil
             phase = .ready(
                 photoCount: records.count,
@@ -410,9 +471,23 @@ final class AutomaticAlbumController: ObservableObject {
     func resetNeverShowChoices() {
         do {
             try smartReelBuilder.resetExclusions()
+            excludedPhotoIDs.removeAll()
             smartReel = nil
             mostRecentExclusion = nil
-            refresh()
+            recurateCachedPhotos()
+        } catch {
+            phase = .failed(error.localizedDescription)
+        }
+    }
+
+    func restoreNeverShowChoice(candidateID: UUID) {
+        do {
+            try smartReelBuilder.restoreExcluded(candidateID: candidateID)
+            excludedPhotoIDs.remove(candidateID)
+            if mostRecentExclusion?.selection.candidateID == candidateID {
+                mostRecentExclusion = nil
+            }
+            recurateCachedPhotos()
         } catch {
             phase = .failed(error.localizedDescription)
         }
@@ -446,6 +521,9 @@ final class AutomaticAlbumController: ObservableObject {
         generation = UUID()
         albumCatalogTask?.cancel()
         albumCatalogTask = nil
+        albumCountTask?.cancel()
+        albumCountTask = nil
+        albumCatalogGeneration = UUID()
         syncTask?.cancel()
         syncTask = nil
         isRefreshInProgress = false
@@ -454,6 +532,7 @@ final class AutomaticAlbumController: ObservableObject {
             try store.deleteAllCachedData()
             records = []
             smartReel = nil
+            excludedPhotoIDs.removeAll()
             albums = []
             albumCatalogPhase = .idle
             preheatedAlbumCatalogKey = nil
@@ -501,6 +580,36 @@ final class AutomaticAlbumController: ObservableObject {
             photoCount: records.count,
             suggestionCount: reel.selections.count
         )
+    }
+
+    private func recurateCachedPhotos() {
+        guard !records.isEmpty else {
+            refresh()
+            return
+        }
+        syncTask?.cancel()
+        generation = UUID()
+        let currentGeneration = generation
+        isRefreshInProgress = false
+        phase = .curating(
+            ImportProgress(completedCount: 0, totalCount: records.count)
+        )
+        syncTask = Task { [weak self] in
+            guard let self else { return }
+            defer {
+                if generation == currentGeneration {
+                    syncTask = nil
+                }
+            }
+            do {
+                try await curate(currentGeneration: currentGeneration)
+            } catch is CancellationError {
+                return
+            } catch {
+                guard generation == currentGeneration else { return }
+                phase = .failed(error.localizedDescription)
+            }
+        }
     }
 
     private var currentReadyPhase: AutomaticAlbumPhase {

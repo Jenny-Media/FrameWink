@@ -36,18 +36,16 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Bundled sample photos"].exists)
     }
 
-    func testConsolidatedPhotosSheetOpensSystemPicker() {
+    func testMoreMenuOpensSystemPickerDirectly() {
         launch(scenario: "sample")
 
         app.buttons["More"].tap()
-        app.buttons["Photos…"].tap()
-        XCTAssertTrue(app.navigationBars["Photos"].waitForExistence(timeout: 4))
-        app.buttons["choose-photos-action"].tap()
+        app.buttons["Choose Photos…"].tap()
 
         let cancel = app.buttons["Cancel"]
         XCTAssertTrue(
             cancel.waitForExistence(timeout: 8),
-            "Choose Photos in the consolidated sheet must open PHPicker."
+            "Choose Photos in More must open PHPicker without an intermediate sheet."
         )
         cancel.tap()
         XCTAssertTrue(app.buttons["Choose Photos"].waitForExistence(timeout: 8))
@@ -141,7 +139,8 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             app.staticTexts["Bundled sample photos"].waitForExistence(timeout: 8)
         )
         app.buttons["More"].tap()
-        app.buttons["Photos…"].tap()
+        app.buttons["Switch Photo Source…"].tap()
+        XCTAssertTrue(app.navigationBars["Photo Source"].waitForExistence(timeout: 4))
         app.buttons["photo-source-personal"].tap()
 
         let startFrame = app.buttons["Start Frame"]
@@ -407,13 +406,21 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
     func testReviewNeverShowUsesNativeActionAndCanUndo() {
         launch(scenario: "free-review-grid")
 
-        XCTAssertTrue(app.navigationBars["Review Suggestions"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.navigationBars["Photos in This Frame"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["review-frame-summary"].exists)
         let neverShowButtons = app.buttons.matching(
             NSPredicate(format: "identifier BEGINSWITH 'never-show-'")
         )
+        XCTAssertTrue(waitForCount(neverShowButtons, count: 3, timeout: 8))
+        for index in 0..<neverShowButtons.count {
+            let action = neverShowButtons.element(boundBy: index)
+            XCTAssertTrue(
+                action.isHittable,
+                "Every review card must keep Never Show Again visible and tappable."
+            )
+            XCTAssertGreaterThanOrEqual(action.frame.height, 44)
+        }
         let neverShow = neverShowButtons.firstMatch
-        XCTAssertTrue(neverShow.isHittable)
-        XCTAssertGreaterThanOrEqual(neverShow.frame.height, 44)
         let countBefore = neverShowButtons.count
 
         neverShow.tap()
@@ -421,9 +428,82 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let undo = app.buttons["undo-never-show"]
         XCTAssertTrue(undo.waitForExistence(timeout: 3))
         XCTAssertEqual(neverShowButtons.count, countBefore - 1)
+        XCTAssertTrue(app.staticTexts["Removed from this frame"].exists)
         undo.tap()
         XCTAssertTrue(waitForNonexistence(undo, timeout: 3))
         XCTAssertEqual(neverShowButtons.count, countBefore)
+    }
+
+    func testReviewCanRestoreAnOlderNeverShowChoice() {
+        launch(scenario: "free-review-grid")
+
+        let neverShowButtons = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'never-show-'")
+        )
+        XCTAssertTrue(waitForCount(neverShowButtons, count: 3, timeout: 8))
+        neverShowButtons.firstMatch.tap()
+
+        let hiddenPhotos = app.buttons["manage-hidden-photos"]
+        XCTAssertTrue(hiddenPhotos.waitForExistence(timeout: 3))
+        hiddenPhotos.tap()
+
+        XCTAssertTrue(app.navigationBars["Hidden from Frame"].waitForExistence(timeout: 3))
+        let allowAgain = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'allow-again-'")
+        ).firstMatch
+        XCTAssertTrue(allowAgain.isHittable)
+        allowAgain.tap()
+
+        XCTAssertTrue(waitForNonexistence(app.navigationBars["Hidden from Frame"], timeout: 3))
+        XCTAssertTrue(waitForCount(neverShowButtons, count: 3, timeout: 8))
+        XCTAssertFalse(app.buttons["manage-hidden-photos"].exists)
+    }
+
+    func testReadyFrameOffersDirectPhotoSourceAndReviewActions() {
+        launch(scenario: "personal-reel")
+
+        XCTAssertTrue(app.buttons["More"].waitForExistence(timeout: 8))
+        app.buttons["More"].tap()
+
+        XCTAssertTrue(app.buttons["Add Photos…"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["Choose an Album…"].exists)
+        XCTAssertTrue(app.buttons["Switch Photo Source…"].exists)
+        XCTAssertTrue(app.buttons["Review Frame Photos…"].exists)
+        XCTAssertFalse(app.buttons["Photos…"].exists)
+
+        app.buttons["Review Frame Photos…"].tap()
+        XCTAssertTrue(app.navigationBars["Photos in This Frame"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["review-frame-summary"].exists)
+    }
+
+    func testReviewEmptyStateCanRestoreExcludedPhotos() {
+        launch(scenario: "free-review-grid")
+
+        let neverShowButtons = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'never-show-'")
+        )
+        XCTAssertTrue(waitForCount(neverShowButtons, count: 3, timeout: 8))
+
+        for remainingCount in stride(from: 2, through: 0, by: -1) {
+            neverShowButtons.firstMatch.tap()
+            XCTAssertTrue(waitForCount(neverShowButtons, count: remainingCount, timeout: 3))
+        }
+
+        XCTAssertTrue(app.staticTexts["No photos in this frame"].exists)
+        let hiddenPhotos = app.buttons["manage-hidden-photos"]
+        XCTAssertTrue(hiddenPhotos.isHittable)
+        hiddenPhotos.tap()
+
+        XCTAssertTrue(app.navigationBars["Hidden from Frame"].waitForExistence(timeout: 3))
+        let restoreExcluded = app.buttons["restore-excluded-photos"]
+        XCTAssertTrue(restoreExcluded.isHittable)
+        restoreExcluded.tap()
+
+        XCTAssertTrue(app.alerts["Allow All Photos Again?"].waitForExistence(timeout: 3))
+        app.alerts["Allow All Photos Again?"].buttons["Allow All"].tap()
+
+        XCTAssertTrue(waitForCount(neverShowButtons, count: 3, timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["review-frame-summary"].exists)
     }
 
     func testFrameQuickCloseExitsWithoutOpeningMore() {
@@ -591,24 +671,35 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         app.buttons["More"].tap()
 
-        XCTAssertTrue(app.buttons["Photos…"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["Choose Photos…"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["Choose an Album…"].exists)
         XCTAssertTrue(app.buttons["Privacy & Data"].exists)
         XCTAssertTrue(app.buttons["More Frame Features"].exists)
         XCTAssertFalse(app.buttons["Sample Photos"].exists)
-        XCTAssertFalse(app.buttons["Choose an Album…"].exists)
-        XCTAssertFalse(app.buttons["Choose Individual Photos…"].exists)
-
-        app.buttons["Photos…"].tap()
-        XCTAssertTrue(app.navigationBars["Photos"].waitForExistence(timeout: 4))
-        XCTAssertTrue(app.buttons["choose-photos-action"].exists)
-        XCTAssertTrue(app.buttons["choose-album-action"].exists)
-        XCTAssertTrue(app.buttons["photo-source-samples"].isSelected)
-        XCTAssertTrue(app.staticTexts["0 of 500 photos selected"].exists)
+        XCTAssertFalse(app.buttons["Switch Photo Source…"].exists)
+        XCTAssertFalse(app.buttons["Review Frame Photos…"].exists)
 
         let photosScreenshot = XCTAttachment(screenshot: app.screenshot())
-        photosScreenshot.name = "Consolidated Photos sheet"
+        photosScreenshot.name = "Direct photo actions in More"
         photosScreenshot.lifetime = .keepAlways
         add(photosScreenshot)
+    }
+
+    func testPaywallKeepsPurchaseActionWhenProductDetailsAreUnavailable() {
+        launch(scenario: "paywall-unavailable")
+
+        XCTAssertTrue(app.navigationBars["FrameWink Lifetime"].waitForExistence(timeout: 8))
+        let purchase = app.buttons["purchase-framewink-lifetime"]
+        XCTAssertTrue(purchase.waitForExistence(timeout: 4))
+        XCTAssertEqual(purchase.label, "Purchase FrameWink Lifetime")
+        XCTAssertTrue(purchase.isHittable)
+        XCTAssertTrue(app.buttons["Restore Purchases"].exists)
+
+        purchase.tap()
+        let unavailableStatus = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "temporarily unavailable from the App Store")
+        ).firstMatch
+        XCTAssertTrue(unavailableStatus.waitForExistence(timeout: 4))
     }
 
     func testFrameSettingsKeepsOnlyDisplayGuidanceAndLocalDataControls() {
@@ -678,5 +769,18 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             object: element
         )
         return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    private func waitForCount(
+        _ query: XCUIElementQuery,
+        count: Int,
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if query.count == count { return true }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return query.count == count
     }
 }

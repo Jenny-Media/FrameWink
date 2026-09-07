@@ -45,6 +45,23 @@ final class LocalCurationStoreTests: XCTestCase {
         XCTAssertEqual(try reopened.loadExclusions(), [excluded])
     }
 
+    func testPipelineCanRestoreOneOlderNeverShowChoice() throws {
+        let restored = UUID()
+        let retained = UUID()
+        try store.saveExclusions([restored, retained])
+        let pipeline = SmartReelPipeline(
+            analyzer: DelayedFixtureAnalyzer(),
+            curator: SmartReelCurator(),
+            store: store
+        )
+
+        XCTAssertEqual(try pipeline.loadExclusions(), [restored, retained])
+
+        try pipeline.restoreExcluded(candidateID: restored)
+
+        XCTAssertEqual(try store.loadExclusions(), [retained])
+    }
+
     func testPipelineCanResetCorruptedNeverShowChoices() throws {
         try FileManager.default.createDirectory(
             at: testRoot,

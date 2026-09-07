@@ -131,27 +131,7 @@ struct RootView: View {
                 PhotosSheet(
                     model: model,
                     automaticAlbum: automaticAlbum,
-                    purchases: purchases,
-                    currentPhotoMode: $model.collectionMode,
-                    choosePhotos: {
-                        replacePresentedSheet(with: .photoPicker)
-                    },
-                    chooseAlbum: {
-                        replacePresentedSheet(
-                            with: purchases.isWallModeUnlocked
-                                ? .albumPicker
-                                : .wallModePaywall
-                        )
-                        if purchases.isWallModeUnlocked {
-                            automaticAlbum.requestAccessAndLoadAlbums()
-                        }
-                    },
-                    reviewPersonalPhotos: {
-                        replacePresentedSheet(with: .reviewSuggestions)
-                    },
-                    reviewAutomaticAlbum: {
-                        replacePresentedSheet(with: .automaticAlbumReview)
-                    }
+                    currentPhotoMode: $model.collectionMode
                 )
             case .photoPicker:
                 PhotoPickerView(selectionLimit: model.remainingPhotoCapacity) { items in
@@ -258,10 +238,40 @@ struct RootView: View {
     private var homeMenu: some View {
         Menu {
             Button {
-                presentedSheet = .photos
+                presentedSheet = .photoPicker
             } label: {
-                Label("Photos…", systemImage: "photo.on.rectangle.angled")
+                Label(choosePhotosMenuTitle, systemImage: "photo.badge.plus")
             }
+            .disabled(!model.canAddPhotos || model.isImporting)
+
+            Button {
+                chooseAlbum()
+            } label: {
+                Label(
+                    chooseAlbumMenuTitle,
+                    systemImage: purchases.isWallModeUnlocked
+                        ? "photo.on.rectangle.angled"
+                        : "lock.fill"
+                )
+            }
+
+            if availablePhotoSourceCount > 1 {
+                Button {
+                    presentedSheet = .photos
+                } label: {
+                    Label("Switch Photo Source…", systemImage: "arrow.triangle.2.circlepath")
+                }
+            }
+
+            if canReviewCurrentSource {
+                Button {
+                    reviewCurrentSource()
+                } label: {
+                    Label("Review Frame Photos…", systemImage: "checkmark.circle")
+                }
+            }
+
+            Divider()
 
             Button {
                 presentedSheet = purchases.isWallModeUnlocked
@@ -291,7 +301,44 @@ struct RootView: View {
                 .contentShape(Rectangle())
         }
         .accessibilityLabel("More")
-        .accessibilityHint("Change photos, review selections, or open settings")
+        .accessibilityHint("Add photos, choose an album, review this frame, or open settings")
+    }
+
+    private var choosePhotosMenuTitle: String {
+        if model.isImporting { return "Adding Photos…" }
+        return model.importedPhotos.isEmpty ? "Choose Photos…" : "Add Photos…"
+    }
+
+    private var chooseAlbumMenuTitle: String {
+        automaticAlbum.configuration.isConfigured ? "Change Album…" : "Choose an Album…"
+    }
+
+    private var availablePhotoSourceCount: Int {
+        1
+            + (model.importedPhotos.isEmpty ? 0 : 1)
+            + (automaticAlbum.configuration.isConfigured ? 1 : 0)
+    }
+
+    private var canReviewCurrentSource: Bool {
+        switch model.collectionMode {
+        case .personal:
+            return model.smartReel != nil
+        case .automaticAlbum:
+            return automaticAlbum.smartReel != nil
+        case .samples:
+            return false
+        }
+    }
+
+    private func reviewCurrentSource() {
+        switch model.collectionMode {
+        case .personal:
+            presentedSheet = .reviewSuggestions
+        case .automaticAlbum:
+            presentedSheet = .automaticAlbumReview
+        case .samples:
+            break
+        }
     }
 
     @ViewBuilder
@@ -719,13 +766,6 @@ struct RootView: View {
         presentedSheet = .albumPicker
     }
 
-    private func replacePresentedSheet(with destination: SheetDestination) {
-        presentedSheet = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            presentedSheet = destination
-        }
-    }
-
     private func synchronizeImportStatusPresentation(_ shouldShow: Bool) {
         guard shouldShow, !isFrameMode else {
             if presentedSheet == .importStatus {
@@ -882,19 +922,13 @@ private extension Optional where Wrapped == RootInitialPresentation {
 private struct PhotosSheet: View {
     @ObservedObject var model: AppModel
     @ObservedObject var automaticAlbum: AutomaticAlbumController
-    @ObservedObject var purchases: PurchaseController
     @Binding var currentPhotoMode: PhotoCollectionMode
     @Environment(\.presentationMode) private var presentationMode
-
-    let choosePhotos: () -> Void
-    let chooseAlbum: () -> Void
-    let reviewPersonalPhotos: () -> Void
-    let reviewAutomaticAlbum: () -> Void
 
     var body: some View {
         NavigationView {
             List {
-                Section("Your Frame") {
+                Section {
                     if !model.importedPhotos.isEmpty {
                         sourceButton(
                             title: "My Selected Photos",
@@ -922,51 +956,13 @@ private struct PhotosSheet: View {
                         mode: .samples
                     )
                     .accessibilityIdentifier("photo-source-samples")
-                }
-
-                Section("Choose Photos") {
-                    Button(action: choosePhotos) {
-                        Label(
-                            model.importedPhotos.isEmpty ? "Choose Photos" : "Add Photos",
-                            systemImage: "photo.badge.plus"
-                        )
-                    }
-                    .disabled(!model.canAddPhotos || model.isImporting)
-                    .accessibilityIdentifier("choose-photos-action")
-
-                    Text(
-                        "\(model.importedPhotos.count) of \(ManualPhotoCollectionPolicy.maximumCandidateCount) photos selected"
-                    )
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-
-                    Button(action: chooseAlbum) {
-                        Label(
-                            automaticAlbum.configuration.isConfigured
-                                ? "Change Album"
-                                : "Choose an Album",
-                            systemImage: purchases.isWallModeUnlocked
-                                ? "photo.on.rectangle.angled"
-                                : "lock.fill"
-                        )
-                    }
-                    .accessibilityIdentifier("choose-album-action")
-
-                    if !purchases.isWallModeUnlocked {
-                        Text("Automatic album updates are included with FrameWink Lifetime.")
-                            .font(.footnote)
-                            .foregroundColor(.secondary)
-                    }
-                }
-
-                if canReviewCurrentSource {
-                    Section {
-                        Button("Review Photos", action: reviewCurrentSource)
-                            .accessibilityIdentifier("review-photos-action")
-                    }
+                } header: {
+                    Text("Play Photos From")
+                } footer: {
+                    Text("Choose one source for this frame. Add photos, change albums, and review what appears from the More menu.")
                 }
             }
-            .navigationTitle("Photos")
+            .navigationTitle("Photo Source")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -977,28 +973,6 @@ private struct PhotosSheet: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
-    }
-
-    private var canReviewCurrentSource: Bool {
-        switch currentPhotoMode {
-        case .personal:
-            return model.smartReel != nil
-        case .automaticAlbum:
-            return automaticAlbum.smartReel != nil
-        case .samples:
-            return false
-        }
-    }
-
-    private func reviewCurrentSource() {
-        switch currentPhotoMode {
-        case .personal:
-            reviewPersonalPhotos()
-        case .automaticAlbum:
-            reviewAutomaticAlbum()
-        case .samples:
-            break
-        }
     }
 
     private func sourceButton(

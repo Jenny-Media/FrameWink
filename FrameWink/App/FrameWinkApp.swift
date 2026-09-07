@@ -86,7 +86,8 @@ struct FrameWinkApp: App {
 #if DEBUG
         if let screenshotScenario {
             purchaseClient = DebugScreenshotPurchaseClient(
-                isEntitled: screenshotScenario.requiresWallModeEntitlement
+                isEntitled: screenshotScenario.requiresWallModeEntitlement,
+                productUnavailable: screenshotScenario == .paywallUnavailable
             )
         } else if physicalAcceptanceMode {
             purchaseClient = DebugScreenshotPurchaseClient(isEntitled: true)

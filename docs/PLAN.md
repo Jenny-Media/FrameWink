@@ -1463,6 +1463,118 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   Store submission. Active release-preparation and verification time was
   approximately 0.6 hours.
 
+### Favorites album and eligible-photo counting — 2026-09-07
+
+- Status: implementation and Simulator verification complete; physical
+  Favorites visibility and selection are user-confirmed. Command-line version
+  overrides produced signed development builds without changing project
+  versioning; build 22, including the Photos-familiar title, heart, checkmark,
+  and selection-outline treatment, is installed and running on the paired
+  iPhone 17 Pro Max. The updated appearance, video-only state, and interaction
+  checks remain manual.
+- Keeps Favorites and every supported user album in the chooser independently
+  of its media mix. A defensive PhotoKit favorite-image source covers the case
+  where Photos omits the Favorites smart-album collection. Favorites is pinned
+  above the alphabetical catalog. Album titles now sit over a bottom image
+  gradient, Favorites carries a top-right heart, and the selected album keeps a
+  separate top-left checkmark plus outline.
+- Replaces PhotoKit's mixed-media estimated total with a progressively loaded
+  count of displayable still photos. Album names appear first; count scans run
+  sequentially at utility priority outside the UI actor and yield between
+  albums. Starting album preparation or leaving the chooser cancels outstanding
+  count work. A zero-photo album remains visible with an explanatory disabled
+  state.
+- Added controller regressions for immediate catalog publication, sequential
+  counting, count cancellation, zero-photo album retention, and Favorites
+  fallback insertion. The complete shared scheme passes on iPhone 17 Pro Max
+  with 184 passed, 5 environment-limited skips, and 0 failures, and on iPad
+  (A16) with 185 passed, 4 environment-limited skips, and 0 failures. Release
+  Analyze also completes. Remaining evidence is one full-access
+  physical-library check with
+  mixed photo/video Favorites and video-only Favorites. Active implementation
+  and verification time was approximately 1.0 hour.
+
+### Direct photo actions and clear frame review — 2026-09-07
+
+- Status: implementation, visual inspection, and Simulator verification are
+  complete. A command-line-only build 25 override, including the fixed review
+  controls, was installed and launched on the paired iPhone 17 Pro Max and iPad
+  Pro, with installed metadata confirming 1.0.1 (25) on both devices; the
+  project version remains unchanged. Final physical interaction and VoiceOver
+  checks remain to be completed before replacing the current 1.0.1 candidate.
+- Replaced the generic `Photos…` intermediate sheet with direct More-menu
+  actions for choosing or adding photos, choosing or changing an album, and
+  reviewing the active frame. `Switch Photo Source…` appears only when there
+  is another source to switch to, and its sheet now does only that job.
+- Renamed the review experience to `Photos in This Frame`. It reports how many
+  photos will appear, names the source, explains that `Never Show Again`
+  changes only FrameWink, uses a quieter but still explicit 44-point action,
+  describes Undo as `Removed from this frame`, and exposes every durable
+  exclusion through `Hidden from Frame`. A user can allow one older choice
+  again or confirm `Allow All`, even after the five-second Undo has expired.
+- Fixed an aspect-ratio-dependent layout bug that could clip `Never Show Again`
+  or `Allow Again`. Each action is now overlaid on the fixed card bounds, so
+  every reviewed photo has the same visible, tappable control.
+- Added regressions for direct picker access, direct source/review actions, the
+  focused source sheet, review copy and controls, durable exclusion loading,
+  individual recovery, cached-album recuration, and allow-all recovery. The
+  complete shared scheme passes on iPhone 17 Pro Max with 190 passed, 5
+  environment-limited skips, and 0 failures, and on iPad (A16) with 191 passed,
+  4 environment-limited skips, and 0 failures. Release Analyze and the release
+  guard pass. Remaining manual evidence is one compact-iPhone and one iPad
+  check of the More-menu ordering, source-switch dismissal, Hidden from Frame
+  flow, and VoiceOver wording.
+  Active implementation and verification time was approximately 0.9 hours.
+
+### Resilient lifetime purchase action — 2026-09-07
+
+- Status: implementation and focused Simulator verification complete. A
+  command-line-only build 26 override is installed and launched on the paired
+  iPhone 17 Pro Max and iPad Pro, with installed metadata confirming 1.0.1 (26)
+  on both; live StoreKit confirmation remains pending.
+- Replaced the product-loading fallback label `Try Again` with the explicit
+  `Purchase FrameWink Lifetime` primary action. Tapping it now enters the real
+  purchase path, which retries StoreKit product loading and presents Apple's
+  confirmation when available. A successfully loaded product continues to show
+  its localized App Store price; `Restore Purchases` remains separate.
+- Added a deterministic unavailable-product UI scenario and regression. It
+  proves the fallback purchase action is visible and tappable alongside Restore
+  Purchases on both iPhone and iPad, and that tapping it reports the recoverable
+  StoreKit error rather than silently performing only a metadata refresh.
+- Physical iPad build 26 reaches that recoverable state because its Apple
+  sandbox product request returns no product. The built app uses the verified
+  production bundle and product identifiers and an explicit Jenny Media
+  development profile, while Apple's public U.S. product page currently lists
+  FrameWink Lifetime at $4.99. This isolates the remaining check to the iPad's
+  sandbox session/account or Apple sandbox service, not the paywall action or
+  committed identifiers.
+- After the same result with an explicit Sandbox Apple Account, inspection
+  found the test-only `FrameWink.storekit` catalog in the physical app bundle
+  through automatic synchronized-folder membership. The catalog is now
+  excluded from the app target but remains in the unit-test bundle. Corrected
+  development build 27 is installed and running on the paired iPad, with its
+  metadata and clean bundle independently verified. If Apple still returns no
+  product, compare with the TestFlight or App Store binary before changing any
+  product configuration.
+- The user retried on physical iPad build 27 and Apple still returned no
+  product. Do not add a fabricated In-App Purchase entitlement: Apple's DTS
+  states that no such entitlement exists and an explicit App ID is eligible by
+  default. The next diagnostic is Build 19 from Internal TestFlight (preferred)
+  or the released App Store binary. Loading a localized price is sufficient;
+  no purchase is needed for this comparison.
+- The user installed Internal TestFlight build 19 on the same iPad and confirmed
+  that FrameWink Lifetime loads correctly. This verifies the production product
+  identifier, App Store Connect product, Apple sandbox account, and StoreKit
+  request path. Treat the earlier empty catalog as specific to the generic
+  development build installed and launched with `devicectl`; use TestFlight for
+  the real-product release gate and the local StoreKit catalog for deterministic
+  development tests. The next release task is to merge this refinement branch
+  and distribute a new Internal TestFlight build from the exact merged commit.
+- Final pre-merge verification passes the complete shared scheme with 192
+  passed, 5 environment-limited skips, and 0 failures on iPhone 17 Pro Max, and
+  193 passed, 4 environment-limited skips, and 0 failures on iPad (A16).
+  Release Analyze and the archive release guard also pass.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

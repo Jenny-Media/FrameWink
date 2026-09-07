@@ -66,8 +66,8 @@ Prepare a test album in Apple Photos. Use non-private images that Jenny Media
 LLC owns or is licensed to test. Include at least one screenshot, one duplicate,
 one intentionally blurred image, and one item that is iCloud-only if available.
 
-Before the album checks, exercise the hand-picked path from **More → Photos →
-Choose Photos**. Select at least ten licensed photos and confirm a Smart Reel is
+Before the album checks, exercise the hand-picked path from **More → Choose
+Photos**. Select at least ten licensed photos and confirm a Smart Reel is
 playable while the remaining picker imports continue. Add another selection in
 a later picker session and confirm the count accumulates toward 500, the active
 reel refines up to 100 recommendations without showing bundled samples, and
@@ -87,7 +87,7 @@ and one finger-following manual swipe with Reduce Motion both off and on.
    prepared and curated, **Start Frame** should become available while the
    status says that FrameWink is adding more photos or improving the reel. The
    result should refine again around thirty prepared candidates without making
-   the existing reel unavailable. Inspect **Review Photos** from More and
+   the existing reel unavailable. Inspect **Review Frame Photos** from More and
    record a `sample`; interrupt and relaunch once to confirm checkpointed
    progress is retained.
 4. Confirm screenshots are absent from suggestions and compare the strongest

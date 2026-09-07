@@ -31,6 +31,7 @@ enum DebugScreenshotScenario: String {
     case pairedFrame = "paired-frame"
     case paywall
     case paywallFeatures = "paywall-features"
+    case paywallUnavailable = "paywall-unavailable"
     case wallModeSetup = "wall-mode-setup"
     case wallSchedule = "wall-schedule"
     case wallChecklist = "wall-checklist"
@@ -59,7 +60,7 @@ enum DebugScreenshotScenario: String {
             return nil
         case .smartFrame, .portraitFrame, .pairedFrame, .blackoutFrame, .frameControls:
             return .frameMode
-        case .paywall:
+        case .paywall, .paywallUnavailable:
             return .wallModePaywallPurchase
         case .paywallFeatures:
             return .wallModePaywallFeatures
@@ -260,13 +261,18 @@ extension DebugScreenshotScenario {
 @MainActor
 final class DebugScreenshotPurchaseClient: PurchaseClient {
     private let isEntitled: Bool
+    private let productUnavailable: Bool
 
-    init(isEntitled: Bool) {
+    init(isEntitled: Bool, productUnavailable: Bool = false) {
         self.isEntitled = isEntitled
+        self.productUnavailable = productUnavailable
     }
 
     func loadProduct() async throws -> PurchaseProductInfo? {
-        PurchaseProductInfo(
+        if productUnavailable {
+            throw PurchaseClientError.productUnavailable
+        }
+        return PurchaseProductInfo(
             id: ProductConfiguration.productionWallModeProductID,
             displayName: "FrameWink Lifetime",
             description: "One-time FrameWink feature unlock",
@@ -280,7 +286,10 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
     }
 
     func purchase() async throws -> PurchaseClientResult {
-        .success
+        if productUnavailable {
+            throw PurchaseClientError.productUnavailable
+        }
+        return .success
     }
 
     func restore() async throws {}
@@ -406,6 +415,7 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
 
 final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
     private let savedCandidateIDs: [UUID]
+    private var exclusions: Set<UUID> = []
 
     init(savedCandidateIDs: [UUID] = []) {
         self.savedCandidateIDs = savedCandidateIDs
@@ -418,6 +428,8 @@ final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
             maximumSelectionCount: 30
         )
     }
+
+    func loadExclusions() throws -> Set<UUID> { exclusions }
 
     func build(
         candidates: [PhotoCandidate],
@@ -471,7 +483,8 @@ final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
     }
 
     func exclude(candidateID: UUID, from reel: SmartReel) throws -> SmartReel {
-        SmartReel(
+        exclusions.insert(candidateID)
+        return SmartReel(
             id: reel.id,
             algorithmRevision: reel.algorithmRevision,
             createdAt: reel.createdAt,
@@ -484,6 +497,7 @@ final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
         at index: Int,
         to reel: SmartReel
     ) throws -> SmartReel {
+        exclusions.remove(selection.candidateID)
         var selections = reel.selections
         selections.insert(selection, at: min(max(index, 0), selections.count))
         return SmartReel(
@@ -494,6 +508,12 @@ final class DebugScreenshotSmartReelBuilder: SmartReelBuilding {
         )
     }
 
-    func resetExclusions() throws {}
+    func restoreExcluded(candidateID: UUID) throws {
+        exclusions.remove(candidateID)
+    }
+
+    func resetExclusions() throws {
+        exclusions.removeAll()
+    }
 }
 #endif

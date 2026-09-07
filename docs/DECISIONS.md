@@ -438,3 +438,68 @@ date; do not silently rewrite historical decisions during implementation.
   without using third-party media or exposing full-resolution originals. A
   bounded derivative pipeline keeps private GPS/camera metadata out of the app
   and repository, avoids a JPEG XL runtime dependency, and limits bundle growth.
+
+## D-037 — Album availability is independent from eligible-photo counting
+
+- **Decision:** Keep every supported Photos album visible in the automatic
+  album chooser, including Favorites. Publish album metadata first, then count
+  eligible still photos sequentially off the UI actor. Videos, hidden photos,
+  and screenshots do not contribute to the displayed count. An album with zero
+  eligible photos remains visible but cannot be selected, and explains why.
+  Add a defensive Favorites source backed by PhotoKit's favorite-image query
+  when the system omits the Favorites smart-album collection. Present Favorites
+  first with a heart symbol, then sort the remaining albums alphabetically. Use
+  a Photos-familiar title overlay, but keep FrameWink's filtered eligible count
+  below the thumbnail. Show selection with a top-left checkmark and outline so
+  it never replaces the top-right Favorites heart.
+- **Reason:** A mixed photo/video album should not disappear merely because
+  FrameWink displays still photos, and PhotoKit's estimated collection count
+  can include media FrameWink will not use. Progressive, bounded metadata work
+  preserves a responsive chooser while making the count and selection state
+  match the photos the frame can actually prepare.
+
+## D-038 — Source actions are direct and review describes the displayed set
+
+- **Decision:** Put `Choose Photos` or `Add Photos`, `Choose an Album` or
+  `Change Album`, and `Review Frame Photos` directly in the home More menu.
+  Offer `Switch Photo Source` only when more than one source exists, and keep
+  that sheet limited to selecting the active source. Rename review from
+  suggestion terminology to `Photos in This Frame`; state how many photos will
+  appear, identify their source, explain that `Never Show Again` changes only
+  FrameWink, retain a five-second Undo, and show a persistent `Hidden from
+  Frame` entry whenever exclusions exist. That destination allows one photo or
+  all photos to be eligible again, including after the Undo window or an app
+  relaunch. Both review grids anchor their actions to the fixed card bounds,
+  independently of the source photo's aspect ratio.
+- **Reason:** A generic Photos sheet added an unexplained intermediate step to
+  common tasks, while `Review Suggestions` implied optional recommendations
+  even though every item was already eligible to play. Direct verbs reduce the
+  path by one tap, and outcome-based review language makes both the effect and
+  reversibility of exclusion clear without exposing implementation details.
+  Keeping actions outside the image's intrinsic layout prevents portrait or
+  unusually wide photos from pushing the control into clipped content.
+
+## D-039 — The lifetime purchase action remains explicit without product metadata
+
+- **Decision:** When StoreKit has loaded the product, label the primary action
+  with Apple's localized price. While product metadata is unavailable, keep an
+  explicit `Purchase FrameWink Lifetime` primary action that attempts the real
+  StoreKit purchase flow; keep `Restore Purchases` as a separate secondary
+  action. Never substitute a generic retry control or hard-code a regional
+  price.
+- **Reason:** A metadata-loading failure should not make the paywall look as if
+  it has no purchase action. StoreKit can retry product loading as part of the
+  purchase request, and Apple's confirmation sheet remains the source of truth
+  for the exact localized price and final consent.
+
+## D-040 — The local StoreKit catalog is test-bundle only
+
+- **Decision:** Exclude `FrameWink.storekit` from the application target while
+  retaining its explicit membership in `FrameWinkTests`. Development-signed
+  physical builds use the production product identifier and Apple's sandbox;
+  local StoreKit fixtures are activated only by the shared scheme's Test action.
+- **Reason:** The test catalog uses a deliberately different `.local` product
+  identifier and is not production app content. Keeping it out of the app
+  bundle makes that boundary explicit and prevents a test fixture from shipping,
+  even though the subsequent build 27 device test established that the catalog
+  was not the cause of Apple's empty sandbox product response.
