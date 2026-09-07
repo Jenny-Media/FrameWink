@@ -298,6 +298,9 @@ struct AlbumPickerView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .onDisappear {
+            controller.cancelAlbumCountLoading()
+        }
     }
 
     private func select(_ album: PhotoLibraryAlbum) {
@@ -344,7 +347,7 @@ private struct AlbumPickerTile: View {
     var body: some View {
         Button(action: onSelect) {
             VStack(alignment: .leading, spacing: 8) {
-                ZStack(alignment: .topTrailing) {
+                ZStack {
                     GeometryReader { proxy in
                         albumCover
                             .frame(
@@ -362,20 +365,65 @@ private struct AlbumPickerTile: View {
                     .aspectRatio(1, contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.72)],
+                        startPoint: .center,
+                        endPoint: .bottom
+                    )
+                    .allowsHitTesting(false)
+
+                    Text(album.title)
+                        .font(.body.weight(.semibold))
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+                        .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
+                        .frame(
+                            maxWidth: .infinity,
+                            maxHeight: .infinity,
+                            alignment: .bottomLeading
+                        )
+                        .padding(12)
+
+                    if album.kind == .favorites {
+                        Image(systemName: "heart.fill")
+                            .font(.title3.weight(.semibold))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
+                            .frame(
+                                maxWidth: .infinity,
+                                maxHeight: .infinity,
+                                alignment: .topTrailing
+                            )
+                            .padding(12)
+                            .accessibilityHidden(true)
+                    }
+
                     if isSelected {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.title2)
-                            .symbolRenderingMode(.palette)
-                            .foregroundStyle(Color.white, Color.accentColor)
-                            .padding(8)
+                        Image(systemName: "checkmark")
+                            .font(.caption.weight(.bold))
+                            .foregroundColor(.white)
+                            .frame(width: 26, height: 26)
+                            .background(Circle().fill(Color.accentColor))
+                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                            .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+                            .frame(
+                                maxWidth: .infinity,
+                                maxHeight: .infinity,
+                                alignment: .topLeading
+                            )
+                            .padding(10)
                             .accessibilityHidden(true)
                     }
                 }
-
-                Text(album.title)
-                    .font(.body.weight(.semibold))
-                    .foregroundColor(.primary)
-                    .lineLimit(2)
+                .aspectRatio(1, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(
+                            isSelected ? Color.accentColor : Color.clear,
+                            lineWidth: 3
+                        )
+                )
 
                 Text(albumCountDescription)
                     .font(.footnote)
@@ -385,10 +433,11 @@ private struct AlbumPickerTile: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .disabled(album.photoCount == 0)
         .accessibilityIdentifier(albumCoverAccessibilityIdentifier)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
-        .accessibilityHint("Select this album for your frame")
+        .accessibilityHint(accessibilityHint)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .task(id: thumbnailRequestID) {
             guard requestedPixelDimension > 0 else { return }
@@ -442,8 +491,16 @@ private struct AlbumPickerTile: View {
     }
 
     private var albumCountDescription: String {
-        guard let photoCount = album.photoCount else { return "Photo album" }
+        guard let photoCount = album.photoCount else { return "Counting photos…" }
+        guard photoCount > 0 else { return "No photos available for FrameWink" }
         return photoCount == 1 ? "1 photo" : "\(photoCount) photos"
+    }
+
+    private var accessibilityHint: Text {
+        if album.photoCount == 0 {
+            return Text("This album has no photos FrameWink can display")
+        }
+        return Text("Select this album for your frame")
     }
 
     private var accessibilityLabel: Text {

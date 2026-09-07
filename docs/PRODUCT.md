@@ -74,8 +74,10 @@ preloaded gifts, family contributions, and remote administration.
    automatically, while a receding top-right close button exits Frame Mode
    directly. A short tap/swipe hint recedes with the controls; tapping the photo
    brings controls back.
-5. Review, deletion, privacy, source switching, and frame settings remain
-   available through progressive disclosure rather than a button dashboard.
+5. The More menu opens photo picking, album selection, and review directly.
+   Source switching appears only when more than one source is available;
+   deletion, privacy, and frame settings remain progressively disclosed rather
+   than becoming a button dashboard.
 6. FrameWink Lifetime is offered when a user chooses an automatic album or
    another paid frame feature.
 7. Full PhotoKit authorization is requested only after the user explicitly
@@ -105,13 +107,23 @@ preloaded gifts, family contributions, and remote administration.
   unlimited replay.
 - Restrained dissolve/directional transitions and subtle face-safe zoom/pan
   motion with Reduce Motion support.
-- Review Suggestions and Never Show Again.
+- A `Photos in This Frame` review that names what will play, explains that
+  exclusions never change Apple Photos, provides `Never Show Again` with a
+  five-second Undo, and keeps a visible `Hidden from Frame` list where any
+  older choice—or all choices—can be allowed again.
 - Delete Imported Photos.
 
 ## FrameWink Lifetime
 
 - Unlimited supported candidates and albums.
 - Automatic refresh as a selected PhotoKit album changes.
+- The album chooser keeps supported albums, including Favorites, visible while
+  eligible still-photo counts load progressively. Videos do not contribute to
+  those counts, and albums with no displayable still photos remain visible with
+  a clear unavailable state. Favorites appears first with a familiar heart
+  symbol; remaining albums follow alphabetically. Album names use a legible
+  thumbnail overlay. Selection uses a distinct top-left checkmark and outline,
+  keeping the Favorites heart unobstructed at the top-right.
 - One clear active source/timing state that updates in place.
 - Continuous regeneration and long-term repeat avoidance.
 - Additional automatic layouts, including occasional event-bound Mosaic

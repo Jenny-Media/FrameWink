@@ -77,6 +77,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var importPhase: ImportPhase = .idle
     @Published private(set) var curationPhase: CurationPhase = .idle
     @Published private(set) var smartReel: SmartReel?
+    @Published private(set) var excludedPhotoIDs: Set<UUID> = []
 
     private let importer: PhotoImporting
     private let imageLoader: ImportedPhotoImageLoading
@@ -99,6 +100,7 @@ final class AppModel: ObservableObject {
         self.imageLoader = imageLoader
         self.smartReelBuilder = smartReelBuilder
         importedPhotos = (try? importer.loadImportedPhotos()) ?? []
+        excludedPhotoIDs = (try? smartReelBuilder?.loadExclusions()) ?? []
         if let savedReel = try? smartReelBuilder?.loadSavedReel() {
             let availableIDs = Set(importedPhotos.map(\.id))
             let availableSelections = savedReel.selections.filter {
@@ -223,6 +225,10 @@ final class AppModel: ObservableObject {
         guard let smartReel = smartReel else { return [] }
         let photosByID = Dictionary(uniqueKeysWithValues: importedPhotos.map { ($0.id, $0) })
         return smartReel.selections.compactMap { photosByID[$0.candidateID] }
+    }
+
+    var excludedReviewPhotos: [ImportedPhoto] {
+        importedPhotos.filter { excludedPhotoIDs.contains($0.id) }
     }
 
     var isCurating: Bool {
@@ -356,6 +362,7 @@ final class AppModel: ObservableObject {
             let selection = smartReel.selections[index]
             let updated = try smartReelBuilder.exclude(candidateID: candidateID, from: smartReel)
             self.smartReel = updated
+            excludedPhotoIDs.insert(candidateID)
             mostRecentExclusion = (selection, index)
             curationPhase = .ready(updated.selections.count)
         } catch {
@@ -380,6 +387,7 @@ final class AppModel: ObservableObject {
                 to: smartReel
             )
             self.smartReel = restored
+            excludedPhotoIDs.remove(mostRecentExclusion.selection.candidateID)
             self.mostRecentExclusion = nil
             curationPhase = .ready(restored.selections.count)
         } catch {
@@ -395,9 +403,24 @@ final class AppModel: ObservableObject {
         guard let smartReelBuilder = smartReelBuilder else { return }
         do {
             try smartReelBuilder.resetExclusions()
+            excludedPhotoIDs.removeAll()
             smartReel = nil
             mostRecentExclusion = nil
             curationPhase = .idle
+            refreshSmartReel()
+        } catch {
+            curationPhase = .failed(error.localizedDescription)
+        }
+    }
+
+    func restoreNeverShowChoice(candidateID: UUID) {
+        guard let smartReelBuilder else { return }
+        do {
+            try smartReelBuilder.restoreExcluded(candidateID: candidateID)
+            excludedPhotoIDs.remove(candidateID)
+            if mostRecentExclusion?.selection.candidateID == candidateID {
+                mostRecentExclusion = nil
+            }
             refreshSmartReel()
         } catch {
             curationPhase = .failed(error.localizedDescription)
@@ -442,6 +465,7 @@ final class AppModel: ObservableObject {
             importedPhotos = []
             retryItems = []
             smartReel = nil
+            excludedPhotoIDs.removeAll()
             mostRecentExclusion = nil
             curatedCandidateCount = 0
             pendingCurationCandidateCount = nil

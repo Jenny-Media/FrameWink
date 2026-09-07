@@ -6,6 +6,7 @@ protocol PhotoLibraryClient: AnyObject {
     func authorizationState() -> PhotoLibraryAuthorizationState
     func requestAuthorization() async -> PhotoLibraryAuthorizationState
     func albums() async throws -> [PhotoLibraryAlbum]
+    func eligiblePhotoCount(in album: PhotoLibraryAlbum) async throws -> Int?
     func albumThumbnail(
         albumIdentifier: String,
         maxPixelDimension: Int
@@ -29,6 +30,10 @@ protocol PhotoLibraryClient: AnyObject {
 }
 
 extension PhotoLibraryClient {
+    func eligiblePhotoCount(in album: PhotoLibraryAlbum) async throws -> Int? {
+        album.photoCount
+    }
+
     func albumThumbnail(
         albumIdentifier: String,
         maxPixelDimension: Int

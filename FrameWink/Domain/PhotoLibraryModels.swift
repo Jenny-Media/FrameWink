@@ -12,22 +12,40 @@ enum PhotoLibraryAuthorizationState: String, Equatable {
     }
 }
 
+enum PhotoLibraryAlbumKind: Equatable, Sendable {
+    case regular
+    case favorites
+}
+
 struct PhotoLibraryAlbum: Identifiable, Equatable, Sendable {
     let id: String
     let title: String
     let photoCount: Int?
     let coverAssetIdentifiers: [String]
+    let kind: PhotoLibraryAlbumKind
 
     init(
         id: String,
         title: String,
         photoCount: Int?,
-        coverAssetIdentifiers: [String] = []
+        coverAssetIdentifiers: [String] = [],
+        kind: PhotoLibraryAlbumKind = .regular
     ) {
         self.id = id
         self.title = title
         self.photoCount = photoCount
         self.coverAssetIdentifiers = coverAssetIdentifiers
+        self.kind = kind
+    }
+
+    func updatingPhotoCount(_ photoCount: Int) -> PhotoLibraryAlbum {
+        PhotoLibraryAlbum(
+            id: id,
+            title: title,
+            photoCount: photoCount,
+            coverAssetIdentifiers: coverAssetIdentifiers,
+            kind: kind
+        )
     }
 }
 

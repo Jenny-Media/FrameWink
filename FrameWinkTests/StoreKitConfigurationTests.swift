@@ -19,6 +19,23 @@ final class StoreKitConfigurationTests: XCTestCase {
         session = nil
     }
 
+    func testLocalStoreKitCatalogIsAvailableOnlyToTests() {
+        XCTAssertNil(
+            Bundle.main.url(
+                forResource: "FrameWink",
+                withExtension: "storekit"
+            ),
+            "The local StoreKit catalog must not ship in the app bundle."
+        )
+        XCTAssertNotNil(
+            Bundle(for: Self.self).url(
+                forResource: "FrameWink",
+                withExtension: "storekit"
+            ),
+            "StoreKit tests still need their local catalog."
+        )
+    }
+
     func testBundledStoreKitCatalogMatchesProductContract() throws {
         let catalogURL = try XCTUnwrap(
             Bundle(for: Self.self).url(

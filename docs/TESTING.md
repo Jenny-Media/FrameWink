@@ -2068,6 +2068,79 @@ explicit owner approval.
   local `simctl` lookup warning after successful runs. No physical-device test
   is required for this test-only change. Xcode Cloud rerun remains pending.
 
+## Favorites album and progressive eligible-count verification — 2026-09-07
+
+- The album catalog now publishes names before exact counts begin. A controller
+  regression holds each count request for 100 milliseconds, verifies both
+  albums are already visible with pending counts, then verifies the results
+  arrive sequentially with a maximum concurrency of one.
+- Counts use PhotoKit metadata only at utility priority outside the UI actor;
+  they do not request or decode image data. Videos are excluded by the image
+  fetch, and hidden photos and screenshots are excluded while enumerating.
+  Album rows update individually and yield between albums. Choosing an album or
+  leaving the chooser cancels outstanding count work; a regression verifies a
+  second queued count never begins after album preparation starts.
+- A zero-eligible-photo album remains in the catalog and becomes a disabled
+  `No photos available for FrameWink` tile. A pure regression verifies that a
+  defensive Favorites source is inserted only when PhotoKit omits its smart
+  album collection; that source queries favorite still images directly. The
+  same regression verifies that both native and fallback Favorites metadata is
+  identified semantically and sorts ahead of alphabetic albums, allowing the
+  picker to show its heart symbol without matching localized display text. The
+  tile keeps stable album identity while title, heart, and selection badges are
+  lightweight overlays; the checkmark occupies the top-left and the Favorites
+  heart the top-right, with the eligible count retained below the thumbnail.
+- The complete iOS 27 iPhone 17 Pro Max Simulator suite passes 184 tests with
+  5 environment-limited skips and zero failures. Result bundle:
+  `/private/tmp/FrameWink-Favorites-Overlay-iPhone.xcresult`.
+- The complete iOS 27 iPad (A16) Simulator suite passes 185 tests with
+  4 environment-limited skips and zero failures. Result bundle:
+  `/private/tmp/FrameWink-Favorites-Overlay-iPad.xcresult`.
+- Release static analysis completes. Expected toolchain output is limited to
+  Apple's StoreKitTest deprecation, Xcode's debugger/simctl diagnostic notes,
+  StoreKit test-session runtime notices, two system SwiftUI hosting warnings,
+  and analyzer precompiled-module lookup warnings. No FrameWink source warning
+  or analyzer diagnostic is reported.
+- The user confirmed Favorites is visible and selectable with full Photos
+  access on the physical iPhone. Still required: visually confirm its new first
+  position and heart symbol, verify a video-only Favorites album remains visible
+  but disabled after counting, confirm counts refresh after Photos changes, and
+  confirm scrolling/tapping remain smooth during a large library scan. These
+  physical checks are required before replacing Build 19 in the 1.0.1 App Store
+  draft.
+- Physical installation preparation completed on the paired iPhone 17 Pro Max:
+  `xcodebuild` built a development-signed Debug app with the command-line-only
+  `CURRENT_PROJECT_VERSION=20` override, leaving project versioning unchanged.
+  `devicectl device install app` replaced installed version 1.0.1 (19) with
+  1.0.1 (20), `devicectl device process launch --terminate-existing` succeeded,
+  and the FrameWink process remained present after launch. Installation and
+  launch do not establish the manual Favorites or responsiveness checks above.
+- After the Favorites ordering and icon refinement, the same signed-device
+  workflow produced version 1.0.1 (21), installed it over build 20, launched it,
+  and confirmed the FrameWink process remained present. The project file still
+  retains its original build number; 21 is a command-line-only development
+  override.
+- After the Photos-familiar title and selection-overlay refinement, version
+  1.0.1 (22) was built with the same command-line-only override, installed over
+  build 21, launched, and confirmed running on the paired iPhone. This proves
+  installation and launch, while the final visual judgment remains manual.
+- After the direct photo actions and clearer frame-review refinement, a signed
+  Debug app was built from the exact feature worktree with the command-line-only
+  `CURRENT_PROJECT_VERSION=23` override. The project version remains unchanged.
+  `devicectl` installed and launched 1.0.1 (23) on the paired iPhone 17 Pro Max,
+  and an installed-app query independently confirmed that version and build.
+  The paired iPad Pro rejected its lock-state query and install because it had
+  not been unlocked recently, so its installation remains pending. Installation
+  and launch do not replace the manual More-menu, source-switch, review-recovery,
+  or VoiceOver checks.
+- After adding persistent individual recovery through `Hidden from Frame`, the
+  same signed-device workflow produced development-only version 1.0.1 (24).
+  `devicectl` installed and launched it on the paired iPhone 17 Pro Max, and an
+  installed-app query independently confirmed version 1.0.1 and build 24. Once
+  unlocked, the paired iPad Pro accepted the same signed artifact; launch and
+  an independent installed-app query also confirmed 1.0.1 (24). Installation
+  and launch do not replace the remaining interaction and VoiceOver checks.
+
 ## Version 1.0.1 release-candidate verification — 2026-09-06
 
 - The complete shared scheme passed on the iPhone 17 Pro Max iOS 27.0
@@ -2097,3 +2170,144 @@ explicit owner approval.
   Cloud Internal TestFlight archive from the exact merged commit, and smoke-test
   that binary on physical iPhone and iPad hardware. App Store submission remains
   owner-gated.
+
+## Direct photo actions and frame-review verification — 2026-09-07
+
+- The home More menu now opens the private system picker and automatic album
+  chooser directly. It offers source switching only when two or more sources
+  exist, and the resulting `Photo Source` sheet contains only the available
+  source choices. Review is also a direct current-source action.
+- `Photos in This Frame` replaces suggestion terminology. Visual inspection of
+  the deterministic iPhone review scenario confirms a clear included-photo
+  count, source-aware explanation, large photo cards, quieter 44-point `Never
+  Show Again` controls, and no clipping. The action affects only FrameWink;
+  Undo now reads `Removed from this frame`, and the empty state offers a
+  confirmed restore-and-rebuild path.
+- Whenever exclusions exist, review now presents a visible `Hidden from Frame`
+  entry. Its lazy photo grid supports `Allow Again` for one durable exclusion
+  and a confirmed `Allow All` action. Unit regressions cover persisted
+  exclusion loading, one-photo restoration for picker imports, and cached
+  automatic-album recuration without another album synchronization. XCUI
+  regressions cover returning one older choice and restoring all from an empty
+  frame on both compact iPhone and iPad layouts.
+- A focused iPhone 17 Pro Max Simulator run passed four direct-action and review
+  UI tests with zero failures. Result bundle:
+  `/private/tmp/FrameWink-PhotoUX-iPhone-Focused.xcresult`.
+- The all-excluded restore regression passed independently on both supported
+  families with zero failures. Result bundles:
+  `/private/tmp/FrameWink-PhotoUX-Restore-iPhone.xcresult` and
+  `/private/tmp/FrameWink-PhotoUX-Restore-iPad.xcresult`.
+- The complete iPhone 17 Pro Max iOS 27.0 Simulator suite passed 190 tests with
+  5 environment-limited skips and zero failures. Result bundle:
+  `/private/tmp/FrameWink-HiddenPhotos-Full-iPhone.xcresult`.
+- The complete iPad (A16) iOS 27.0 Simulator suite passed 191 tests with 4
+  environment-limited skips and zero failures. Result bundle:
+  `/private/tmp/FrameWink-HiddenPhotos-Full-iPad.xcresult`.
+- Release Analyze succeeded for `generic/platform=iOS Simulator`, and
+  `CI_XCODEBUILD_ACTION=analyze ci_scripts/ci_pre_xcodebuild.sh` passed the
+  plist, privacy, identity, device-family, deployment-target, version, and test
+  bundle checks. `git diff --check` is clean.
+- A final refinement makes both individual and allow-all automatic-album
+  recovery recurate from cached photos instead of synchronizing PhotoKit again.
+  Focused controller and empty-frame XCUI reruns pass on iPhone 17 Pro Max and
+  iPad (A16) after the change.
+- The review-card action regression now checks all three mixed-photo cards,
+  rather than only the first, for a visible, tappable control at least 44 points
+  tall. It passes on iPhone 17 Pro Max and iPad (A16) iOS 27.0 Simulators after
+  constraining image layout inside each card. Result bundles:
+  `/private/tmp/FrameWink-ReviewControls-iPhone.xcresult` and
+  `/private/tmp/FrameWink-ReviewControls-iPad.xcresult`.
+- Expected diagnostics remain Apple's StoreKitTest deprecation, test-only
+  transaction-listener notices, two system SwiftUI hosting warnings, debugger
+  version lookup notes, and Xcode's post-test `simctl` diagnostic-collector
+  note. None caused a build, analysis, or test failure.
+- Still required on physical iPhone and iPad: check More-menu ordering, source
+  switching and dismissal, the all-excluded recovery path, and VoiceOver copy.
+  No App Store build or screenshot asset was produced in this pass.
+- After fixing the aspect-ratio-dependent review-card action layout, the same
+  signed-device workflow produced development-only version 1.0.1 (25).
+  `devicectl` installed and launched it on the paired iPhone 17 Pro Max and iPad
+  Pro, and independent installed-app queries confirmed 1.0.1 (25) on both.
+  The project build number remains unchanged; manual review of mixed portrait
+  and landscape cards is still required on each device.
+
+## Lifetime purchase fallback verification — 2026-09-07
+
+- A deterministic `paywall-unavailable` scenario reproduces missing StoreKit
+  product metadata. The paywall keeps a tappable `Purchase FrameWink Lifetime`
+  primary action and the separate `Restore Purchases` action. Tapping Purchase
+  invokes the purchase client and surfaces its recoverable unavailable-product
+  message; it is not a metadata-only retry.
+- The focused regression passes on iPhone 17 Pro Max and iPad (A16) iOS 27.0
+  Simulators. Result bundles:
+  `/private/tmp/FrameWink-PaywallFallback-iPhone-3.xcresult` and
+  `/private/tmp/FrameWink-PaywallFallback-iPad-3.xcresult`.
+- The same signed-device workflow produced development-only version 1.0.1
+  (26). `devicectl` installed and launched it on the paired iPhone 17 Pro Max
+  and iPad Pro, and independent installed-app queries confirmed 1.0.1 (26) on
+  both. The project build number remains unchanged.
+- Still required: confirm the fallback button visually on the physical iPad. A
+  real localized price and App Store purchase sheet require a TestFlight/App
+  Store build or an Xcode-run StoreKit test session; a direct `devicectl` Debug
+  launch does not prove them.
+- Physical observation: on iPad, tapping the build 26 fallback action reports
+  `FrameWink Lifetime is temporarily unavailable from the App Store`. That
+  message is produced only after `Product.products(for:)` returns no matching
+  production product. The built plist contains bundle ID
+  `media.jenny.FrameWink` and product ID `media.jenny.FrameWink.wallmode`; its
+  embedded Xcode-managed development profile uses explicit application ID
+  `5736QK4NZX.media.jenny.FrameWink` and remains valid through 2027-08-13.
+- A live public storefront check on 2026-09-07 lists FrameWink as free with
+  In-App Purchases and lists `FrameWink Lifetime` at $4.99 in the U.S.; several
+  additional storefront pages also expose the IAP. Because development-signed
+  apps use Apple's sandbox, the next physical gate is signing in under Settings
+  > Developer > Sandbox Apple Account and retrying. Production availability
+  should be checked separately in the App Store-installed build.
+- The user repeated the build 26 purchase attempt after signing into a Sandbox
+  Apple Account and received the same unavailable-product result. Subsequent
+  bundle inspection found `FrameWink.storekit`, whose only product is the
+  `.local` test identifier, inside the development application even though the
+  file is explicitly a test resource. The synchronized app folder now excludes
+  that catalog, and `StoreKitConfigurationTests` verifies it remains available
+  from the test bundle while absent from `Bundle.main`.
+- The focused bundle-boundary regression passes on iPhone 17 Pro Max and iPad
+  (A16) iOS 27.0 Simulators. Result bundles:
+  `/private/tmp/FrameWink-StoreKitBoundary-iPhone-Only.xcresult` and
+  `/private/tmp/FrameWink-StoreKitBoundary-iPad-Only.xcresult`. A parallel run
+  of the larger StoreKit test class hit its existing Ask-to-Buy session flake on
+  iPhone; the isolated new regression and iPad class run passed.
+- A development-signed generic-device build with the command-line-only
+  `CURRENT_PROJECT_VERSION=27` override succeeded. Direct product inspection
+  confirms version 1.0.1 (27), bundle identifier `media.jenny.FrameWink`,
+  production product identifier `media.jenny.FrameWink.wallmode`, and no
+  `.storekit` file in `FrameWink.app`. Release Analyze and the release guard
+  pass, and `git diff --check` is clean.
+- `devicectl` installed build 27 over build 26 on the paired iPad Pro, launched
+  it, and independently reported 1.0.1 (27). This proves the corrected artifact
+  is running, but only a manual purchase attempt can establish whether Apple's
+  sandbox now returns the product.
+- The user performed that build 27 attempt with the Sandbox Apple Account and
+  received the same unavailable-product result. This disproves the embedded
+  local catalog as the runtime cause. FrameWink uses an explicit App ID;
+  In-App Purchase has no standalone entitlement key, so the sparse signed
+  entitlement dictionary is expected and must not be "fixed" with an invented
+  entitlement. TestFlight is not currently installed on the paired iPad. The
+  next comparison is to install Internal TestFlight Build 19, or the released
+  App Store build if TestFlight is unavailable, and verify whether the paywall
+  loads Apple's localized price without initiating a purchase.
+- The user installed Internal TestFlight build 19 on the same iPad and confirmed
+  that the Lifetime product loads. This is positive physical evidence for the
+  production identifier and App Store Connect sandbox path. The failure is
+  isolated to the command-line generic Debug build installed and launched with
+  `devicectl`, not to FrameWink's shipping StoreKit configuration. Future release
+  acceptance must use the exact TestFlight binary; local development should use
+  the test-bundle-only StoreKit catalog for deterministic transaction coverage.
+- Final pre-merge shared-scheme verification passes on iPhone 17 Pro Max with
+  192 passed, 5 environment-limited skips, and 0 failures, and on iPad (A16)
+  with 193 passed, 4 environment-limited skips, and 0 failures. Result bundles:
+  `/private/tmp/FrameWink-Favorites-Release-iPhone.xcresult` and
+  `/private/tmp/FrameWink-Favorites-Release-iPad.xcresult`. Release Analyze and
+  `CI_XCODEBUILD_ACTION=archive ci_scripts/ci_pre_xcodebuild.sh` pass. Expected
+  diagnostics remain Apple's StoreKitTest deprecation, test-only transaction
+  listener notices, system SwiftUI hosting warnings, and Xcode's debugger and
+  post-test diagnostic-collector notes.

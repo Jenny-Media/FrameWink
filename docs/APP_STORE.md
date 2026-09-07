@@ -198,8 +198,8 @@ set. Do not use private tester photos.
 
 1. **Private from first launch — Free:** bundled Sample Mode with the sample
    badge and no permission dialog.
-2. **Your best 30 — Free:** Smart Reel review grid showing local suggestions and
-   `Never Show Again`.
+2. **Your best 30 — Free:** `Photos in This Frame` showing what will play and
+   the reversible `Never Show Again` control.
 3. **Made for an iPad — Free:** clean landscape Frame Mode featuring the
    project-owned aerial coast photo with no transient playback chrome.
 4. **A one-time wall upgrade — Paid:** the $4.99 non-consumable paywall with the

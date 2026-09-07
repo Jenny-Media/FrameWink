@@ -11,6 +11,7 @@ enum SmartReelBuildError: LocalizedError {
 
 protocol SmartReelBuilding {
     func loadSavedReel() throws -> SmartReel?
+    func loadExclusions() throws -> Set<UUID>
 
     func build(
         candidates: [PhotoCandidate],
@@ -33,6 +34,7 @@ protocol SmartReelBuilding {
         to reel: SmartReel
     ) throws -> SmartReel
 
+    func restoreExcluded(candidateID: UUID) throws
     func resetExclusions() throws
 }
 
@@ -82,6 +84,10 @@ final class SmartReelPipeline: SmartReelBuilding {
             return nil
         }
         return reel
+    }
+
+    func loadExclusions() throws -> Set<UUID> {
+        try store.loadExclusions()
     }
 
     func build(
@@ -255,6 +261,12 @@ final class SmartReelPipeline: SmartReelBuilding {
             throw error
         }
         return updated
+    }
+
+    func restoreExcluded(candidateID: UUID) throws {
+        var exclusions = try store.loadExclusions()
+        exclusions.remove(candidateID)
+        try store.saveExclusions(exclusions)
     }
 
     func resetExclusions() throws {

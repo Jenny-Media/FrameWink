@@ -5,12 +5,15 @@ import UIKit
 @MainActor
 final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
     private static let displayCacheMaxPixelDimension: CGFloat = 2_560
+    nonisolated private static let favoritesFallbackIdentifier =
+        "framewink-smart-album-favorites"
 
     private let photoLibrary: PHPhotoLibrary
     private let imageManager: PHImageManager
     private let albumThumbnailCache = NSCache<NSString, UIImage>()
     private let albumThumbnailLimiter = AlbumThumbnailRequestLimiter(limit: 4)
     private var albumCoverAssetIdentifiers: [String: [String]] = [:]
+    private var albumEligiblePhotoCountCache: [String: Int] = [:]
     private var preheatedThumbnailAssets: [PHAsset] = []
     private var preheatedThumbnailSize: CGSize?
     private var albumPreheatTask: Task<Void, Never>?
@@ -54,6 +57,7 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         guard authorizationState().permitsReading else {
             throw PhotoLibraryClientError.accessDenied
         }
+        albumEligiblePhotoCountCache.removeAll()
 
         let discovery = Task.detached(priority: .userInitiated) {
             try Self.discoverAlbums()
@@ -63,6 +67,26 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         } onCancel: {
             discovery.cancel()
         }
+    }
+
+    func eligiblePhotoCount(in album: PhotoLibraryAlbum) async throws -> Int? {
+        guard authorizationState().permitsReading else {
+            throw PhotoLibraryClientError.accessDenied
+        }
+        if let cachedCount = albumEligiblePhotoCountCache[album.id] {
+            return cachedCount
+        }
+
+        let discovery = Task.detached(priority: .utility) {
+            try Self.discoverEligiblePhotoCount(in: album.id)
+        }
+        let count = try await withTaskCancellationHandler {
+            try await discovery.value
+        } onCancel: {
+            discovery.cancel()
+        }
+        albumEligiblePhotoCountCache[album.id] = count
+        return count
     }
 
     func albumThumbnail(
@@ -392,53 +416,97 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         }
 
         var seen: Set<String> = []
-        let albums: [PhotoLibraryAlbum] = collections.compactMap { collection in
+        var albums: [PhotoLibraryAlbum] = collections.compactMap { collection in
             guard !Task.isCancelled else { return nil }
             guard seen.insert(collection.localIdentifier).inserted else { return nil }
-            let estimatedCount = collection.estimatedAssetCount
             return PhotoLibraryAlbum(
                 id: collection.localIdentifier,
                 title: collection.localizedTitle ?? "Untitled Album",
-                photoCount: estimatedCount == NSNotFound ? nil : estimatedCount
+                photoCount: nil,
+                kind: collection.assetCollectionSubtype == .smartAlbumFavorites
+                    ? .favorites
+                    : .regular
             )
         }
+        albums = addingFavoritesFallbackIfNeeded(
+            to: albums,
+            hasFavoritesCollection: collections.contains(where: {
+                $0.assetCollectionSubtype == .smartAlbumFavorites
+            })
+        )
         try Task.checkCancellation()
-        return albums.sorted {
-            $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+        return sortedAlbums(albums)
+    }
+
+    nonisolated static func sortedAlbums(
+        _ albums: [PhotoLibraryAlbum]
+    ) -> [PhotoLibraryAlbum] {
+        albums.sorted { left, right in
+            if left.kind != right.kind {
+                return left.kind == .favorites
+            }
+            let titleOrder = left.title.localizedCaseInsensitiveCompare(right.title)
+            if titleOrder != .orderedSame {
+                return titleOrder == .orderedAscending
+            }
+            return left.id < right.id
         }
+    }
+
+    nonisolated static func addingFavoritesFallbackIfNeeded(
+        to albums: [PhotoLibraryAlbum],
+        hasFavoritesCollection: Bool
+    ) -> [PhotoLibraryAlbum] {
+        guard !hasFavoritesCollection else {
+            return albums
+        }
+        return albums + [
+            PhotoLibraryAlbum(
+                id: favoritesFallbackIdentifier,
+                title: NSLocalizedString("Favorites", comment: "Photos smart album title"),
+                photoCount: nil,
+                kind: .favorites
+            ),
+        ]
+    }
+
+    nonisolated private static func discoverEligiblePhotoCount(
+        in albumIdentifier: String
+    ) throws -> Int {
+        let fetched = try fetchImageAssets(
+            in: albumIdentifier,
+            ascending: false
+        )
+        var count = 0
+        fetched.enumerateObjects { asset, _, stop in
+            guard !Task.isCancelled else {
+                stop.pointee = true
+                return
+            }
+            guard !asset.isHidden,
+                  !asset.mediaSubtypes.contains(.photoScreenshot) else {
+                return
+            }
+            count += 1
+        }
+        try Task.checkCancellation()
+        return count
     }
 
     nonisolated private static func discoverAlbumCoverAssetIdentifiers(
         albumIdentifier: String
     ) throws -> [String] {
-        let collections = PHAssetCollection.fetchAssetCollections(
-            withLocalIdentifiers: [albumIdentifier],
-            options: nil
-        )
-        guard let collection = collections.firstObject else { return [] }
-
-        return try discoverAlbumCoverAssetIdentifiers(
-            in: collection,
+        let fetched = try fetchImageAssets(
+            in: albumIdentifier,
+            ascending: false,
             fetchLimit: 24
         )
+        return try discoverAlbumCoverAssetIdentifiers(in: fetched)
     }
 
     nonisolated private static func discoverAlbumCoverAssetIdentifiers(
-        in collection: PHAssetCollection,
-        fetchLimit: Int? = nil
+        in fetched: PHFetchResult<PHAsset>
     ) throws -> [String] {
-        let options = PHFetchOptions()
-        options.predicate = NSPredicate(
-            format: "mediaType == %d",
-            PHAssetMediaType.image.rawValue
-        )
-        options.sortDescriptors = [
-            NSSortDescriptor(key: "creationDate", ascending: false),
-        ]
-        if let fetchLimit {
-            options.fetchLimit = fetchLimit
-        }
-        let fetched = PHAsset.fetchAssets(in: collection, options: options)
         var identifiers: [String] = []
         fetched.enumerateObjects { asset, _, stop in
             guard !Task.isCancelled else {
@@ -458,6 +526,38 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
         return identifiers
     }
 
+    nonisolated private static func fetchImageAssets(
+        in albumIdentifier: String,
+        ascending: Bool,
+        fetchLimit: Int? = nil
+    ) throws -> PHFetchResult<PHAsset> {
+        let options = PHFetchOptions()
+        options.sortDescriptors = [
+            NSSortDescriptor(key: "creationDate", ascending: ascending),
+        ]
+        if let fetchLimit {
+            options.fetchLimit = fetchLimit
+        }
+
+        if albumIdentifier == favoritesFallbackIdentifier {
+            options.predicate = NSPredicate(format: "favorite == YES")
+            return PHAsset.fetchAssets(with: .image, options: options)
+        }
+
+        let collections = PHAssetCollection.fetchAssetCollections(
+            withLocalIdentifiers: [albumIdentifier],
+            options: nil
+        )
+        guard let collection = collections.firstObject else {
+            throw PhotoLibraryClientError.albumUnavailable
+        }
+        options.predicate = NSPredicate(
+            format: "mediaType == %d",
+            PHAssetMediaType.image.rawValue
+        )
+        return PHAsset.fetchAssets(in: collection, options: options)
+    }
+
     func assets(in albumIdentifier: String) async throws -> [PhotoLibraryAsset] {
         guard authorizationState().permitsReading else {
             throw PhotoLibraryClientError.accessDenied
@@ -475,23 +575,10 @@ final class PhotoKitLibraryClient: NSObject, PhotoLibraryClient {
     nonisolated private static func discoverAssets(
         in albumIdentifier: String
     ) throws -> [PhotoLibraryAsset] {
-        let collections = PHAssetCollection.fetchAssetCollections(
-            withLocalIdentifiers: [albumIdentifier],
-            options: nil
+        let fetched = try fetchImageAssets(
+            in: albumIdentifier,
+            ascending: true
         )
-        guard let collection = collections.firstObject else {
-            throw PhotoLibraryClientError.albumUnavailable
-        }
-
-        let options = PHFetchOptions()
-        options.predicate = NSPredicate(
-            format: "mediaType == %d",
-            PHAssetMediaType.image.rawValue
-        )
-        options.sortDescriptors = [
-            NSSortDescriptor(key: "creationDate", ascending: true),
-        ]
-        let fetched = PHAsset.fetchAssets(in: collection, options: options)
         var result: [PhotoLibraryAsset] = []
         result.reserveCapacity(fetched.count)
         fetched.enumerateObjects { asset, _, stop in
@@ -678,6 +765,7 @@ extension PhotoKitLibraryClient: PHPhotoLibraryChangeObserver {
         Task { @MainActor [weak self] in
             self?.albumPreheatTask?.cancel()
             self?.albumCoverAssetIdentifiers.removeAll()
+            self?.albumEligiblePhotoCountCache.removeAll()
             self?.albumThumbnailCache.removeAllObjects()
             if let cachingManager = self?.imageManager as? PHCachingImageManager {
                 cachingManager.stopCachingImagesForAllAssets()
