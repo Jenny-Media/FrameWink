@@ -1592,8 +1592,11 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   Build 21 passed both Analyze and Test. Manual Internal TestFlight Build 22
   then passed Archive and its internal-distribution post-action. App Store
   Connect shows FrameWink 1.0.1 (22) as `Ready to Submit` in
-  `Jenny Media Internal`. Physical interaction and VoiceOver checks of the new
-  binary remain a separate acceptance step; no App Review submission occurred.
+  `Jenny Media Internal`. The owner subsequently confirmed that the new
+  photo-source flow works in the TestFlight installation. This is positive
+  physical interaction evidence for the flow, but it does not replace the
+  remaining cross-device smoke and VoiceOver checks. No App Review submission
+  occurred.
 
 ## Timebox rule
 

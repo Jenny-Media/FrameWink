@@ -2335,5 +2335,8 @@ explicit owner approval.
   iOS` post-action using Xcode 26.6 on macOS Tahoe 26.6.2.
 - App Store Connect independently shows version 1.0.1 build 22 as
   `Ready to Submit`, assigned to `Jenny Media Internal`. This proves cloud
-  archive, processing, and internal distribution; physical installation and
-  interaction checks of build 22 are still required and were not inferred.
+  archive, processing, and internal distribution. The owner then confirmed the
+  new photo-source flow works in the TestFlight installation, providing a
+  manual physical interaction check for that flow. Full iPhone-and-iPad smoke
+  coverage and VoiceOver wording remain open and were not inferred from this
+  focused check.
