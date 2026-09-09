@@ -67,9 +67,10 @@ LLC owns or is licensed to test. Include at least one screenshot, one duplicate,
 one intentionally blurred image, and one item that is iCloud-only if available.
 
 Before the album checks, exercise the hand-picked path from **More → Choose
-Photos**. Select at least ten licensed photos and confirm a Smart Reel is
-playable while the remaining picker imports continue. Add another selection in
-a later picker session and confirm the count accumulates toward 500, the active
+What Plays → Pick Individual Photos**. Select at least ten licensed photos and
+confirm a Smart Reel is playable while the remaining picker imports continue.
+Add another selection in a later picker session with **Add More Photos** and
+confirm the count accumulates toward 500, the active
 reel refines up to 100 recommendations without showing bundled samples, and
 cancel/relaunch preserves completed work. On a device with safely constrained
 free space, confirm the storage guard stops with an actionable message rather
@@ -77,7 +78,8 @@ than risking an incomplete write. Repeat the first-tap **Photo Duration** change
 and one finger-following manual swipe with Reduce Motion both off and on.
 
 1. Run `prepare`. It opens the real simplified FrameWink home screen.
-2. Tap **Choose an Album** (or **Change Album** if one is already configured).
+2. Tap **More → Choose What Plays → Use an Album** (or
+   **Choose a Different Album** if one is already configured).
    This is the only action that should trigger the broad
    Photos prompt. Choose **Limited Access** first and select only the test album
    photos. If the installed OS offers different wording, choose its limited
@@ -87,9 +89,9 @@ and one finger-following manual swipe with Reduce Motion both off and on.
    prepared and curated, **Start Frame** should become available while the
    status says that FrameWink is adding more photos or improving the reel. The
    result should refine again around thirty prepared candidates without making
-   the existing reel unavailable. Inspect **Review Frame Photos** from More and
-   record a `sample`; interrupt and relaunch once to confirm checkpointed
-   progress is retained.
+   the existing reel unavailable. Inspect **Review Photos in This Frame** from
+   More and record a `sample`; interrupt and relaunch once to confirm
+   checkpointed progress is retained.
 4. Confirm screenshots are absent from suggestions and compare the strongest
    selections against the labelled fixture sheet described below.
 5. In Photos, add and remove one test image. Return to FrameWink and confirm the

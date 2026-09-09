@@ -503,3 +503,19 @@ date; do not silently rewrite historical decisions during implementation.
   bundle makes that boundary explicit and prevents a test fixture from shipping,
   even though the subsequent build 27 device test established that the catalog
   was not the cause of Apple's empty sandbox product response.
+
+## D-041 — Photo choices describe outcomes instead of source types
+
+- **Decision:** Supersede D-038's direct photo-source menu actions with one
+  `Choose What Plays` destination. Present `Pick Individual Photos` and
+  `Use an Album` together with plain-language explanations, display the active
+  choice with a native checkmark, show the album choice as locked when Lifetime
+  is unavailable, and keep bundled `Sample Photos` in a separate section.
+  Preserve direct current-source maintenance on the home card as
+  `Add More Photos` or `Choose a Different Album`. Keep
+  `Review Photos in This Frame` as a separate More-menu action.
+- **Reason:** `Add Photos`, `Change Album`, and `Switch Photo Source` appeared
+  as overlapping commands and required users to understand FrameWink's source
+  model before choosing an outcome. One explanatory chooser makes the durable
+  difference clear, while the contextual home action avoids adding a tap to
+  routine maintenance.

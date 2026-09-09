@@ -1592,8 +1592,96 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   Build 21 passed both Analyze and Test. Manual Internal TestFlight Build 22
   then passed Archive and its internal-distribution post-action. App Store
   Connect shows FrameWink 1.0.1 (22) as `Ready to Submit` in
-  `Jenny Media Internal`. Physical interaction and VoiceOver checks of the new
-  binary remain a separate acceptance step; no App Review submission occurred.
+  `Jenny Media Internal`. The owner subsequently confirmed that the new
+  photo-source flow works in the TestFlight installation. This is positive
+  physical interaction evidence for the flow, but it does not replace the
+  remaining cross-device smoke and VoiceOver checks. No App Review submission
+  occurred.
+
+### Outcome-based photo choice — 2026-09-07
+
+- Status: implementation, visual inspection, and Simulator verification
+  complete; physical touch and VoiceOver checks remain open.
+- Replaced the competing `Add Photos`, `Choose an Album`, and
+  `Switch Photo Source` More-menu commands with one `Choose What Plays`
+  destination. It explains `Pick Individual Photos` and `Use an Album`, marks
+  the active choice, keeps samples separate, and makes the paid album boundary
+  visible without presenting a price.
+- Preserved one-tap routine actions on the home card as `Add More Photos` and
+  `Choose a Different Album`, and renamed the separate review action to
+  `Review Photos in This Frame`.
+- Five focused UI regressions pass on both iPhone 17 Pro Max and iPad (A16)
+  iOS 27.0 Simulators. Visual inspection confirms the compact iPhone list and
+  iPad sheet remain readable without truncated titles. The final complete
+  shared-scheme run passes 193 tests with 5 environment-limited skips on
+  iPhone. On iPad, all 193 other tests pass with 4 environment-limited skips;
+  one unrelated StoreKit Ask to Buy test observed cross-test purchase state and
+  then passed immediately when rerun alone. The preceding 197-test iPad full
+  run also passed before the fifth focused chooser regression was added.
+  Release Analyze and the archive release guard pass. Active implementation
+  and verification time was approximately 0.9 hours.
+
+### Review Undo clearance — 2026-09-09
+
+- Status: fixed and verified in Simulator, with user-confirmed iPad interaction.
+- The Undo bar was attached outside each review navigation view. With enough
+  content to scroll, `Hidden from Frame` extended about 36 points into the
+  Undo button area even at the bottom of the scroll range. Baseline UI checks
+  reproduced this for automatic albums on iPhone and iPad in both orientations,
+  and for imported photos on landscape iPhone.
+- Both review screens now apply the bottom safe-area inset directly to their
+  scroll view, allowing the complete hidden-photo control to scroll above Undo.
+  The five-second Undo lifetime and durable exclusion behavior are unchanged.
+- Added four UI checks covering both photo sources in portrait and landscape,
+  including opening Hidden from Frame while Undo is visible. Also rerun the
+  existing Undo, individual restoration, empty-state restoration, and backing
+  controller tests. Exact commands and results are in `docs/TESTING.md`.
+  All 34 selected checks have passing evidence on each device family. The
+  final four layout checks pass in all eight device/orientation/source runs.
+- Active implementation and verification time: approximately 0.25 hours.
+- The user confirmed that the installed iPad fix works. Physical iPhone,
+  VoiceOver, and resized-window checks remain open. TestFlight distribution
+  has not been performed for this patch.
+
+
+### Review Undo fix installed on iPad — 2026-09-09
+
+- Integrated the Simulator-verified review Undo fix into this checkout,
+  preserving the newer Choose What Plays flow and all existing local changes.
+  The review source SHA-256 matches the Simulator-verified fix exactly.
+- Built the signed Debug application using the existing project configuration
+  and `/private/tmp/FrameWink-Undo-Device-Current` as DerivedData. Build and
+  signature verification passed without compiler warnings. Installed over the
+  existing app on the paired iPad Pro and launched normally, with no screenshot
+  scenario or test-only entitlement. Independent installed-app metadata
+  confirms `media.jenny.FrameWink`, version 1.0.1 (1).
+- Commands: `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+  xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink
+  -configuration Debug -destination 'platform=iOS,id=<paired-iPad-UDID>'
+  -derivedDataPath /private/tmp/FrameWink-Undo-Device-Current build`, then
+  `codesign --verify --deep --strict <built-app>`,
+  `xcrun devicectl device install app --device <paired-iPad-ID> <built-app>`,
+  `xcrun devicectl device process launch --device <paired-iPad-ID>
+  --terminate-existing media.jenny.FrameWink`, and a read-only installed-app
+  metadata query, with the same Xcode environment. Initial sandbox-only
+  certificate-trust verification failed; verification with access to macOS
+  trust services passed without changing signing settings.
+- Installation and launch are verified. The user confirmed on 2026-09-09 that
+  the Undo/Hidden from Frame fix works on the installed iPad build. VoiceOver,
+  resized-window behavior, and physical iPhone interaction remain unchecked.
+  This development install is separate from TestFlight and real StoreKit
+  acceptance. Active build/install time was approximately 0.1 hours.
+
+### Combined photo-choice and review checkpoint — 2026-09-09
+
+- Included the photo chooser, Undo fix, regression tests, and physical iPad
+  confirmation together. Final combined Simulator verification passes 12
+  focused UI tests on each device family (24 runs, no failures or skips).
+  Both app/test builds and `git diff --check` pass. Exact commands are recorded
+  in `docs/TESTING.md`.
+- Physical iPad Undo behavior is user-confirmed. VoiceOver, resized-window,
+  physical iPhone checks, and TestFlight delivery remain separate follow-ups.
+  Active integration and verification time was approximately 0.1 hours.
 
 ## Timebox rule
 

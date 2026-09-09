@@ -36,19 +36,44 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Bundled sample photos"].exists)
     }
 
-    func testMoreMenuOpensSystemPickerDirectly() {
+    func testChooseWhatPlaysExplainsIndividualPhotosBeforeSystemPicker() {
         launch(scenario: "sample")
 
         app.buttons["More"].tap()
-        app.buttons["Choose Photos…"].tap()
+        app.buttons["Choose What Plays…"].tap()
+
+        XCTAssertTrue(app.navigationBars["Choose What Plays"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.staticTexts["Pick Individual Photos"].exists)
+        XCTAssertTrue(app.staticTexts["Choose specific photos for this frame"].exists)
+        XCTAssertTrue(app.staticTexts["Use an Album"].exists)
+        XCTAssertTrue(
+            app.staticTexts["Choose an album and keep this frame up to date"].exists
+        )
+
+        app.buttons["photo-source-personal"].tap()
 
         let cancel = app.buttons["Cancel"]
         XCTAssertTrue(
             cancel.waitForExistence(timeout: 8),
-            "Choose Photos in More must open PHPicker without an intermediate sheet."
+            "Pick Individual Photos must open PHPicker after the explanatory choice."
         )
         cancel.tap()
         XCTAssertTrue(app.buttons["Choose Photos"].waitForExistence(timeout: 8))
+    }
+
+    func testLockedAlbumChoiceExplainsLifetimeBeforeRequestingPhotosAccess() {
+        launch(scenario: "sample")
+
+        app.buttons["More"].tap()
+        app.buttons["Choose What Plays…"].tap()
+        XCTAssertTrue(app.navigationBars["Choose What Plays"].waitForExistence(timeout: 4))
+
+        app.buttons["photo-source-automatic"].tap()
+
+        XCTAssertTrue(
+            app.navigationBars["FrameWink Lifetime"].waitForExistence(timeout: 8),
+            "The locked album choice must explain Lifetime before requesting Photos access."
+        )
     }
 
     func testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples() {
@@ -139,8 +164,8 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             app.staticTexts["Bundled sample photos"].waitForExistence(timeout: 8)
         )
         app.buttons["More"].tap()
-        app.buttons["Switch Photo Source…"].tap()
-        XCTAssertTrue(app.navigationBars["Photo Source"].waitForExistence(timeout: 4))
+        app.buttons["Choose What Plays…"].tap()
+        XCTAssertTrue(app.navigationBars["Choose What Plays"].waitForExistence(timeout: 4))
         app.buttons["photo-source-personal"].tap()
 
         let startFrame = app.buttons["Start Frame"]
@@ -450,6 +475,61 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertEqual(neverShowButtons.count, countBefore)
     }
 
+    func testReviewHiddenPhotosRemainAboveUndo() {
+        assertHiddenPhotosRemainAboveUndo(scenario: "free-review-grid")
+    }
+
+    func testReviewHiddenPhotosRemainAboveUndoInLandscape() {
+        assertHiddenPhotosRemainAboveUndo(scenario: "free-review-grid", landscape: true)
+    }
+
+    func testAutomaticReviewHiddenPhotosRemainAboveUndo() {
+        assertHiddenPhotosRemainAboveUndo(scenario: "automatic-album-review")
+    }
+
+    func testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape() {
+        assertHiddenPhotosRemainAboveUndo(scenario: "automatic-album-review", landscape: true)
+    }
+
+    private func assertHiddenPhotosRemainAboveUndo(scenario: String, landscape: Bool = false) {
+        launch(scenario: scenario)
+        XCTAssertTrue(app.navigationBars["Photos in This Frame"].waitForExistence(timeout: 8))
+        if landscape {
+            XCUIDevice.shared.orientation = .landscapeLeft
+            XCTAssertTrue(waitForLandscape())
+        }
+        let actions = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'never-show-'")
+        )
+        XCTAssertTrue(actions.firstMatch.waitForExistence(timeout: 8))
+        let lastAction = actions.element(boundBy: actions.count - 1)
+        for _ in 0..<8 {
+            if lastAction.isHittable { break }
+            app.scrollViews.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(lastAction.isHittable)
+        lastAction.tap()
+
+        let undo = app.buttons["undo-never-show"]
+        XCTAssertTrue(undo.waitForExistence(timeout: 3))
+        app.scrollViews.firstMatch.swipeUp(velocity: .fast)
+
+        let hiddenPhotos = app.buttons["manage-hidden-photos"]
+        XCTAssertTrue(undo.exists, "Check the layout while the five-second Undo is still showing.")
+        XCTAssertTrue(hiddenPhotos.isHittable)
+        XCTAssertLessThanOrEqual(
+            hiddenPhotos.frame.maxY,
+            undo.frame.minY,
+            "The entire Hidden from Frame control must scroll above Undo."
+        )
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Hidden from Frame above Undo - " + scenario
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        hiddenPhotos.tap()
+        XCTAssertTrue(app.navigationBars["Hidden from Frame"].waitForExistence(timeout: 3))
+    }
+
     func testReviewCanRestoreAnOlderNeverShowChoice() {
         launch(scenario: "free-review-grid")
 
@@ -475,19 +555,19 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.buttons["manage-hidden-photos"].exists)
     }
 
-    func testReadyFrameOffersDirectPhotoSourceAndReviewActions() {
+    func testReadyFrameOffersClearPhotoChoiceAndReviewActions() {
         launch(scenario: "personal-reel")
 
         XCTAssertTrue(app.buttons["More"].waitForExistence(timeout: 8))
         app.buttons["More"].tap()
 
-        XCTAssertTrue(app.buttons["Add Photos…"].waitForExistence(timeout: 4))
-        XCTAssertTrue(app.buttons["Choose an Album…"].exists)
-        XCTAssertTrue(app.buttons["Switch Photo Source…"].exists)
-        XCTAssertTrue(app.buttons["Review Frame Photos…"].exists)
-        XCTAssertFalse(app.buttons["Photos…"].exists)
+        XCTAssertTrue(app.buttons["Choose What Plays…"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["Review Photos in This Frame…"].exists)
+        XCTAssertFalse(app.buttons["Add Photos…"].exists)
+        XCTAssertFalse(app.buttons["Choose an Album…"].exists)
+        XCTAssertFalse(app.buttons["Switch Photo Source…"].exists)
 
-        app.buttons["Review Frame Photos…"].tap()
+        app.buttons["Review Photos in This Frame…"].tap()
         XCTAssertTrue(app.navigationBars["Photos in This Frame"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.descendants(matching: .any)["review-frame-summary"].exists)
     }
@@ -687,16 +767,21 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         app.buttons["More"].tap()
 
-        XCTAssertTrue(app.buttons["Choose Photos…"].waitForExistence(timeout: 4))
-        XCTAssertTrue(app.buttons["Choose an Album…"].exists)
+        XCTAssertTrue(app.buttons["Choose What Plays…"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.buttons["Privacy & Data"].exists)
         XCTAssertTrue(app.buttons["More Frame Features"].exists)
         XCTAssertFalse(app.buttons["Sample Photos"].exists)
         XCTAssertFalse(app.buttons["Switch Photo Source…"].exists)
-        XCTAssertFalse(app.buttons["Review Frame Photos…"].exists)
+        XCTAssertFalse(app.buttons["Review Photos in This Frame…"].exists)
+
+        app.buttons["Choose What Plays…"].tap()
+        XCTAssertTrue(app.navigationBars["Choose What Plays"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["photo-source-personal"].exists)
+        XCTAssertTrue(app.buttons["photo-source-automatic"].exists)
+        XCTAssertTrue(app.buttons["photo-source-samples"].exists)
 
         let photosScreenshot = XCTAttachment(screenshot: app.screenshot())
-        photosScreenshot.name = "Direct photo actions in More"
+        photosScreenshot.name = "Choose What Plays"
         photosScreenshot.lifetime = .keepAlways
         add(photosScreenshot)
     }
