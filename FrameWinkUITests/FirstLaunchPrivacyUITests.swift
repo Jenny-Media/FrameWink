@@ -503,9 +503,14 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         )
         XCTAssertTrue(actions.firstMatch.waitForExistence(timeout: 8))
         let lastAction = actions.element(boundBy: actions.count - 1)
+        let scrollView = app.scrollViews.firstMatch
         for _ in 0..<8 {
-            if lastAction.isHittable { break }
-            app.scrollViews.firstMatch.swipeUp()
+            // Off-screen SwiftUI buttons can make XCTest's isHittable query
+            // fail instead of returning false on compact landscape workers.
+            let actionFrame = lastAction.frame
+            let visibleFrame = scrollView.frame.intersection(app.frame)
+            if !actionFrame.isEmpty && visibleFrame.contains(actionFrame) { break }
+            scrollView.swipeUp()
         }
         XCTAssertTrue(lastAction.isHittable)
         lastAction.tap()

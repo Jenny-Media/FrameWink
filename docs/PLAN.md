@@ -1685,7 +1685,10 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### Xcode Cloud album-count cancellation test — 2026-09-09
 
-- Status: test fix and local verification complete; cloud confirmation pending. Production app behavior is unchanged.
+- Status: album-count test fix verified locally and in Xcode Cloud Build 24;
+  the second hosted UI-test synchronization fix passes all four cases on
+  iPhone SE, iPhone 17 Pro Max, and iPad (12 executions). Production
+  app behavior is unchanged. Final cloud status is tracked in PR #11.
 - Validation Build 23 at main `8b69555` passed Analyze but failed
   `testSelectingAlbumCancelsRemainingEligiblePhotoCounts` because the test
   assumed cancellation cleanup completed within a fixed 100 milliseconds.
@@ -1701,6 +1704,11 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Active diagnosis and verification time: approximately 0.2 hours. No new
   physical-device acceptance is required for this test-only change; the
   hosted Xcode Cloud run remains the infrastructure confirmation.
+- Build 24 passed the album-count regression and Analyze, but exposed a
+  separate iPhone SE landscape UI-test failure: querying `isHittable` on an
+  off-screen review button threw an invalid activation-point error. The helper
+  now scrolls using frame visibility first, then retains its tappability,
+  actual tap, Undo overlap, and Hidden from Frame navigation assertions.
 
 ## Timebox rule
 

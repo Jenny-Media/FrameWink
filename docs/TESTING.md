@@ -2576,3 +2576,56 @@ git diff --check
 - No production code, signing, workflow settings, or TestFlight distribution
   changed. No additional physical test is required for this test-only fix.
   Xcode Cloud confirmation remains pending.
+
+## Hosted compact-landscape review test synchronization — 2026-09-09
+
+- Xcode Cloud Validation Build 24 at `29b9f6d` passed Analyze and the repaired
+  album-count regression. It finished with 192 passed, 9 environment-limited
+  skips, and one failure: the iPhone SE (3rd generation), iOS 26.5 worker
+  failed in `testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape` while
+  querying an off-screen Never Show Again button's `isHittable` property.
+  XCTest reported an invalid activation point at line 507, before the Undo
+  overlap assertion or tap executed.
+- The shared four-case review helper now checks a nonempty button frame against
+  the intersection of the scroll-view and app frames before requesting
+  hittability. It still requires the final button to be tappable, performs the
+  actual tap, compares the complete Hidden from Frame control against Undo,
+  and opens Hidden from Frame while Undo is visible. Production layout and
+  Undo duration are unchanged.
+- A local iPhone SE (3rd generation) Simulator was created on the available
+  iOS 27.0 runtime. The baseline single landscape test passed there, so this
+  local run does not claim to reproduce Apple's iOS 26.5 activation-point
+  failure. Final coverage includes all four portrait/landscape/source cases on
+  iPhone SE, iPhone 17 Pro Max, and iPad (A16): all 12 executions pass with
+  zero failures or skips and no result-summary runtime warnings. The existing
+  debugger-version lookup notes are non-failing.
+- Validation was enabled before merge using a temporary manual start condition
+  scoped only to `codex/fix-album-count-cancellation`. The automatic main
+  condition, required actions, destinations, and TestFlight workflow remain
+  unchanged. The temporary condition will be removed after the final run;
+  the completed hosted result is recorded in PR #11.
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+# Isolated compact destination, using the installed runtime.
+xcrun simctl create 'FrameWink CI iPhone SE' \
+  com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation \
+  com.apple.CoreSimulator.SimRuntime.iOS-27-0
+# Baseline before changing the review test helper.
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -destination 'platform=iOS Simulator,id=8782C2D6-1D6A-4195-A5C1-8A948D1B7AC6' \
+  -derivedDataPath /private/tmp/FrameWink-AlbumCount-Tests \
+  -resultBundlePath /private/tmp/FrameWink-SE-Review-Baseline.xcresult \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape test
+# Corrected helper on all three device sizes.
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -destination 'platform=iOS Simulator,id=8782C2D6-1D6A-4195-A5C1-8A948D1B7AC6' \
+  -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' \
+  -derivedDataPath /private/tmp/FrameWink-AlbumCount-Tests \
+  -resultBundlePath /private/tmp/FrameWink-Review-Visibility-Fixed.xcresult \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndoInLandscape \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape test
+```
