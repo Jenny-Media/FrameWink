@@ -2340,3 +2340,173 @@ explicit owner approval.
   manual physical interaction check for that flow. Full iPhone-and-iPad smoke
   coverage and VoiceOver wording remain open and were not inferred from this
   focused check.
+
+## Outcome-based photo-choice verification — 2026-09-07
+
+- The More menu now presents one `Choose What Plays` destination instead of
+  parallel photo, album, and source-switch commands. The chooser always shows
+  `Pick Individual Photos`, `Use an Album`, and separately grouped
+  `Sample Photos`, with plain-language details and a native selected state.
+- The empty individual-photo choice opens PHPicker after the explanation; an
+  existing individual-photo or album choice switches the active frame source.
+  The home card retains `Add More Photos` and `Choose a Different Album` for
+  routine maintenance. Review remains independently available as
+  `Review Photos in This Frame`.
+- Five focused XCUI regressions pass with zero failures on iPhone 17 Pro Max
+  and iPad (A16) iOS 27.0 Simulators. Result bundles:
+  `/private/tmp/FrameWink-ChooseWhatPlays-iPhone.xcresult` and
+  `/private/tmp/FrameWink-ChooseWhatPlays-iPad.xcresult`, plus the locked-album
+  entitlement regression in `/private/tmp/FrameWink-AlbumChoice-iPhone.xcresult`
+  and `/private/tmp/FrameWink-AlbumChoice-iPad.xcresult`. After tightening the
+  configured-but-locked entitlement edge case, both affected chooser tests
+  were rebuilt and passed again in
+  `/private/tmp/FrameWink-ChooserGuard-iPhone.xcresult` and
+  `/private/tmp/FrameWink-ChooserGuard-iPad.xcresult`.
+- Captures exported from both result bundles were inspected. The compact iPhone
+  layout shows complete choice labels and descriptions; the iPad form sheet
+  keeps both choices, the Lifetime lock, and the active sample checkmark visible
+  without clipping. Physical touch and VoiceOver wording remain manual checks.
+- The final complete shared-scheme run passes 193 tests with 5
+  environment-limited skips and zero failures on iPhone 17 Pro Max. On iPad
+  (A16), 193 tests pass and 4 are skipped; the unrelated
+  `testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking` observed residual
+  purchased state in the full run, then passed immediately when rerun alone.
+  The preceding 197-test iPad full run passed before the fifth focused chooser
+  regression was added. Result bundles:
+  `/private/tmp/FrameWink-ChooseWhatPlays-Final-iPhone.xcresult`,
+  `/private/tmp/FrameWink-ChooseWhatPlays-Final-iPad.xcresult`, and
+  `/private/tmp/FrameWink-AskToBuy-Rerun-iPad.xcresult`. Expected
+  diagnostics remain Apple's StoreKitTest deprecation, test-only transaction
+  listener notices, SwiftUI hosting-view hierarchy warnings, debugger lookup
+  notes, and the post-test `simctl` collector warning.
+- Release Analyze passes for the generic iOS destination with signing disabled.
+  `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+  CI_XCODEBUILD_ACTION=archive ci_scripts/ci_pre_xcodebuild.sh` also passes the
+  archive release guard. Its sandboxed `xcodebuild` metadata query logs the
+  existing CoreSimulator-service diagnostics after the plist and privacy
+  manifest checks, without failing the guard.
+
+## Review Undo clearance — 2026-09-09
+
+- Baseline: added four UI checks on main `72c4618`, before changing production
+  code. The short imported grid on landscape iPad passed; the full matrix
+  reproduced the overlap in five of eight runs: automatic albums on both
+  device families in both orientations, and imported photos on landscape
+  iPhone. At the bottom of the scroll range, the hidden-photo control extended
+  approximately 36 points below the Undo button's top edge.
+- Fix: moved the conditional bottom safe-area inset from the outer
+  `NavigationView` to its `ScrollView` for both sources. The scroll content now
+  reserves room for the actual Undo bar height without a fixed spacer.
+- Initial verification passed 33 of 34 selected checks on each device; the
+  automatic-album landscape case was interrupted by Simulator SpringBoard
+  crashes. A sequential retry passed on iPad; on iPhone, its setup could not
+  scroll to the target card after rotation before launch. The regression now
+  rotates the running app, waits for landscape geometry, and targets gestures
+  to the review scroll view. The final run passes all four layout checks on
+  each device (eight runs, no failures or skips). Together with the earlier
+  27 unit and three existing UI checks per device, all 34 selected checks have
+  passing evidence on both iPhone and iPad. Both application and test targets
+  build successfully; `git diff --check` passes.
+- The selected tests include both affected controller suites, four layout
+  checks, existing Undo, individual recovery, and empty-frame recovery. The
+  layout checks also open Hidden from Frame while Undo is still visible and
+  retain screenshots in the result bundle. Inspected portrait captures show
+  the complete hidden-photo entry above the Undo bar on both device families.
+- Diagnostics: the initial test build emitted Apple's existing StoreKitTest
+  deprecation warning. Xcode also reported debugger-version lookup and
+  post-test diagnostic-collector `simctl` lookup warnings. No app runtime
+  warning was reported in the result summary.
+- Commands below ran from `/private/tmp/framewink-review-undo`. Both discovered
+  destinations run iOS 27.0. The initial sandboxed destination lookup could
+  not access CoreSimulator; approved execution outside that sandbox succeeded.
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+xcodebuild -showdestinations -project FrameWink.xcodeproj -scheme FrameWink
+
+common=(
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink
+  -derivedDataPath /private/tmp/FrameWink-Undo-DerivedData
+)
+devices=(
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F'
+  -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE'
+)
+layout_checks=(
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndo
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndoInLandscape
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndo
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape
+)
+
+# Before the production fix:
+xcodebuild "${common[@]}" \
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' \
+  -resultBundlePath /private/tmp/FrameWink-Undo-Baseline-iPad.xcresult \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndoInLandscape test
+xcodebuild "${common[@]}" "${devices[@]}" "${layout_checks[@]}" \
+  -resultBundlePath /private/tmp/FrameWink-Undo-Baseline-Both.xcresult test-without-building
+
+# After the production fix:
+xcodebuild "${common[@]}" "${devices[@]}" "${layout_checks[@]}" \
+  -resultBundlePath /private/tmp/FrameWink-Undo-Fixed-Both.xcresult \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewNeverShowUsesNativeActionAndCanUndo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewCanRestoreAnOlderNeverShowChoice \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewEmptyStateCanRestoreExcludedPhotos \
+  -only-testing:FrameWinkTests/AppModelRecoveryTests \
+  -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+
+# Isolate the interrupted landscape case, then verify the stabilized UI checks:
+xcodebuild "${common[@]}" "${devices[@]}" \
+  -disable-concurrent-destination-testing \
+  -resultBundlePath /private/tmp/FrameWink-Undo-Landscape-Retry.xcresult \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape test-without-building
+xcodebuild "${common[@]}" "${devices[@]}" "${layout_checks[@]}" \
+  -resultBundlePath /private/tmp/FrameWink-Undo-Final-UI.xcresult test
+git diff --check
+```
+
+- Remaining manual evidence: physical iPhone/iPad touch and VoiceOver checks,
+  an iPad resized-window check, and iOS/iPadOS 15 runtime compatibility. This
+  Simulator change does not establish real PhotoKit, purchase, thermal,
+  brightness, Guided Access, or long-running device behavior. Subsequent installation of this exact review-view change alongside the newer
+  photo chooser succeeded on the iPad Pro. The user confirmed the fix works
+  on 2026-09-09; see the installation commands in `docs/PLAN.md`. This does
+  not establish VoiceOver or resized-window acceptance. No TestFlight
+  distribution or App Store submission was performed.
+
+## Combined photo-choice and Undo verification — 2026-09-09
+
+- Preserved the photo chooser installed on the iPad, integrated the four
+  Undo layout regressions, and recorded the user-confirmed physical fix.
+- Final combined verification passes all 12 selected UI tests on each of
+  iPhone 17 Pro Max and iPad (A16): 24 runs, zero failures, and zero skips.
+  Coverage includes photo choice, Lifetime gating, source preservation, review
+  entry, both review sources and orientations, Undo, and hidden-photo recovery.
+  App and test builds and `git diff --check` pass. Diagnostics are limited to
+  the existing Apple StoreKitTest deprecation and debugger-version lookup
+  notes; the result bundle reports no app runtime warnings.
+- Exact command from `/private/tmp/framewink-favorites`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet \
+  -project FrameWink.xcodeproj -scheme FrameWink \
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' \
+  -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+  -derivedDataPath /private/tmp/FrameWink-Undo-Publish-DerivedData \
+  -resultBundlePath /private/tmp/FrameWink-Undo-Publish.xcresult \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndoInLandscape \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewNeverShowUsesNativeActionAndCanUndo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewCanRestoreAnOlderNeverShowChoice \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewEmptyStateCanRestoreExcludedPhotos \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testChooseWhatPlaysExplainsIndividualPhotosBeforeSystemPicker \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testLockedAlbumChoiceExplainsLifetimeBeforeRequestingPhotosAccess \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReadyFrameOffersClearPhotoChoiceAndReviewActions \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testChangingPlaybackSettingsKeepsTheSelectedPhotoSource \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testHomeUsesOnePrimaryActionAndMovesMaintenanceBehindMore \
+  test
+git diff --check
+```

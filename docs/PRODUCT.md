@@ -74,10 +74,13 @@ preloaded gifts, family contributions, and remote administration.
    automatically, while a receding top-right close button exits Frame Mode
    directly. A short tap/swipe hint recedes with the controls; tapping the photo
    brings controls back.
-5. The More menu opens photo picking, album selection, and review directly.
-   Source switching appears only when more than one source is available;
-   deletion, privacy, and frame settings remain progressively disclosed rather
-   than becoming a button dashboard.
+5. The More menu opens `Choose What Plays`, which explains the difference
+   between picking individual photos and using an automatically updating album,
+   shows which choice is active, and keeps bundled sample photos separate.
+   Review remains a direct action. The home card keeps the current source's
+   frequent action one tap away as `Add More Photos` or
+   `Choose a Different Album`; deletion, privacy, and frame settings remain
+   progressively disclosed rather than becoming a button dashboard.
 6. FrameWink Lifetime is offered when a user chooses an automatic album or
    another paid frame feature.
 7. Full PhotoKit authorization is requested only after the user explicitly

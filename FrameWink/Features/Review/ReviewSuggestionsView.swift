@@ -55,6 +55,11 @@ struct ReviewSuggestionsView: View {
                 }
                 .padding(24)
             }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if model.canUndoNeverShow {
+                    ReviewUndoBar(undo: undoNeverShow)
+                }
+            }
             .navigationTitle("Photos in This Frame")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -66,11 +71,6 @@ struct ReviewSuggestionsView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .safeAreaInset(edge: .bottom) {
-            if model.canUndoNeverShow {
-                ReviewUndoBar(undo: undoNeverShow)
-            }
-        }
         .onDisappear {
             undoDismissTask?.cancel()
             model.clearNeverShowUndo()
@@ -215,6 +215,11 @@ struct AutomaticAlbumReviewView: View {
                 }
                 .padding(24)
             }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if controller.canUndoNeverShow {
+                    ReviewUndoBar(undo: undoNeverShow)
+                }
+            }
             .navigationTitle("Photos in This Frame")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -226,11 +231,6 @@ struct AutomaticAlbumReviewView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .safeAreaInset(edge: .bottom) {
-            if controller.canUndoNeverShow {
-                ReviewUndoBar(undo: undoNeverShow)
-            }
-        }
         .onDisappear {
             undoDismissTask?.cancel()
             controller.clearNeverShowUndo()

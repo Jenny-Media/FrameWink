@@ -131,7 +131,12 @@ struct RootView: View {
                 PhotosSheet(
                     model: model,
                     automaticAlbum: automaticAlbum,
-                    currentPhotoMode: $model.collectionMode
+                    currentPhotoMode: $model.collectionMode,
+                    albumIsUnlocked: purchases.isWallModeUnlocked,
+                    openPhotoPicker: {
+                        presentedSheet = .photoPicker
+                    },
+                    openAlbumPicker: chooseAlbum
                 )
             case .photoPicker:
                 PhotoPickerView(selectionLimit: model.remainingPhotoCapacity) { items in
@@ -238,36 +243,16 @@ struct RootView: View {
     private var homeMenu: some View {
         Menu {
             Button {
-                presentedSheet = .photoPicker
+                presentedSheet = .photos
             } label: {
-                Label(choosePhotosMenuTitle, systemImage: "photo.badge.plus")
-            }
-            .disabled(!model.canAddPhotos || model.isImporting)
-
-            Button {
-                chooseAlbum()
-            } label: {
-                Label(
-                    chooseAlbumMenuTitle,
-                    systemImage: purchases.isWallModeUnlocked
-                        ? "photo.on.rectangle.angled"
-                        : "lock.fill"
-                )
-            }
-
-            if availablePhotoSourceCount > 1 {
-                Button {
-                    presentedSheet = .photos
-                } label: {
-                    Label("Switch Photo Source…", systemImage: "arrow.triangle.2.circlepath")
-                }
+                Label("Choose What Plays…", systemImage: "photo.stack")
             }
 
             if canReviewCurrentSource {
                 Button {
                     reviewCurrentSource()
                 } label: {
-                    Label("Review Frame Photos…", systemImage: "checkmark.circle")
+                    Label("Review Photos in This Frame…", systemImage: "checkmark.circle")
                 }
             }
 
@@ -301,22 +286,7 @@ struct RootView: View {
                 .contentShape(Rectangle())
         }
         .accessibilityLabel("More")
-        .accessibilityHint("Add photos, choose an album, review this frame, or open settings")
-    }
-
-    private var choosePhotosMenuTitle: String {
-        if model.isImporting { return "Adding Photos…" }
-        return model.importedPhotos.isEmpty ? "Choose Photos…" : "Add Photos…"
-    }
-
-    private var chooseAlbumMenuTitle: String {
-        automaticAlbum.configuration.isConfigured ? "Change Album…" : "Choose an Album…"
-    }
-
-    private var availablePhotoSourceCount: Int {
-        1
-            + (model.importedPhotos.isEmpty ? 0 : 1)
-            + (automaticAlbum.configuration.isConfigured ? 1 : 0)
+        .accessibilityHint("Choose what plays, review this frame, or open settings")
     }
 
     private var canReviewCurrentSource: Bool {
@@ -672,18 +642,22 @@ struct RootView: View {
     private var secondaryActionTitle: String {
         switch model.collectionMode {
         case .automaticAlbum:
-            return automaticAlbum.configuration.isConfigured ? "Change Album" : "Choose Photos"
+            return automaticAlbum.configuration.isConfigured
+                ? "Choose a Different Album"
+                : "Pick Individual Photos"
         case .personal:
             if model.isImporting { return "Stop Adding" }
             if !model.canAddPhotos {
                 return "\(ManualPhotoCollectionPolicy.maximumCandidateCount) Photos Added"
             }
-            return "Add Photos"
+            return "Add More Photos"
         case .samples:
             if model.importedPhotos.isEmpty {
-                return purchases.isWallModeUnlocked ? "Choose Photos" : "Start Sample Frame"
+                return purchases.isWallModeUnlocked
+                    ? "Pick Individual Photos"
+                    : "Start Sample Frame"
             }
-            return "My Photos"
+            return "Use My Selected Photos"
         }
     }
 
@@ -923,46 +897,56 @@ private struct PhotosSheet: View {
     @ObservedObject var model: AppModel
     @ObservedObject var automaticAlbum: AutomaticAlbumController
     @Binding var currentPhotoMode: PhotoCollectionMode
+    let albumIsUnlocked: Bool
+    let openPhotoPicker: () -> Void
+    let openAlbumPicker: () -> Void
     @Environment(\.presentationMode) private var presentationMode
 
     var body: some View {
         NavigationView {
             List {
                 Section {
-                    if !model.importedPhotos.isEmpty {
-                        sourceButton(
-                            title: "My Selected Photos",
-                            detail: "\(model.importedPhotos.count) selected on this device",
-                            systemImage: "photo.stack",
-                            mode: .personal
-                        )
-                        .accessibilityIdentifier("photo-source-personal")
-                    }
+                    choiceButton(
+                        title: "Pick Individual Photos",
+                        detail: individualPhotosDetail,
+                        systemImage: "photo.stack",
+                        mode: .personal,
+                        isAvailable: !model.importedPhotos.isEmpty,
+                        action: chooseIndividualPhotos
+                    )
+                    .accessibilityIdentifier("photo-source-personal")
 
-                    if automaticAlbum.configuration.isConfigured {
-                        sourceButton(
-                            title: automaticAlbum.selectedAlbumTitle,
-                            detail: "Updates from the album you chose",
-                            systemImage: "rectangle.stack",
-                            mode: .automaticAlbum
-                        )
-                        .accessibilityIdentifier("photo-source-automatic")
-                    }
+                    choiceButton(
+                        title: "Use an Album",
+                        detail: albumDetail,
+                        systemImage: "rectangle.stack",
+                        mode: .automaticAlbum,
+                        isAvailable: automaticAlbum.configuration.isConfigured,
+                        showsLock: !albumIsUnlocked,
+                        action: chooseAutomaticAlbum
+                    )
+                    .accessibilityIdentifier("photo-source-automatic")
+                } header: {
+                    Text("Your Photos")
+                } footer: {
+                    Text("Pick specific photos, or use an album that can stay up to date as the album changes.")
+                }
 
+                Section {
                     sourceButton(
                         title: "Sample Photos",
-                        detail: "Bundled examples with no Photos access",
+                        detail: "Try FrameWink without choosing personal photos",
                         systemImage: "sparkles",
                         mode: .samples
                     )
                     .accessibilityIdentifier("photo-source-samples")
                 } header: {
-                    Text("Play Photos From")
+                    Text("Try FrameWink")
                 } footer: {
-                    Text("Choose one source for this frame. Add photos, change albums, and review what appears from the More menu.")
+                    Text("Your choice changes only what appears in this frame. It never changes your Photos library.")
                 }
             }
-            .navigationTitle("Photo Source")
+            .navigationTitle("Choose What Plays")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -973,6 +957,96 @@ private struct PhotosSheet: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+    }
+
+    private var individualPhotosDetail: String {
+        guard !model.importedPhotos.isEmpty else {
+            return "Choose specific photos for this frame"
+        }
+        let count = model.importedPhotos.count
+        return count == 1
+            ? "1 photo selected on this device"
+            : "\(count) photos selected on this device"
+    }
+
+    private var albumDetail: String {
+        guard automaticAlbum.configuration.isConfigured else {
+            return "Choose an album and keep this frame up to date"
+        }
+        return "Shows photos from \(automaticAlbum.selectedAlbumTitle) and stays up to date"
+    }
+
+    private func chooseIndividualPhotos() {
+        guard !model.importedPhotos.isEmpty else {
+            openPhotoPicker()
+            return
+        }
+        selectSource(.personal)
+    }
+
+    private func chooseAutomaticAlbum() {
+        guard albumIsUnlocked else {
+            openAlbumPicker()
+            return
+        }
+        guard automaticAlbum.configuration.isConfigured else {
+            openAlbumPicker()
+            return
+        }
+        selectSource(.automaticAlbum)
+    }
+
+    private func selectSource(_ mode: PhotoCollectionMode) {
+        currentPhotoMode = mode
+        presentationMode.wrappedValue.dismiss()
+    }
+
+    private func choiceButton(
+        title: String,
+        detail: String,
+        systemImage: String,
+        mode: PhotoCollectionMode,
+        isAvailable: Bool,
+        showsLock: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: systemImage)
+                    .foregroundColor(.accentColor)
+                    .frame(width: 24)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .foregroundColor(.primary)
+                    Text(detail)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                if showsLock {
+                    Image(systemName: "lock.fill")
+                        .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
+                } else if isAvailable && currentPhotoMode == mode {
+                    Image(systemName: "checkmark")
+                        .font(.body.weight(.semibold))
+                        .foregroundColor(.accentColor)
+                        .accessibilityHidden(true)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .accessibilityAddTraits(
+            isAvailable && !showsLock && currentPhotoMode == mode ? .isSelected : []
+        )
     }
 
     private func sourceButton(
