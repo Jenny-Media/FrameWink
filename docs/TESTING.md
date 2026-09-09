@@ -2510,3 +2510,69 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   test
 git diff --check
 ```
+
+## Xcode Cloud album-count cancellation test — 2026-09-09
+
+- Build 23 (`01c2362f-3b95-406b-824e-ad026197fdd0`) analyzed main
+  `8b69555b09d2aeb8f40a84bc6e7d3025296f40cf` successfully, then failed
+  `AutomaticAlbumControllerTests.testSelectingAlbumCancelsRemainingEligiblePhotoCounts`
+  at the active-request assertion: `1` instead of `0`. The existing
+  StoreKitTest SDK deprecation was a warning, not the failure.
+- The original test passed ten local iPhone repetitions. Its fixed
+  100-millisecond sleep does not synchronize with utility-task cancellation
+  cleanup. A temporary 300-millisecond delay in the mock's cancellation
+  cleanup reproduced that same active-request assertion; replacing the sleep
+  with the state wait passed under the same injected delay. Both experiments
+  used the final cancellation-only fixture. The temporary delay and old wait
+  were removed afterward.
+- The final fixture suspends via an AsyncStream that ends on task cancellation,
+  rather than a timer that could complete before album selection. The test
+  waits for zero active requests, requires an explicit cancellation record for
+  the first album, checks the second count never started, and rejects published
+  count values. A defer requests cleanup even if setup/assertions fail.
+- The complete affected controller suite passes on iPhone 17 Pro Max and iPad
+  (A16), iOS 27.0: 23 tests per destination, 46 executions, zero failures,
+  skips, or result-summary runtime warnings. App and test builds pass. The
+  initial fixture initializer compile error was corrected before these runs.
+  The restored final cancellation test also passes 20 repetitions on each
+  family (40 executions, zero failures or skips).
+- Expected diagnostics: Apple's existing StoreKitTest deprecation warning and
+  Xcode's post-test internal `simctl` diagnostic-collector lookup warning.
+  The initial sandbox-only destination lookup could not reach CoreSimulator;
+  approved access discovered both families and ran the tests successfully.
+- Commands ran from `/private/tmp/framewink-album-count-fix`:
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+xcodebuild -showdestinations -project FrameWink.xcodeproj -scheme FrameWink
+common=(
+  -quiet -project FrameWink.xcodeproj -scheme FrameWink
+  -derivedDataPath /private/tmp/FrameWink-AlbumCount-Tests
+)
+iphone=(-destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE')
+ipad=(-destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F')
+check=(-only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testSelectingAlbumCancelsRemainingEligiblePhotoCounts)
+
+# Original main before changes: 10 passing repetitions.
+xcodebuild "${common[@]}" "${iphone[@]}" "${check[@]}" -test-iterations 10 \
+  -resultBundlePath /private/tmp/FrameWink-AlbumCount-Baseline.xcresult test
+# Final source: full affected suite on both device families.
+xcodebuild "${common[@]}" "${iphone[@]}" "${ipad[@]}" \
+  -only-testing:FrameWinkTests/AutomaticAlbumControllerTests \
+  -parallel-testing-enabled NO \
+  -resultBundlePath /private/tmp/FrameWink-AlbumCount-Fixed2.xcresult test
+# Temporary mock cleanup delay: old wait fails, corrected wait passes.
+xcodebuild "${common[@]}" "${iphone[@]}" "${check[@]}" \
+  -resultBundlePath /private/tmp/FrameWink-AlbumCount-Delayed-OldWait.xcresult test
+xcodebuild "${common[@]}" "${iphone[@]}" "${check[@]}" \
+  -resultBundlePath /private/tmp/FrameWink-AlbumCount-Delayed-NewWait.xcresult test
+# Final source restored, without the temporary delay.
+xcodebuild "${common[@]}" "${iphone[@]}" "${ipad[@]}" "${check[@]}" \
+  -test-iterations 20 \
+  -resultBundlePath /private/tmp/FrameWink-AlbumCount-Repeated.xcresult test
+git diff --check
+```
+
+- No production code, signing, workflow settings, or TestFlight distribution
+  changed. No additional physical test is required for this test-only fix.
+  Xcode Cloud confirmation remains pending.

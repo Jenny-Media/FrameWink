@@ -199,18 +199,21 @@ final class AutomaticAlbumControllerTests: XCTestCase {
             PhotoLibraryAlbum(id: "second", title: "Second", photoCount: nil),
         ]
         client.eligiblePhotoCountValues = ["first": 5, "second": 6]
-        client.eligiblePhotoCountDelayNanoseconds = 500_000_000
+        client.suspendEligiblePhotoCountsUntilCancelled = true
         let controller = makeController(client: client, store: ControllerAlbumStore())
+        defer { controller.cancelAlbumCountLoading() }
 
         controller.setEntitled(true)
         controller.requestAccessAndLoadAlbums()
         try await waitUntil { client.eligiblePhotoCountRequestIDs == ["first"] }
 
         controller.selectAlbum(client.albumsValue[0])
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await waitUntil { client.activeEligiblePhotoCountRequests == 0 }
 
+        XCTAssertEqual(client.cancelledEligiblePhotoCountRequestIDs, ["first"])
         XCTAssertEqual(client.eligiblePhotoCountRequestIDs, ["first"])
         XCTAssertEqual(client.activeEligiblePhotoCountRequests, 0)
+        XCTAssertEqual(controller.albums.map(\.photoCount), [nil, nil])
     }
 
     func testReopeningAlbumPickerKeepsCachedCatalogVisibleWhileRefreshing() async throws {
@@ -646,7 +649,9 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
     var albumsDelayNanoseconds: UInt64 = 0
     var eligiblePhotoCountValues: [String: Int] = [:]
     var eligiblePhotoCountDelayNanoseconds: UInt64 = 0
+    var suspendEligiblePhotoCountsUntilCancelled = false
     var eligiblePhotoCountRequestIDs: [String] = []
+    var cancelledEligiblePhotoCountRequestIDs: [String] = []
     var activeEligiblePhotoCountRequests = 0
     var maximumConcurrentEligiblePhotoCountRequests = 0
     private var changeContinuation: AsyncStream<Void>.Continuation?
@@ -680,8 +685,21 @@ private final class ControllerPhotoLibraryClient: PhotoLibraryClient {
             activeEligiblePhotoCountRequests
         )
         defer { activeEligiblePhotoCountRequests -= 1 }
-        if eligiblePhotoCountDelayNanoseconds > 0 {
-            try await Task.sleep(nanoseconds: eligiblePhotoCountDelayNanoseconds)
+        do {
+            if suspendEligiblePhotoCountsUntilCancelled {
+                // No count can finish naturally before the test selects an album.
+                // Cancellation ends AsyncStream iteration; cleanup still needs
+                // an executor turn, so the test waits for the active count to drain.
+                let pendingCount = AsyncStream<Void>(Void.self) { _ in }
+                for await _ in pendingCount {}
+                try Task.checkCancellation()
+            }
+            if eligiblePhotoCountDelayNanoseconds > 0 {
+                try await Task.sleep(nanoseconds: eligiblePhotoCountDelayNanoseconds)
+            }
+        } catch is CancellationError {
+            cancelledEligiblePhotoCountRequestIDs.append(album.id)
+            throw CancellationError()
         }
         return eligiblePhotoCountValues[album.id] ?? album.photoCount
     }
