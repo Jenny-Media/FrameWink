@@ -262,6 +262,8 @@ extension DebugScreenshotScenario {
 final class DebugScreenshotPurchaseClient: PurchaseClient {
     private let isEntitled: Bool
     private let productUnavailable: Bool
+    private var didRestore = false
+    private let restoreTestResult = ProcessInfo.processInfo.environment["FRAMEWINK_TEST_RESTORE_RESULT"]
 
     init(isEntitled: Bool, productUnavailable: Bool = false) {
         self.isEntitled = isEntitled
@@ -282,7 +284,15 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
     }
 
     func currentEntitlement() async throws -> PurchaseEntitlementEvent {
-        isEntitled ? .purchased : .notPurchased
+        if didRestore {
+            switch restoreTestResult {
+            case "purchased": return .purchased
+            case "unverified": return .unverified
+            case "revoked": return .revoked
+            default: break
+            }
+        }
+        return isEntitled ? .purchased : .notPurchased
     }
 
     func purchase() async throws -> PurchaseClientResult {
@@ -292,7 +302,15 @@ final class DebugScreenshotPurchaseClient: PurchaseClient {
         return .success
     }
 
-    func restore() async throws {}
+    func restore() async throws {
+        if restoreTestResult != nil {
+            try await Task.sleep(nanoseconds: 1_000_000_000)
+        }
+        if restoreTestResult == "error" {
+            throw PurchaseClientError.productUnavailable
+        }
+        didRestore = true
+    }
 
     func transactionUpdates() -> AsyncStream<PurchaseEntitlementEvent> {
         AsyncStream { continuation in

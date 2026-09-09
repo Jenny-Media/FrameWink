@@ -390,6 +390,62 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         }
     }
 
+    func testFreeFrameDurationSurvivesClosingAndReopeningControls() {
+        assertDurationSurvivesReopening(scenario: "personal-reel")
+    }
+
+    func testPaidFrameDurationSurvivesClosingAndReopeningControls() {
+        assertDurationSurvivesReopening(scenario: "source-integrity")
+    }
+
+    func testPaidFrameAdvancesUsingTheFirstSelectedDuration() {
+        launch(scenario: "source-integrity")
+        let start = app.buttons["Start Frame"]
+        XCTAssertTrue(start.waitForExistence(timeout: 8))
+        start.tap()
+        app.buttons["More playback options"].tap()
+        let picker = app.segmentedControls["frame-duration-picker"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 3))
+        picker.buttons["10s"].tap()
+        app.buttons["close-frame-controls"].tap()
+
+        let photos = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'frame-photo-actions-'")
+        )
+        XCTAssertTrue(photos.firstMatch.waitForExistence(timeout: 3))
+        let firstPhoto = photos.firstMatch.identifier
+        XCTAssertFalse(waitUntil(timeout: 3) {
+            photos.firstMatch.exists && photos.firstMatch.identifier != firstPhoto
+        }, "Selecting 10 seconds must not advance immediately.")
+        XCTAssertTrue(waitUntil(timeout: 11) {
+            photos.firstMatch.exists && photos.firstMatch.identifier != firstPhoto
+        }, "Playback must actually use 10 seconds after the first selection.")
+    }
+
+    private func assertDurationSurvivesReopening(scenario: String) {
+        launch(scenario: scenario)
+        let start = app.buttons["Start Frame"]
+        XCTAssertTrue(start.waitForExistence(timeout: 8))
+        start.tap()
+        for label in ["10s", "5m", "1m"] {
+            let options = app.buttons["More playback options"]
+            if !options.isHittable { app.tap() }
+            XCTAssertTrue(options.waitForExistence(timeout: 3))
+            options.tap()
+            let picker = app.segmentedControls["frame-duration-picker"]
+            XCTAssertTrue(picker.waitForExistence(timeout: 3))
+            picker.buttons[label].tap()
+            let close = app.buttons["close-frame-controls"]
+            if close.exists { close.tap() }
+            XCTAssertTrue(options.waitForExistence(timeout: 3))
+            options.tap()
+            XCTAssertTrue(picker.waitForExistence(timeout: 3))
+            XCTAssertTrue(picker.buttons[label].isSelected,
+                          "The first selection of \(label) must survive reopening.")
+            app.buttons["close-frame-controls"].tap()
+        }
+    }
+
     func testSampleCaptionStaysAboveTheCompactSetupCard() {
         launch(scenario: "sample")
 
@@ -808,6 +864,48 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(unavailableStatus.waitForExistence(timeout: 4))
     }
 
+    func testRestorePurchasesShowsSuccessAfterUnlocking() {
+        assertRestoreResult("purchased", title: "Purchases Restored",
+                            message: "FrameWink Lifetime is unlocked on this device.")
+        app.alerts.buttons["OK"].tap()
+        XCTAssertTrue(app.staticTexts["FrameWink Lifetime is unlocked"].exists)
+    }
+
+    func testRestorePurchasesShowsNoPurchaseAndCanBeRepeated() {
+        assertRestoreResult("none", title: "No Purchase Found", message: "No previous FrameWink Lifetime purchase")
+        app.alerts.buttons["OK"].tap()
+        app.buttons["restore-framewink-purchases"].tap()
+        XCTAssertTrue(app.alerts["No Purchase Found"].waitForExistence(timeout: 5))
+    }
+
+    func testRestorePurchasesShowsVerificationFailure() {
+        assertRestoreResult("unverified", title: "Unable to Restore Purchases", message: "could not be verified")
+    }
+
+    func testRestorePurchasesShowsRevokedPurchase() {
+        assertRestoreResult("revoked", title: "Purchase No Longer Available", message: "refunded or is no longer available")
+    }
+
+    func testRestorePurchasesShowsStoreFailure() {
+        assertRestoreResult("error", title: "Unable to Restore Purchases", message: "temporarily unavailable")
+    }
+
+    private func assertRestoreResult(_ result: String, title: String, message: String) {
+        app = XCUIApplication()
+        app.launchEnvironment["FRAMEWINK_SCREENSHOT_SCENARIO"] = "paywall"
+        app.launchEnvironment["FRAMEWINK_TEST_RESTORE_RESULT"] = result
+        app.launch()
+        let restore = app.buttons["restore-framewink-purchases"]
+        XCTAssertTrue(restore.waitForExistence(timeout: 8))
+        restore.tap()
+        let alert = app.alerts[title]
+        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+        XCTAssertTrue(alert.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", message)
+        ).firstMatch.exists)
+        XCTAssertTrue(alert.buttons["OK"].isHittable)
+    }
+
     func testFrameSettingsKeepsOnlyDisplayGuidanceAndLocalDataControls() {
         launch(scenario: "wall-mode-setup")
 
@@ -836,6 +934,14 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
     private func waitForLandscape(timeout: TimeInterval = 8) -> Bool {
         waitForOrientation(timeout: timeout) { $0.width > $0.height }
+    }
+
+    private func waitUntil(timeout: TimeInterval, condition: @escaping () -> Bool) -> Bool {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in condition() },
+            object: nil
+        )
+        return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
     }
 
     private func waitForPortrait(timeout: TimeInterval = 8) -> Bool {

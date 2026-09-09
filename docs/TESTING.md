@@ -2629,3 +2629,84 @@ xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
   -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndo \
   -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape test
 ```
+
+## Restore feedback and duration retention (#2, #3) — 2026-09-09
+
+- Baseline: `5a1e56d` plus new reopen tests. Selecting `10s` once, closing
+  Frame Controls, and reopening fails in the paid saved-frame fixture on
+  both iPad (A16) and iPhone 17 Pro Max, iOS 27.0. The matching free-frame
+  cases pass. A temporary trace in the paid case records `select new=10,
+  playback=30, preferred=60` followed by `apply playback=10, preferred=60`.
+  The change callback discarded its new-value argument and read the previous
+  view's captured preference. All temporary trace logging was removed.
+- The fix consumes the callback's new interval, keeps layout updates separate
+  from timing, avoids resetting an unchanged interval, and removes the picker
+  selection cache. The visible selection now reflects actual playback state.
+- Restore now returns an explicit outcome and presents an alert from the
+  stable paywall container, even when a successful restore swaps out purchase
+  controls for the unlocked content. It distinguishes verified success, no
+  purchase, revoked purchase, and verification/store failures. In-flight
+  restore has its own progress label and disables both purchase actions.
+- All 44 selected checks pass on each device family (88 executions), with
+  zero failures, skips, or result-summary runtime warnings. This includes
+  35 controller tests and nine UI cases per device. Unit coverage includes
+  failure/retry and entitlement lookup failure; UI coverage includes all five
+  restore outcomes, repeat restore, free/paid reopen, rapid duration selection,
+  and source preservation. The separate actual-advancement check also passes on both families,
+  proving the first 10-second selection changes actual playback, with no
+  immediate advancement (90 passing executions in total).
+  Its first compile found a missing test wait helper; the helper was added
+  before rerunning. No application change was needed for that compile error.
+- Diagnostics: Apple's existing StoreKitTest header deprecation appears in
+  the initial baseline build. Xcode emits its debugger-version lookup notes;
+  these are not app runtime failures. App and test builds pass on both
+  families. StoreKit UI fixtures use the existing DEBUG-only purchase client;
+  no real transaction is made and no signing/product configuration is changed.
+- Remaining physical checks: repeat the owner's single-select/dismiss/reopen
+  sequence on the iPad, including outside-tap dismissal and resized windows;
+  use sandbox/TestFlight to confirm Apple's real restore/account flow. These
+  simulator checks do not establish production restore or iOS 15 acceptance.
+
+Commands run from the isolated `codex/fix-restore-and-duration` checkout
+(`/private/tmp/framewink-issues-2-3`):
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+xcrun simctl list devices booted
+common=(-quiet -project FrameWink.xcodeproj -scheme FrameWink
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F'
+  -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE'
+  -derivedDataPath /private/tmp/FrameWink-Issues23)
+reopen=(-only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFreeFrameDurationSurvivesClosingAndReopeningControls
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPaidFrameDurationSurvivesClosingAndReopeningControls)
+xcodebuild "${common[@]}" "${reopen[@]}" \
+  -resultBundlePath /private/tmp/FrameWink-Issues23-Baseline.xcresult test
+# Temporary duration logging only; one iPad destination for diagnosis.
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' \
+  -derivedDataPath /private/tmp/FrameWink-Issues23 \
+  -resultBundlePath /private/tmp/FrameWink-Issues23-Trace.xcresult \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPaidFrameDurationSurvivesClosingAndReopeningControls test
+xcrun simctl spawn B3A8D8D4-D576-4245-A0EC-ED914C0C744F \
+  log show --last 2m --style compact --predicate 'eventMessage CONTAINS "FW_DURATION"'
+xcodebuild "${common[@]}" "${reopen[@]}" \
+  -resultBundlePath /private/tmp/FrameWink-Issues23-Fixed.xcresult \
+  -only-testing:FrameWinkTests/PurchaseControllerTests \
+  -only-testing:FrameWinkTests/FrameSessionControllerTests \
+  -only-testing:FrameWinkTests/FrameConfigurationControllerTests \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFrameDurationRespondsToEverySingleTap \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testChangingPlaybackSettingsKeepsTheSelectedPhotoSource \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testRestorePurchasesShowsSuccessAfterUnlocking \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testRestorePurchasesShowsNoPurchaseAndCanBeRepeated \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testRestorePurchasesShowsVerificationFailure \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testRestorePurchasesShowsRevokedPurchase \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testRestorePurchasesShowsStoreFailure test
+xcodebuild "${common[@]}" \
+  -resultBundlePath /private/tmp/FrameWink-Issues23-Advancement2.xcresult \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPaidFrameAdvancesUsingTheFirstSelectedDuration test
+xcrun xcresulttool get test-results summary \
+  --path /private/tmp/FrameWink-Issues23-Fixed.xcresult --format json
+xcrun xcresulttool get test-results summary \
+  --path /private/tmp/FrameWink-Issues23-Advancement2.xcresult --format json
+git diff --check
+```

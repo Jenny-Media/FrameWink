@@ -4,6 +4,7 @@ struct WallModePaywallView: View {
     @ObservedObject var purchases: PurchaseController
     let initiallyShowsPurchaseControls: Bool
     @Environment(\.presentationMode) private var presentationMode
+    @State private var restoreResult: PurchaseRestoreResult?
 
     init(
         purchases: PurchaseController,
@@ -113,6 +114,13 @@ struct WallModePaywallView: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .alert(item: $restoreResult) { result in
+            Alert(
+                title: Text(result.title),
+                message: Text(result.message),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
 
     @ViewBuilder
@@ -132,13 +140,23 @@ struct WallModePaywallView: View {
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
             .accessibilityIdentifier("purchase-framewink-lifetime")
-            .disabled(purchases.actionState == .purchasing || purchases.isLoadingProduct)
+            .disabled(purchases.isPerformingPurchaseAction || purchases.isLoadingProduct)
 
-            Button("Restore Purchases") {
-                Task { await purchases.restore() }
+            Button {
+                Task { restoreResult = await purchases.restore() }
+            } label: {
+                if purchases.actionState == .restoring {
+                    HStack {
+                        ProgressView()
+                        Text("Restoring purchases…")
+                    }
+                } else {
+                    Text("Restore Purchases")
+                }
             }
             .buttonStyle(.bordered)
-            .disabled(purchases.actionState == .purchasing)
+            .accessibilityIdentifier("restore-framewink-purchases")
+            .disabled(purchases.isPerformingPurchaseAction)
 
             statusMessage
         }
@@ -159,11 +177,17 @@ struct WallModePaywallView: View {
         case .purchasing:
             Text("Contacting the App Store…")
                 .foregroundColor(.secondary)
+        case .restoring:
+            Text("Restoring purchases…")
+                .foregroundColor(.secondary)
         case .purchased, .restored:
             Label("FrameWink Lifetime unlocked", systemImage: "checkmark.circle.fill")
                 .foregroundColor(.green)
         case .nothingToRestore:
             Text("No previous purchase was found. Your free Smart Reel is unchanged.")
+                .foregroundColor(.secondary)
+        case .restoreRevoked:
+            Text(PurchaseRestoreResult.revoked.message)
                 .foregroundColor(.secondary)
         case .cancelled:
             Text("Purchase cancelled. Your free Smart Reel is unchanged.")
