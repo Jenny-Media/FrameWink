@@ -1683,6 +1683,33 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   physical iPhone checks, and TestFlight delivery remain separate follow-ups.
   Active integration and verification time was approximately 0.1 hours.
 
+### Xcode Cloud album-count cancellation test — 2026-09-09
+
+- Status: album-count test fix verified locally and in Xcode Cloud Build 24;
+  the second hosted UI-test synchronization fix passes all four cases on
+  iPhone SE, iPhone 17 Pro Max, and iPad (12 executions). Production
+  app behavior is unchanged. Final cloud status is tracked in PR #11.
+- Validation Build 23 at main `8b69555` passed Analyze but failed
+  `testSelectingAlbumCancelsRemainingEligiblePhotoCounts` because the test
+  assumed cancellation cleanup completed within a fixed 100 milliseconds.
+  The utility-priority task must resume on its executor to run its cleanup.
+- The test now suspends count work until cancellation, waits for the active
+  request to drain, verifies that the first request was cancelled, and retains
+  checks that the second request never starts and no count is published.
+- All 23 affected controller tests pass on each of iPhone 17 Pro Max and
+  iPad (A16) iOS 27.0 Simulators. A temporary 300-millisecond mock cleanup
+  delay reproduced the old assertion and passed with the corrected state wait.
+  The injected delay was removed from the final change. The final cancellation
+  test then passed 20 repetitions per family (40 executions, no failures).
+- Active diagnosis and verification time: approximately 0.2 hours. No new
+  physical-device acceptance is required for this test-only change; the
+  hosted Xcode Cloud run remains the infrastructure confirmation.
+- Build 24 passed the album-count regression and Analyze, but exposed a
+  separate iPhone SE landscape UI-test failure: querying `isHittable` on an
+  off-screen review button threw an invalid activation-point error. The helper
+  now scrolls using frame visibility first, then retains its tappability,
+  actual tap, Undo overlap, and Hidden from Frame navigation assertions.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight
