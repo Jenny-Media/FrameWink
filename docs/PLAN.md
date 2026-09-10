@@ -1710,6 +1710,33 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   now scrolls using frame visibility first, then retains its tappability,
   actual tap, Undo overlap, and Hidden from Frame navigation assertions.
 
+### Restore feedback and first-selection duration — 2026-09-09
+
+- Issues #2 and #3: implementation and focused iPhone/iPad verification
+  complete: all 44 selected checks pass per family (88 executions), with
+  no failures or skips. Actual photo advancement after the first 10-second
+  selection also passes on both families (90 total executions). The duration regression reproduces on both families before the
+  fix: the paid frame reopens with the old duration after one selection. The
+  free-frame reopen case passes on the baseline.
+- A temporary trace showed a 10-second selection immediately overwritten by
+  the captured 60-second preference. The SwiftUI change handler now consumes
+  its new-value argument directly. Layout changes no longer reapply timing,
+  unchanged timing does not reset the deadline, and the panel reads actual
+  playback state instead of an optimistic selection cache. Trace logging was
+  removed.
+- Restore has dedicated progress and an explicit result alert, including after
+  the paywall changes to its unlocked state. Verified success, no purchase,
+  revoked entitlement, and verification/store failures have distinct results.
+  An unverified result no longer loses its error to `nothingToRestore`.
+- New checks cover free/paid panel reopen, actual photo advancement, all five
+  restore alerts, repeat restore, verification/revocation, and retry after
+  failure. Existing purchase, session, saved-frame, rapid-tap, and source
+  retention coverage is included. Exact commands/results: `docs/TESTING.md`.
+- Active diagnosis/implementation estimate: 0.3 hours. Physical iPad validation
+  of the reported gesture sequence and real sandbox/App Store restore remain
+  required. No signing, product identifiers, Photos data, or release workflow
+  configuration changed.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

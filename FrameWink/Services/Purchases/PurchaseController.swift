@@ -26,6 +26,10 @@ final class PurchaseController: ObservableObject {
         entitlement.isUnlocked
     }
 
+    var isPerformingPurchaseAction: Bool {
+        actionState == .purchasing || actionState == .restoring
+    }
+
     func start() {
         guard startupTask == nil, updatesTask == nil else { return }
 
@@ -70,15 +74,31 @@ final class PurchaseController: ObservableObject {
         }
     }
 
-    func restore() async {
-        actionState = .purchasing
+    @discardableResult
+    func restore() async -> PurchaseRestoreResult {
+        actionState = .restoring
         do {
             try await client.restore()
             let refreshed = try await client.currentEntitlement()
             apply(refreshed)
-            actionState = refreshed == .purchased ? .restored : .nothingToRestore
+            switch refreshed {
+            case .purchased:
+                actionState = .restored
+                return .restored
+            case .notPurchased:
+                actionState = .nothingToRestore
+                return .nothingToRestore
+            case .revoked:
+                actionState = .restoreRevoked
+                return .revoked
+            case .unverified:
+                let message = PurchaseClientError.unverifiedTransaction.localizedDescription
+                actionState = .failed(message)
+                return .failed(message)
+            }
         } catch {
             actionState = .failed(error.localizedDescription)
+            return .failed(error.localizedDescription)
         }
     }
 

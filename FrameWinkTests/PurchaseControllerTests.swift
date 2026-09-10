@@ -67,9 +67,10 @@ final class PurchaseControllerTests: XCTestCase {
         await waitUntil { controller.entitlement == .free }
         client.entitlement = .purchased
 
-        await controller.restore()
+        let result = await controller.restore()
         await controller.restore()
 
+        XCTAssertEqual(result, .restored)
         XCTAssertEqual(client.restoreCount, 2)
         XCTAssertEqual(controller.entitlement, .purchased)
         XCTAssertEqual(controller.actionState, .restored)
@@ -81,10 +82,68 @@ final class PurchaseControllerTests: XCTestCase {
         controller.start()
         await waitUntil { controller.entitlement == .free }
 
-        await controller.restore()
+        let result = await controller.restore()
 
+        XCTAssertEqual(result, .nothingToRestore)
         XCTAssertEqual(controller.entitlement, .free)
         XCTAssertEqual(controller.actionState, .nothingToRestore)
+    }
+
+    func testUnverifiedRestoreReportsVerificationFailureInsteadOfNoPurchase() async {
+        let client = FakePurchaseClient()
+        client.entitlement = .unverified
+        let controller = PurchaseController(client: client)
+
+        let result = await controller.restore()
+
+        let message = PurchaseClientError.unverifiedTransaction.localizedDescription
+        XCTAssertEqual(result, .failed(message))
+        XCTAssertEqual(controller.actionState, .failed(message))
+        XCTAssertFalse(controller.isWallModeUnlocked)
+    }
+
+    func testRevokedRestoreExplainsThatThePurchaseIsNoLongerAvailable() async {
+        let client = FakePurchaseClient()
+        client.entitlement = .revoked
+        let controller = PurchaseController(client: client)
+
+        let result = await controller.restore()
+
+        XCTAssertEqual(result, .revoked)
+        XCTAssertEqual(controller.actionState, .restoreRevoked)
+        XCTAssertEqual(controller.entitlement, .revoked)
+        XCTAssertFalse(controller.isWallModeUnlocked)
+    }
+
+    func testRestoreSyncFailureCanBeRetriedSuccessfully() async {
+        let client = FakePurchaseClient()
+        client.restoreError = TestPurchaseError.expected
+        let controller = PurchaseController(client: client)
+        controller.start()
+        await waitUntil { controller.entitlement == .free }
+
+        let failure = await controller.restore()
+        XCTAssertEqual(failure, .failed(TestPurchaseError.expected.localizedDescription))
+        XCTAssertEqual(controller.entitlement, .free)
+        XCTAssertFalse(controller.isPerformingPurchaseAction)
+
+        client.restoreError = nil
+        client.entitlement = .purchased
+        let retry = await controller.restore()
+        XCTAssertEqual(retry, .restored)
+        XCTAssertTrue(controller.isWallModeUnlocked)
+    }
+
+    func testRestoreEntitlementLookupFailureReportsFailure() async {
+        let client = FakePurchaseClient()
+        client.entitlementError = TestPurchaseError.expected
+        let controller = PurchaseController(client: client)
+
+        let result = await controller.restore()
+
+        XCTAssertEqual(result, .failed(TestPurchaseError.expected.localizedDescription))
+        XCTAssertEqual(controller.actionState, .failed(TestPurchaseError.expected.localizedDescription))
+        XCTAssertFalse(controller.isWallModeUnlocked)
     }
 
     func testRevocationUpdateRemovesOnlyPaidEntitlement() async {
@@ -188,6 +247,7 @@ private final class FakePurchaseClient: PurchaseClient {
     var entitlementError: Error?
     var purchaseResult: PurchaseClientResult = .success
     var purchaseError: Error?
+    var restoreError: Error?
     private(set) var restoreCount = 0
     private(set) var updatesStreamCount = 0
     private(set) var loadProductCount = 0
@@ -211,6 +271,7 @@ private final class FakePurchaseClient: PurchaseClient {
 
     func restore() async throws {
         restoreCount += 1
+        if let restoreError { throw restoreError }
     }
 
     func transactionUpdates() -> AsyncStream<PurchaseEntitlementEvent> {

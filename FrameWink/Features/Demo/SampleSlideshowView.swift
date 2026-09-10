@@ -158,11 +158,13 @@ struct SampleSlideshowView: View {
                 guard active, let page = activePage(in: pages) else { return }
                 recordAutomaticAlbumPhotos(in: page, slidesByID: slidesByID)
             }
-            .onChange(of: preferredLayoutPreference) { _ in
-                applyPreferredPresentation()
+            .onChange(of: preferredLayoutPreference) { preference in
+                layoutPreference = preference
             }
-            .onChange(of: preferredInterval) { _ in
-                applyPreferredPresentation()
+            .onChange(of: preferredInterval) { interval in
+                // The captured view can still contain the previous preference.
+                // Apply the new value supplied by SwiftUI, not that older copy.
+                applyPreferredInterval(interval)
             }
             .onReceive(timer) { date in
                 refreshWallSchedule(date)
@@ -804,10 +806,13 @@ struct SampleSlideshowView: View {
 
     private func applyPreferredPresentation() {
         layoutPreference = preferredLayoutPreference
-        playback.setInterval(
-            FramePlaybackTiming.normalized(preferredInterval),
-            at: Date()
-        )
+        applyPreferredInterval(preferredInterval)
+    }
+
+    private func applyPreferredInterval(_ interval: TimeInterval) {
+        let normalizedInterval = FramePlaybackTiming.normalized(interval)
+        guard playback.interval != normalizedInterval else { return }
+        playback.setInterval(normalizedInterval, at: Date())
     }
 
     private func revealControls() {
@@ -892,16 +897,13 @@ struct SampleSlideshowView: View {
 private struct FrameControlsPanel: View {
     @Binding var interval: TimeInterval
     let dismiss: () -> Void
-    @State private var interactionInterval: TimeInterval?
 
     private var selection: Binding<TimeInterval> {
         Binding(
             get: {
-                interactionInterval
-                    ?? FramePlaybackTiming.normalized(interval)
+                FramePlaybackTiming.normalized(interval)
             },
             set: { candidate in
-                interactionInterval = candidate
                 interval = candidate
             }
         )
