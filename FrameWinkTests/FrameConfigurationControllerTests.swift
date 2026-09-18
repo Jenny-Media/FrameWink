@@ -141,4 +141,46 @@ final class FrameConfigurationControllerTests: XCTestCase {
         XCTAssertEqual(controller.activeConfiguration?.interval, 30)
         XCTAssertEqual(store.loadArchive().configurations, controller.configurations)
     }
+
+    func testPhotoDataResetRemovesPhotoSourceFramesAndKeepsSampleFrame() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("FrameWinkFrameResetTests-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = LocalFrameConfigurationStore(directory: root)
+        let controller = FrameConfigurationController(store: store)
+        controller.setEntitled(true)
+        controller.create(
+            name: "Family Album",
+            source: .automaticAlbum,
+            albumIdentifier: "family",
+            albumTitle: "Family",
+            layoutPreference: .automatic,
+            interval: 30
+        )
+        let albumID = try XCTUnwrap(controller.activeConfigurationID)
+        controller.create(
+            name: "Selected Photos",
+            source: .freeSmartReel,
+            layoutPreference: .automatic,
+            interval: 10
+        )
+        controller.create(
+            name: "Samples",
+            source: .samples,
+            layoutPreference: .automatic,
+            interval: 60
+        )
+
+        XCTAssertTrue(controller.removeDeletedPhotoSources(imported: true, automaticAlbum: false))
+        XCTAssertEqual(controller.configurations.map(\.source), [.automaticAlbum, .samples])
+        controller.activate(albumID)
+        XCTAssertTrue(controller.removeDeletedPhotoSources(imported: true, automaticAlbum: true))
+        XCTAssertEqual(controller.configurations.map(\.source), [.samples])
+        XCTAssertEqual(controller.activeConfiguration?.source, .samples)
+
+        let reopened = FrameConfigurationController(store: store)
+        reopened.setEntitled(true)
+        XCTAssertEqual(reopened.configurations.map(\.source), [.samples])
+        XCTAssertEqual(reopened.activeConfiguration?.source, .samples)
+    }
 }

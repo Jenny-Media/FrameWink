@@ -137,6 +137,36 @@ final class FrameConfigurationController: ObservableObject {
         persist()
     }
 
+    @discardableResult
+    func removeDeletedPhotoSources(imported: Bool, automaticAlbum: Bool) -> Bool {
+        guard imported || automaticAlbum else { return true }
+        let retained = configurations.filter { configuration in
+            switch configuration.source {
+            case .samples: return true
+            case .freeSmartReel: return !imported
+            case .automaticAlbum: return !automaticAlbum
+            }
+        }
+        let nextActiveID = retained.contains(where: { $0.id == activeConfigurationID })
+            ? activeConfigurationID
+            : retained.first?.id
+        do {
+            try store.saveArchive(
+                FrameConfigurationArchive(
+                    configurations: retained,
+                    activeConfigurationID: nextActiveID
+                )
+            )
+            configurations = retained
+            activeConfigurationID = nextActiveID
+            persistenceError = nil
+            return true
+        } catch {
+            persistenceError = error.localizedDescription
+            return false
+        }
+    }
+
     private func persist() {
         do {
             try store.saveArchive(

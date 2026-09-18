@@ -2466,15 +2466,6 @@ xcodebuild "${common[@]}" "${devices[@]}" "${layout_checks[@]}" \
 git diff --check
 ```
 
-- Remaining manual evidence: physical iPhone/iPad touch and VoiceOver checks,
-  an iPad resized-window check, and iOS/iPadOS 15 runtime compatibility. This
-  Simulator change does not establish real PhotoKit, purchase, thermal,
-  brightness, Guided Access, or long-running device behavior. Subsequent installation of this exact review-view change alongside the newer
-  photo chooser succeeded on the iPad Pro. The user confirmed the fix works
-  on 2026-09-09; see the installation commands in `docs/PLAN.md`. This does
-  not establish VoiceOver or resized-window acceptance. No TestFlight
-  distribution or App Store submission was performed.
-
 ## Combined photo-choice and Undo verification — 2026-09-09
 
 - Preserved the photo chooser installed on the iPad, integrated the four
@@ -2510,6 +2501,15 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet 
   test
 git diff --check
 ```
+
+- Remaining manual evidence: physical iPhone/iPad touch and VoiceOver checks,
+  an iPad resized-window check, and iOS/iPadOS 15 runtime compatibility. This
+  Simulator change does not establish real PhotoKit, purchase, thermal,
+  brightness, Guided Access, or long-running device behavior. Subsequent installation of this exact review-view change alongside the newer
+  photo chooser succeeded on the iPad Pro. The user confirmed the fix works
+  on 2026-09-09; see the installation commands in `docs/PLAN.md`. This does
+  not establish VoiceOver or resized-window acceptance. No TestFlight
+  distribution or App Store submission was performed.
 
 ## Xcode Cloud album-count cancellation test — 2026-09-09
 
@@ -2708,5 +2708,406 @@ xcrun xcresulttool get test-results summary \
   --path /private/tmp/FrameWink-Issues23-Fixed.xcresult --format json
 xcrun xcresulttool get test-results summary \
   --path /private/tmp/FrameWink-Issues23-Advancement2.xcresult --format json
+git diff --check
+```
+
+## Photo storage and responsive deletion — 2026-09-17
+
+- Source review found that automatic albums persisted a display-sized JPEG for
+  every eligible candidate without a byte budget. Picker imports were limited
+  to 500, but both complete deletion actions removed directories synchronously
+  from the main actor. No measurement of the owner's 8 GB iPhone container was
+  available in this pass.
+- The new storage view measures app-controlled imported copies and analysis,
+  automatic-album downloads and analysis, and picker working files off the main
+  thread. A 512 MiB automatic-album image working-set target triggers
+  checkpoint curation and prunes images outside the active reel while retaining
+  candidate metadata and reusable signals. An evicted image can be restored
+  from PhotoKit. The budget is a target, since a batch or active reel can exceed
+  it temporarily. New album downloads stop below 512 MiB of free device space.
+  Abandoned picker staging and partial imports older than one day are removed
+  on launch. Both full-data deletion actions await active work, delete files
+  away from the main thread, and show progress.
+- The final affected set passed 58 tests with zero failures, skips, or result
+  runtime warnings on each of iPhone 17 Pro Max and iPad (A16), iOS 27.0
+  Simulators. The set includes storage measurement and old-file cleanup,
+  selected-image preservation and candidate-metadata retention, low-storage
+  album interruption, the album controller's 150-candidate/100-selection quota
+  checkpoint, saved-reel recovery when an image is missing, off-main imported
+  and album deletion, existing import recovery,
+  and the existing imported-photo deletion UI flow. The generic iOS Simulator
+  app build also passed. The initial test-target build emitted Apple's existing
+  StoreKitTest deprecation; final incremental test runs logged only Xcode's
+  debugger-version lookup notice.
+- Still required on physical devices: measure the owner's pre/post-cleanup
+  storage by category, verify app responsiveness while deleting a large real
+  import, test a several-thousand-photo album and iCloud refetch after pruning,
+  and check offline behavior when an evicted image is selected. Simulator
+  results do not establish those PhotoKit, storage, or device-timing outcomes.
+
+Commands run from `/Users/yihong/work/FrameWink` with
+`/private/tmp/FrameWink-Storage-DerivedData`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/FrameWink-Storage-DerivedData CODE_SIGNING_ALLOWED=NO build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-Storage-DerivedData -resultBundlePath /private/tmp/FrameWink-Storage-iPhone-FinalCurrent.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/AlbumSyncServiceTests -only-testing:FrameWinkTests/AppModelRecoveryTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkTests/PhotoImportServiceTests -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples test-without-building
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Storage-DerivedData -resultBundlePath /private/tmp/FrameWink-Storage-iPad-Final.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/AlbumSyncServiceTests -only-testing:FrameWinkTests/AppModelRecoveryTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkTests/PhotoImportServiceTests -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Storage-iPhone-FinalCurrent.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Storage-iPad-Final.xcresult
+git diff --check
+```
+
+## Unified photo storage controls — 2026-09-17
+
+- `Privacy & Data` now has one destructive `Delete All FrameWink Photos…`
+  action. Its confirmation names the lost current selections and reels, chosen
+  album, saved frames that use those photo sources, analysis, and Never Show
+  Again choices, and states that Apple Photos is unchanged. Sample-only saved
+  frames remain. A separate `Free Up Unused Space` action removes abandoned
+  picker working files and unused automatic-album copies while retaining the
+  current selections and album; automatic pruning also continues.
+- The final affected set passed **64 of 64 tests on each** iPhone 17 Pro Max and
+  iPad (A16), iOS 27.0 Simulators, with zero failures, skips, or result runtime
+  warnings. The set includes the deletion warning and return to samples,
+  off-main deletion, full picker-working-file removal, the album cache budget,
+  and persistence of saved-frame cleanup. The generic iOS Simulator app build
+  passed. Xcode logged only debugger-version lookup notices during final runs.
+- An earlier iPad run failed because an XCUI exact-string lookup exceeded its
+  128-character query limit. The test now queries a short warning phrase and
+  separately checks the Apple Photos sentence; both final device-family runs
+  pass. The failure was in the test query, not app behavior.
+- Still required on physical devices: inspect the warning with touch and
+  VoiceOver, confirm immediate safe cleanup and full reset with real imported
+  and automatic-album data, and measure actual space recovered. No signed
+  physical-device install or App Store distribution happened in this pass.
+
+Final commands from `/Users/yihong/work/FrameWink`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -showdestinations
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/FrameWink-Storage-DerivedData CODE_SIGNING_ALLOWED=NO build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Storage-DerivedData -resultBundlePath /private/tmp/FrameWink-Storage-UX-iPad-Complete.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/AlbumSyncServiceTests -only-testing:FrameWinkTests/AppModelRecoveryTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkTests/PhotoImportServiceTests -only-testing:FrameWinkTests/FrameConfigurationControllerTests -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-Storage-DerivedData -resultBundlePath /private/tmp/FrameWink-Storage-UX-iPhone-Complete.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/AlbumSyncServiceTests -only-testing:FrameWinkTests/AppModelRecoveryTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkTests/PhotoImportServiceTests -only-testing:FrameWinkTests/FrameConfigurationControllerTests -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples test-without-building
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Storage-UX-iPad-Complete.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Storage-UX-iPhone-Complete.xcresult
+git diff --check
+```
+
+## Paired iPhone installation — 2026-09-17
+
+- `devicectl` found the paired physical iPhone 17 Pro Max at
+  `00008150-00080C3C3C07801C`. Before installation, its development copy of
+  `media.jenny.FrameWink` was version 1.0.1 (26).
+- A Debug build for that device succeeded using existing automatic signing and
+  the command-line-only `CURRENT_PROJECT_VERSION=28` override. The built app
+  reports `media.jenny.FrameWink` 1.0.1 (28). The signature verified outside
+  the sandbox and its provisioning profile expires 2027-08-13.
+- `devicectl` installed the app over the existing bundle without uninstalling
+  it, then launched it. An independent installed-app query reported 1.0.1 (28)
+  and a process query found FrameWink running on the device. No photo-data
+  cleanup action was performed. Existing photo selections, real storage sizes,
+  touch/VoiceOver behavior, and saved-space outcomes remain manual checks.
+- This is a development-signed install. It does not validate the production
+  Lifetime in-app purchase or constitute a TestFlight/App Store release.
+
+Commands run from `/Users/yihong/work/FrameWink`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl list devices
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008150-00080C3C3C07801C --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008150-00080C3C3C07801C' -derivedDataPath /private/tmp/FrameWink-Storage-Physical-iPhone-28 CURRENT_PROJECT_VERSION=28 build
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-Storage-Physical-iPhone-28/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008150-00080C3C3C07801C /private/tmp/FrameWink-Storage-Physical-iPhone-28/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008150-00080C3C3C07801C --bundle-id media.jenny.FrameWink --columns '*' --include-container-paths
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008150-00080C3C3C07801C --terminate-existing media.jenny.FrameWink
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info processes --device 00008150-00080C3C3C07801C --search FrameWink
+git diff --check
+```
+
+## Paired iPad installation — 2026-09-17
+
+- `devicectl` found the paired physical iPad Pro at
+  `00008027-000C25D036EB002E`. Before installation, its development copy of
+  `media.jenny.FrameWink` was version 1.0.1 (1).
+- A Debug build for that device succeeded using existing automatic signing and
+  the command-line-only `CURRENT_PROJECT_VERSION=28` override. The built app
+  reports `media.jenny.FrameWink` 1.0.1 (28), passed signature verification,
+  and has a provisioning profile expiring 2027-08-13.
+- `devicectl` installed the update over the existing app without uninstalling
+  it. A separate installed-app query reported 1.0.1 (28); launch succeeded and
+  a process query found FrameWink running. No photo-data cleanup action was
+  performed. Stored photo selections and real storage savings have not yet
+  been checked on the device. This development install does not validate the
+  production Lifetime purchase path or a TestFlight/App Store release.
+
+Commands run from `/Users/yihong/work/FrameWink`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl list devices
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008027-000C25D036EB002E --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008027-000C25D036EB002E' -derivedDataPath /private/tmp/FrameWink-Storage-Physical-iPad-28 CURRENT_PROJECT_VERSION=28 build
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-Storage-Physical-iPad-28/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008027-000C25D036EB002E /private/tmp/FrameWink-Storage-Physical-iPad-28/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008027-000C25D036EB002E --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008027-000C25D036EB002E --terminate-existing media.jenny.FrameWink
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info processes --device 00008027-000C25D036EB002E --search FrameWink
+git diff --check
+```
+
+## Storage action progress — 2026-09-17
+
+- Code review confirms automatic maintenance removes only abandoned picker
+  staging and partial imported files older than 24 hours on launch, plus
+  downloaded automatic-album JPEGs outside the active reel after the image
+  cache exceeds its soft 512 MiB target. Switching albums removes old JPEGs for
+  assets absent from the new album during sync commits. Safe manual cleanup
+  forces the unused-album-JPEG pruning even below the target. Picker imports,
+  the active reel, and Apple Photos originals are not automatically deleted.
+- `Privacy & Data` now shows a distinct labeled indeterminate linear progress
+  bar for safe cleanup and full deletion. Each remains for at least two seconds
+  and until the underlying work and storage refresh finish. The screen reports
+  the new storage size at completion; no unsupported percentage is shown.
+- Final focused UI results: 2 passed, 0 failed/skipped, and no result runtime
+  warnings on each iPhone 17 Pro Max and iPad (A16), iOS 27.0 Simulators. The
+  deletion test confirms its bar and return to samples; the safe cleanup test
+  confirms its bar, result, and retained personal selection. An initial iPad
+  run failed to observe a one-second transient indicator; the two-second
+  version passed on both families. Xcode logged non-failing debugger-version
+  lookup notices. Physical visual timing remains to be checked.
+
+Commands run from `/Users/yihong/work/FrameWink`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -showdestinations
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Storage-DerivedData -resultBundlePath /private/tmp/FrameWink-Storage-Progress-iPad-2.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-Storage-DerivedData -resultBundlePath /private/tmp/FrameWink-Storage-Progress-iPhone-2.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Storage-Progress-iPad-2.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Storage-Progress-iPhone-2.xcresult
+git diff --check
+```
+
+## Storage progress builds on paired devices — 2026-09-17
+
+- Existing automatically signed Debug builds for iPhone 17 Pro Max and iPad Pro
+  succeeded with the command-line-only `CURRENT_PROJECT_VERSION=29` override.
+  Both artifacts report bundle ID `media.jenny.FrameWink`, build 29, and passed
+  signature verification. Project signing and version files were unchanged.
+- The iPhone install over build 28 succeeded; an independent installed-app
+  query showed 1.0.1 (29). Launch succeeded and a process query found the new
+  app running.
+- The first iPad install attempt ended with CoreDevice 3002 / IXRemote 6 when
+  the device connection closed. A read-only installed-app query showed build 28
+  still present. A retry installed build 29 successfully, and a later query
+  independently confirmed 1.0.1 (29). Launch was denied by SpringBoard because
+  the iPad was locked. A follow-up process query lost the device connection;
+  iPad launch and progress-bar appearance remain physical checks.
+- Neither device was uninstalled, and no manual cleanup or full deletion was
+  triggered. These development installs do not validate production purchases,
+  actual storage savings, or TestFlight/App Store readiness.
+
+Commands run from `/Users/yihong/work/FrameWink`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008150-00080C3C3C07801C' -derivedDataPath /private/tmp/FrameWink-Storage-Physical-iPhone-29 CURRENT_PROJECT_VERSION=29 build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008027-000C25D036EB002E' -derivedDataPath /private/tmp/FrameWink-Storage-Physical-iPad-29 CURRENT_PROJECT_VERSION=29 build
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-Storage-Physical-iPhone-29/Build/Products/Debug-iphoneos/FrameWink.app
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-Storage-Physical-iPad-29/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008150-00080C3C3C07801C /private/tmp/FrameWink-Storage-Physical-iPhone-29/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008027-000C25D036EB002E /private/tmp/FrameWink-Storage-Physical-iPad-29/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008027-000C25D036EB002E --timeout 180 /private/tmp/FrameWink-Storage-Physical-iPad-29/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008150-00080C3C3C07801C --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008027-000C25D036EB002E --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008150-00080C3C3C07801C --terminate-existing media.jenny.FrameWink
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008027-000C25D036EB002E --terminate-existing media.jenny.FrameWink
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info processes --device 00008150-00080C3C3C07801C --search FrameWink
+git diff --check
+```
+
+## Recent automatic-album cache — 2026-09-17
+
+- The new store tests cover retention of three selected albums, reuse of a
+  shared image, eviction on a fourth album, oldest-first budget pruning,
+  explicit cleanup, single-album cache migration, and saved-reel album identity.
+  The synchronizer test verifies switching back reuses downloads rather than
+  exporting them again. Final controller tests verify a canceled sync finishes
+  before the next album sync starts and that the old album review list clears.
+- The affected set passed **47/47** on iPhone 17 Pro Max and **47/47** on iPad
+  (A16), iOS 27.0 Simulators. After the last controller changes,
+  controller tests passed **27/27** on each family. Final result bundles show
+  no failures, skips, or runtime warnings. The generic Simulator app build and
+  both signed physical-device builds passed. One earlier iPhone controller
+  wait timed out once; it passed on immediate rerun and in the final set.
+  Initial test-target compilation emitted an Apple StoreKitTest deprecation;
+  Xcode also logged non-failing debugger-version lookup notices.
+- Signed development build 1.0.1 (31) installed over the earlier development
+  builds on the paired iPhone and iPad without uninstalling or triggering
+  cleanup. Signature checks passed; separate app queries confirmed build 31
+  on both. The first final iPad query returned no app row; the retry succeeded.
+  Launch on both devices was denied because they were locked. Real PhotoKit
+  switching, iCloud refetch, measured storage
+  recovery, and visual confirmation remain unverified. This is not a
+  TestFlight or App Store release.
+
+Commands run from `/Users/yihong/work/FrameWink`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -showdestinations
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun simctl list devices available
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-DerivedData CODE_SIGNING_ALLOWED=NO build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-DerivedData -resultBundlePath /private/tmp/FrameWink-MultiAlbum-iPad-Final.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/AlbumSyncServiceTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-DerivedData -resultBundlePath /private/tmp/FrameWink-MultiAlbum-iPhone-Final.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/AlbumSyncServiceTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-DerivedData -resultBundlePath /private/tmp/FrameWink-MultiAlbum-iPhone-Serialization.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-DerivedData -resultBundlePath /private/tmp/FrameWink-MultiAlbum-iPad-Serialization.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008150-00080C3C3C07801C' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-Physical-iPhone-30 CURRENT_PROJECT_VERSION=30 build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008027-000C25D036EB002E' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-Physical-iPad-30 CURRENT_PROJECT_VERSION=30 build
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-MultiAlbum-Physical-iPhone-30/Build/Products/Debug-iphoneos/FrameWink.app
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-MultiAlbum-Physical-iPad-30/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008150-00080C3C3C07801C /private/tmp/FrameWink-MultiAlbum-Physical-iPhone-30/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008027-000C25D036EB002E --timeout 180 /private/tmp/FrameWink-MultiAlbum-Physical-iPad-30/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008150-00080C3C3C07801C --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008027-000C25D036EB002E --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008150-00080C3C3C07801C --terminate-existing media.jenny.FrameWink
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008027-000C25D036EB002E --terminate-existing media.jenny.FrameWink
+git diff --check
+```
+
+Final review-list fix, rebuild, and data-preserving install:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-DerivedData -resultBundlePath /private/tmp/FrameWink-MultiAlbum-iPhone-Review.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-DerivedData -resultBundlePath /private/tmp/FrameWink-MultiAlbum-iPad-Review.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test-without-building
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008150-00080C3C3C07801C' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-Physical-iPhone-31 CURRENT_PROJECT_VERSION=31 build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008027-000C25D036EB002E' -derivedDataPath /private/tmp/FrameWink-MultiAlbum-Physical-iPad-31 CURRENT_PROJECT_VERSION=31 build
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-MultiAlbum-Physical-iPhone-31/Build/Products/Debug-iphoneos/FrameWink.app
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-MultiAlbum-Physical-iPad-31/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008150-00080C3C3C07801C /private/tmp/FrameWink-MultiAlbum-Physical-iPhone-31/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008027-000C25D036EB002E --timeout 180 /private/tmp/FrameWink-MultiAlbum-Physical-iPad-31/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008150-00080C3C3C07801C --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008027-000C25D036EB002E --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008150-00080C3C3C07801C --terminate-existing media.jenny.FrameWink
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008027-000C25D036EB002E --terminate-existing media.jenny.FrameWink
+git diff --check
+```
+
+## Adaptive album download target — 2026-09-18
+
+- Shared album images use a 1 GiB soft target when free space plus cached
+  album images is at least 3 GiB, and a 512 MiB target below that headroom.
+  The current reel remains protected, downloads still stop below 512 MiB of
+  free device space, and manual cleanup still forces unused downloads out.
+- The affected set passed **54/54 tests on each** iPhone 17 Pro Max and iPad
+  (A16), iOS 27.0 Simulators, with no failures, skips, or result runtime
+  warnings. New tests cover the exact tier boundary, stable tier selection
+  as cache bytes change, pruning a 600 MiB cache in constrained headroom, and
+  retaining it with ample headroom. The generic Simulator app build passed.
+  The initial test-target compilation emitted Apple's StoreKitTest
+  `SKPaymentTransactionState` deprecation; Xcode also logged non-failing
+  debugger-version lookup notices.
+- Signed development build 1.0.1 (32) passed signature verification and was
+  installed over build 31 on the paired iPhone and iPad without uninstalling
+  or running cleanup. The first iPad install lost its CoreDevice connection;
+  a query showed build 31 remained, and the retry succeeded. Independent
+  queries then confirmed build 32 on both devices. Both launch commands
+  succeeded, and process queries found FrameWink running on both. These
+  checks do not measure real album cache hits, storage savings, iCloud refetch,
+  or iOS 15 behavior, and do not establish TestFlight/App Store readiness.
+
+Commands run from `/Users/yihong/work/FrameWink`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -showdestinations
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun simctl list devices available
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/FrameWink-AdaptiveCache-DerivedData CODE_SIGNING_ALLOWED=NO build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-AdaptiveCache-DerivedData -resultBundlePath /private/tmp/FrameWink-AdaptiveCache-iPhone.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/AlbumSyncServiceTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-AdaptiveCache-DerivedData -resultBundlePath /private/tmp/FrameWink-AdaptiveCache-iPad.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/AlbumSyncServiceTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection test-without-building
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-AdaptiveCache-iPhone.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-AdaptiveCache-iPad.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008150-00080C3C3C07801C' -derivedDataPath /private/tmp/FrameWink-AdaptiveCache-Physical-iPhone-32 CURRENT_PROJECT_VERSION=32 build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS,id=00008027-000C25D036EB002E' -derivedDataPath /private/tmp/FrameWink-AdaptiveCache-Physical-iPad-32 CURRENT_PROJECT_VERSION=32 build
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-AdaptiveCache-Physical-iPhone-32/Build/Products/Debug-iphoneos/FrameWink.app
+codesign --verify --deep --strict --verbose=2 /private/tmp/FrameWink-AdaptiveCache-Physical-iPad-32/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008150-00080C3C3C07801C /private/tmp/FrameWink-AdaptiveCache-Physical-iPhone-32/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app --device 00008027-000C25D036EB002E --timeout 180 /private/tmp/FrameWink-AdaptiveCache-Physical-iPad-32/Build/Products/Debug-iphoneos/FrameWink.app
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008150-00080C3C3C07801C --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info apps --device 00008027-000C25D036EB002E --bundle-id media.jenny.FrameWink --columns '*'
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008150-00080C3C3C07801C --terminate-existing media.jenny.FrameWink
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch --device 00008027-000C25D036EB002E --terminate-existing media.jenny.FrameWink
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info processes --device 00008150-00080C3C3C07801C --search FrameWink
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info processes --device 00008027-000C25D036EB002E --search FrameWink
+git diff --check
+```
+
+## Version 1.1 release preparation — 2026-09-18
+
+- The app's Release build reports `CFBundleShortVersionString` 1.1. The unsigned
+  generic iOS Release build, Release Analyze action, and archive release guard
+  passed. The guard retained the production bundle ID, team, iPhone/iPad-only
+  platform scope, iOS 15 minimum, privacy files, and lifetime product ID.
+- The website's nine source tests, ESLint, TypeScript, and production Next.js
+  build passed after its privacy and support pages were aligned with the 1.1
+  cleanup actions. An initial local Next build failed because a temporary
+  dependency symlink pointed outside Turbopack's project root; copying the
+  existing dependencies into this disposable worktree made the production
+  build pass. No dependency versions changed.
+- The complete shared scheme on iPhone 17 Pro Max, iOS 27.0 Simulator, passed
+  **229 tests, 5 expected skips, 0 failures**. Four skips require a physical
+  PhotoKit library; the fifth is an iPad-only website screenshot. The result
+  bundle records one UIKit hosting warning and three purchase-update warnings
+  from `StoreKitConfigurationTests`. Xcode's extra Simulator diagnostic
+  collection timed out after 600 seconds, but `xcodebuild` exited zero and the
+  final test summary reports `Passed`.
+- The complete shared scheme on iPad (A16), iOS 27.0 Simulator, passed
+  **230 tests, 4 expected skips, 0 failures**. All four skips require a
+  physical PhotoKit library. The same UIKit hosting and StoreKit test-harness
+  runtime warnings appear. Xcode again timed out after 600 seconds while
+  collecting extra Simulator diagnostics after testing; `xcodebuild` exited
+  zero and the final test summary reports `Passed`.
+- App Store Connect, inspected through Chrome, has a saved editable iOS 1.1
+  draft with a four-item What's New bullet list, updated App Review notes,
+  accurate cleanup description, manual release, and no build attached. The
+  privacy answer remains `Data Not Collected`, the production privacy URL is
+  `https://frame.jenny.media/privacy`, and FrameWink Lifetime remains an
+  approved non-consumable. Xcode Cloud shows 0 available minutes until its
+  September 18, 8:51 PM Eastern reset. No 1.1 archive, TestFlight install,
+  or review submission has occurred.
+
+Commands run from `/private/tmp/framewink-storage-pr`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -showdestinations
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer CI_XCODEBUILD_ACTION=archive ci_scripts/ci_pre_xcodebuild.sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-Release11-DerivedData CODE_SIGNING_ALLOWED=NO build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-Release11-DerivedData CODE_SIGNING_ALLOWED=NO analyze
+plutil -extract CFBundleShortVersionString raw -o - /private/tmp/FrameWink-Release11-DerivedData/Build/Products/Release-iphoneos/FrameWink.app/Info.plist
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-Release11-Tests -resultBundlePath /private/tmp/FrameWink-Release11-iPhone.xcresult CODE_SIGNING_ALLOWED=NO test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Release11-Tests -resultBundlePath /private/tmp/FrameWink-Release11-iPad.xcresult CODE_SIGNING_ALLOWED=NO test-without-building
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-iPhone.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-iPad.xcresult
+node --test website/tests/site.test.mjs
+npm --prefix website run lint
+npm --prefix website run build
+git diff --check
+```
+
+### Album temporary-file protection before merge — 2026-09-18
+
+- Metadata orphan cleanup previously treated an in-progress `.partial-` album
+  download as an unreferenced image. It now preserves partials while a sync or
+  image restore may be writing them. Startup and manual maintenance remove
+  album partials older than 24 hours. The tests confirm both preservation of
+  recent partials and removal of old partials while keeping cached photos.
+- `LocalAlbumSourceStoreTests` and `LocalStorageUsageTests` passed **13/13** on
+  iPhone 17 Pro Max and **13/13** on iPad (A16), iOS 27.0 Simulators. Both result
+  bundles report zero failures, skips, and runtime warnings. The iPad
+  `build-for-testing`, Release Analyze, and `git diff --check` also pass after
+  this change. The earlier full-scheme runs precede this focused fix.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-Release11-Tests -resultBundlePath /private/tmp/FrameWink-Release11-PartialRace-iPhone.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/LocalStorageUsageTests test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Release11-Tests -resultBundlePath /private/tmp/FrameWink-Release11-PartialRace-iPad.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/LocalStorageUsageTests test-without-building
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Release11-Tests CODE_SIGNING_ALLOWED=NO build-for-testing
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-Release11-DerivedData CODE_SIGNING_ALLOWED=NO analyze
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-PartialRace-iPhone.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-PartialRace-iPad.xcresult
 git diff --check
 ```

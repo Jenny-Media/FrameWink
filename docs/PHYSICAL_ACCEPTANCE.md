@@ -119,8 +119,10 @@ whether the test passes or fails.
 7. In Settings, deny Photos access. Return to FrameWink and confirm Sample Mode
    and any free imported reel still work. Restore Limited, then Full Access,
    confirming the automatic album recovers after each foreground return.
-8. Tap **Remove Downloaded Album Photos** and confirm the app-controlled copies
-   disappear while every Apple Photos original remains.
+8. Tap **Free Up Unused Space** and confirm unused album downloads disappear
+   while the selected photos, current reel, chosen album, and every Apple Photos
+   original remain. Separately verify the warning for **Delete All FrameWink
+   Photos** before testing that destructive reset with disposable app data.
 
 The permission alert, Limited selection sheet, iCloud residency changes, and
 Settings authorization controls are Apple-owned privacy surfaces. A tester must

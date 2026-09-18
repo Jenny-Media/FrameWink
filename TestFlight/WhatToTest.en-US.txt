@@ -10,6 +10,7 @@ Please test:
 - Change the active frame's source and timing; confirm the choices survive relaunch and automatic composition adapts to the window.
 - Watch several paired or multi-photo scenes and confirm FrameWink preserves the important parts of each photo instead of forcing an aggressive crop.
 - Review the collapsed Mounted Display Tips and the foreground-only night schedule wording in Frame Settings.
-- Delete Imported Photos and Remove Downloaded Album Photos; confirm the originals remain in Apple Photos.
+- Open Privacy & Data and check the app photo-data size. Use Free Up Unused Space; confirm it keeps your selected photos, current reel, and chosen album while removing unused downloads. Switch among three albums and back to check cache reuse.
+- Use the clearly warned Delete All FrameWink Photos action. Confirm it clears the app's photo data and selection without changing originals in Apple Photos. Check that both storage actions show visible progress.
 
 Please report the device model, OS version, exact steps, and whether the app was foregrounded. Guided Access must be started manually, and FrameWink cannot guarantee relaunch after a restart.

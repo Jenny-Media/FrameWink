@@ -1,6 +1,6 @@
 # FrameWink Privacy Policy
 
-Effective: August 12, 2026
+Effective: September 18, 2026
 
 FrameWink is provided by Jenny Media LLC. FrameWink is designed to process
 photos locally on the device. The app has no Jenny Media LLC account or server
@@ -25,9 +25,11 @@ LLC.
 FrameWink stores display-sized copies, local curation records, and local
 display history in its private app container. Photo copies, automatic-album
 cache data, and derived curation data are excluded from device backup.
-`Delete Imported Photos` and `Delete Automatic Album Cache` remove the
-corresponding app-controlled copies and derived records without deleting or
-changing the originals in Apple Photos.
+`Free Up Unused Space` removes unused downloaded album copies and temporary
+working files while keeping the selected photos, current reel, and chosen
+album. `Delete All FrameWink Photos` removes app-controlled photo copies,
+selected photo and album choices, and related records after confirmation.
+Neither action deletes or changes originals in Apple Photos.
 
 ## Purchases and Family Sharing
 

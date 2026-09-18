@@ -59,6 +59,37 @@ final class AlbumSyncServiceTests: XCTestCase {
         XCTAssertEqual(client.requestedNetworkAccess, ["cloud": false, "local": false])
     }
 
+    func testSwitchBackReusesRecentAlbumDownloadsWithoutExportingAgain() async throws {
+        var configuration = AutomaticAlbumConfiguration.defaultConfiguration
+        configuration.albumIdentifier = "first"
+        try store.saveConfiguration(configuration)
+        client.fixtureAssets = [asset("shared"), asset("first-only")]
+        let first = try await service.synchronize(
+            albumIdentifier: "first", strictOffline: false, progress: { _ in }
+        )
+        XCTAssertEqual(first.importedCount, 2)
+        XCTAssertEqual(client.exportCount, 2)
+
+        configuration.albumIdentifier = "second"
+        try store.saveConfiguration(configuration)
+        client.fixtureAssets = [asset("shared"), asset("second-only")]
+        let second = try await service.synchronize(
+            albumIdentifier: "second", strictOffline: false, progress: { _ in }
+        )
+        XCTAssertEqual(second.importedCount, 1)
+        XCTAssertEqual(client.exportCount, 3)
+
+        configuration.albumIdentifier = "first"
+        try store.saveConfiguration(configuration)
+        client.fixtureAssets = [asset("shared"), asset("first-only")]
+        let again = try await service.synchronize(
+            albumIdentifier: "first", strictOffline: false, progress: { _ in }
+        )
+        XCTAssertEqual(again.importedCount, 0)
+        XCTAssertEqual(client.exportCount, 3)
+        XCTAssertEqual(Set(again.records.map(\.assetIdentifier)), ["shared", "first-only"])
+    }
+
     func testPhotoKitNetworkRequiredErrorIsClassifiedAsCloudOnlyOffline() {
         let networkRequired = NSError(
             domain: PHPhotosErrorDomain,
@@ -72,6 +103,28 @@ final class AlbumSyncServiceTests: XCTestCase {
         )
 
         XCTAssertEqual(failure as? PhotoLibraryClientError, .cloudAssetUnavailable)
+    }
+
+    func testLowStorageStopsAlbumDownloadBeforeWriting() async throws {
+        client.fixtureAssets = [asset("one")]
+        let lowStorageService = AlbumSyncService(
+            client: client,
+            store: store,
+            downsampler: ImageIODownsampler(),
+            availableStorageBytes: { 0 }
+        )
+
+        do {
+            _ = try await lowStorageService.synchronize(
+                albumIdentifier: "album",
+                strictOffline: false,
+                progress: { _ in }
+            )
+            XCTFail("Expected the album download to pause before storage exhaustion")
+        } catch AlbumSyncServiceError.insufficientStorage {
+            XCTAssertEqual(client.exportCount, 0)
+            XCTAssertTrue(try store.loadRecords().isEmpty)
+        }
     }
 
     func testPhotoKitNetworkErrorRemainsVisibleWhenDownloadsAreAllowed() {

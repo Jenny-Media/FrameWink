@@ -10,7 +10,7 @@ export default function PrivacyPage() {
   return (
     <main className="document-page" id="main-content" tabIndex={-1}>
       <header className="document-hero">
-        <p className="section-kicker">Effective August 12, 2026</p>
+        <p className="section-kicker">Effective September 18, 2026</p>
         <h1>Privacy Policy</h1>
         <p>FrameWink is provided by Jenny Media LLC and is designed to keep your photo experience on your device.</p>
       </header>
@@ -45,9 +45,10 @@ export default function PrivacyPage() {
             included in device backups.
           </p>
           <p>
-            <strong>Delete Imported Photos</strong> removes copies of photos you selected in the
-            free version. <strong>Delete Automatic Album Cache</strong> removes local copies from
-            the album you chose. Both also clear related app records without deleting or changing
+            <strong>Free Up Unused Space</strong> removes unused album downloads and temporary
+            files while keeping your selected photos, current reel, and chosen album.{" "}
+            <strong>Delete All FrameWink Photos</strong> removes the app’s photo copies,
+            selections, and related records after confirmation. Neither action deletes or changes
             originals in Apple Photos. Removing FrameWink from your device removes its local data.
           </p>
         </section>

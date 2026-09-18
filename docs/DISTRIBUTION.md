@@ -631,6 +631,28 @@ blocker affects only a later boundary.
   physical iPhone/iPad smoke checks on that TestFlight binary. App Store
   submission remains a separate owner-approved action.
 
+### B-028 — Version 1.1 release candidate
+
+- Status: In progress; App Store Connect metadata saved, no 1.1 build attached
+- First recorded: 2026-09-18
+- Scope: carry the unshipped 1.0.1 sample and framing improvements into 1.1,
+  then add clear storage controls, safe cleanup, a bounded recent-album cache,
+  and playback timing and restore-feedback fixes. The free/paid boundary,
+  supported platforms, lifetime price, and product identifier stay the same.
+- App Store Connect: the editable iOS version was changed from 1.0.1 to 1.1.
+  Its What's New is a four-item bullet list, reviewer notes describe the new
+  storage actions, the old 1.0.1 Build 19 was detached, and manual release
+  remains selected. No 1.1 build is available yet.
+- Local release input: the app marketing version and cloud archive guard are
+  1.1, and TestFlight instructions, public privacy, and support copy describe
+  the shipping cleanup controls. A local Release build, Analyze action, and
+  archive guard pass. The full Simulator scheme passed 229 tests with five
+  expected skips on iPhone and 230 tests with four expected skips on iPad,
+  with no test failures. Xcode
+  Cloud currently has zero minutes available until its September 18, 8:51 PM
+  Eastern renewal. The exact-source Xcode Cloud archive remains necessary
+  before attaching a build for review.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue

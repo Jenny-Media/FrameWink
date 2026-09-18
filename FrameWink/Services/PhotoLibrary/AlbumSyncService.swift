@@ -1,5 +1,13 @@
 import Foundation
 
+enum AlbumSyncServiceError: LocalizedError {
+    case insufficientStorage
+
+    var errorDescription: String? {
+        "FrameWink paused album preparation because this device is low on storage. Open Privacy & Data to free space, then try again."
+    }
+}
+
 protocol AlbumSynchronizing {
     func synchronize(
         albumIdentifier: String,
@@ -38,6 +46,7 @@ final class AlbumSyncService: AlbumSynchronizing {
     private let makeID: () -> UUID
     private let initialCheckpointCount: Int
     private let checkpointInterval: Int
+    private let availableStorageBytes: () -> Int64?
 
     init(
         client: PhotoLibraryClient,
@@ -46,7 +55,8 @@ final class AlbumSyncService: AlbumSynchronizing {
         now: @escaping () -> Date = Date.init,
         makeID: @escaping () -> UUID = UUID.init,
         initialCheckpointCount: Int = 10,
-        checkpointInterval: Int = 30
+        checkpointInterval: Int = 30,
+        availableStorageBytes: @escaping () -> Int64? = LocalStorageUsage.systemAvailableStorageBytes
     ) {
         self.client = client
         self.store = store
@@ -55,6 +65,7 @@ final class AlbumSyncService: AlbumSynchronizing {
         self.makeID = makeID
         self.initialCheckpointCount = max(initialCheckpointCount, 1)
         self.checkpointInterval = max(checkpointInterval, 1)
+        self.availableStorageBytes = availableStorageBytes
     }
 
     func synchronize(
@@ -69,17 +80,18 @@ final class AlbumSyncService: AlbumSynchronizing {
             assets,
             initialCount: initialCheckpointCount
         )
+        let reusableRecords = try store.loadReusableRecords()
+        let previousAlbumRecords = try store.loadRecords(for: albumIdentifier)
+        let validAssetIDs = Set(assets.map(\.id))
         var existingByAsset = Dictionary(
-            uniqueKeysWithValues: try store.loadRecords().map {
+            uniqueKeysWithValues: reusableRecords.filter {
+                validAssetIDs.contains($0.assetIdentifier)
+            }.map {
                 ($0.assetIdentifier, $0)
             }
         )
-        let validAssetIDs = Set(assets.map(\.id))
-        let stale = existingByAsset.values.filter {
+        let stale = previousAlbumRecords.filter {
             !validAssetIDs.contains($0.assetIdentifier)
-        }
-        for record in stale {
-            existingByAsset[record.assetIdentifier] = nil
         }
 
         var importedCount = 0
@@ -88,6 +100,7 @@ final class AlbumSyncService: AlbumSynchronizing {
         var failures: [String] = []
         var newlyCommittedFilenames: [String] = []
         var filenamesPendingRemoval = stale.map(\.photo.filename)
+        var estimatedCachedBytes = store.cachedImageBytes()
         let provisionalCheckpointCounts = Array(
             Set([initialCheckpointCount, checkpointInterval])
         ).sorted()
@@ -101,6 +114,10 @@ final class AlbumSyncService: AlbumSynchronizing {
                 let needsRefresh = existing == nil
                     || existing?.assetModificationDate != asset.modificationDate
                 if needsRefresh {
+                    if let available = availableStorageBytes(),
+                       available < PhotoStoragePolicy.minimumFreeStorageBytes {
+                        throw AlbumSyncServiceError.insufficientStorage
+                    }
                     let sourceURL = try store.temporaryURL(pathExtension: "source")
                     let downsampledURL = try store.temporaryURL(pathExtension: "jpg")
                     defer {
@@ -119,6 +136,9 @@ final class AlbumSyncService: AlbumSynchronizing {
                             to: downsampledURL,
                             maxPixelDimension: 2_560
                         )
+                        let newImageBytes = (try? FileManager.default.attributesOfItem(
+                            atPath: downsampledURL.path
+                        )[.size] as? NSNumber)?.int64Value ?? 0
                         let photoID = existing?.photo.id ?? makeID()
                         let filename = photoID.uuidString + ".jpg"
                         if existing != nil {
@@ -128,6 +148,7 @@ final class AlbumSyncService: AlbumSynchronizing {
                                 filename: replacementFilename
                             )
                             newlyCommittedFilenames.append(replacementFilename)
+                            estimatedCachedBytes += newImageBytes
                             if let existingFilename = existing?.photo.filename {
                                 filenamesPendingRemoval.append(existingFilename)
                             }
@@ -153,6 +174,7 @@ final class AlbumSyncService: AlbumSynchronizing {
                                 filename: filename
                             )
                             newlyCommittedFilenames.append(filename)
+                            estimatedCachedBytes += newImageBytes
                             existingByAsset[asset.id] = CachedAlbumAsset(
                                 assetIdentifier: asset.id,
                                 assetModificationDate: asset.modificationDate,
@@ -192,7 +214,13 @@ final class AlbumSyncService: AlbumSynchronizing {
                 let isRecurringCheckpoint = completedCount.isMultiple(
                     of: checkpointInterval
                 )
-                if (hasPendingProvisionalCheckpoint || isRecurringCheckpoint),
+                let isStorageCheckpoint = estimatedCachedBytes
+                    > PhotoStoragePolicy.automaticAlbumBudget(
+                        availableStorageBytes: availableStorageBytes(),
+                        cachedImageBytes: estimatedCachedBytes
+                    )
+                if (hasPendingProvisionalCheckpoint || isRecurringCheckpoint
+                    || isStorageCheckpoint),
                    completedCount < processingOrder.count {
                     let preparedRecords = processingOrder
                         .prefix(completedCount)
@@ -200,7 +228,9 @@ final class AlbumSyncService: AlbumSynchronizing {
                     let reachedProvisionalCheckpoint = hasPendingProvisionalCheckpoint
                         && preparedRecords.count
                             >= provisionalCheckpointCounts[nextProvisionalCheckpointIndex]
-                    guard reachedProvisionalCheckpoint || isRecurringCheckpoint else {
+                    guard reachedProvisionalCheckpoint || isRecurringCheckpoint
+                        || (isStorageCheckpoint && preparedRecords.count
+                            >= initialCheckpointCount) else {
                         continue
                     }
                     while nextProvisionalCheckpointIndex
@@ -212,6 +242,7 @@ final class AlbumSyncService: AlbumSynchronizing {
                     let checkpointRecords = Self.orderedRecords(existingByAsset)
                     try store.replaceRecords(
                         checkpointRecords,
+                        for: albumIdentifier,
                         removingFilenames: filenamesPendingRemoval
                     )
                     newlyCommittedFilenames.removeAll(keepingCapacity: true)
@@ -226,6 +257,7 @@ final class AlbumSyncService: AlbumSynchronizing {
                             )
                         )
                     )
+                    estimatedCachedBytes = store.cachedImageBytes()
                     try Task.checkCancellation()
                 }
             }
@@ -234,6 +266,7 @@ final class AlbumSyncService: AlbumSynchronizing {
             let records = Self.orderedRecords(existingByAsset)
             try store.replaceRecords(
                 records,
+                for: albumIdentifier,
                 removingFilenames: filenamesPendingRemoval
             )
             return AlbumSyncReport(

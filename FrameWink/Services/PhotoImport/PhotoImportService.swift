@@ -11,7 +11,7 @@ final class PhotoImportService: PhotoImporting {
         store: ImportedPhotoStoring,
         downsampler: ImageDownsampling,
         now: @escaping () -> Date = Date.init,
-        availableStorageBytes: @escaping () -> Int64? = PhotoImportService.systemAvailableStorageBytes
+        availableStorageBytes: @escaping () -> Int64? = LocalStorageUsage.systemAvailableStorageBytes
     ) {
         self.store = store
         self.downsampler = downsampler
@@ -195,14 +195,7 @@ final class PhotoImportService: PhotoImporting {
 
     private var hasStorageHeadroom: Bool {
         guard let available = availableStorageBytes() else { return true }
-        return available >= ManualPhotoCollectionPolicy.minimumFreeStorageBytes
-    }
-
-    private static func systemAvailableStorageBytes() -> Int64? {
-        let attributes = try? FileManager.default.attributesOfFileSystem(
-            forPath: NSHomeDirectory()
-        )
-        return (attributes?[.systemFreeSize] as? NSNumber)?.int64Value
+        return available >= PhotoStoragePolicy.minimumFreeStorageBytes
     }
 }
 

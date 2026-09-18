@@ -32,6 +32,61 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertFalse(store.configuration.strictOffline)
     }
 
+    func testDeletingAlbumCopiesRunsOutsideMainThread() async {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        let controller = makeController(client: client, store: store)
+
+        let deleted = await controller.deleteCachedAlbum()
+
+        XCTAssertTrue(deleted)
+        XCTAssertFalse(store.deletionRanOnMainThread)
+        XCTAssertFalse(controller.isDeletingCachedAlbum)
+        XCTAssertFalse(controller.configuration.isConfigured)
+    }
+
+    func testLaunchDoesNotOfferSavedReelWhoseDisplayImageWasRemoved() {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        let photo = ImportedPhoto(
+            id: UUID(),
+            filename: "missing.jpg",
+            pixelWidth: 1_200,
+            pixelHeight: 800,
+            importedAt: Date(timeIntervalSince1970: 100)
+        )
+        store.records = [CachedAlbumAsset(
+            assetIdentifier: "missing-asset",
+            assetModificationDate: Date(timeIntervalSince1970: 100),
+            photo: photo
+        )]
+        store.missingImageFilenames = [photo.filename]
+        let builder = ControllerSmartReelBuilder()
+        builder.savedReel = SmartReel(
+            id: UUID(),
+            algorithmRevision: SmartReelCurator.algorithmRevision,
+            createdAt: Date(timeIntervalSince1970: 100),
+            selections: [CuratedPhoto(
+                candidateID: photo.id,
+                algorithmRevision: SmartReelCurator.algorithmRevision,
+                finalScore: 0.8,
+                reasons: [.quality]
+            )]
+        )
+
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: ControllerAlbumSynchronizer(),
+            smartReelBuilder: builder
+        )
+
+        XCTAssertNil(controller.smartReel)
+        XCTAssertFalse(controller.canDisplay)
+        XCTAssertEqual(controller.records.map(\.photo.id), [photo.id])
+    }
+
     func testLimitedAuthorizationLoadsVisibleAlbumsAndPermitsConfiguredDisplay() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .limited)
         client.albumsValue = [
@@ -300,6 +355,7 @@ final class AutomaticAlbumControllerTests: XCTestCase {
             PhotoLibraryAlbum(id: "travel", title: "Travel", photoCount: 2)
         )
         XCTAssertNil(controller.smartReel)
+        XCTAssertTrue(controller.records.isEmpty)
         XCTAssertFalse(controller.canDisplay)
         try await waitUntil {
             if case .ready = controller.phase { return true }
@@ -342,6 +398,28 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         synchronizer.delayNanoseconds = 0
         client.sendChange()
         try await waitUntil { synchronizer.syncCount == 2 }
+    }
+
+    func testSwitchingAlbumsWaitsForCancelledSyncBeforeStartingNext() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "first"
+        let synchronizer = ControllerAlbumSynchronizer()
+        synchronizer.delayNanoseconds = 300_000_000
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: ControllerSmartReelBuilder()
+        )
+
+        controller.setEntitled(true)
+        try await waitUntil { synchronizer.syncCount == 1 }
+        controller.selectAlbum(PhotoLibraryAlbum(id: "second", title: "Second", photoCount: 2))
+        try await waitUntil { synchronizer.syncCount == 2 }
+
+        XCTAssertEqual(synchronizer.maximumConcurrentSyncCount, 1)
+        XCTAssertEqual(synchronizer.lastAlbumIdentifier, "second")
     }
 
     func testInitialCheckpointAllowsPlaybackBeforeFullSyncFinishes() async throws {
@@ -395,6 +473,76 @@ final class AutomaticAlbumControllerTests: XCTestCase {
 
         try await waitUntil(timeout: 1) { !synchronizer.isSynchronizing }
         XCTAssertTrue(controller.canDisplay)
+    }
+
+    func testLargeAlbumCheckpointPrunesOnlyPhotosOutsideCurrentReel() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.configuration.albumTitle = "Family"
+        store.cachedBytes = PhotoStoragePolicy.automaticAlbumImageBudgetBytes + 1
+        let synchronizer = ControllerAlbumSynchronizer()
+        synchronizer.checkpointRecordCounts = [150]
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: ControllerSmartReelBuilder()
+        )
+
+        controller.setEntitled(true)
+        try await waitUntil { store.prunedKeepIDs != nil }
+
+        XCTAssertEqual(controller.records.count, 150)
+        XCTAssertEqual(controller.smartReel?.selections.count, 100)
+        XCTAssertEqual(store.prunedKeepIDs?.count, 100)
+        XCTAssertTrue(Set(controller.smartReel?.selections.map(\.candidateID) ?? [])
+            .isSubset(of: store.prunedKeepIDs ?? []))
+    }
+
+    func testLowHeadroomUsesSmallerAlbumBudget() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.cachedBytes = 600 * 1_024 * 1_024
+        let synchronizer = ControllerAlbumSynchronizer()
+        synchronizer.checkpointRecordCounts = [150]
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: ControllerSmartReelBuilder(),
+            availableStorageBytes: { 2 * 1_024 * 1_024 * 1_024 }
+        )
+
+        controller.setEntitled(true)
+        try await waitUntil { store.prunedKeepIDs != nil }
+
+        XCTAssertEqual(store.prunedKeepIDs?.count, 100)
+    }
+
+    func testAmpleHeadroomKeepsAlbumDownloadsBelowOneGiB() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.cachedBytes = 600 * 1_024 * 1_024
+        let synchronizer = ControllerAlbumSynchronizer()
+        synchronizer.checkpointRecordCounts = [150]
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: ControllerSmartReelBuilder(),
+            availableStorageBytes: { 4 * 1_024 * 1_024 * 1_024 }
+        )
+
+        controller.setEntitled(true)
+        try await waitUntil {
+            if case .ready = controller.phase { return true }
+            return false
+        }
+
+        XCTAssertNil(store.prunedKeepIDs)
     }
 
     func testNeverShowPersistsAsHardVetoAndRevocationHidesPaidSource() async throws {
@@ -755,6 +903,10 @@ private final class ControllerAlbumStore: AlbumSourceStoring {
     var configuration = AutomaticAlbumConfiguration.defaultConfiguration
     var records: [CachedAlbumAsset] = []
     var configurationSaveError: Error?
+    var cachedBytes: Int64 = 0
+    var prunedKeepIDs: Set<UUID>?
+    var deletionRanOnMainThread = true
+    var missingImageFilenames: Set<String> = []
 
     func loadConfiguration() -> AutomaticAlbumConfiguration { configuration }
     func saveConfiguration(_ configuration: AutomaticAlbumConfiguration) throws {
@@ -777,7 +929,17 @@ private final class ControllerAlbumStore: AlbumSourceStoring {
     }
     func commitTemporaryImage(at temporaryURL: URL, filename: String) throws {}
     func removeImage(filename: String) {}
+    func containsImage(filename: String) -> Bool {
+        !missingImageFilenames.contains(filename)
+    }
+    func cachedImageBytes() -> Int64 { cachedBytes }
+    func pruneCachedImages(keepingPhotoIDs: Set<UUID>) throws -> Int64 {
+        prunedKeepIDs = keepingPhotoIDs
+        cachedBytes = 0
+        return 1
+    }
     func deleteAllCachedData() throws {
+        deletionRanOnMainThread = Thread.isMainThread
         configuration = .defaultConfiguration
         records = []
     }
@@ -795,6 +957,8 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
     var emitsCheckpoint = false
     var checkpointRecordCounts: [Int] = []
     var isSynchronizing = false
+    var activeSyncCount = 0
+    var maximumConcurrentSyncCount = 0
 
     func synchronize(
         albumIdentifier: String,
@@ -802,8 +966,13 @@ private final class ControllerAlbumSynchronizer: AlbumSynchronizing {
         progress: @escaping @MainActor (ImportProgress) -> Void,
         checkpoint: @escaping @MainActor (AlbumSyncCheckpoint) async -> Void
     ) async throws -> AlbumSyncReport {
+        activeSyncCount += 1
+        maximumConcurrentSyncCount = max(maximumConcurrentSyncCount, activeSyncCount)
         isSynchronizing = true
-        defer { isSynchronizing = false }
+        defer {
+            activeSyncCount -= 1
+            isSynchronizing = activeSyncCount > 0
+        }
         syncCount += 1
         lastAlbumIdentifier = albumIdentifier
         lastStrictOffline = strictOffline

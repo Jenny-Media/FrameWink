@@ -124,6 +124,23 @@ final class AppModelRecoveryTests: XCTestCase {
         XCTAssertEqual(builder.candidateCounts, [10, 30, 40])
     }
 
+    func testDeletingImportedPhotosDoesNotBlockTheMainActor() async throws {
+        let started = expectation(description: "Deletion started")
+        let importer = BlockingDeletionImporter(started: started)
+        let model = AppModel(importer: importer, imageLoader: RecoveryImageLoader())
+
+        let deletion = Task { await model.deleteImportedPhotos() }
+        await fulfillment(of: [started], timeout: 2)
+
+        XCTAssertTrue(model.isDeletingImportedPhotos)
+        XCTAssertFalse(importer.deletionRanOnMainThread)
+        importer.allowDeletionToFinish()
+        let deleted = await deletion.value
+        XCTAssertTrue(deleted)
+        XCTAssertFalse(model.isDeletingImportedPhotos)
+        XCTAssertTrue(model.importedPhotos.isEmpty)
+    }
+
     private func waitUntil(
         timeout: TimeInterval = 2,
         condition: @escaping @MainActor () -> Bool
@@ -133,6 +150,45 @@ final class AppModelRecoveryTests: XCTestCase {
             try await Task.sleep(nanoseconds: 10_000_000)
         }
         XCTAssertTrue(condition(), "Timed out waiting for AppModel state")
+    }
+}
+
+private final class BlockingDeletionImporter: PhotoImporting {
+    private let started: XCTestExpectation
+    private let release = DispatchSemaphore(value: 0)
+    private(set) var deletionRanOnMainThread = true
+
+    init(started: XCTestExpectation) {
+        self.started = started
+    }
+
+    func loadImportedPhotos() throws -> [ImportedPhoto] {
+        [ImportedPhoto(
+            id: UUID(),
+            filename: "picked.jpg",
+            pixelWidth: 1_000,
+            pixelHeight: 800,
+            importedAt: Date()
+        )]
+    }
+
+    func importPhotos(
+        from items: [PhotoImportItem],
+        maxPixelDimension: Int,
+        progress: @escaping @MainActor (ImportProgress) -> Void,
+        checkpoint: @escaping @MainActor ([ImportedPhoto]) -> Void
+    ) async -> PhotoImportReport {
+        PhotoImportReport(imported: [], failures: [], remainingSourceIDs: [], wasCancelled: false)
+    }
+
+    func deleteAllImportedPhotos() throws {
+        deletionRanOnMainThread = Thread.isMainThread
+        started.fulfill()
+        release.wait()
+    }
+
+    func allowDeletionToFinish() {
+        release.signal()
     }
 }
 

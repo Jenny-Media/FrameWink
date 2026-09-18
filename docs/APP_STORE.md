@@ -9,7 +9,27 @@ FrameWink 1.0 is approved and available on the App Store at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
-## Version 1.0.1 release candidate
+## Version 1.1 preparation
+
+App Store Connect has an editable iOS 1.1 draft saved on 2026-09-18. Its
+earlier 1.0.1 Build 19 was detached, and no 1.1 archive is attached yet.
+Manual release after approval remains selected. The current 1.1 source must
+pass release validation and produce an App Store Connect-eligible Xcode Cloud
+archive before adding the version for review.
+
+Saved English (U.S.) What's New, as a bullet list:
+
+> • See how much space FrameWink photos use, and free unused album downloads while keeping your selected photos and current frame.
+> • Switch between recently used albums with less redownloading. FrameWink keeps a bounded cache that adjusts to available device space.
+> • Use one clearly warned action to remove all FrameWink photo data. Storage actions now show visible progress; originals in Apple Photos are never changed.
+> • Enjoy an expanded sample reel, improved framing and multi-photo layouts, plus fixes for playback timing and purchase restore feedback.
+
+App Review notes were updated to explain safe cleanup, the warned full reset,
+album-cache behavior, permission timing, and StoreKit sandbox review. The
+approved 1.0 screenshots remain the current galleries; confirm they still
+represent the shipping binary before submission.
+
+## Superseded version 1.0.1 release candidate
 
 Version 1.0.1 is a focused first-update candidate. It expands the clearly
 labelled, permission-free sample reel from ten to twenty publisher-supplied
@@ -58,17 +78,18 @@ answers if implementation changes.
 custom or non-exempt encryption; Apple system services such as StoreKit and
 PhotoKit are the only relevant transport surfaces.
 
-## Published privacy policy
+## Published privacy and support pages
 
 - Privacy policy URL:
-  `https://github.com/Jenny-Media/FrameWink/blob/main/PRIVACY.md`
-- Support URL: `https://github.com/Jenny-Media/FrameWink/issues`
+  `https://frame.jenny.media/privacy`
+- Support URL: `https://frame.jenny.media/support`
 - Support email: `framewink@jenny.media`
 
-The canonical policy is the root-level `PRIVACY.md`. The copy below is retained
-as release-review input and must remain aligned with it.
+The root-level `PRIVACY.md` is the canonical policy source. The website copy
+and the release-review input below must remain aligned with it. The 1.1 website
+copy changes are on draft PR #13 and require publication before review submission.
 
-Effective: August 12, 2026
+Effective: September 18, 2026
 
 FrameWink is provided by Jenny Media LLC. FrameWink is designed to process
 photos locally on the device. The app has no developer-operated account or server
@@ -84,10 +105,11 @@ filters hidden photos and screenshots, and never edits the Photos library.
 
 FrameWink stores display-sized copies, local curation records, and local display
 history in its private app container. Photo copies, automatic-album cache data,
-and derived curation data are excluded from device backup. `Delete Imported
-Photos` and `Remove Downloaded Album Photos` remove the corresponding
-app-controlled copies and derived records without deleting or changing the
-originals in Apple Photos.
+and derived curation data are excluded from device backup. `Free Up Unused
+Space` removes unused downloads and temporary files while keeping selected
+photos and the current frame. `Delete All FrameWink Photos` removes
+app-controlled copies, selections, and related records after confirmation.
+Neither action deletes or changes originals in Apple Photos.
 Apple Photos may download an iCloud item when an automatic album needs it; that
 is Apple Photos behavior, not a FrameWink upload or a connection to Jenny Media
 LLC.
@@ -100,7 +122,7 @@ The public repository hosts this policy and the Issues tracker provides the
 support endpoint. Privacy questions and support mail go to
 `framewink@jenny.media`.
 
-## Version 1.0 product-page copy
+## Current product-page copy for the 1.1 draft
 
 Subtitle:
 
@@ -132,7 +154,7 @@ Description:
 >
 > PRIVATE BY DESIGN
 >
-> FrameWink has no developer server, account, advertising, analytics SDK, or tracking. Photos and analysis stay on your device. FrameWink never edits, hides, favorites, or deletes originals in your Photos library. You can remove imported copies and downloaded album copies from the app at any time.
+> FrameWink has no developer server, account, advertising, analytics SDK, or tracking. Photos and analysis stay on your device. FrameWink never edits, hides, favorites, or deletes originals in your Photos library. You can free unused downloads or delete all FrameWink photo data from the app at any time.
 >
 > Automatic album updates request full Photos access only after you choose that paid feature. FrameWink excludes hidden photos and screenshots from automatic selection. Guided Access setup remains a manual Apple system feature, and scheduled display behavior works only while FrameWink remains open.
 >
@@ -142,52 +164,49 @@ Keywords (89 characters):
 
 > photo frame,slideshow,photos,album,smart display,digital frame,private,mosaic,iPhone,iPad
 
-## App Review notes draft
+## App Review notes for version 1.1
 
-FrameWink is a universal iPhone and iPad app and requires iOS/iPadOS 15 or
-later. Compact iPhone playback prioritizes one large photo; iPad and larger
-windows can use responsive multi-photo compositions when appropriate.
+App Store Connect saved the following English (U.S.) reviewer guidance on
+2026-09-18:
 
-On first launch, version 1.0.1 immediately shows twenty bundled example photos
-and does not request Photos authorization. `Choose Photos` opens Apple's
-PHPicker for a total collection of up to 500 items. The target includes
-`NSPhotoLibraryUsageDescription`, but the
-full PhotoKit prompt appears only after a verified FrameWink Lifetime entitlement
-and the user taps `Choose an Album`. Display-sized copies and all analysis remain
-in the app container. The app suppresses iOS's automatic Limited-access alert so
-later prompts remain tied to explicit album-management actions.
-
-The free experience includes local Smart Reel curation, review, Never Show
-Again, automatic face-safe Fit/Fill decisions and portrait pairing, selectable
-timing, pause/navigation, unlimited replay, and Delete Imported Photos.
-
-To review the non-consumable purchase, open `More Frame Features` from the main
-screen. The FrameWink Lifetime paywall includes `Restore Purchases`. A verified entitlement
-unlocks automatic refresh for an explicitly selected Photos album, curation of
-all eligible album candidates without the free 500-candidate input limit,
-long-term repeat reduction, automatic Mosaic composition when appropriate, a
-persisted active source/timing state, foreground-only Auto-Lock prevention,
-visual dim/blackout schedules, and mounted-display guidance.
-
-For automatic albums, include an iCloud-backed item and confirm preparation
-continues while Apple Photos downloads it. Change the selected album in Photos,
-return to FrameWink, review the regenerated suggestions, and use `Remove
-Downloaded Album Photos`. FrameWink never creates a PhotoKit change
-request and does not edit or delete originals.
-
-Consumer Guided Access must be started manually. FrameWink does not
-change system brightness, sense ambient light, promise an exact scheduled wake,
-or guarantee relaunch after a reboot.
-
-The production non-consumable identifier is
-`media.jenny.FrameWink.wallmode`, with Family Sharing enabled. No reviewer test
-account is required; App Review should use its StoreKit sandbox environment.
+> FrameWink is a universal iPhone and iPad photo-frame app for iOS/iPadOS 15
+> or later. No account or reviewer credentials are required. The free
+> experience starts with twenty clearly labelled bundled sample photos and
+> does not request Photos permission on launch. Choose Photos uses Apple's
+> system picker for individually selected photos. All display copies and
+> analysis stay on the device.
+>
+> Version 1.1 review steps:
+> 1. Choose individual photos, prepare and review a Smart Reel, then open
+> Privacy & Data. The page shows the space used by FrameWink photo data. Free
+> Up Unused Space removes unused working files and album downloads while
+> preserving selected photos, the current reel, and the chosen album. Delete
+> All FrameWink Photos has a detailed confirmation; it removes in-app photo
+> data and the current selection. Neither action edits or deletes originals
+> in Apple Photos. Both actions show progress.
+> 2. Open More Frame Features to find the one-time FrameWink Lifetime purchase
+> and Restore Purchases. App Review can use its StoreKit sandbox. Only after a
+> verified entitlement and an explicit Choose an Album action does FrameWink
+> request full PhotoKit access.
+> 3. Switch among a few chosen albums. FrameWink keeps a bounded shared cache
+> for the current and two recently used albums; unused downloaded copies can
+> be removed manually and iCloud-backed items may download again when needed.
+> Review recommendations before playback. Hidden photos and screenshots are
+> excluded from automatic selection.
+> 4. Test playback timing, pause/navigation, automatic layouts, the optional
+> night schedule, and Mounted Display Tips. Guided Access requires manual
+> Apple system setup. The app does not sense ambient light or guarantee
+> relaunch after restart.
+>
+> The production non-consumable is media.jenny.FrameWink.wallmode with Family
+> Sharing. The app has no developer server, ads, analytics SDK, or tracking.
+> Manual release after approval remains selected.
 
 The App Store Connect product is Apple ID `6800849862`. Its saved reference and
 English (U.S.) display name are `FrameWink Lifetime`; its saved description is
 `Automatic albums, Mosaic, night schedules, and more.` It is priced at a $4.99
 U.S. base across all available storefronts and has Family Sharing permanently
-enabled. The version 1.0 product-page copy above is the release source of truth.
+enabled. The current product-page copy above is the 1.1 release input.
 The submitted App Store Connect description was corrected to `$4.99` and saved
 on 2026-08-14.
 
@@ -333,7 +352,8 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 ## App Store Connect readiness
 
 - Internal testing group: `Jenny Media Internal` (currently 1 tester; version
-  1.0.1 Build 22 is `Ready to Submit` and assigned to the group)
+  1.0.1 Build 22 is `Ready to Submit` and assigned to the group; the 1.1 draft
+  has no build attached yet)
 - TestFlight feedback email: `framewink@jenny.media`
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:

@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 24.75 h | Local release candidate complete — cloud/App Store completion pending |
-| **Total** | **40 h** | **47.75 h** | **In progress** |
+| 6. Hardening and release | 8 h | 27.5 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
+| **Total** | **40 h** | **50.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -42,7 +42,8 @@ iPhone 17 Pro Max and `iPad (A16)` Simulators.
       refine up to 100 recommendations without replacing it with samples.
 - [x] Imports are downsampled to display-appropriate local copies.
 - [x] Import progress, cancellation, partial failure, and retry are implemented.
-- [x] `Delete Imported Photos` removes files and derived records.
+- [x] The warned `Delete All FrameWink Photos` action removes app photo files,
+      selections, and derived records.
 - [x] Import and deletion have compiling unit tests.
 
 Acceptance: after import, a user can view personal photos in Airplane Mode and
@@ -272,7 +273,7 @@ The shared scheme also runs an iPad UI test target with bundle identifier
 does not request Photos authorization, opens PHPicker only from the explicit
 photo action, cancels the picker, and returns safely. A second isolated flow
 loads a persisted personal reel from app-controlled local copies, displays it
-in Frame Mode, confirms `Delete Imported Photos`, and verifies the app returns
+in Frame Mode, confirms `Delete All FrameWink Photos`, and verifies the app returns
 to Samples with no delete action remaining. A third flow rotates the iPad to
 landscape, enters Frame Mode, swipes to an exact next photo, returns to portrait,
 and verifies navigation state survives rotation. The destructive and local-veto
@@ -1736,6 +1737,193 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   of the reported gesture sequence and real sandbox/App Store restore remain
   required. No signing, product identifiers, Photos data, or release workflow
   configuration changed.
+
+### Photo storage and responsive deletion — 2026-09-17
+
+- Status: implementation and affected Simulator verification complete; actual
+  storage savings and smoothness on the owner's iPhone remain physical checks.
+- The paid selected album still considers every eligible candidate. Its
+  downloaded display JPEGs use a 512 MiB working-set target: checkpoint curation
+  keeps the current reel's images, discards other copies, retains asset metadata
+  and analysis, and refetches a later selection when needed. The target is soft:
+  a preparation batch or the currently playing set may temporarily exceed it.
+- `Privacy & Data` measures imported, album, and picker working-file storage
+  off the main thread. `Free Up Album Space` keeps the selected album and active
+  reel, while the two existing full-deletion actions now perform disk removal
+  away from the main thread and show progress. Old abandoned picker/partial
+  files are removed on a later launch; automatic-album downloads pause before
+  available device storage drops below 512 MiB.
+- Focused iPhone and iPad suites pass, including a test that blocks imported
+  deletion while the main actor remains responsive, album deletion thread
+  checks, quota pruning that preserves a 100-photo reel from 150 candidates,
+  storage measurement, low-storage interruption, and the existing deletion UI
+  flow. Exact commands and final counts are in `docs/TESTING.md`.
+- Remaining checks: measure this user's 8 GB baseline by category in the
+  installed build, compare actual space before and after cleanup, exercise a
+  large real PhotoKit/iCloud album and later image refetch, and confirm deletion
+  remains responsive on physical iPhone and iPad. Active time: approximately
+  0.4 hours. No distribution or App Store action was performed.
+
+### Unified photo storage controls — 2026-09-17
+
+- Status: implementation and affected Simulator verification complete; real
+  device behavior remains to be checked.
+- `Privacy & Data` now has one confirmed full reset for all FrameWink photo
+  data. The warning explicitly says it erases current selections, reels, the
+  chosen album, saved frames using those photo sources, and local analysis,
+  while leaving Apple Photos and sample-only saved frames unchanged.
+- A separate `Free Up Unused Space` action clears old picker working files and
+  unused album copies while keeping selected photos, the current reel, and
+  album. The automatic cleanup from the earlier storage change remains active.
+- Final affected tests passed 64 of 64 on each of iPhone 17 Pro Max and iPad
+  (A16) Simulators, including the full-reset warning, picker-file cleanup, and
+  saved-frame source persistence. Exact commands are in `docs/TESTING.md`.
+- Remaining physical check: confirm the warning is readable and the reset and
+  safe action behave as described on iPhone and iPad with real photos. Active
+  time: approximately 0.2 hours. No device install or distribution performed.
+
+### Photo storage build on paired iPhone — 2026-09-17
+
+- Status: signed development build 1.0.1 (28) installed over existing build 26
+  on the paired physical iPhone 17 Pro Max and launched successfully. A process
+  query confirmed it remained running. The app kept the same
+  `media.jenny.FrameWink` bundle identifier; no uninstall, reset, or cleanup
+  action was performed.
+- The app used the project's existing automatic signing and development team.
+  `CURRENT_PROJECT_VERSION=28` was a command-line build override; project
+  signing, identifiers, and version files were unchanged. Outside the sandbox,
+  the app signature passed `codesign --verify --deep --strict`, and its embedded
+  provisioning profile expires 2027-08-13. Commands and installed version are
+  recorded in `docs/TESTING.md`.
+- The device launch proves installation, not storage reduction or UI behavior.
+  Next physical checks: inspect Privacy & Data storage sizes, verify existing
+  selections remain available, and exercise safe cleanup and the destructive
+  warning with the owner present. Active time: approximately 0.1 hours. No
+  TestFlight or App Store distribution occurred.
+
+### Photo storage build on paired iPad — 2026-09-17
+
+- Status: the same source was built as signed development version 1.0.1 (28)
+  for the paired physical iPad Pro and installed over its existing version
+  1.0.1 (1). The installed-app query confirmed build 28, and a process query
+  confirmed FrameWink remained running after launch.
+- The build used existing automatic signing and a command-line-only build
+  number override. Its signature verified and its provisioning profile expires
+  2027-08-13. No uninstall, data reset, or cleanup action was performed.
+- Actual iPad storage reduction, photo selection persistence, touch and
+  VoiceOver behavior, and purchase state remain manual checks. Active time:
+  approximately 0.1 hours. No TestFlight or App Store distribution occurred.
+
+### Storage cleanup explanation and progress — 2026-09-17
+
+- Status: UI implementation and focused iPhone/iPad Simulator verification
+  complete; physical installs complete, with visual acceptance pending.
+- Automatic launch maintenance removes only picker staging files and
+  incomplete imported-photo files older than 24 hours. Automatic album sync
+  prunes downloaded JPEGs outside the current reel when its image cache crosses
+  the soft 512 MiB target. Metadata and analysis remain available for later
+  curation. Switching albums replaces cached images for assets absent from the
+  newly selected album as synchronization checkpoints or completion persist;
+  shared assets can be reused. Individually imported photos are not auto-pruned.
+- Manual safe cleanup additionally forces removal of non-current album JPEGs
+  even below the target, while keeping the selected photos, current reel, and
+  chosen album. Both manual actions now show distinct indeterminate linear
+  progress for at least two seconds and update storage totals at completion.
+- Two affected UI tests passed on each of iPhone 17 Pro Max and iPad (A16)
+  Simulators. The first iPad run's one-second indicator disappeared before XCUI
+  could query it; the final two-second version passed on both families. Exact
+  commands and results are in `docs/TESTING.md`. Active time: approximately
+  0.2 hours.
+- Signed development build 1.0.1 (29) was installed over build 28 on both the
+  paired iPhone and iPad without uninstalling or running cleanup. The iPhone
+  launched and its process remained running. The iPad's first install attempt
+  lost its device connection, but a retry succeeded and an independent query
+  confirmed build 29. iPad launch was denied while the device was locked;
+  launch and visual timing remain unverified there. Additional active time:
+  approximately 0.2 hours. No TestFlight or App Store distribution occurred.
+
+### Recent automatic-album cache — 2026-09-17
+
+- Status: implemented and affected iPhone/iPad Simulator tests passed. Signed
+  development build 1.0.1 (31) was installed over the earlier development
+  builds on both paired devices; real album-switching and space recovery
+  remain physical checks.
+- The chosen album and two recently selected albums now share one cache and
+  one soft 512 MiB image target. Shared assets reuse one downloaded copy.
+  Automatic pruning removes oldest inactive downloads first, keeping current
+  reel images. Choosing a fourth album drops the oldest membership and its
+  unshared copies at the next sync commit. Manual `Free Up Unused Space`
+  removes inactive and unused current-album downloads even below the target;
+  individually picked photos remain until the confirmed full reset.
+- Existing single-album records migrate into the recent-album index on the
+  first switch. Saved reels are associated with their chosen album, and a new
+  sync waits for the canceled sync to finish before using the shared store.
+  The previous album's review list clears as soon as a different album is
+  selected.
+- The affected 47-test set passed on each iPhone 17 Pro Max and iPad (A16)
+  Simulator. After the sync-serialization and review-list changes, all 27
+  controller tests passed again on each family. One earlier iPhone wait timed
+  out once and passed on immediate rerun; final runs have zero failures,
+  skips, or result runtime warnings. Exact commands are in `docs/TESTING.md`.
+- Both final physical installs and independent build-31 version queries
+  succeeded. Launch on each device was denied because it was locked. An earlier
+  iPad launch could not establish a CoreDevice XPC connection, and its first
+  final version query returned no row before the retry succeeded. Neither
+  device was reset or cleaned. Remaining device
+  checks: unlock and launch, switch among several real albums and back,
+  measure storage and cleanup, and verify any iCloud refetch. Active time:
+  approximately 0.3 hours. No TestFlight or App Store distribution occurred.
+
+### Adaptive album download target — 2026-09-18
+
+- Status: implemented, affected tests passed on iPhone and iPad Simulators,
+  and signed development build 1.0.1 (32) installed and launched on both
+  paired devices over build 31. No cleanup or reset was run during installation.
+- The shared album-image target is now 1 GiB when free device space plus
+  current album-cache bytes is at least 3 GiB; otherwise it is 512 MiB.
+  This combined headroom measure does not change merely because FrameWink
+  adds or removes its own cached images. Unknown free space uses 512 MiB.
+  The current reel stays protected; the existing 512 MiB minimum-free-space
+  guard for downloads and manual `Free Up Unused Space` behavior remain.
+- The affected set passed 54/54 tests on each iPhone 17 Pro Max and iPad
+  (A16) Simulator, with no failures, skips, or result runtime warnings.
+  Tests cover the policy boundary, tier stability, and actual controller
+  pruning behavior at 600 MiB under low versus ample headroom. Exact commands
+  and the SDK warning are in `docs/TESTING.md`.
+- The iPad's first install lost its device connection; a read-only query
+  confirmed build 31 remained, and retry succeeded. Independent installed-app
+  queries confirmed build 32 on both devices. Both launch commands succeeded,
+  and separate process queries found FrameWink running. Real album switching,
+  cache hit rate, iCloud refetch, storage savings, and iOS 15 behavior still
+  require device checks. Active time: approximately 0.2 hours. No TestFlight
+  or App Store distribution occurred.
+
+### Version 1.1 release preparation — 2026-09-18
+
+- Status: in progress. App Store Connect now has a saved 1.1 draft with a
+  four-item What's New bullet list, updated App Review instructions, and
+  manual release selected. The old 1.0.1 Build 19 was detached; no 1.1 build
+  is attached or submitted for review.
+- The release branch sets the app marketing version and archive guard to 1.1.
+  TestFlight test instructions and the privacy/support pages now describe
+  `Free Up Unused Space` and `Delete All FrameWink Photos`. The public privacy
+  and support changes will need publication before App Review submission.
+- Local unsigned Release build, Release Analyze, archive guard, nine website
+  source tests, website lint, TypeScript, and production website build passed.
+  The full shared scheme passed 229 tests with five expected skips on iPhone
+  and 230 tests with four expected skips on iPad, with no failures. Xcode timed
+  out collecting extra Simulator diagnostics after each run. Xcode Cloud reports no
+  available build minutes until September 18 at 8:51 PM Eastern. Its clean
+  archive from the exact release commit, TestFlight device smoke, build
+  attachment, and final submission review remain. Additional active
+  preparation time so far: approximately 1.05 hours.
+- A pre-merge storage review found that metadata orphan cleanup could remove
+  an active album image download. It now leaves temporary album files alone;
+  startup and manual maintenance remove abandoned partials older than 24
+  hours. The affected storage tests pass 13/13 on each iPhone and iPad
+  Simulator with no warnings; the iPad build-for-testing and Release Analyze
+  actions pass after the change. Full-scheme results above precede this small
+  fix, and hosted validation remains pending cloud minutes.
 
 ## Timebox rule
 

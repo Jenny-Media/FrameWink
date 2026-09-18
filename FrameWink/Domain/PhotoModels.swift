@@ -1,10 +1,31 @@
 import Foundation
 
+enum PhotoStoragePolicy {
+    static let minimumFreeStorageBytes: Int64 = 512 * 1_024 * 1_024
+    static let automaticAlbumImageBudgetBytes: Int64 = 1_024 * 1_024 * 1_024
+    static let constrainedAlbumImageBudgetBytes: Int64 = 512 * 1_024 * 1_024
+    static let preferredAlbumHeadroomBytes: Int64 = 3 * 1_024 * 1_024 * 1_024
+    static let recentAlbumLimit = 3
+
+    static func automaticAlbumBudget(
+        availableStorageBytes: Int64?,
+        cachedImageBytes: Int64
+    ) -> Int64 {
+        guard let availableStorageBytes else { return constrainedAlbumImageBudgetBytes }
+        let available = max(availableStorageBytes, 0)
+        let cached = max(cachedImageBytes, 0)
+        let headroom = available > Int64.max - cached
+            ? Int64.max : available + cached
+        return headroom >= preferredAlbumHeadroomBytes
+            ? automaticAlbumImageBudgetBytes : constrainedAlbumImageBudgetBytes
+    }
+}
+
 enum ManualPhotoCollectionPolicy {
     static let maximumCandidateCount = 500
     static let initialPlayableCandidateCount = 10
     static let maximumReelSelectionCount = 100
-    static let minimumFreeStorageBytes: Int64 = 512 * 1_024 * 1_024
+    static let minimumFreeStorageBytes: Int64 = PhotoStoragePolicy.minimumFreeStorageBytes
 
     private static let refinementCandidateCounts = [10, 30, 100, 250, 500]
 

@@ -38,7 +38,9 @@ test("keeps product promises aligned with the app contract", async () => {
   assert.match(home, /iPhone or iPad/i);
   assert.match(home, /FrameWink never uploads your photos/i);
   assert.match(privacy, /never changes anything in your Photos library/i);
-  assert.match(privacy, /Delete Imported Photos/);
+  assert.match(privacy, /Free Up Unused Space/);
+  assert.match(privacy, /Delete All FrameWink Photos/);
+  assert.match(support, /Free Up Unused Space/);
   assert.match(support, /iOS or iPadOS 15 or later/);
   assert.match(terms, /\$4\.99 one-time/i);
 });
