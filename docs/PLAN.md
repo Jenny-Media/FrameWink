@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 26.45 h | Local release candidate complete — cloud/App Store completion pending |
-| **Total** | **40 h** | **49.45 h** | **In progress** |
+| 6. Hardening and release | 8 h | 26.85 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
+| **Total** | **40 h** | **49.85 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -42,7 +42,8 @@ iPhone 17 Pro Max and `iPad (A16)` Simulators.
       refine up to 100 recommendations without replacing it with samples.
 - [x] Imports are downsampled to display-appropriate local copies.
 - [x] Import progress, cancellation, partial failure, and retry are implemented.
-- [x] `Delete Imported Photos` removes files and derived records.
+- [x] The warned `Delete All FrameWink Photos` action removes app photo files,
+      selections, and derived records.
 - [x] Import and deletion have compiling unit tests.
 
 Acceptance: after import, a user can view personal photos in Airplane Mode and
@@ -272,7 +273,7 @@ The shared scheme also runs an iPad UI test target with bundle identifier
 does not request Photos authorization, opens PHPicker only from the explicit
 photo action, cancels the picker, and returns safely. A second isolated flow
 loads a persisted personal reel from app-controlled local copies, displays it
-in Frame Mode, confirms `Delete Imported Photos`, and verifies the app returns
+in Frame Mode, confirms `Delete All FrameWink Photos`, and verifies the app returns
 to Samples with no delete action remaining. A third flow rotates the iPad to
 landscape, enters Frame Mode, swipes to an exact next photo, returns to portrait,
 and verifies navigation state survives rotation. The destructive and local-veto
@@ -1896,6 +1897,22 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   cache hit rate, iCloud refetch, storage savings, and iOS 15 behavior still
   require device checks. Active time: approximately 0.2 hours. No TestFlight
   or App Store distribution occurred.
+
+### Version 1.1 release preparation — 2026-09-18
+
+- Status: in progress. App Store Connect now has a saved 1.1 draft with a
+  four-item What's New bullet list, updated App Review instructions, and
+  manual release selected. The old 1.0.1 Build 19 was detached; no 1.1 build
+  is attached or submitted for review.
+- The release branch sets the app marketing version and archive guard to 1.1.
+  TestFlight test instructions and the privacy/support pages now describe
+  `Free Up Unused Space` and `Delete All FrameWink Photos`. The public privacy
+  and support changes will need publication before App Review submission.
+- Local unsigned Release build, Release Analyze, archive guard, and nine
+  website source tests passed. Full iPhone/iPad Simulator testing, a clean
+  Xcode Cloud archive from the exact release commit, TestFlight device smoke,
+  build attachment, and final submission review remain. Additional active
+  preparation time so far: approximately 0.4 hours.
 
 ## Timebox rule
 

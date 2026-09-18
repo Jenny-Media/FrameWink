@@ -76,7 +76,9 @@ Before editing, read all files in `docs/`. Treat `docs/PRODUCT.md`,
 - Keep caches bounded and memory-safe for 2 GB iPads.
 - Use simple Codable/file persistence for settings, scores, exclusions, and
   display history.
-- Imported picker photos must have an obvious `Delete Imported Photos` action.
+- Imported picker photos must have an obvious, clearly warned
+  `Delete All FrameWink Photos` action. `Free Up Unused Space` must keep the
+  user's current selections and frame.
 - Do not use background audio, location, camera capture, or other execution
   workarounds to keep the app alive.
 - Do not add background modes unless the platform-documented use exactly
