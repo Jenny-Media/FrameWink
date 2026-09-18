@@ -12,10 +12,13 @@ Apple's official unmodified Download on the App Store badge for this listing.
 ## Version 1.1 preparation
 
 App Store Connect has an editable iOS 1.1 draft saved on 2026-09-18. Its
-earlier 1.0.1 Build 19 was detached, and no 1.1 archive is attached yet.
-Manual release after approval remains selected. The current 1.1 source must
-pass release validation and produce an App Store Connect-eligible Xcode Cloud
-archive before adding the version for review.
+earlier 1.0.1 Build 19 was detached. PR #13 was squash-merged as `6a137d8`,
+and local release Xcode produced version 1.1 Build 30 from that exact tree.
+Apple accepted the upload and validated the build for internal TestFlight;
+`Jenny Media Internal` has access. Build 30 is attached to the iOS 1.1 App
+Store draft, confirmed after reloading the version page. The version remains
+`Prepare for Submission` with manual release selected. The owner reports that
+the build works; device families and test steps were not specified.
 
 Saved English (U.S.) What's New, as a bullet list:
 
@@ -86,8 +89,9 @@ PhotoKit are the only relevant transport surfaces.
 - Support email: `framewink@jenny.media`
 
 The root-level `PRIVACY.md` is the canonical policy source. The website copy
-and the release-review input below must remain aligned with it. The 1.1 website
-copy changes are on draft PR #13 and require publication before review submission.
+and the release-review input below must remain aligned with it. PR #13 merged
+the 1.1 website changes. The public privacy and support pages were checked on
+2026-09-18 and describe the current two storage actions.
 
 Effective: September 18, 2026
 

@@ -1924,6 +1924,20 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   Simulator with no warnings; the iPad build-for-testing and Release Analyze
   actions pass after the change. Full-scheme results above precede this small
   fix, and hosted validation remains pending cloud minutes.
+- Release delivery update: PR #13 was squash-merged as `6a137d8`, and the
+  isolated local branch now tracks that exact `origin/main` commit. The merged
+  tree passed the archive guard and produced a signed 1.1 Build 30 archive
+  using release Xcode 27.0 (27A266a). Apple accepted and validated the local
+  upload; Build 30 is assigned to `Jenny Media Internal`, and its focused
+  storage/album testing notes are saved. A beta-Xcode Build 29 upload was
+  rejected for its unsupported toolchain and was superseded by Build 30.
+  The public privacy and support pages now show the 1.1 cleanup names. Build
+  30 was subsequently attached to the iOS 1.1 App Store draft and verified
+  after a page reload. The owner reports that it works; the checked device(s)
+  and scenarios were not specified. The version remains `Prepare for
+  Submission` with manual release selected; review submission remains.
+  Additional active merge, archive, upload, and verification time: about
+  1.3 hours. The primary checkout's unrelated changes were preserved.
 
 ## Timebox rule
 

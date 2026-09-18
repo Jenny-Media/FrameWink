@@ -3111,3 +3111,36 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-PartialRace-iPad.xcresult
 git diff --check
 ```
+
+## Merged 1.1 local TestFlight upload — 2026-09-18
+
+- PR #13 was squash-merged as `6a137d81fc0c1deb176883d4e1004213df74ddc3`.
+  Its tree matches the tested PR head, and the isolated release worktree was
+  moved to the exact merged `origin/main` commit before archiving. The archive
+  guard passed with both beta and release Xcode.
+- The first signed 1.1 archive used Xcode 27.0 beta and build number 29. Its
+  export succeeded, but Apple rejected the upload as an unsupported Xcode/SDK
+  version. This archive is not a TestFlight or release candidate.
+- The replacement signed 1.1 Build 30 archive used installed release Xcode
+  27.0 (27A266a) from the merged commit. App Store export and upload succeeded.
+  The exported IPA has a valid Apple Distribution signature, bundle ID
+  `media.jenny.FrameWink`, iPhone/iPad device family, and iOS 15 minimum.
+  App Store Connect reports binary state `Validated`, version 1.1 (30),
+  symbols included, and non-exempt encryption `No`. TestFlight shows the
+  build assigned to `Jenny Media Internal` with one tester; focused What to
+  Test notes were saved. The live privacy and support pages contain `Free Up
+  Unused Space` and `Delete All FrameWink Photos` and explain that originals
+  in Apple Photos remain untouched. The owner subsequently reported that Build
+  30 works, without specifying the device family or test steps. The build was
+  attached to the iOS 1.1 App Store draft and the persisted selection was
+  verified after reloading the page. The version remains `Prepare for
+  Submission` with manual release selected; no review submission occurred.
+
+Commands run from `/private/tmp/framewink-storage-pr`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer CI_XCODEBUILD_ACTION=archive ci_scripts/ci_pre_xcodebuild.sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -archivePath /private/tmp/FrameWink-1.1-30-6a137d8.xcarchive -derivedDataPath /private/tmp/FrameWink-LocalRelease11-30 CURRENT_PROJECT_VERSION=30 archive
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -exportArchive -archivePath /private/tmp/FrameWink-1.1-30-6a137d8.xcarchive -exportOptionsPlist /private/tmp/FrameWink-1.1-30-ExportOptions.plist -exportPath /private/tmp/FrameWink-1.1-30-Export -allowProvisioningUpdates
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -exportArchive -archivePath /private/tmp/FrameWink-1.1-30-6a137d8.xcarchive -exportOptionsPlist /private/tmp/FrameWink-1.1-30-UploadOptions.plist -exportPath /private/tmp/FrameWink-1.1-30-Upload -allowProvisioningUpdates
+```
