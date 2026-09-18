@@ -121,7 +121,7 @@ The public repository hosts this policy and the Issues tracker provides the
 support endpoint. Privacy questions and support mail go to
 `framewink@jenny.media`.
 
-## Version 1.0 product-page copy
+## Current product-page copy for the 1.1 draft
 
 Subtitle:
 
@@ -205,7 +205,7 @@ The App Store Connect product is Apple ID `6800849862`. Its saved reference and
 English (U.S.) display name are `FrameWink Lifetime`; its saved description is
 `Automatic albums, Mosaic, night schedules, and more.` It is priced at a $4.99
 U.S. base across all available storefronts and has Family Sharing permanently
-enabled. The version 1.0 product-page copy above is the release source of truth.
+enabled. The current product-page copy above is the 1.1 release input.
 The submitted App Store Connect description was corrected to `$4.99` and saved
 on 2026-08-14.
 

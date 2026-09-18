@@ -646,8 +646,12 @@ blocker affects only a later boundary.
 - Local release input: the app marketing version and cloud archive guard are
   1.1, and TestFlight instructions, public privacy, and support copy describe
   the shipping cleanup controls. A local Release build, Analyze action, and
-  archive guard pass. Full Simulator testing and the exact-source Xcode Cloud
-  archive remain to be completed before attaching a build for review.
+  archive guard pass. The full Simulator scheme passed 229 tests with five
+  expected skips on iPhone and 230 tests with four expected skips on iPad,
+  with no test failures. Xcode
+  Cloud currently has zero minutes available until its September 18, 8:51 PM
+  Eastern renewal. The exact-source Xcode Cloud archive remains necessary
+  before attaching a build for review.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 

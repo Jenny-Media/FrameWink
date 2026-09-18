@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 26.85 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
-| **Total** | **40 h** | **49.85 h** | **In progress** |
+| 6. Hardening and release | 8 h | 27.35 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
+| **Total** | **40 h** | **50.35 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -1908,11 +1908,15 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   TestFlight test instructions and the privacy/support pages now describe
   `Free Up Unused Space` and `Delete All FrameWink Photos`. The public privacy
   and support changes will need publication before App Review submission.
-- Local unsigned Release build, Release Analyze, archive guard, and nine
-  website source tests passed. Full iPhone/iPad Simulator testing, a clean
-  Xcode Cloud archive from the exact release commit, TestFlight device smoke,
-  build attachment, and final submission review remain. Additional active
-  preparation time so far: approximately 0.4 hours.
+- Local unsigned Release build, Release Analyze, archive guard, nine website
+  source tests, website lint, TypeScript, and production website build passed.
+  The full shared scheme passed 229 tests with five expected skips on iPhone
+  and 230 tests with four expected skips on iPad, with no failures. Xcode timed
+  out collecting extra Simulator diagnostics after each run. Xcode Cloud reports no
+  available build minutes until September 18 at 8:51 PM Eastern. Its clean
+  archive from the exact release commit, TestFlight device smoke, build
+  attachment, and final submission review remain. Additional active
+  preparation time so far: approximately 0.9 hours.
 
 ## Timebox rule
 

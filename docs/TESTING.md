@@ -3036,3 +3036,55 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl de
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info processes --device 00008027-000C25D036EB002E --search FrameWink
 git diff --check
 ```
+
+## Version 1.1 release preparation — 2026-09-18
+
+- The app's Release build reports `CFBundleShortVersionString` 1.1. The unsigned
+  generic iOS Release build, Release Analyze action, and archive release guard
+  passed. The guard retained the production bundle ID, team, iPhone/iPad-only
+  platform scope, iOS 15 minimum, privacy files, and lifetime product ID.
+- The website's nine source tests, ESLint, TypeScript, and production Next.js
+  build passed after its privacy and support pages were aligned with the 1.1
+  cleanup actions. An initial local Next build failed because a temporary
+  dependency symlink pointed outside Turbopack's project root; copying the
+  existing dependencies into this disposable worktree made the production
+  build pass. No dependency versions changed.
+- The complete shared scheme on iPhone 17 Pro Max, iOS 27.0 Simulator, passed
+  **229 tests, 5 expected skips, 0 failures**. Four skips require a physical
+  PhotoKit library; the fifth is an iPad-only website screenshot. The result
+  bundle records one UIKit hosting warning and three purchase-update warnings
+  from `StoreKitConfigurationTests`. Xcode's extra Simulator diagnostic
+  collection timed out after 600 seconds, but `xcodebuild` exited zero and the
+  final test summary reports `Passed`.
+- The complete shared scheme on iPad (A16), iOS 27.0 Simulator, passed
+  **230 tests, 4 expected skips, 0 failures**. All four skips require a
+  physical PhotoKit library. The same UIKit hosting and StoreKit test-harness
+  runtime warnings appear. Xcode again timed out after 600 seconds while
+  collecting extra Simulator diagnostics after testing; `xcodebuild` exited
+  zero and the final test summary reports `Passed`.
+- App Store Connect, inspected through Chrome, has a saved editable iOS 1.1
+  draft with a four-item What's New bullet list, updated App Review notes,
+  accurate cleanup description, manual release, and no build attached. The
+  privacy answer remains `Data Not Collected`, the production privacy URL is
+  `https://frame.jenny.media/privacy`, and FrameWink Lifetime remains an
+  approved non-consumable. Xcode Cloud shows 0 available minutes until its
+  September 18, 8:51 PM Eastern reset. No 1.1 archive, TestFlight install,
+  or review submission has occurred.
+
+Commands run from `/private/tmp/framewink-storage-pr`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -showdestinations
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer CI_XCODEBUILD_ACTION=archive ci_scripts/ci_pre_xcodebuild.sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-Release11-DerivedData CODE_SIGNING_ALLOWED=NO build
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-Release11-DerivedData CODE_SIGNING_ALLOWED=NO analyze
+plutil -extract CFBundleShortVersionString raw -o - /private/tmp/FrameWink-Release11-DerivedData/Build/Products/Release-iphoneos/FrameWink.app/Info.plist
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-Release11-Tests -resultBundlePath /private/tmp/FrameWink-Release11-iPhone.xcresult CODE_SIGNING_ALLOWED=NO test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Release11-Tests -resultBundlePath /private/tmp/FrameWink-Release11-iPad.xcresult CODE_SIGNING_ALLOWED=NO test-without-building
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-iPhone.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-iPad.xcresult
+node --test website/tests/site.test.mjs
+npm --prefix website run lint
+npm --prefix website run build
+git diff --check
+```
