@@ -71,6 +71,12 @@ struct LocalStorageUsage: Equatable {
             fileManager: fileManager,
             shouldRemove: { $0.lastPathComponent.hasPrefix(".partial-") }
         )
+        removeOldFiles(
+            in: baseURL.appendingPathComponent("AutomaticAlbum/Images", isDirectory: true),
+            olderThan: cutoff,
+            fileManager: fileManager,
+            shouldRemove: { $0.lastPathComponent.hasPrefix(".partial-") }
+        )
     }
 
     static func removeAllWorkingFiles(

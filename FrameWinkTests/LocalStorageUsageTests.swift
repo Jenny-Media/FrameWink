@@ -70,12 +70,16 @@ final class LocalStorageUsageTests: XCTestCase {
         let temporary = root.appendingPathComponent("Temporary")
         let imported = app.appendingPathComponent("ImportedPhotos")
         let staged = temporary.appendingPathComponent("FrameWinkPickerStaging")
+        let album = app.appendingPathComponent("AutomaticAlbum/Images")
         let oldStaged = try writeFile(in: staged, name: "old.heic")
         let freshStaged = try writeFile(in: staged, name: "fresh.heic")
         let oldPartial = try writeFile(in: imported, name: ".partial-old.jpg")
+        let oldAlbumPartial = try writeFile(in: album, name: ".partial-old.jpg")
+        let freshAlbumPartial = try writeFile(in: album, name: ".partial-active.jpg")
+        let keptAlbumPhoto = try writeFile(in: album, name: "cached.jpg")
         let keptPhoto = try writeFile(in: imported, name: "selected.jpg")
         let old = Date(timeIntervalSince1970: 100)
-        for url in [oldStaged, oldPartial, keptPhoto] {
+        for url in [oldStaged, oldPartial, oldAlbumPartial, keptAlbumPhoto, keptPhoto] {
             try FileManager.default.setAttributes([.modificationDate: old], ofItemAtPath: url.path)
         }
 
@@ -87,6 +91,9 @@ final class LocalStorageUsageTests: XCTestCase {
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: oldStaged.path))
         XCTAssertFalse(FileManager.default.fileExists(atPath: oldPartial.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: oldAlbumPartial.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: freshAlbumPartial.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: keptAlbumPhoto.path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: freshStaged.path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: keptPhoto.path))
     }

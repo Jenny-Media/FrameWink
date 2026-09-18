@@ -31,11 +31,11 @@ final class LocalAlbumSourceStoreTests: XCTestCase {
         XCTAssertFalse(reopened.loadConfiguration().strictOffline)
     }
 
-    func testCorruptRecordsAreDiscardedWithOrphanedImages() throws {
+    func testCorruptRecordsDiscardOrphanedImagesButPreserveActivePartial() throws {
         let temporary = try store.temporaryURL(pathExtension: "jpg")
         try Data("image".utf8).write(to: temporary)
-        let abandonedPartial = try store.temporaryURL(pathExtension: "jpg")
-        try Data("partial".utf8).write(to: abandonedPartial)
+        let activePartial = try store.temporaryURL(pathExtension: "jpg")
+        try Data("partial".utf8).write(to: activePartial)
         try store.commitTemporaryImage(at: temporary, filename: "orphan.jpg")
         try FileManager.default.createDirectory(
             at: store.metadataDirectory,
@@ -47,7 +47,7 @@ final class LocalAlbumSourceStoreTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(
             atPath: store.imagesDirectory.appendingPathComponent("orphan.jpg").path
         ))
-        XCTAssertFalse(FileManager.default.fileExists(atPath: abandonedPartial.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: activePartial.path))
         XCTAssertFalse(FileManager.default.fileExists(atPath: store.recordsURL.path))
     }
 

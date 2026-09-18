@@ -401,6 +401,10 @@ final class LocalAlbumSourceStore: AlbumSourceStoring {
             options: []
         )
         for file in files where !filenames.contains(file.lastPathComponent) {
+            // An image restore or album sync may still be writing a temporary
+            // file while metadata is read. Age-based maintenance removes
+            // abandoned partials without interrupting an active download.
+            if file.lastPathComponent.hasPrefix(".partial-") { continue }
             try? fileManager.removeItem(at: file)
         }
     }

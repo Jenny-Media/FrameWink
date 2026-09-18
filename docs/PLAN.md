@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 27.35 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
-| **Total** | **40 h** | **50.35 h** | **In progress** |
+| 6. Hardening and release | 8 h | 27.5 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
+| **Total** | **40 h** | **50.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -1916,7 +1916,14 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   available build minutes until September 18 at 8:51 PM Eastern. Its clean
   archive from the exact release commit, TestFlight device smoke, build
   attachment, and final submission review remain. Additional active
-  preparation time so far: approximately 0.9 hours.
+  preparation time so far: approximately 1.05 hours.
+- A pre-merge storage review found that metadata orphan cleanup could remove
+  an active album image download. It now leaves temporary album files alone;
+  startup and manual maintenance remove abandoned partials older than 24
+  hours. The affected storage tests pass 13/13 on each iPhone and iPad
+  Simulator with no warnings; the iPad build-for-testing and Release Analyze
+  actions pass after the change. Full-scheme results above precede this small
+  fix, and hosted validation remains pending cloud minutes.
 
 ## Timebox rule
 

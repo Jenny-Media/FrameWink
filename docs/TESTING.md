@@ -3088,3 +3088,26 @@ npm --prefix website run lint
 npm --prefix website run build
 git diff --check
 ```
+
+### Album temporary-file protection before merge — 2026-09-18
+
+- Metadata orphan cleanup previously treated an in-progress `.partial-` album
+  download as an unreferenced image. It now preserves partials while a sync or
+  image restore may be writing them. Startup and manual maintenance remove
+  album partials older than 24 hours. The tests confirm both preservation of
+  recent partials and removal of old partials while keeping cached photos.
+- `LocalAlbumSourceStoreTests` and `LocalStorageUsageTests` passed **13/13** on
+  iPhone 17 Pro Max and **13/13** on iPad (A16), iOS 27.0 Simulators. Both result
+  bundles report zero failures, skips, and runtime warnings. The iPad
+  `build-for-testing`, Release Analyze, and `git diff --check` also pass after
+  this change. The earlier full-scheme runs precede this focused fix.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-Release11-Tests -resultBundlePath /private/tmp/FrameWink-Release11-PartialRace-iPhone.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/LocalStorageUsageTests test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Release11-Tests -resultBundlePath /private/tmp/FrameWink-Release11-PartialRace-iPad.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests -only-testing:FrameWinkTests/LocalStorageUsageTests test-without-building
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Release11-Tests CODE_SIGNING_ALLOWED=NO build-for-testing
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-Release11-DerivedData CODE_SIGNING_ALLOWED=NO analyze
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-PartialRace-iPhone.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-PartialRace-iPad.xcresult
+git diff --check
+```
