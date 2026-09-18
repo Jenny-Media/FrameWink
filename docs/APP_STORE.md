@@ -78,15 +78,16 @@ answers if implementation changes.
 custom or non-exempt encryption; Apple system services such as StoreKit and
 PhotoKit are the only relevant transport surfaces.
 
-## Published privacy policy
+## Published privacy and support pages
 
 - Privacy policy URL:
-  `https://github.com/Jenny-Media/FrameWink/blob/main/PRIVACY.md`
-- Support URL: `https://github.com/Jenny-Media/FrameWink/issues`
+  `https://frame.jenny.media/privacy`
+- Support URL: `https://frame.jenny.media/support`
 - Support email: `framewink@jenny.media`
 
-The canonical policy is the root-level `PRIVACY.md`. The copy below is retained
-as release-review input and must remain aligned with it.
+The root-level `PRIVACY.md` is the canonical policy source. The website copy
+and the release-review input below must remain aligned with it. The 1.1 website
+copy changes are on draft PR #13 and require publication before review submission.
 
 Effective: September 18, 2026
 
