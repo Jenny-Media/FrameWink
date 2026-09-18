@@ -3133,8 +3133,12 @@ git diff --check
   in Apple Photos remain untouched. The owner subsequently reported that Build
   30 works, without specifying the device family or test steps. The build was
   attached to the iOS 1.1 App Store draft and the persisted selection was
-  verified after reloading the page. The version remains `Prepare for
-  Submission` with manual release selected; no review submission occurred.
+  verified after reloading the page. The promotional text and App Review
+  contact were saved and verified. Submission
+  `65db5975-4582-4cca-b723-263428ef3768` was sent on 2026-09-18 at
+  4:16 PM Eastern with iOS 1.1 (30) as its sole item. App Store Connect shows
+  `Waiting for Review`, with manual release after approval selected. This is
+  submission evidence, not approval or physical iPhone/iPad acceptance.
 
 Commands run from `/private/tmp/framewink-storage-pr`:
 

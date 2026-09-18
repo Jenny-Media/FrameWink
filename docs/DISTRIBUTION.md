@@ -634,17 +634,19 @@ blocker affects only a later boundary.
 ### B-028 — Version 1.1 release candidate
 
 - Status: In progress; local Build 30 validated, available to internal
-  TestFlight, and attached to the iOS 1.1 App Store draft
+  TestFlight, and submitted to App Review (`Waiting for Review`)
 - First recorded: 2026-09-18
 - Scope: carry the unshipped 1.0.1 sample and framing improvements into 1.1,
   then add clear storage controls, safe cleanup, a bounded recent-album cache,
   and playback timing and restore-feedback fixes. The free/paid boundary,
   supported platforms, lifetime price, and product identifier stay the same.
-- App Store Connect: the editable iOS version was changed from 1.0.1 to 1.1.
+- App Store Connect: the iOS version was changed from 1.0.1 to 1.1.
   Its What's New is a four-item bullet list, reviewer notes describe the new
   storage actions, the old 1.0.1 Build 19 was detached, and manual release
   remains selected. Version 1.1 Build 30 is available to internal testers and
-  attached to the App Store draft. The version is still `Prepare for Submission`.
+  submitted to App Review on 2026-09-18 at 4:16 PM Eastern as submission
+  `65db5975-4582-4cca-b723-263428ef3768`. The version is `Waiting for
+  Review`.
 - Local release input: the app marketing version and cloud archive guard are
   1.1, and TestFlight instructions, public privacy, and support copy describe
   the shipping cleanup controls. A local Release build, Analyze action, and
@@ -658,7 +660,7 @@ blocker affects only a later boundary.
   attempt was rejected for unsupported Xcode/SDK and is not the release binary.
   The public privacy and support pages now show the 1.1 cleanup names.
   The owner reports that Build 30 works; device families and test steps were
-  not specified. Broader physical acceptance and review submission remain.
+  not specified. Broader physical acceptance and Apple's review remain.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 

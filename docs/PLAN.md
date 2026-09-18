@@ -13,7 +13,7 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 27.5 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
+| 6. Hardening and release | 8 h | 27.5 h | Version 1.1 waiting for App Review; broader device acceptance pending |
 | **Total** | **40 h** | **50.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
@@ -1932,10 +1932,14 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   storage/album testing notes are saved. A beta-Xcode Build 29 upload was
   rejected for its unsupported toolchain and was superseded by Build 30.
   The public privacy and support pages now show the 1.1 cleanup names. Build
-  30 was subsequently attached to the iOS 1.1 App Store draft and verified
+  30 was subsequently attached to the iOS 1.1 App Store version and verified
   after a page reload. The owner reports that it works; the checked device(s)
-  and scenarios were not specified. The version remains `Prepare for
-  Submission` with manual release selected; review submission remains.
+  and scenarios were not specified. The promotional text and App Review contact
+  were saved and verified. On 2026-09-18 at 4:16 PM Eastern, submission
+  `65db5975-4582-4cca-b723-263428ef3768` was sent with iOS 1.1 (30) as its
+  sole item. App Store Connect shows `Waiting for Review`; manual release after
+  approval remains selected. Apple's review and broader device acceptance
+  remain. Additional submission time: approximately 0.2 hours.
   Additional active merge, archive, upload, and verification time: about
   1.3 hours. The primary checkout's unrelated changes were preserved.
 
