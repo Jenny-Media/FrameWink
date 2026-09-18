@@ -103,22 +103,61 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         more.tap()
         app.buttons["Privacy & Data"].tap()
         XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
-        let deleteImportedPhotos = app.buttons["delete-imported-photos"]
-        if !deleteImportedPhotos.waitForExistence(timeout: 1) {
+        let deleteAllPhotos = app.buttons["delete-all-framewink-photos"]
+        if !deleteAllPhotos.waitForExistence(timeout: 1) {
             app.swipeUp()
         }
-        XCTAssertTrue(deleteImportedPhotos.waitForExistence(timeout: 8))
-        deleteImportedPhotos.tap()
+        XCTAssertTrue(deleteAllPhotos.waitForExistence(timeout: 8))
+        deleteAllPhotos.tap()
 
-        let confirmDelete = app.buttons["confirm-delete-imported-photos"].firstMatch
+        let confirmation = app.alerts["Delete All FrameWink Photos?"]
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 8))
+        let warning = confirmation.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "your current selections and reels")
+        ).firstMatch
+        XCTAssertTrue(warning.exists)
+        XCTAssertTrue(warning.label.contains("saved frames using those photos"))
+        XCTAssertTrue(warning.label.contains("Your Apple Photos library is never changed."))
+        let confirmDelete = app.buttons["confirm-delete-all-framewink-photos"].firstMatch
         XCTAssertTrue(confirmDelete.waitForExistence(timeout: 8))
         confirmDelete.tap()
+
+        let deletionProgress = app.descendants(matching: .any)[
+            "delete-all-framewink-photos-progress"
+        ].firstMatch
+        XCTAssertTrue(deletionProgress.waitForExistence(timeout: 3))
 
         XCTAssertTrue(
             app.staticTexts["Bundled sample photos"].waitForExistence(timeout: 8)
         )
         XCTAssertTrue(app.buttons["Choose Photos"].exists)
-        XCTAssertFalse(app.buttons["Delete Imported Photos"].exists)
+        XCTAssertTrue(app.buttons["Delete All FrameWink Photos…"].exists)
+    }
+
+    func testSafeCleanupShowsProgressAndKeepsPersonalSelection() {
+        launch(scenario: "personal-reel")
+
+        app.buttons["More"].tap()
+        app.buttons["Privacy & Data"].tap()
+        XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
+        let cleanup = app.buttons["free-unused-photo-space"]
+        if !cleanup.waitForExistence(timeout: 1) {
+            app.swipeUp()
+        }
+        XCTAssertTrue(cleanup.waitForExistence(timeout: 8))
+        cleanup.tap()
+
+        let cleanupProgress = app.descendants(matching: .any)[
+            "free-unused-photo-space-progress"
+        ].firstMatch
+        XCTAssertTrue(cleanupProgress.waitForExistence(timeout: 3))
+        let cleanupResult = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Last cleanup freed ")
+        ).firstMatch
+        XCTAssertTrue(cleanupResult.waitForExistence(timeout: 8))
+
+        app.buttons["Close"].tap()
+        XCTAssertTrue(app.staticTexts["3 photos are ready."].waitForExistence(timeout: 8))
     }
 
     func testReadyHomePreviewCanSwipeBeforeStartingFrame() {

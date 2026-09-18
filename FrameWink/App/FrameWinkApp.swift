@@ -7,6 +7,7 @@ struct FrameWinkApp: App {
     @StateObject private var purchases: PurchaseController
     @StateObject private var automaticAlbum: AutomaticAlbumController
     @StateObject private var frameConfigurations: FrameConfigurationController
+    private let storageBaseURL: URL
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
@@ -30,6 +31,10 @@ struct FrameWinkApp: App {
             ?? fileManager.temporaryDirectory.appendingPathComponent("FrameWink", isDirectory: true)
 #endif
         let store = LocalImportedPhotoStore(baseURL: baseURL, fileManager: fileManager)
+        storageBaseURL = baseURL
+        Task.detached(priority: .utility) {
+            LocalStorageUsage.removeAbandonedWorkingFiles(baseURL: baseURL)
+        }
         let importer = PhotoImportService(
             store: store,
             downsampler: ImageIODownsampler()
@@ -173,6 +178,7 @@ struct FrameWinkApp: App {
                 purchases: purchases,
                 automaticAlbum: automaticAlbum,
                 frameConfigurations: frameConfigurations,
+                storageBaseURL: storageBaseURL,
                 initialPresentation: initialPresentation
             )
                 .onAppear {

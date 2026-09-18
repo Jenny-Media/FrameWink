@@ -114,12 +114,24 @@ preloaded gifts, family contributions, and remote administration.
   exclusions never change Apple Photos, provides `Never Show Again` with a
   five-second Undo, and keeps a visible `Hidden from Frame` list where any
   older choice—or all choices—can be allowed again.
-- Delete Imported Photos.
+- Privacy & Data offers one confirmed action to delete all FrameWink photo
+  copies, current selections and reels, automatic-album setup, saved frames
+  using those photos, and photo analysis without changing Apple Photos. Safe
+  cleanup and full deletion show distinct progress until their work finishes.
 
 ## FrameWink Lifetime
 
 - Unlimited supported candidates and albums.
 - Automatic refresh as a selected PhotoKit album changes.
+- Album recommendations consider every eligible photo, while downloaded
+  display copies are shared across the chosen album and up to two recently
+  used albums. One shared 1 GiB soft target applies when the device has enough
+  storage headroom; it falls to 512 MiB when space is tight. Oldest inactive
+  copies are removed first when needed, while the current reel stays available.
+  Evicted copies can be fetched again when needed.
+  `Privacy & Data` shows local photo storage and offers a non-destructive
+  unused-space cleanup that removes inactive and unused album downloads while
+  keeping individually picked photos and the current reel.
 - The album chooser keeps supported albums, including Favorites, visible while
   eligible still-photo counts load progressively. Videos do not contribute to
   those counts, and albums with no displayable still photos remain visible with

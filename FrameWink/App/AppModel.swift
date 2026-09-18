@@ -78,6 +78,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var curationPhase: CurationPhase = .idle
     @Published private(set) var smartReel: SmartReel?
     @Published private(set) var excludedPhotoIDs: Set<UUID> = []
+    @Published private(set) var isDeletingImportedPhotos = false
 
     private let importer: PhotoImporting
     private let imageLoader: ImportedPhotoImageLoading
@@ -256,7 +257,9 @@ final class AppModel: ObservableObject {
         candidateCount: Int,
         supersedesActiveCuration: Bool
     ) {
-        guard smartReelBuilder != nil, candidateCount > 0 else { return }
+        guard !isDeletingImportedPhotos,
+              smartReelBuilder != nil,
+              candidateCount > 0 else { return }
         let boundedCount = min(candidateCount, importedPhotos.count)
 
         if isCurating, !supersedesActiveCuration {
@@ -457,11 +460,19 @@ final class AppModel: ObservableObject {
     }
 #endif
 
-    func deleteImportedPhotos() {
+    @discardableResult
+    func deleteImportedPhotos() async -> Bool {
+        guard !isDeletingImportedPhotos else { return false }
+        isDeletingImportedPhotos = true
         importTask?.cancel()
         curationTask?.cancel()
+        await importTask?.value
+        await curationTask?.value
         do {
-            try importer.deleteAllImportedPhotos()
+            let importer = importer
+            try await Task.detached(priority: .userInitiated) {
+                try importer.deleteAllImportedPhotos()
+            }.value
             importedPhotos = []
             retryItems = []
             smartReel = nil
@@ -472,8 +483,12 @@ final class AppModel: ObservableObject {
             collectionMode = .samples
             importPhase = .idle
             curationPhase = .idle
+            isDeletingImportedPhotos = false
+            return true
         } catch {
             importPhase = .deletionFailed(error.localizedDescription)
+            isDeletingImportedPhotos = false
+            return false
         }
     }
 
@@ -486,6 +501,7 @@ final class AppModel: ObservableObject {
     }
 
     private func startImport(_ items: [PhotoImportItem]) {
+        guard !isDeletingImportedPhotos else { return }
         importTask?.cancel()
         retryItems = []
         importPhase = .importing(
@@ -519,7 +535,7 @@ final class AppModel: ObservableObject {
             let retryIDs = Set(report.failures.map(\.sourceID) + report.remainingSourceIDs)
             retryItems = items.filter { retryIDs.contains($0.id) }
             importPhase = .finished(report)
-            if !report.imported.isEmpty {
+            if !report.imported.isEmpty && !isDeletingImportedPhotos {
                 requestCuration(
                     candidateCount: importedPhotos.count,
                     supersedesActiveCuration: false

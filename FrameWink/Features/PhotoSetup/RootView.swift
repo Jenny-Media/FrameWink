@@ -55,6 +55,7 @@ struct RootView: View {
     @ObservedObject var purchases: PurchaseController
     @ObservedObject var automaticAlbum: AutomaticAlbumController
     @ObservedObject var frameConfigurations: FrameConfigurationController
+    let storageBaseURL: URL
     let initialPresentation: RootInitialPresentation?
 
     @State private var presentedSheet: SheetDestination?
@@ -68,6 +69,7 @@ struct RootView: View {
         purchases: PurchaseController,
         automaticAlbum: AutomaticAlbumController,
         frameConfigurations: FrameConfigurationController,
+        storageBaseURL: URL,
         initialPresentation: RootInitialPresentation? = nil
     ) {
         self.model = model
@@ -75,6 +77,7 @@ struct RootView: View {
         self.purchases = purchases
         self.automaticAlbum = automaticAlbum
         self.frameConfigurations = frameConfigurations
+        self.storageBaseURL = storageBaseURL
         self.initialPresentation = initialPresentation
     }
 
@@ -159,7 +162,9 @@ struct RootView: View {
                 PrivacyAndDataSheet(
                     model: model,
                     automaticAlbum: automaticAlbum,
-                    currentPhotoMode: $model.collectionMode
+                    frameConfigurations: frameConfigurations,
+                    currentPhotoMode: $model.collectionMode,
+                    storageBaseURL: storageBaseURL
                 )
             case .reviewSuggestions:
                 ReviewSuggestionsView(model: model)
@@ -1088,13 +1093,23 @@ private struct PhotosSheet: View {
 }
 
 private struct PrivacyAndDataSheet: View {
+    private static let minimumProgressDisplaySeconds: TimeInterval = 2
+
     @ObservedObject var model: AppModel
     @ObservedObject var automaticAlbum: AutomaticAlbumController
+    @ObservedObject var frameConfigurations: FrameConfigurationController
     @Binding var currentPhotoMode: PhotoCollectionMode
+    let storageBaseURL: URL
     @Environment(\.presentationMode) private var presentationMode
-    @State private var showDeleteImportedConfirmation = false
-    @State private var showDeleteAlbumConfirmation = false
+    @State private var showDeleteAllConfirmation = false
     @State private var showResetNeverShowConfirmation = false
+    @State private var storageUsage: LocalStorageUsage?
+    @State private var isMeasuringStorage = false
+    @State private var storageMeasurementGeneration = UUID()
+    @State private var isCleaningUnusedSpace = false
+    @State private var isDeletingAllPhotoData = false
+    @State private var lastFreedUnusedBytes: Int64?
+    @State private var storageOperationError: String?
 
     var body: some View {
         NavigationView {
@@ -1127,33 +1142,66 @@ private struct PrivacyAndDataSheet: View {
                     privacyPoint(
                         icon: "trash",
                         title: "Delete whenever you want",
-                        detail: "Delete Imported Photos and Remove Downloaded Album Photos erase app-controlled copies and derived records without changing Apple Photos."
+                        detail: "Free Up Unused Space keeps your choices. Delete All FrameWink Photos clears your selected photos and album setup, but never changes Apple Photos."
                     )
                     }
                     .padding(.vertical, 8)
                 }
 
                 Section("Data on This Device") {
-                    if !model.importedPhotos.isEmpty {
-                        Text(
-                            "\(model.importedPhotos.count) selected photo copies are stored locally."
-                        )
-                        Button("Delete Imported Photos", role: .destructive) {
-                            showDeleteImportedConfirmation = true
-                        }
-                        .accessibilityIdentifier("delete-imported-photos")
-                    } else {
-                        Text("No individually selected photo copies are stored.")
+                    storageRows
+                    Button("Refresh Storage Sizes") {
+                        Task { await refreshStorageUsage() }
+                    }
+                    .disabled(isMeasuringStorage || isStorageOperationInProgress)
+                }
+
+                Section("Free Up Space") {
+                    Button("Free Up Unused Space") {
+                        Task { await freeUpUnusedSpace() }
+                    }
+                    .accessibilityIdentifier("free-unused-photo-space")
+                    .disabled(isStorageOperationInProgress)
+                    if isCleaningUnusedSpace {
+                        ProgressView("Freeing unused space…")
+                            .progressViewStyle(LinearProgressViewStyle())
+                            .accessibilityIdentifier("free-unused-photo-space-progress")
+                    }
+                    Text("Keeps photos you picked individually, the current reel, and your chosen album. Removes old working files, downloads from other recently used albums, and unused downloads from the current album. FrameWink also limits album downloads automatically.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    if let lastFreedUnusedBytes {
+                        Text("Last cleanup freed \(LocalStorageUsage.formatted(lastFreedUnusedBytes)).")
+                            .font(.footnote)
                             .foregroundColor(.secondary)
                     }
+                }
 
-                    if automaticAlbum.configuration.isConfigured {
+                Section("Delete Photo Data") {
+                    Button("Delete All FrameWink Photos…", role: .destructive) {
+                        showDeleteAllConfirmation = true
+                    }
+                    .accessibilityIdentifier("delete-all-framewink-photos")
+                    .disabled(isStorageOperationInProgress)
+                    if isDeletingAllPhotoData {
+                        ProgressView("Deleting FrameWink photos…")
+                            .progressViewStyle(LinearProgressViewStyle())
+                            .accessibilityIdentifier("delete-all-framewink-photos-progress")
+                    }
+                    Text("Erases imported photos, reels, album downloads and selection, saved frames using those photos, and photo analysis. Apple Photos is unchanged.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                    if let storageOperationError {
+                        Text(storageOperationError)
+                            .font(.footnote)
+                            .foregroundColor(.red)
+                    }
+                }
+
+                if automaticAlbum.configuration.isConfigured {
+                    Section("Hidden Photos") {
                         Button("Reset Hidden Photos") {
                             showResetNeverShowConfirmation = true
-                        }
-
-                        Button("Remove Downloaded Album Photos", role: .destructive) {
-                            showDeleteAlbumConfirmation = true
                         }
                     }
                 }
@@ -1169,26 +1217,17 @@ private struct PrivacyAndDataSheet: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .alert("Delete Imported Photos?", isPresented: $showDeleteImportedConfirmation) {
-            Button("Delete All Imported Photos", role: .destructive) {
-                model.deleteImportedPhotos()
-                currentPhotoMode = .samples
-            }
-            .accessibilityIdentifier("confirm-delete-imported-photos")
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This removes every app-controlled photo copy and its derived records. Your Apple Photos library is never changed.")
+        .task {
+            await refreshStorageUsage()
         }
-        .alert("Remove Downloaded Album Photos?", isPresented: $showDeleteAlbumConfirmation) {
-            Button("Remove Downloads", role: .destructive) {
-                automaticAlbum.deleteCachedAlbum()
-                if currentPhotoMode == .automaticAlbum {
-                    currentPhotoMode = .samples
-                }
+        .alert("Delete All FrameWink Photos?", isPresented: $showDeleteAllConfirmation) {
+            Button("Delete All FrameWink Photos", role: .destructive) {
+                Task { await deleteAllPhotoData() }
             }
+            .accessibilityIdentifier("confirm-delete-all-framewink-photos")
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This removes only FrameWink’s copies and analysis. It never changes Apple Photos.")
+            Text("This erases every photo copied into FrameWink, your current selections and reels, the chosen automatic album, saved frames using those photos, photo analysis, and Never Show Again choices. You will need to select photos or an album again. Your Apple Photos library is never changed.")
         }
         .alert("Reset Hidden Photos?", isPresented: $showResetNeverShowConfirmation) {
             Button("Reset") {
@@ -1198,6 +1237,120 @@ private struct PrivacyAndDataSheet: View {
         } message: {
             Text("Photos you previously chose to never show may appear again. Apple Photos is unchanged.")
         }
+    }
+
+    @ViewBuilder
+    private var storageRows: some View {
+        if let storageUsage {
+            storageRow("FrameWink photo data", bytes: storageUsage.totalBytes)
+            storageRow("Selected photo copies", bytes: storageUsage.importedBytes)
+            storageRow("Downloaded album photos", bytes: storageUsage.albumBytes)
+            if storageUsage.temporaryBytes > 0 {
+                storageRow("Import working files", bytes: storageUsage.temporaryBytes)
+            }
+            Text("Photo data sizes are approximate. The app itself and Apple Photos storage are separate.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+        } else if isMeasuringStorage {
+            ProgressView("Measuring photo storage…")
+        }
+    }
+
+    private func storageRow(_ title: LocalizedStringKey, bytes: Int64) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(LocalStorageUsage.formatted(bytes))
+                .foregroundColor(.secondary)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var isStorageOperationInProgress: Bool {
+        isCleaningUnusedSpace || isDeletingAllPhotoData
+            || model.isDeletingImportedPhotos || automaticAlbum.isDeletingCachedAlbum
+            || automaticAlbum.isCleaningAlbumSpace
+    }
+
+    private func freeUpUnusedSpace() async {
+        guard !isStorageOperationInProgress else { return }
+        let startedAt = ProcessInfo.processInfo.systemUptime
+        isCleaningUnusedSpace = true
+        storageOperationError = nil
+        let baseURL = storageBaseURL
+        let before = await Task.detached(priority: .utility) {
+            LocalStorageUsage.measure(baseURL: baseURL)
+        }.value
+        await Task.detached(priority: .utility) {
+            LocalStorageUsage.removeAbandonedWorkingFiles(baseURL: baseURL)
+        }.value
+        if automaticAlbum.configuration.isConfigured,
+           await automaticAlbum.freeUpAlbumSpace() == nil {
+            storageOperationError = "Some unused album copies could not be removed. Try again."
+        }
+        let after = await Task.detached(priority: .utility) {
+            LocalStorageUsage.measure(baseURL: baseURL)
+        }.value
+        await keepProgressVisible(startedAt: startedAt)
+        storageMeasurementGeneration = UUID()
+        storageUsage = after
+        isMeasuringStorage = false
+        lastFreedUnusedBytes = max(0, before.totalBytes - after.totalBytes)
+        isCleaningUnusedSpace = false
+    }
+
+    private func deleteAllPhotoData() async {
+        guard !isStorageOperationInProgress else { return }
+        let startedAt = ProcessInfo.processInfo.systemUptime
+        isDeletingAllPhotoData = true
+        storageOperationError = nil
+        let importedDeleted = await model.deleteImportedPhotos()
+        let albumDeleted = await automaticAlbum.deleteCachedAlbum()
+        let savedFramesUpdated = frameConfigurations.removeDeletedPhotoSources(
+            imported: importedDeleted,
+            automaticAlbum: albumDeleted
+        )
+        let workingFilesDeleted: Bool
+        do {
+            try await Task.detached(priority: .utility) {
+                try LocalStorageUsage.removeAllWorkingFiles()
+            }.value
+            workingFilesDeleted = true
+        } catch {
+            workingFilesDeleted = false
+        }
+        if (importedDeleted && currentPhotoMode == .personal)
+            || (albumDeleted && currentPhotoMode == .automaticAlbum) {
+            currentPhotoMode = .samples
+        }
+        if importedDeleted && albumDeleted && workingFilesDeleted && savedFramesUpdated {
+            lastFreedUnusedBytes = nil
+        } else {
+            storageOperationError = "Some FrameWink photo data could not be deleted. Check the remaining storage and try again."
+        }
+        await keepProgressVisible(startedAt: startedAt)
+        await refreshStorageUsage()
+        isDeletingAllPhotoData = false
+    }
+
+    private func keepProgressVisible(startedAt: TimeInterval) async {
+        let elapsed = ProcessInfo.processInfo.systemUptime - startedAt
+        let remaining = max(0, Self.minimumProgressDisplaySeconds - elapsed)
+        guard remaining > 0 else { return }
+        try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
+    }
+
+    private func refreshStorageUsage() async {
+        let generation = UUID()
+        storageMeasurementGeneration = generation
+        isMeasuringStorage = true
+        let baseURL = storageBaseURL
+        let usage = await Task.detached(priority: .utility) {
+            LocalStorageUsage.measure(baseURL: baseURL)
+        }.value
+        guard storageMeasurementGeneration == generation else { return }
+        storageUsage = usage
+        isMeasuringStorage = false
     }
 
     private func privacyPoint(

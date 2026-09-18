@@ -519,3 +519,75 @@ date; do not silently rewrite historical decisions during implementation.
   model before choosing an outcome. One explanatory chooser makes the durable
   difference clear, while the contextual home action avoids adding a tap to
   routine maintenance.
+
+## D-042 — Automatic albums keep a bounded set of display copies
+
+- **Decision:** Continue considering every eligible photo in the chosen paid
+  album, but treat downloaded display JPEGs as a disposable working set. After
+  each preparation checkpoint that crosses a 512 MiB image-cache target, finish
+  analyzing the prepared candidates, retain the current reel's images, and
+  discard other downloaded copies while keeping their asset metadata and
+  revisioned curation signals. Restore an evicted image from PhotoKit when a
+  later reel or review needs it. Pause new album downloads below 512 MiB of
+  available device storage. Show per-source app photo-data sizes and offer
+  `Free Up Album Space` without changing the chosen album or Apple Photos.
+  Individually selected photos remain durable until the user explicitly deletes
+  them. Run both full-data deletion paths away from the main thread.
+- **Reason:** An album with thousands of eligible images can make an unbounded
+  display cache occupy gigabytes even though the frame shows at most 100
+  recommendations at a time. A rolling image set preserves the full candidate
+  pool and current playback while making storage use visible and recoverable.
+  File deletion on the main thread caused a visible app pause.
+
+## D-043 — One explicit photo-data reset and one safe cleanup
+
+- **Decision:** `Privacy & Data` has one destructive `Delete All FrameWink
+  Photos` action instead of separate imported-photo and album-delete buttons.
+  Its confirmation names every consequence: imported copies, current reels,
+  automatic-album downloads and chosen album, saved frames using those photo
+  sources, analysis, and `Never Show Again` choices are removed; Apple Photos is
+  untouched. Sample-only saved frames remain. Keep `Free Up Unused Space`
+  as a separate safe action that clears old working files and unused album
+  copies while keeping the active reel, selected photos, and album. Continue
+  automatic pruning and abandoned-file cleanup without user intervention.
+- **Reason:** The two deletion buttons appeared to offer the same result while
+  affecting different selections. One clear reset makes its cost visible;
+  routine storage recovery must preserve the photos the user chose.
+
+## D-044 — Storage actions show persistent, honest progress
+
+- **Decision:** Show a labeled linear indeterminate progress bar for each
+  manual storage action. Keep it visible for at least two seconds, or until
+  measurement and deletion finish if they take longer. Update the displayed
+  storage total at completion. Do not invent a percentage for filesystem and
+  PhotoKit work with no reliable byte-progress signal.
+- **Reason:** A fast cleanup previously refreshed the screen so quickly that
+  the user could miss the operation state and result.
+
+## D-045 — Retain a few recently used album downloads
+
+- **Decision:** Keep the chosen album and up to two recently selected albums in
+  one shared automatic-album cache. Reuse the same downloaded copy when an asset
+  belongs to multiple albums. Keep the existing 512 MiB image target across all
+  retained albums, evicting the oldest inactive images first and protecting the
+  current reel. A fourth album removes the oldest album membership and its
+  unshared copies at the next sync commit. Manual `Free Up Unused Space` removes
+  all inactive and unused current-album downloads even below the target, while
+  retaining metadata and individually picked photos.
+- **Reason:** Switching among a few albums should reuse local images when space
+  allows, without returning to unbounded downloads or weakening explicit
+  cleanup. The existing single-album cache migrates into the recent-album index.
+
+## D-046 — Raise the album image target when storage allows
+
+- **Decision:** Allow up to 1 GiB of downloaded album images across the three
+  recent albums when free device space plus existing album image bytes totals
+  at least 3 GiB. Otherwise use the original 512 MiB target. Keep the 512 MiB
+  minimum free-space guard for new downloads, preserve the current reel, and
+  keep manual cleanup independent of both targets. If free-space measurement
+  is unavailable, use the smaller target.
+- **Reason:** The original 512 MiB was a conservative response to an 8 GB app
+  footprint, not a measured optimum for switching among three albums. A 1 GiB
+  shared target allows more recent downloads to survive while remaining far
+  below unbounded caching. Using free space plus existing cache bytes avoids
+  changing tiers merely because FrameWink pruned or downloaded its own files.
