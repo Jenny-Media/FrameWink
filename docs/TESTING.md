@@ -3176,3 +3176,28 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /tmp/FrameWink-Pause-Fix-iPhone/Logs/Test/Test-FrameWink-2026.09.21_16-40-19--0400.xcresult
 git diff --check
 ```
+
+## Realistic-scale iPad screenshot treatment — 2026-09-21
+
+- The deterministic generator produced six JPEG screenshots at exactly
+  2752 x 2064 with no alpha and rejected any other count or dimensions.
+- The wall iPad is approximately 67% of the nearby lamp-shade width. The
+  tabletop scene uses the same physical relationship, with books and a cup as
+  additional scale references.
+- Image generation supplied only the two empty room backgrounds. The device
+  images use the repository's licensed Apple bezel derivatives, and their
+  screens use FrameWink's exact bundled Yellowstone Falls, San Francisco,
+  Golden Gate, and Antelope Canyon sample photography.
+- The remaining cards use native FrameWink Simulator captures for album choice,
+  smart layouts, and suggestion review. No storage, scheduling, purchase, or
+  setup-detail screen appears in the treatment.
+- Visual inspection covered all six images through the regenerated contact
+  sheet. `git diff --check` passes.
+
+Commands run from `/private/tmp/framewink-app-store-screenshots`:
+
+```sh
+/bin/bash -n scripts/generate_app_store_ipad_ppo_screenshots.sh
+scripts/generate_app_store_ipad_ppo_screenshots.sh
+git diff --check
+```

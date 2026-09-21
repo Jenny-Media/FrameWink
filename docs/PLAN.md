@@ -1957,8 +1957,8 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### Paused-frame stability and screenshot redesign — 2026-09-21
 
-- Status: pause and checkpoint fixes are implemented and verified; screenshot
-  concept review is in progress on pull request #15.
+- Status: pause and checkpoint fixes are implemented and verified; the revised
+  six-image iPad treatment is generated for review on pull request #15.
 - Frame pause now holds the exact visible slide data while automatic album
   synchronization, analysis, and cache maintenance continue. The newest reel
   is applied once when playback resumes. Storage checkpoints can still prune
@@ -1969,13 +1969,14 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   exposed too many settings details. New concept mocks use everyday furniture,
   lamps, books, and cups as scale references and shift the story to wall use,
   tabletop use, album choice, private curation, review, and simple playback.
-  Generated concepts remain visual direction only; final assets will use real
-  FrameWink captures and the repository's licensed Apple bezel derivatives.
+  The final candidate uses generated empty rooms only. Device bezels, screens,
+  and every displayed photo come from licensed repository assets, native
+  FrameWink captures, and the app's bundled sample-photo catalog.
 - The affected 47-test set passed on iPad (A16) and iPhone 17 Pro Max, iOS
   27.0 Simulators, with no failures, skips, or runtime warnings. Final
-  screenshot generation, physical-device pause acceptance, and App Store
-  Connect replacement remain pending. Active time so far: approximately 0.5
-  hours.
+  screenshot generation is complete at 2752 x 2064 with six JPEGs and no
+  alpha. Physical-device pause acceptance and App Store Connect replacement
+  remain pending. Active time so far: approximately 0.8 hours.
 
 ## Timebox rule
 

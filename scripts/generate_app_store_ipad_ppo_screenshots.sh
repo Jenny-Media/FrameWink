@@ -7,7 +7,7 @@ magick_bin=${FRAMEWINK_MAGICK_BIN:-$(command -v magick || true)}
 font_file=${FRAMEWINK_SCREENSHOT_FONT:-/System/Library/Fonts/SFNSRounded.ttf}
 source_root="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Sources"
 output_root="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final"
-marketing_root="$repo_root/AppStore/Screenshots/Marketing-Landscape/iPad-13-inch"
+capture_root="$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"
 bezel_root="$repo_root/website/public/images"
 contact_sheet="$repo_root/AppStore/Screenshots/Review/ContactSheets/iPad-PPO-Bezel-Proposed.jpg"
 working_directory=$(mktemp -d "${TMPDIR:-/tmp}/framewink-ipad-ppo.XXXXXX")
@@ -23,81 +23,110 @@ trap 'rm -rf "$working_directory"' EXIT
 mkdir -p "$output_root" "$(dirname "$contact_sheet")"
 find "$output_root" -maxdepth 1 -type f -name '*.jpg' -delete
 
-render_lifestyle_scene() {
-    background=$1
-    bezel=$2
-    destination=$3
-    headline=$4
-    detail=$5
-    device_y=$6
+make_headline() {
+    local text=$1
+    local width=$2
+    local size=$3
+    local destination=$4
 
-    prefix="$working_directory/$(basename "$destination" .jpg)"
-
-    "$magick_bin" "$background" -resize '2752x2064!' \
-        -fill '#fff8e9e8' \
-        -draw 'roundrectangle 92,230 925,1315 54,54' \
-        "$prefix-background.png"
-
-    "$magick_bin" "$bezel" -resize '1650x1265' "$prefix-ipad.png"
-
-    "$magick_bin" -background none -fill '#111735' \
-        -font "$font_file" -weight 700 -pointsize 98 \
-        -kerning -2 -interline-spacing 4 -gravity northwest \
-        -size '700x' "caption:$headline" \
-        "$prefix-headline.png"
-
-    "$magick_bin" -background none -fill '#555b70' \
-        -font "$font_file" -weight 500 -pointsize 38 \
-        -kerning 0 -interline-spacing 8 -gravity northwest \
-        -size '680x' "caption:$detail" \
-        "$prefix-detail.png"
-
-    "$magick_bin" "$prefix-background.png" \
-        "$prefix-ipad.png" -gravity northwest -geometry "+1005+${device_y}" -composite \
-        "$prefix-headline.png" -gravity northwest -geometry '+155+380' -composite \
-        "$prefix-detail.png" -gravity northwest -geometry '+160+875' -composite \
-        -fill '#a93618' -font "$font_file" -weight 700 -pointsize 28 \
-        -kerning 3 -gravity northwest -annotate '+160+310' \
-        'FRAMEWINK · PRIVATE SMART PHOTO FRAME' \
-        -fill '#666b7d' -font "$font_file" -weight 600 -pointsize 25 \
-        -kerning 0 -gravity northwest -annotate '+160+1215' \
-        'ACTUAL FRAMEWINK SCREEN' \
-        -strip -sampling-factor 4:2:0 -quality 94 \
-        "$destination"
+    "$magick_bin" -background none -fill '#171719' \
+        -font "$font_file" -weight 700 -pointsize "$size" \
+        -kerning -2 -interline-spacing 5 -gravity northwest \
+        -size "${width}x" "caption:$text" "$destination"
 }
 
-render_lifestyle_scene \
-    "$source_root/wall-room-v1.png" \
-    "$bezel_root/ipad-flat-frame-v1.webp" \
-    "$output_root/01-wall-mounted-frame.jpg" \
-    $'Your photos.\nAt home on the wall.' \
-    $'A calm, private photo frame made for the iPad you already own.' \
-    300
+render_wall_scene() {
+    local destination=$1
+    local prefix="$working_directory/wall"
 
-render_lifestyle_scene \
-    "$source_root/table-room-v1.png" \
-    "$bezel_root/ipad-flat-mosaic-v1.webp" \
-    "$output_root/02-tabletop-frame.jpg" \
-    $'More memories.\nBeautifully arranged.' \
-    $'Automatic layouts make a tabletop iPad feel at home in the room.' \
-    335
+    "$magick_bin" "$source_root/wall-room-v2.png" -resize '2752x2064!' \
+        "$prefix-background.png"
+    "$magick_bin" "$bezel_root/ipad-flat-frame-v1.webp" -resize '285x' \
+        "$prefix-ipad.png"
+    "$magick_bin" "$prefix-ipad.png" -bordercolor none -border 14 \
+        -background black -shadow '30x9+0+7' "$prefix-shadow.png"
+    make_headline $'Your photos.\nBeautifully framed.' 940 116 \
+        "$prefix-headline.png"
 
-cp "$marketing_root/03-review-before-display.jpg" \
-    "$output_root/03-review-before-display.jpg"
-cp "$marketing_root/04-automatic-album.jpg" \
-    "$output_root/04-automatic-album.jpg"
-cp "$marketing_root/06-storage-controls.jpg" \
-    "$output_root/05-storage-controls.jpg"
-cp "$marketing_root/05-landscape-controls.jpg" \
-    "$output_root/06-simple-controls.jpg"
-cp "$marketing_root/07-night-schedule.jpg" \
-    "$output_root/07-night-schedule.jpg"
-cp "$marketing_root/08-mounted-display.jpg" \
-    "$output_root/08-mounted-guidance.jpg"
-cp "$marketing_root/09-lifetime-upgrade.jpg" \
-    "$output_root/09-lifetime-upgrade.jpg"
-cp "$marketing_root/10-free-stays-useful.jpg" \
-    "$output_root/10-free-stays-useful.jpg"
+    "$magick_bin" "$prefix-background.png" \
+        "$prefix-shadow.png" -gravity northwest -geometry '+1696+662' -composite \
+        "$prefix-ipad.png" -gravity northwest -geometry '+1710+675' -composite \
+        "$prefix-headline.png" -gravity northwest -geometry '+165+150' -composite \
+        -strip -sampling-factor 4:2:0 -quality 94 "$destination"
+}
+
+render_table_scene() {
+    local destination=$1
+    local prefix="$working_directory/table"
+
+    "$magick_bin" "$source_root/table-room-v2.png" -resize '2752x2064!' \
+        "$prefix-background.png"
+    "$magick_bin" "$bezel_root/ipad-flat-mosaic-v1.webp" -resize '510x' \
+        "$prefix-ipad.png"
+    "$magick_bin" "$prefix-ipad.png" -bordercolor none -border 22 \
+        -background black -shadow '35x12+0+10' "$prefix-shadow.png"
+    make_headline $'At home on a wall\nor table.' 920 112 \
+        "$prefix-headline.png"
+
+    "$magick_bin" "$prefix-background.png" \
+        -fill '#292827' -stroke '#171717' -strokewidth 4 \
+        -draw 'polygon 910,1205 1090,1205 1130,1272 870,1272' \
+        -fill '#3d3b38' -stroke none \
+        -draw 'roundrectangle 842,1264 1160,1285 11,11' \
+        "$prefix-with-stand.png"
+    "$magick_bin" "$prefix-with-stand.png" \
+        "$prefix-shadow.png" -gravity northwest -geometry '+720+795' -composite \
+        "$prefix-ipad.png" -gravity northwest -geometry '+742+810' -composite \
+        "$prefix-headline.png" -gravity northwest -geometry '+150+130' -composite \
+        -strip -sampling-factor 4:2:0 -quality 94 "$destination"
+}
+
+render_benefit_card() {
+    local source=$1
+    local destination=$2
+    local headline=$3
+    local background=$4
+    local accent=$5
+    local prefix="$working_directory/$(basename "$destination" .jpg)"
+
+    "$magick_bin" -size '2752x2064' "xc:$background" \
+        -fill "${accent}24" -draw 'circle 150,1940 500,1940' \
+        -fill '#1717190d' -draw 'rectangle 760,0 762,2064' \
+        "$prefix-background.png"
+    "$magick_bin" "$source" -resize '1810x1358!' \
+        -bordercolor '#ffffff' -border 18 \
+        -background black -shadow '28x10+0+12' "$prefix-shadow.png"
+    "$magick_bin" "$source" -resize '1810x1358!' \
+        -bordercolor '#ffffff' -border 18 "$prefix-screen.png"
+    make_headline "$headline" 620 94 "$prefix-headline.png"
+
+    "$magick_bin" "$prefix-background.png" \
+        "$prefix-shadow.png" -gravity northwest -geometry '+860+355' -composite \
+        "$prefix-screen.png" -gravity northwest -geometry '+860+337' -composite \
+        "$prefix-headline.png" -gravity northwest -geometry '+105+255' -composite \
+        -fill '#a93618' -font "$font_file" -weight 700 -pointsize 28 \
+        -kerning 3 -gravity northwest -annotate '+110+145' 'FRAMEWINK' \
+        -strip -sampling-factor 4:2:0 -quality 94 "$destination"
+}
+
+render_wall_scene "$output_root/01-beautifully-framed.jpg"
+render_table_scene "$output_root/02-wall-or-table.jpg"
+render_benefit_card \
+    "$capture_root/04-landscape-album-picker.jpg" \
+    "$output_root/03-choose-an-album.jpg" \
+    $'Choose an album.\nKeep it fresh.' '#edf6f6' '#12606a'
+render_benefit_card \
+    "$capture_root/02-landscape-mosaic.jpg" \
+    "$output_root/04-smart-highlights.jpg" \
+    $'Beautiful highlights.\nChosen on\nyour device.' '#fff8e9' '#ffc94d'
+render_benefit_card \
+    "$capture_root/03-landscape-review.jpg" \
+    "$output_root/05-review-before-display.jpg" \
+    $'Review every photo.\nThen press play.' '#fff1eb' '#f45e36'
+render_benefit_card \
+    "$capture_root/01-landscape-frame.jpg" \
+    "$output_root/06-private-by-design.jpg" \
+    $'No account.\nNo ads.\nNo tracking.' '#f2f6ea' '#a9bf7b'
 
 for screenshot in "$output_root"/*.jpg; do
     metadata=$(sips -g format -g pixelWidth -g pixelHeight -g hasAlpha "$screenshot")
@@ -111,20 +140,13 @@ for screenshot in "$output_root"/*.jpg; do
     esac
 done
 
-[ "$(find "$output_root" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' ')" = 10 ]
+[ "$(find "$output_root" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' ')" = 6 ]
 
 "$magick_bin" montage "$output_root"/*.jpg \
-    -thumbnail '520x390' \
-    -tile '5x2' \
-    -geometry '+18+42' \
-    -background '#ebe8df' \
-    -fill '#111735' \
-    -font "$font_file" \
-    -pointsize 22 \
-    -set label '%t' \
-    -strip -quality 92 \
-    "$contact_sheet"
+    -thumbnail '620x465' -tile '3x2' -geometry '+22+52' \
+    -background '#ebe8df' -fill '#111735' -font "$font_file" \
+    -pointsize 24 -set label '%t' -strip -quality 92 "$contact_sheet"
 
-echo "Generated the iPad Product Page Optimization screenshot treatment:"
+echo "Generated the cohesive six-image iPad screenshot treatment:"
 echo "  $output_root"
 echo "  $contact_sheet"

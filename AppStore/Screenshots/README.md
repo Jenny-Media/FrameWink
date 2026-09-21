@@ -45,7 +45,7 @@ Apple references:
 ## iPad Product Page Optimization candidate
 
 The current screenshot-only treatment is in
-`ProductPageOptimization/iPad-13-inch/Final/`. It contains exactly ten
+`ProductPageOptimization/iPad-13-inch/Final/`. It contains exactly six
 landscape JPEGs at 2752 x 2064 with no alpha. Run
 `scripts/generate_app_store_ipad_ppo_screenshots.sh` to rebuild it and the
 review contact sheet at
@@ -53,22 +53,22 @@ review contact sheet at
 
 Treatment order:
 
-1. Wall use with the licensed official iPad bezel and an actual FrameWink screen.
-2. Table use with the licensed official iPad bezel and an actual Mosaic screen.
-3. Review before display.
-4. Automatic album choice.
-5. Privacy & Data storage measurement and cleanup.
-6. Frame timing and sharing controls.
-7. Night schedule.
-8. Mounted-display guidance.
-9. One-time upgrade with no subscription.
-10. Useful free tier.
+1. Realistically scaled wall use with the licensed official iPad bezel and the
+   bundled Yellowstone Falls photo.
+2. Realistically scaled table use with the licensed official iPad bezel and a
+   four-photo layout made from bundled sample photos.
+3. Automatic album choice.
+4. On-device smart highlights.
+5. Review before display.
+6. No account, advertising, or tracking.
 
 The generated room backgrounds are retained under `Sources/`. They contain no
 device or app UI. The compositing script places the existing licensed Apple
-bezel derivatives over those backgrounds without tilting, cropping, obscuring,
-or adding a case. The remaining cards use native Simulator captures. The
-standalone Apple Design Resources file is not stored in this repository.
+bezel derivatives over those backgrounds at measured scale. In both scenes the
+13-inch iPad is visibly narrower than the nearby lamp shade. Every screen uses
+FrameWink's bundled sample photos or native Simulator captures; image generation
+is limited to the empty rooms. The standalone Apple Design Resources file is
+not stored in this repository.
 
 ## Source library
 
