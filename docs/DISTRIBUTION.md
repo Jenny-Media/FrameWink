@@ -655,6 +655,21 @@ blocker affects only a later boundary.
   Eastern renewal. The exact-source Xcode Cloud archive remains necessary
   before attaching a build for review.
 
+### B-029 — iPad Product Page Optimization screenshot treatment
+
+- Status: Submitted to App Review on 2026-09-21
+- Scope: screenshot-only test named `iPad Bezel and Storage`, with one
+  treatment and 50% traffic. The treatment replaces the 13-inch iPad gallery
+  with ten 2752 x 2064 images led by wall-mounted and tabletop scenes, followed
+  by direct app screens including the storage controls. The iPhone gallery is
+  inherited from the original product page.
+- Review evidence: App Store Connect confirmed `1 Item Submitted` and linked
+  review submission `27b8cebc-ffcd-48f4-8a74-10d05394f319`. Apple states that
+  review can take up to 48 hours.
+- Remaining gates: App Review approval, test start and result review, then an
+  explicit owner decision before applying a winning treatment to the default
+  product page.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue

@@ -1927,8 +1927,9 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### Album preparation status and iPad screenshot refresh — 2026-09-21
 
-- Status: album-state fix and local iPad screenshot treatment are complete;
-  pull-request review and App Store Connect upload remain.
+- Status: album-state fix and iPad screenshot treatment are complete. Pull
+  request #15 is open, and the screenshot-only Product Page Optimization test
+  `iPad Bezel and Storage` was submitted to App Review on 2026-09-21.
 - The reported status flash was reproducible from source: each provisional
   10- or 30-candidate reel ended curation by publishing `ready`, even while the
   album synchronizer continued. Provisional reels still become playable early,
@@ -1944,10 +1945,15 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   generated room backgrounds. The other eight images use actual app screens,
   including the 1.1 storage controls. The source backgrounds, final JPEGs,
   deterministic generator, and contact sheet are retained in the repository.
-- Active implementation, capture, and review time: approximately 0.8 hours.
+- App Store Connect has one treatment with 50% traffic and the ten iPad images
+  in their intended order. The existing iPhone gallery remains inherited from
+  the original product page. Submission `27b8cebc-ffcd-48f4-8a74-10d05394f319`
+  is awaiting App Review; the test has not started and no treatment has been
+  applied to the default product page.
+- Active implementation, capture, and review time: approximately 1.2 hours.
   Real PhotoKit behavior, the transition on a large physical album, App Store
-  review acceptance, and any live product-page application remain separate
-  checks.
+  review acceptance, the later test result, and any live product-page
+  application remain separate checks.
 
 ## Timebox rule
 
