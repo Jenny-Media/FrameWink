@@ -1,4 +1,5 @@
 import XCTest
+import SwiftUI
 @testable import FrameWink
 
 final class FrameSessionControllerTests: XCTestCase {
@@ -315,6 +316,59 @@ final class FrameSessionControllerTests: XCTestCase {
                 isPlaying: true,
                 voiceOverEnabled: false
             )
+        )
+    }
+
+    func testPausedFrameKeepsVisibleSlidesUntilResume() {
+        func slides(_ ids: [String]) -> [DisplaySlide] {
+            ids.map { id in
+                DisplaySlide(
+                    id: id,
+                    title: LocalizedStringKey(id),
+                    caption: LocalizedStringKey(id),
+                    accessibilityLabel: LocalizedStringKey(id),
+                    source: .bundled(resourceName: id)
+                )
+            }
+        }
+
+        let initial = slides(["a", "b"])
+        let tenPhotoUpdate = slides(["c", "d"])
+        let thirtyPhotoUpdate = slides(["e", "f"])
+        let finalUpdate = slides(["g", "h"])
+        var presentation = FrameSlidePresentationState()
+
+        presentation.synchronize(
+            with: initial,
+            isFrameMode: true,
+            isPlaying: true
+        )
+        presentation.synchronize(
+            with: tenPhotoUpdate,
+            isFrameMode: true,
+            isPlaying: false
+        )
+        presentation.synchronize(
+            with: thirtyPhotoUpdate,
+            isFrameMode: true,
+            isPlaying: false
+        )
+        presentation.synchronize(
+            with: finalUpdate,
+            isFrameMode: true,
+            isPlaying: false
+        )
+
+        XCTAssertEqual(
+            presentation.resolvedSlides(fallback: []).map(\.id),
+            ["a", "b"]
+        )
+
+        presentation.replace(with: finalUpdate)
+
+        XCTAssertEqual(
+            presentation.resolvedSlides(fallback: []).map(\.id),
+            ["g", "h"]
         )
     }
 }

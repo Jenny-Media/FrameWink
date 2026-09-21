@@ -408,15 +408,17 @@ final class AutomaticAlbumController: ObservableObject {
                     guard overBudget || targetCount != nil else { return }
                     self.records = checkpoint.records
                     do {
-                        try await self.curate(
-                            currentGeneration: currentGeneration,
-                            candidateRecords: overBudget
-                                ? checkpoint.records
-                                : Array(checkpoint.preparedRecords.prefix(targetCount ?? 0)),
-                            completionPhase: .syncing(checkpoint.progress)
-                        )
-                        guard self.generation == currentGeneration else { return }
                         if let targetCount {
+                            try await self.curate(
+                                currentGeneration: currentGeneration,
+                                candidateRecords: overBudget
+                                    ? checkpoint.records
+                                    : Array(
+                                        checkpoint.preparedRecords.prefix(targetCount)
+                                    ),
+                                completionPhase: .syncing(checkpoint.progress)
+                            )
+                            guard self.generation == currentGeneration else { return }
                             self.provisionalCandidateCount = targetCount
                         }
                         if overBudget {

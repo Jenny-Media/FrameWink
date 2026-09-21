@@ -3149,3 +3149,30 @@ scripts/generate_landscape_marketing_assets.sh
 scripts/generate_app_store_ipad_ppo_screenshots.sh
 git diff --check
 ```
+
+## Paused-frame stability — 2026-09-21
+
+- `FrameSessionControllerTests` and `AutomaticAlbumControllerTests` passed
+  **47/47** on iPad (A16) and **47/47** on iPhone 17 Pro Max, iOS 27.0
+  Simulators. Both result bundles report zero failures, skips, and runtime
+  warnings.
+- The new pause regression applies successive provisional and final slide
+  updates while playback is paused. The visible slide snapshot remains fixed
+  until Resume applies the newest update.
+- The new storage regression keeps the cache over budget across 10, 30, 60,
+  and 90-photo checkpoints. Cache pruning continues at each checkpoint, while
+  provisional curation runs only at 10 and 30 before the final 90-photo reel.
+- A first iPad run caught a regression where a large first checkpoint protected
+  only 30 images. The corrected implementation curates the complete checkpoint
+  when that planned refinement is already over budget. The final runs below
+  include that correction.
+
+Commands run from `/private/tmp/framewink-app-store-screenshots`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild test -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination 'platform=iOS Simulator,name=iPad (A16),OS=27.0' -derivedDataPath /private/tmp/FrameWink-Pause-Fix -only-testing:FrameWinkTests/FrameSessionControllerTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild test -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max,OS=27.0' -derivedDataPath /private/tmp/FrameWink-Pause-Fix-iPhone -only-testing:FrameWinkTests/FrameSessionControllerTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /tmp/FrameWink-Pause-Fix/Logs/Test/Test-FrameWink-2026.09.21_16-39-42--0400.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /tmp/FrameWink-Pause-Fix-iPhone/Logs/Test/Test-FrameWink-2026.09.21_16-40-19--0400.xcresult
+git diff --check
+```
