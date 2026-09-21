@@ -1,21 +1,31 @@
-# App Store and TestFlight draft
+# App Store and TestFlight release record
 
 This file is release input, not proof of App Store Connect configuration. Keep
 it aligned with the shipping build and update it before every submitted version.
 
 ## Current availability
 
-FrameWink 1.0 is approved and available on the App Store at
+FrameWink 1.1 is approved and available on the App Store at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
-## Version 1.1 preparation
+## Version 1.1 release
 
-App Store Connect has an editable iOS 1.1 draft saved on 2026-09-18. Its
-earlier 1.0.1 Build 19 was detached, and no 1.1 archive is attached yet.
-Manual release after approval remains selected. The current 1.1 source must
-pass release validation and produce an App Store Connect-eligible Xcode Cloud
-archive before adding the version for review.
+App Store Connect saved iOS 1.1 on 2026-09-18. Its
+earlier 1.0.1 Build 19 was detached. PR #13 was squash-merged as `6a137d8`,
+and local release Xcode produced version 1.1 Build 30 from that exact tree.
+Apple accepted the upload and validated the build for internal TestFlight;
+`Jenny Media Internal` has access. Build 30 is attached to the iOS 1.1 App
+Store version, confirmed after reloading the page. The promotional text and
+App Review contact were saved and verified. The owner reports that the build
+works; device families and test steps were not specified. Submission
+`65db5975-4582-4cca-b723-263428ef3768` was sent to App Review on
+2026-09-18 at 4:16 PM Eastern with iOS 1.1 (30) as its sole item. App Store
+Connect showed `Waiting for Review` after submission. On 2026-09-21, App Store
+Connect was rechecked and showed iOS 1.1 `Ready for Distribution`. The owner
+also confirmed that the public App Store build passed the requested iPhone and
+iPad smoke checks, including the 1.1 storage flows. Exact device models and OS
+versions were not recorded.
 
 Saved English (U.S.) What's New, as a bullet list:
 
@@ -26,8 +36,7 @@ Saved English (U.S.) What's New, as a bullet list:
 
 App Review notes were updated to explain safe cleanup, the warned full reset,
 album-cache behavior, permission timing, and StoreKit sandbox review. The
-approved 1.0 screenshots remain the current galleries; confirm they still
-represent the shipping binary before submission.
+approved 1.0 screenshots remain the current galleries.
 
 ## Superseded version 1.0.1 release candidate
 
@@ -86,8 +95,9 @@ PhotoKit are the only relevant transport surfaces.
 - Support email: `framewink@jenny.media`
 
 The root-level `PRIVACY.md` is the canonical policy source. The website copy
-and the release-review input below must remain aligned with it. The 1.1 website
-copy changes are on draft PR #13 and require publication before review submission.
+and the release-review input below must remain aligned with it. PR #13 merged
+the 1.1 website changes. The public privacy and support pages were checked on
+2026-09-18 and describe the current two storage actions.
 
 Effective: September 18, 2026
 
@@ -122,7 +132,7 @@ The public repository hosts this policy and the Issues tracker provides the
 support endpoint. Privacy questions and support mail go to
 `framewink@jenny.media`.
 
-## Current product-page copy for the 1.1 draft
+## Current product-page copy for the 1.1 release
 
 Subtitle:
 
@@ -130,7 +140,7 @@ Subtitle:
 
 Promotional text:
 
-> A private, local-first photo frame for iPhone and iPad. Choose photos, press Start Frame, and keep memories fresh with one FrameWink Lifetime upgrade.
+> Try FrameWink’s sample reel, then make a private Smart Reel from photos you choose. Enjoy thoughtful layouts on iPhone or iPad—no account, ads, or tracking.
 
 Description:
 
@@ -352,8 +362,7 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 ## App Store Connect readiness
 
 - Internal testing group: `Jenny Media Internal` (currently 1 tester; version
-  1.0.1 Build 22 is `Ready to Submit` and assigned to the group; the 1.1 draft
-  has no build attached yet)
+  1.1 Build 30 is assigned to the group and released on the App Store)
 - TestFlight feedback email: `framewink@jenny.media`
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:
@@ -379,18 +388,16 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - App Store screenshots: the released 1.0 listing uses the approved iPad and
   iPhone galleries without pricing references. Repository screenshot sources
   remain regeneration inputs; never upload price-bearing variants.
-- App Review contact: Yihong Chen is saved, but a final live-field audit found
-  the phone and email inputs empty. Re-enter the owner-approved review contact
-  immediately before submission; the private phone number is not copied into
-  this public repository.
+- App Review contact: the owner-approved phone and email are saved. The private
+  phone number is not copied into this public repository.
 - App Privacy is published as `Data Not Collected`; content rights are
   confirmed, and the completed all-No/None questionnaire produced a 4+ age
   rating. B-011 is reopened only for gallery replacement and resubmission.
 - The owner chose trader status for Jenny Media LLC. Apple's DSA contact
   verification is in progress under B-024; do not submit for EU distribution
   until Apple accepts the required email, phone, and business verification.
-- Release package: iOS 1.0 (8) and `FrameWink Lifetime` were approved and
-  released. The public listing is Apple ID `6800849400`.
+- Release package: iOS 1.1 (30) and `FrameWink Lifetime` are approved and
+  available. The public listing is Apple ID `6800849400`.
 - Release validation: Xcode Cloud Build 10 at `d6d7026` succeeded in Analyze
   and Test across all eight recommended iPhone/iPad destinations: 174 passed,
   eight explicit environment-limited skips, and zero failures out of 182.

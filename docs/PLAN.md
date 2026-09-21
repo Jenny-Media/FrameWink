@@ -13,8 +13,8 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 27.5 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
-| **Total** | **40 h** | **50.5 h** | **In progress** |
+| 6. Hardening and release | 8 h | 27.7 h | Version 1.1 released; post-release observation remains |
+| **Total** | **40 h** | **50.7 h** | **Release complete** |
 
 ## Milestone 0 — Contract and scaffold
 
@@ -1900,14 +1900,15 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### Version 1.1 release preparation — 2026-09-18
 
-- Status: in progress. App Store Connect now has a saved 1.1 draft with a
+- Initial status, superseded by the delivery update below: App Store Connect
+  had a saved 1.1 draft with a
   four-item What's New bullet list, updated App Review instructions, and
   manual release selected. The old 1.0.1 Build 19 was detached; no 1.1 build
   is attached or submitted for review.
 - The release branch sets the app marketing version and archive guard to 1.1.
   TestFlight test instructions and the privacy/support pages now describe
   `Free Up Unused Space` and `Delete All FrameWink Photos`. The public privacy
-  and support changes will need publication before App Review submission.
+  and support changes were subsequently published before App Review submission.
 - Local unsigned Release build, Release Analyze, archive guard, nine website
   source tests, website lint, TypeScript, and production website build passed.
   The full shared scheme passed 229 tests with five expected skips on iPhone
@@ -1915,8 +1916,9 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   out collecting extra Simulator diagnostics after each run. Xcode Cloud reports no
   available build minutes until September 18 at 8:51 PM Eastern. Its clean
   archive from the exact release commit, TestFlight device smoke, build
-  attachment, and final submission review remain. Additional active
-  preparation time so far: approximately 1.05 hours.
+  attachment, and final submission were the remaining gates at this stage and
+  were subsequently completed. Additional active preparation time at this
+  stage: approximately 1.05 hours.
 - A pre-merge storage review found that metadata orphan cleanup could remove
   an active album image download. It now leaves temporary album files alone;
   startup and manual maintenance remove abandoned partials older than 24
@@ -1924,6 +1926,28 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   Simulator with no warnings; the iPad build-for-testing and Release Analyze
   actions pass after the change. Full-scheme results above precede this small
   fix, and hosted validation remains pending cloud minutes.
+- Release delivery update: PR #13 was squash-merged as `6a137d8`, and the
+  isolated local branch now tracks that exact `origin/main` commit. The merged
+  tree passed the archive guard and produced a signed 1.1 Build 30 archive
+  using release Xcode 27.0 (27A266a). Apple accepted and validated the local
+  upload; Build 30 is assigned to `Jenny Media Internal`, and its focused
+  storage/album testing notes are saved. A beta-Xcode Build 29 upload was
+  rejected for its unsupported toolchain and was superseded by Build 30.
+  The public privacy and support pages now show the 1.1 cleanup names. Build
+  30 was subsequently attached to the iOS 1.1 App Store version and verified
+  after a page reload. The owner reports that it works; the checked device(s)
+  and scenarios were not specified. The promotional text and App Review contact
+  were saved and verified. On 2026-09-18 at 4:16 PM Eastern, submission
+  `65db5975-4582-4cca-b723-263428ef3768` was sent with iOS 1.1 (30) as its
+  sole item. On 2026-09-21, App Store Connect was rechecked and showed iOS 1.1
+  `Ready for Distribution`. The owner confirmed that the public App Store
+  build passed the requested iPhone and iPad smoke checklist, including the
+  1.1 storage flows. Exact device models and OS versions were not recorded.
+  Crash, review, sales, storage, and playback monitoring continues as
+  post-release observation. Additional submission and release-verification
+  time: approximately 0.2 hours.
+  Additional active merge, archive, upload, and verification time: about
+  1.3 hours. The primary checkout's unrelated changes were preserved.
 
 ## Timebox rule
 

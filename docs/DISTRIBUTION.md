@@ -633,25 +633,36 @@ blocker affects only a later boundary.
 
 ### B-028 — Version 1.1 release candidate
 
-- Status: In progress; App Store Connect metadata saved, no 1.1 build attached
+- Status: Released; Build 30 is available through internal TestFlight and the
+  App Store
 - First recorded: 2026-09-18
 - Scope: carry the unshipped 1.0.1 sample and framing improvements into 1.1,
   then add clear storage controls, safe cleanup, a bounded recent-album cache,
   and playback timing and restore-feedback fixes. The free/paid boundary,
   supported platforms, lifetime price, and product identifier stay the same.
-- App Store Connect: the editable iOS version was changed from 1.0.1 to 1.1.
+- App Store Connect: the iOS version was changed from 1.0.1 to 1.1.
   Its What's New is a four-item bullet list, reviewer notes describe the new
   storage actions, the old 1.0.1 Build 19 was detached, and manual release
-  remains selected. No 1.1 build is available yet.
+  remains selected. Version 1.1 Build 30 is available to internal testers and
+  submitted to App Review on 2026-09-18 at 4:16 PM Eastern as submission
+  `65db5975-4582-4cca-b723-263428ef3768`. On 2026-09-21, App Store Connect
+  showed iOS 1.1 `Ready for Distribution`.
 - Local release input: the app marketing version and cloud archive guard are
   1.1, and TestFlight instructions, public privacy, and support copy describe
   the shipping cleanup controls. A local Release build, Analyze action, and
   archive guard pass. The full Simulator scheme passed 229 tests with five
   expected skips on iPhone and 230 tests with four expected skips on iPad,
   with no test failures. Xcode
-  Cloud currently has zero minutes available until its September 18, 8:51 PM
-  Eastern renewal. The exact-source Xcode Cloud archive remains necessary
-  before attaching a build for review.
+  Cloud had zero minutes available until its September 18, 8:51 PM Eastern
+  renewal. PR #13 was squash-merged as `6a137d8`; the merged tree was archived
+  locally using release Xcode 27.0 (27A266a), overriding only build number 30.
+  App Store Connect accepted and validated the upload. The beta-Xcode Build 29
+  attempt was rejected for unsupported Xcode/SDK and is not the release binary.
+  The public privacy and support pages now show the 1.1 cleanup names.
+  The owner reports that the public App Store build passed the requested
+  iPhone and iPad smoke checklist, including the 1.1 storage flows. Exact
+  device models and OS versions were not recorded. Longer-term crash, review,
+  sales, storage, and playback observation remains post-release work.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
