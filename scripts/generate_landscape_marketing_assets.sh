@@ -104,9 +104,9 @@ render_card ipad "$ipad_source/04-landscape-album-picker.jpg" \
 render_card ipad "$ipad_source/05-landscape-controls.jpg" \
     "$ipad_output/05-landscape-controls.jpg" \
     $'Simple timing.\nDirect sharing.' '#fff8e9' '#ffc94d'
-render_card ipad "$ipad_source/06-landscape-sample.jpg" \
-    "$ipad_output/06-sample-before-access.jpg" \
-    $'See it first.\nChoose photos later.' '#f2f6ea' '#a9bf7b'
+render_card ipad "$ipad_source/06-landscape-privacy-data.jpg" \
+    "$ipad_output/06-storage-controls.jpg" \
+    $'See storage.\nFree unused space.' '#f2f6ea' '#a9bf7b'
 render_card ipad "$ipad_source/07-landscape-night-schedule.jpg" \
     "$ipad_output/07-night-schedule.jpg" \
     $'Quiet at night,\nwhile the app is open.' '#eef0f6' '#111735'
@@ -115,7 +115,7 @@ render_card ipad "$ipad_source/08-landscape-mounted-tips.jpg" \
     $'Mounted iPad\ntips included.' '#edf6f6' '#12606a'
 render_card ipad "$ipad_source/09-landscape-lifetime-purchase.jpg" \
     "$ipad_output/09-lifetime-upgrade.jpg" \
-    $'Just $4.99.\nNo subscription.' '#fff1eb' '#f45e36'
+    $'One-time upgrade.\nNo subscription.' '#fff1eb' '#f45e36'
 render_card ipad "$ipad_source/10-landscape-lifetime-features.jpg" \
     "$ipad_output/10-free-stays-useful.jpg" \
     $'Free stays useful.\nUpgrade when ready.' '#fff8e9' '#ffc94d'

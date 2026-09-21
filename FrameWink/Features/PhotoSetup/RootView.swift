@@ -874,6 +874,8 @@ struct RootView: View {
             presentedSheet = .automaticAlbumReview
         case .freeReview:
             presentedSheet = .reviewSuggestions
+        case .privacyData:
+            presentedSheet = .privacy
         case nil:
             break
         }

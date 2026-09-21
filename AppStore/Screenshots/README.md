@@ -42,6 +42,34 @@ Apple references:
 - [Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)
 - [Upload app previews and screenshots](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots/)
 
+## iPad Product Page Optimization candidate
+
+The current screenshot-only treatment is in
+`ProductPageOptimization/iPad-13-inch/Final/`. It contains exactly ten
+landscape JPEGs at 2752 x 2064 with no alpha. Run
+`scripts/generate_app_store_ipad_ppo_screenshots.sh` to rebuild it and the
+review contact sheet at
+`Review/ContactSheets/iPad-PPO-Bezel-Proposed.jpg`.
+
+Treatment order:
+
+1. Wall use with the licensed official iPad bezel and an actual FrameWink screen.
+2. Table use with the licensed official iPad bezel and an actual Mosaic screen.
+3. Review before display.
+4. Automatic album choice.
+5. Privacy & Data storage measurement and cleanup.
+6. Frame timing and sharing controls.
+7. Night schedule.
+8. Mounted-display guidance.
+9. One-time upgrade with no subscription.
+10. Useful free tier.
+
+The generated room backgrounds are retained under `Sources/`. They contain no
+device or app UI. The compositing script places the existing licensed Apple
+bezel derivatives over those backgrounds without tilting, cropping, obscuring,
+or adding a case. The remaining cards use native Simulator captures. The
+standalone Apple Design Resources file is not stored in this repository.
+
 ## Source library
 
 Run `scripts/capture_app_store_screenshots.sh` with a booted iPad Simulator to

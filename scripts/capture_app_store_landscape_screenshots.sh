@@ -137,7 +137,7 @@ capture_family() {
 03-landscape-review:03-landscape-review
 04-landscape-album-picker:04-landscape-album-picker
 05-landscape-controls:05-landscape-controls
-06-landscape-sample:06-landscape-sample
+06-landscape-privacy-data:06-landscape-privacy-data
 07-landscape-night-schedule:07-landscape-night-schedule
 08-landscape-mounted-tips:08-landscape-mounted-tips
 09-landscape-lifetime-purchase:09-landscape-lifetime-purchase

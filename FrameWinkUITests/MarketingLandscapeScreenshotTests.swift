@@ -40,8 +40,8 @@ final class MarketingLandscapeScreenshotTests: XCTestCase {
                 expectsControlsPanel: true
             )
             try capture(
-                scenario: "sample",
-                name: "06-landscape-sample"
+                scenario: "privacy-data",
+                name: "06-landscape-privacy-data"
             )
             try capture(
                 scenario: "wall-schedule",
@@ -95,6 +95,16 @@ final class MarketingLandscapeScreenshotTests: XCTestCase {
         )
     }
 
+    func testCaptureStorageMarketingScreen() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("The storage marketing capture is iPad-specific.")
+        }
+        try capture(
+            scenario: "privacy-data",
+            name: "06-landscape-privacy-data"
+        )
+    }
+
     private func capture(
         scenario: String,
         name: String,
@@ -116,6 +126,26 @@ final class MarketingLandscapeScreenshotTests: XCTestCase {
             line: line
         )
         RunLoop.current.run(until: Date().addingTimeInterval(2.5))
+
+        if scenario == "privacy-data" {
+            let cleanupButton = app.buttons["free-unused-photo-space"]
+            for _ in 0..<3 where !cleanupButton.isHittable {
+                app.swipeUp()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+            }
+            XCTAssertTrue(
+                cleanupButton.isHittable,
+                "The storage capture should show the cleanup controls.",
+                file: file,
+                line: line
+            )
+            XCTAssertTrue(
+                app.buttons["delete-all-framewink-photos"].isHittable,
+                "The storage capture should show the warned deletion choice.",
+                file: file,
+                line: line
+            )
+        }
 
         if expectsCleanPlayback {
             XCTAssertFalse(

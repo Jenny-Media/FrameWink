@@ -9,6 +9,7 @@ enum RootInitialPresentation: Equatable {
     case wallModeSetup(WallModeSetupInitialSection?)
     case automaticAlbumReview
     case freeReview
+    case privacyData
 }
 
 enum WallModeSetupInitialSection: String, Hashable {
@@ -44,6 +45,7 @@ enum DebugScreenshotScenario: String {
     case blackoutFrame = "blackout-frame"
     case albumPicker = "album-picker"
     case frameControls = "frame-controls"
+    case privacyData = "privacy-data"
 
     static var current: Self? {
         guard let value = ProcessInfo.processInfo.environment[
@@ -76,6 +78,8 @@ enum DebugScreenshotScenario: String {
             return .mosaicFrame
         case .freeReview:
             return .freeReview
+        case .privacyData:
+            return .privacyData
         }
     }
 
@@ -83,7 +87,7 @@ enum DebugScreenshotScenario: String {
         switch self {
         case .wallModeSetup, .wallSchedule, .wallChecklist,
                 .automaticAlbumReview, .mosaicFrame, .blackoutFrame, .albumPicker,
-                .sourceIntegrity, .frameControls:
+                .sourceIntegrity, .frameControls, .privacyData:
             return true
         default:
             return false
@@ -113,6 +117,9 @@ extension DebugScreenshotScenario {
         albumStore: AlbumSourceStoring,
         frameConfigurationStore: FrameConfigurationStoring
     ) {
+        if self == .privacyData {
+            seedFreeReview(importedStore: importedStore)
+        }
         if self == .freeReview || self == .personalReel || self == .sourceIntegrity {
             seedFreeReview(importedStore: importedStore)
             if self == .personalReel || self == .sourceIntegrity {

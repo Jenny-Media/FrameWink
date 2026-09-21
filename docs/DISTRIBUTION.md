@@ -606,9 +606,11 @@ blocker affects only a later boundary.
   accepted before use. Two derivative hero assets combine the official 13-inch
   iPad Pro (M5) Space Black landscape bezel with actual FrameWink captures; the
   standalone Apple resource is not copied into the repository.
-- Impact: none. The website room hero now reads as an authentic iPad while the
-  App Store galleries continue to use direct native screens without unnecessary
-  device decoration.
+- Impact: none. The website room hero uses the authentic iPad derivative. A
+  later iPad Product Page Optimization candidate also uses the existing bezel
+  derivatives for two straight-on lifestyle scenes, followed by eight direct
+  native-screen cards. The standalone Apple resource remains outside the
+  repository.
 
 ### B-027 — Version 1.0.1 release candidate
 

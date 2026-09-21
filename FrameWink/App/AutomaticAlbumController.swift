@@ -412,7 +412,8 @@ final class AutomaticAlbumController: ObservableObject {
                             currentGeneration: currentGeneration,
                             candidateRecords: overBudget
                                 ? checkpoint.records
-                                : Array(checkpoint.preparedRecords.prefix(targetCount ?? 0))
+                                : Array(checkpoint.preparedRecords.prefix(targetCount ?? 0)),
+                            completionPhase: .syncing(checkpoint.progress)
                         )
                         guard self.generation == currentGeneration else { return }
                         if let targetCount {
@@ -696,7 +697,8 @@ final class AutomaticAlbumController: ObservableObject {
 
     private func curate(
         currentGeneration: UUID,
-        candidateRecords: [CachedAlbumAsset]? = nil
+        candidateRecords: [CachedAlbumAsset]? = nil,
+        completionPhase: AutomaticAlbumPhase? = nil
     ) async throws {
         let recordsToCurate = candidateRecords ?? records
         guard !recordsToCurate.isEmpty else {
@@ -742,7 +744,7 @@ final class AutomaticAlbumController: ObservableObject {
         )
         smartReel = readyReel
         try store.markSavedReelForCurrentAlbum()
-        phase = .ready(
+        phase = completionPhase ?? .ready(
             photoCount: records.count,
             suggestionCount: readyReel.selections.count
         )

@@ -444,6 +444,11 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertTrue(synchronizer.isSynchronizing)
         XCTAssertEqual(controller.smartReel?.selections.count, 10)
         XCTAssertEqual(controller.slides.count, 10)
+        guard case .syncing(let progress) = controller.phase else {
+            return XCTFail("A provisional reel must keep showing album preparation progress.")
+        }
+        XCTAssertEqual(progress.completedCount, 10)
+        XCTAssertEqual(progress.totalCount, 10)
 
         try await waitUntil(timeout: 1) { !synchronizer.isSynchronizing }
         XCTAssertTrue(controller.canDisplay)
@@ -470,6 +475,11 @@ final class AutomaticAlbumControllerTests: XCTestCase {
 
         XCTAssertTrue(synchronizer.isSynchronizing)
         XCTAssertEqual(controller.slides.count, 30)
+        guard case .syncing(let progress) = controller.phase else {
+            return XCTFail("A refined provisional reel must not report that album preparation is finished.")
+        }
+        XCTAssertEqual(progress.completedCount, 30)
+        XCTAssertEqual(progress.totalCount, 30)
 
         try await waitUntil(timeout: 1) { !synchronizer.isSynchronizing }
         XCTAssertTrue(controller.canDisplay)

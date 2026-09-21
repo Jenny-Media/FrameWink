@@ -3111,3 +3111,41 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-PartialRace-iPad.xcresult
 git diff --check
 ```
+
+## Album status stability and iPad PPO screenshots — 2026-09-21
+
+- The full `AutomaticAlbumControllerTests` suite passed **29/29** on iPhone 17
+  Pro Max and **29/29** on iPad (A16) Simulators, with no failures, skips, or
+  runtime warnings. The new checks assert that 10- and 30-photo reels are
+  playable while the synchronizer remains active, and that the published phase
+  stays `syncing` instead of flashing `ready`.
+- `scripts/capture_app_store_landscape_screenshots.sh` passed for the 13-inch
+  iPad and iPhone landscape Simulators. The iPad run captured ten scenes and
+  the iPhone run captured three. The replacement storage scene uses bundled
+  project photos and shows both cleanup actions.
+- The dedicated normalized storage capture passed on the 13-inch iPad Pro (M5)
+  Simulator. Its XCUITest scrolls the Privacy & Data sheet and requires both
+  `Free Up Unused Space` and `Delete All FrameWink Photos` to be hittable before
+  saving the screenshot.
+- Image generation completed locally. All ten final PPO images are JPEGs at
+  2752 x 2064 with no alpha, and the generator rejected any other dimensions or
+  count. Visual inspection covered the contact sheet, both lifestyle scenes,
+  and the storage card. Xcode emitted the existing StoreKitTest deprecation and
+  non-failing debugger-version lookup notices.
+
+Commands run from `/private/tmp/framewink-app-store-screenshots`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun simctl list devices available
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-AlbumStatus-iPhone -resultBundlePath /private/tmp/FrameWink-AlbumStatus-iPhone.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testInitialCheckpointAllowsPlaybackBeforeFullSyncFinishes -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testThirtyPhotoCheckpointRefinesPlayableReelBeforeFullSyncFinishes test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-AlbumStatus-iPad -resultBundlePath /private/tmp/FrameWink-AlbumStatus-iPad.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testInitialCheckpointAllowsPlaybackBeforeFullSyncFinishes -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testThirtyPhotoCheckpointRefinesPlayableReelBeforeFullSyncFinishes test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-AlbumStatus-Final-iPhone -resultBundlePath /private/tmp/FrameWink-AlbumStatus-Final-iPhone.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-AlbumStatus-Final-iPad -resultBundlePath /private/tmp/FrameWink-AlbumStatus-Final-iPad.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-AlbumStatus-Final-iPhone.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-AlbumStatus-Final-iPad.xcresult
+FRAMEWINK_IPAD_LANDSCAPE_SIMULATOR_ID=1BDA7ABF-4236-406E-8ACD-7E3B10569753 FRAMEWINK_IPHONE_LANDSCAPE_SIMULATOR_ID=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE scripts/capture_app_store_landscape_screenshots.sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=1BDA7ABF-4236-406E-8ACD-7E3B10569753' -derivedDataPath /private/tmp/FrameWink-PPO-Capture -resultBundlePath /private/tmp/FrameWink-PPO-Storage.xcresult -only-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests/testCaptureStorageMarketingScreen test
+scripts/generate_landscape_marketing_assets.sh
+scripts/generate_app_store_ipad_ppo_screenshots.sh
+git diff --check
+```
