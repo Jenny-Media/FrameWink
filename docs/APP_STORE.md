@@ -1,15 +1,15 @@
-# App Store and TestFlight draft
+# App Store and TestFlight release record
 
 This file is release input, not proof of App Store Connect configuration. Keep
 it aligned with the shipping build and update it before every submitted version.
 
 ## Current availability
 
-FrameWink 1.0 is approved and available on the App Store at
+FrameWink 1.1 is approved and available on the App Store at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
-## Version 1.1 preparation
+## Version 1.1 release
 
 App Store Connect saved iOS 1.1 on 2026-09-18. Its
 earlier 1.0.1 Build 19 was detached. PR #13 was squash-merged as `6a137d8`,
@@ -21,7 +21,11 @@ App Review contact were saved and verified. The owner reports that the build
 works; device families and test steps were not specified. Submission
 `65db5975-4582-4cca-b723-263428ef3768` was sent to App Review on
 2026-09-18 at 4:16 PM Eastern with iOS 1.1 (30) as its sole item. App Store
-Connect shows `Waiting for Review`. Manual release after approval is selected.
+Connect showed `Waiting for Review` after submission. On 2026-09-21, App Store
+Connect was rechecked and showed iOS 1.1 `Ready for Distribution`. The owner
+also confirmed that the public App Store build passed the requested iPhone and
+iPad smoke checks, including the 1.1 storage flows. Exact device models and OS
+versions were not recorded.
 
 Saved English (U.S.) What's New, as a bullet list:
 
@@ -128,7 +132,7 @@ The public repository hosts this policy and the Issues tracker provides the
 support endpoint. Privacy questions and support mail go to
 `framewink@jenny.media`.
 
-## Current product-page copy for the 1.1 draft
+## Current product-page copy for the 1.1 release
 
 Subtitle:
 
@@ -358,7 +362,7 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 ## App Store Connect readiness
 
 - Internal testing group: `Jenny Media Internal` (currently 1 tester; version
-  1.1 Build 30 is assigned to the group and submitted to App Review)
+  1.1 Build 30 is assigned to the group and released on the App Store)
 - TestFlight feedback email: `framewink@jenny.media`
 - TestFlight marketing URL: `https://github.com/Jenny-Media/FrameWink`
 - TestFlight privacy URL:
@@ -392,8 +396,8 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
 - The owner chose trader status for Jenny Media LLC. Apple's DSA contact
   verification is in progress under B-024; do not submit for EU distribution
   until Apple accepts the required email, phone, and business verification.
-- Release package: iOS 1.0 (8) and `FrameWink Lifetime` were approved and
-  released. The public listing is Apple ID `6800849400`.
+- Release package: iOS 1.1 (30) and `FrameWink Lifetime` are approved and
+  available. The public listing is Apple ID `6800849400`.
 - Release validation: Xcode Cloud Build 10 at `d6d7026` succeeded in Analyze
   and Test across all eight recommended iPhone/iPad destinations: 174 passed,
   eight explicit environment-limited skips, and zero failures out of 182.

@@ -3132,13 +3132,19 @@ git diff --check
   Unused Space` and `Delete All FrameWink Photos` and explain that originals
   in Apple Photos remain untouched. The owner subsequently reported that Build
   30 works, without specifying the device family or test steps. The build was
-  attached to the iOS 1.1 App Store draft and the persisted selection was
+  attached to the iOS 1.1 App Store version and the persisted selection was
   verified after reloading the page. The promotional text and App Review
   contact were saved and verified. Submission
   `65db5975-4582-4cca-b723-263428ef3768` was sent on 2026-09-18 at
   4:16 PM Eastern with iOS 1.1 (30) as its sole item. App Store Connect shows
-  `Waiting for Review`, with manual release after approval selected. This is
-  submission evidence, not approval or physical iPhone/iPad acceptance.
+  `Waiting for Review`, with manual release after approval selected. On
+  2026-09-21, App Store Connect was rechecked and showed iOS 1.1 `Ready for
+  Distribution`. The owner reports that the public App Store build passed the
+  requested iPhone and iPad smoke checklist: update and fresh-install coverage,
+  album switching, storage reporting, `Free Up Unused Space`, `Delete All
+  FrameWink Photos`, purchase restoration, and observed storage reduction.
+  Exact device models and OS versions were not recorded. Longer-term crash,
+  review, sales, storage, and playback observation remains.
 
 Commands run from `/private/tmp/framewink-storage-pr`:
 
