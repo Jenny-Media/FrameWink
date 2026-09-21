@@ -3188,9 +3188,11 @@ git diff --check
 - The generator replaces the model-interpreted display in both lifestyle
   scenes with the exact bundled Yellowstone Falls source before resizing and
   adding typography.
-- The remaining cards use native FrameWink Simulator captures for album choice,
-  smart layouts, and suggestion review. No storage, scheduling, purchase, or
-  setup-detail screen appears in the treatment.
+- Screenshots 3–6 reuse one close tabletop source and a fixed screen
+  perspective transform. The album and review images retain their exact native
+  modal while softening the surrounding setup screen; the smart-layout and
+  privacy images use clean native full-screen displays. No storage, scheduling,
+  purchase, or readable setup-detail screen appears in the treatment.
 - Visual inspection covered all six images through the regenerated contact
   sheet. `git diff --check` passes.
 

@@ -1973,13 +1973,16 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   integrates the licensed device reference into an empty room, then the local
   generator restores the exact bundled Yellowstone Falls photo and adds the
   headline. Several wall candidates were evaluated; the selected result keeps
-  the iPad smaller than the nearby lamp shade. The remaining cards use native
-  FrameWink captures and the app's bundled sample-photo catalog.
+  the iPad smaller than the nearby lamp shade. Screenshots 3–6 use one close
+  view of the accepted tabletop scene, with the same device geometry and exact
+  native FrameWink screens for album choice, smart layouts, review, and private
+  frame display. Album and review focus their native modal over a softened
+  background so no underlying settings detail remains readable.
 - The affected 47-test set passed on iPad (A16) and iPhone 17 Pro Max, iOS
   27.0 Simulators, with no failures, skips, or runtime warnings. Final
   screenshot generation is complete at 2752 x 2064 with six JPEGs and no
   alpha. Physical-device pause acceptance and App Store Connect replacement
-  remain pending. Active time so far: approximately 1.1 hours.
+  remain pending. Active time so far: approximately 1.4 hours.
 
 ## Timebox rule
 

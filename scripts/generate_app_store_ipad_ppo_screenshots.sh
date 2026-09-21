@@ -80,52 +80,72 @@ render_table_scene() {
         -strip -sampling-factor 4:2:0 -quality 94 "$destination"
 }
 
-render_benefit_card() {
+make_focused_screen() {
+    local source=$1
+    local modal_geometry=$2
+    local modal_position=$3
+    local destination=$4
+    local prefix="$working_directory/focus-$(basename "$destination" .png)"
+
+    "$magick_bin" "$source" -blur '0x28' -modulate '72,82,100' \
+        "$prefix-background.png"
+    "$magick_bin" "$source" -crop "$modal_geometry" +repage \
+        "$prefix-modal.png"
+    "$magick_bin" "$prefix-background.png" "$prefix-modal.png" \
+        -geometry "$modal_position" -compose over -composite "$destination"
+}
+
+render_close_scene() {
     local source=$1
     local destination=$2
     local headline=$3
-    local background=$4
-    local accent=$5
     local prefix="$working_directory/$(basename "$destination" .jpg)"
 
-    "$magick_bin" -size '2752x2064' "xc:$background" \
-        -fill "${accent}24" -draw 'circle 150,1940 500,1940' \
-        -fill '#1717190d' -draw 'rectangle 760,0 762,2064' \
-        "$prefix-background.png"
-    "$magick_bin" "$source" -resize '1810x1358!' \
-        -bordercolor '#ffffff' -border 18 \
-        -background black -shadow '28x10+0+12' "$prefix-shadow.png"
-    "$magick_bin" "$source" -resize '1810x1358!' \
-        -bordercolor '#ffffff' -border 18 "$prefix-screen.png"
-    make_headline "$headline" 620 94 "$prefix-headline.png"
+    "$magick_bin" "$source" -resize '1000x750!' \
+        \( +clone -alpha extract -fill black -colorize 100 \
+           -fill white -draw 'roundrectangle 0,0 999,749 36,36' \) \
+        -alpha off -compose CopyOpacity -composite -alpha set \
+        -virtual-pixel transparent \
+        -set option:distort:viewport '1448x1086+0+0' \
+        -distort Perspective \
+        '0,0 365,294 1000,0 969,281 1000,750 1040,729 0,750 423,770' \
+        "$prefix-screen.png"
+    "$magick_bin" "$source_root/table-close-integrated-v1.png" \
+        "$prefix-screen.png" -compose over -composite \
+        -resize '2752x2064!' "$prefix-background.png"
+    make_headline "$headline" 1100 104 "$prefix-headline.png"
 
     "$magick_bin" "$prefix-background.png" \
-        "$prefix-shadow.png" -gravity northwest -geometry '+860+355' -composite \
-        "$prefix-screen.png" -gravity northwest -geometry '+860+337' -composite \
-        "$prefix-headline.png" -gravity northwest -geometry '+105+255' -composite \
-        -fill '#a93618' -font "$font_file" -weight 700 -pointsize 28 \
-        -kerning 3 -gravity northwest -annotate '+110+145' 'FRAMEWINK' \
+        "$prefix-headline.png" -gravity northwest -geometry '+430+115' -composite \
         -strip -sampling-factor 4:2:0 -quality 94 "$destination"
 }
 
 render_wall_scene "$output_root/01-beautifully-framed.jpg"
 render_table_scene "$output_root/02-wall-or-table.jpg"
-render_benefit_card \
+make_focused_screen \
     "$capture_root/04-landscape-album-picker.jpg" \
+    '1160x1290+795+390' '+795+390' \
+    "$working_directory/album-focused.png"
+make_focused_screen \
+    "$capture_root/03-landscape-review.jpg" \
+    '1160x1300+795+390' '+795+390' \
+    "$working_directory/review-focused.png"
+render_close_scene \
+    "$working_directory/album-focused.png" \
     "$output_root/03-choose-an-album.jpg" \
-    $'Choose an album.\nKeep it fresh.' '#edf6f6' '#12606a'
-render_benefit_card \
+    $'Choose an album.\nFrameWink keeps it fresh.'
+render_close_scene \
     "$capture_root/02-landscape-mosaic.jpg" \
     "$output_root/04-smart-highlights.jpg" \
-    $'Beautiful highlights.\nChosen on\nyour device.' '#fff8e9' '#ffc94d'
-render_benefit_card \
-    "$capture_root/03-landscape-review.jpg" \
+    $'Smart highlights.\nBeautifully arranged.'
+render_close_scene \
+    "$working_directory/review-focused.png" \
     "$output_root/05-review-before-display.jpg" \
-    $'Review every photo.\nThen press play.' '#fff1eb' '#f45e36'
-render_benefit_card \
+    $'Review every photo.\nYou decide what plays.'
+render_close_scene \
     "$capture_root/01-landscape-frame.jpg" \
     "$output_root/06-private-by-design.jpg" \
-    $'No account.\nNo ads.\nNo tracking.' '#f2f6ea' '#a9bf7b'
+    $'Private by design.\nYour photos stay\non your device.'
 
 for screenshot in "$output_root"/*.jpg; do
     metadata=$(sips -g format -g pixelWidth -g pixelHeight -g hasAlpha "$screenshot")

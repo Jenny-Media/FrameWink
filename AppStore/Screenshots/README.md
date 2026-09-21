@@ -56,10 +56,10 @@ Treatment order:
 1. Realistically scaled wall use created from the licensed official iPad bezel
    reference and the bundled Yellowstone Falls photo.
 2. Realistically integrated table use with the same device and photo sources.
-3. Automatic album choice.
-4. On-device smart highlights.
-5. Review before display.
-6. No account, advertising, or tracking.
+3. Focused album choice with automatic refresh messaging.
+4. Smart highlights in a four-photo layout.
+5. Focused review-before-display controls.
+6. On-device privacy with a clean full-frame photo.
 
 The generated empty rooms and selected integrated scenes are retained under
 `Sources/`. For each lifestyle scene, image generation received an empty room
@@ -68,9 +68,12 @@ the device with the room's perspective, lighting, stand, and shadows. The wall
 candidate was selected from several results so the 13-inch iPad is visibly
 smaller than the nearby lamp shade. The deterministic generator replaces the
 interpreted display with FrameWink's exact bundled Yellowstone Falls source,
-then adds the marketing copy. The remaining cards use native Simulator
-captures. The standalone Apple Design Resources file is not stored in this
-repository.
+then adds the marketing copy. Screenshots 3–6 reuse one close view of the same
+tabletop scene and device position. The generator swaps in exact native
+Simulator captures for album choice, smart layouts, review, and frame display.
+For the two modal screens, it softens the surrounding setup screen and restores
+only the exact modal so no settings detail remains readable. The standalone
+Apple Design Resources file is not stored in this repository.
 
 Selected integration prompts were intentionally short:
 
