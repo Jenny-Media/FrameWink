@@ -1969,14 +1969,17 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   exposed too many settings details. New concept mocks use everyday furniture,
   lamps, books, and cups as scale references and shift the story to wall use,
   tabletop use, album choice, private curation, review, and simple playback.
-  The final candidate uses generated empty rooms only. Device bezels, screens,
-  and every displayed photo come from licensed repository assets, native
-  FrameWink captures, and the app's bundled sample-photo catalog.
+  The final candidate uses a two-stage lifestyle workflow: image generation
+  integrates the licensed device reference into an empty room, then the local
+  generator restores the exact bundled Yellowstone Falls photo and adds the
+  headline. Several wall candidates were evaluated; the selected result keeps
+  the iPad smaller than the nearby lamp shade. The remaining cards use native
+  FrameWink captures and the app's bundled sample-photo catalog.
 - The affected 47-test set passed on iPad (A16) and iPhone 17 Pro Max, iOS
   27.0 Simulators, with no failures, skips, or runtime warnings. Final
   screenshot generation is complete at 2752 x 2064 with six JPEGs and no
   alpha. Physical-device pause acceptance and App Store Connect replacement
-  remain pending. Active time so far: approximately 0.8 hours.
+  remain pending. Active time so far: approximately 1.1 hours.
 
 ## Timebox rule
 

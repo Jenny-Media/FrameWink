@@ -3181,13 +3181,13 @@ git diff --check
 
 - The deterministic generator produced six JPEG screenshots at exactly
   2752 x 2064 with no alpha and rejected any other count or dimensions.
-- The wall iPad is approximately 67% of the nearby lamp-shade width. The
-  tabletop scene uses the same physical relationship, with books and a cup as
-  additional scale references.
-- Image generation supplied only the two empty room backgrounds. The device
-  images use the repository's licensed Apple bezel derivatives, and their
-  screens use FrameWink's exact bundled Yellowstone Falls, San Francisco,
-  Golden Gate, and Antelope Canyon sample photography.
+- Multiple wall and tabletop integrations were generated from an empty room
+  and the licensed official iPad bezel derivative. The selected wall result
+  keeps the iPad visibly smaller than the nearby lamp shade; the selected table
+  result has coherent perspective, contact shadows, and a supported stand.
+- The generator replaces the model-interpreted display in both lifestyle
+  scenes with the exact bundled Yellowstone Falls source before resizing and
+  adding typography.
 - The remaining cards use native FrameWink Simulator captures for album choice,
   smart layouts, and suggestion review. No storage, scheduling, purchase, or
   setup-detail screen appears in the treatment.

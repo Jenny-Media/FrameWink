@@ -8,7 +8,7 @@ font_file=${FRAMEWINK_SCREENSHOT_FONT:-/System/Library/Fonts/SFNSRounded.ttf}
 source_root="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Sources"
 output_root="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final"
 capture_root="$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"
-bezel_root="$repo_root/website/public/images"
+sample_photo="$repo_root/FrameWink/Resources/SamplePhotos/sample-yellowstone-falls.jpg"
 contact_sheet="$repo_root/AppStore/Screenshots/Review/ContactSheets/iPad-PPO-Bezel-Proposed.jpg"
 working_directory=$(mktemp -d "${TMPDIR:-/tmp}/framewink-ipad-ppo.XXXXXX")
 
@@ -39,18 +39,18 @@ render_wall_scene() {
     local destination=$1
     local prefix="$working_directory/wall"
 
-    "$magick_bin" "$source_root/wall-room-v2.png" -resize '2752x2064!' \
-        "$prefix-background.png"
-    "$magick_bin" "$bezel_root/ipad-flat-frame-v1.webp" -resize '285x' \
-        "$prefix-ipad.png"
-    "$magick_bin" "$prefix-ipad.png" -bordercolor none -border 14 \
-        -background black -shadow '30x9+0+7' "$prefix-shadow.png"
+    "$magick_bin" "$sample_photo" -resize '168x119^' \
+        -gravity center -extent '168x119' \
+        \( +clone -alpha extract -fill black -colorize 100 \
+           -fill white -draw 'roundrectangle 0,0 167,118 8,8' \) \
+        -alpha off -compose CopyOpacity -composite "$prefix-screen.png"
+    "$magick_bin" "$source_root/wall-integrated-v1.png" \
+        "$prefix-screen.png" -geometry '+932+306' -compose over -composite \
+        -resize '2752x2064!' "$prefix-background.png"
     make_headline $'Your photos.\nBeautifully framed.' 940 116 \
         "$prefix-headline.png"
 
     "$magick_bin" "$prefix-background.png" \
-        "$prefix-shadow.png" -gravity northwest -geometry '+1696+662' -composite \
-        "$prefix-ipad.png" -gravity northwest -geometry '+1710+675' -composite \
         "$prefix-headline.png" -gravity northwest -geometry '+165+150' -composite \
         -strip -sampling-factor 4:2:0 -quality 94 "$destination"
 }
@@ -59,24 +59,23 @@ render_table_scene() {
     local destination=$1
     local prefix="$working_directory/table"
 
-    "$magick_bin" "$source_root/table-room-v2.png" -resize '2752x2064!' \
-        "$prefix-background.png"
-    "$magick_bin" "$bezel_root/ipad-flat-mosaic-v1.webp" -resize '510x' \
-        "$prefix-ipad.png"
-    "$magick_bin" "$prefix-ipad.png" -bordercolor none -border 22 \
-        -background black -shadow '35x12+0+10' "$prefix-shadow.png"
+    "$magick_bin" "$sample_photo" -resize '320x240^' \
+        -gravity center -extent '320x240' \
+        \( +clone -alpha extract -fill black -colorize 100 \
+           -fill white -draw 'roundrectangle 0,0 319,239 12,12' \) \
+        -alpha off -compose CopyOpacity -composite -alpha set \
+        -virtual-pixel transparent \
+        -set option:distort:viewport '1448x1086+0+0' \
+        -distort Perspective \
+        '0,0 423,428 320,0 730,422 320,240 773,649 0,240 453,659' \
+        "$prefix-screen.png"
+    "$magick_bin" "$source_root/table-integrated-v1.png" \
+        "$prefix-screen.png" -compose over -composite \
+        -resize '2752x2064!' "$prefix-background.png"
     make_headline $'At home on a wall\nor table.' 920 112 \
         "$prefix-headline.png"
 
     "$magick_bin" "$prefix-background.png" \
-        -fill '#292827' -stroke '#171717' -strokewidth 4 \
-        -draw 'polygon 910,1205 1090,1205 1130,1272 870,1272' \
-        -fill '#3d3b38' -stroke none \
-        -draw 'roundrectangle 842,1264 1160,1285 11,11' \
-        "$prefix-with-stand.png"
-    "$magick_bin" "$prefix-with-stand.png" \
-        "$prefix-shadow.png" -gravity northwest -geometry '+720+795' -composite \
-        "$prefix-ipad.png" -gravity northwest -geometry '+742+810' -composite \
         "$prefix-headline.png" -gravity northwest -geometry '+150+130' -composite \
         -strip -sampling-factor 4:2:0 -quality 94 "$destination"
 }

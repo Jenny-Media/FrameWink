@@ -53,22 +53,32 @@ review contact sheet at
 
 Treatment order:
 
-1. Realistically scaled wall use with the licensed official iPad bezel and the
-   bundled Yellowstone Falls photo.
-2. Realistically scaled table use with the licensed official iPad bezel and a
-   four-photo layout made from bundled sample photos.
+1. Realistically scaled wall use created from the licensed official iPad bezel
+   reference and the bundled Yellowstone Falls photo.
+2. Realistically integrated table use with the same device and photo sources.
 3. Automatic album choice.
 4. On-device smart highlights.
 5. Review before display.
 6. No account, advertising, or tracking.
 
-The generated room backgrounds are retained under `Sources/`. They contain no
-device or app UI. The compositing script places the existing licensed Apple
-bezel derivatives over those backgrounds at measured scale. In both scenes the
-13-inch iPad is visibly narrower than the nearby lamp shade. Every screen uses
-FrameWink's bundled sample photos or native Simulator captures; image generation
-is limited to the empty rooms. The standalone Apple Design Resources file is
-not stored in this repository.
+The generated empty rooms and selected integrated scenes are retained under
+`Sources/`. For each lifestyle scene, image generation received an empty room
+and the licensed official iPad bezel derivative as references, then integrated
+the device with the room's perspective, lighting, stand, and shadows. The wall
+candidate was selected from several results so the 13-inch iPad is visibly
+smaller than the nearby lamp shade. The deterministic generator replaces the
+interpreted display with FrameWink's exact bundled Yellowstone Falls source,
+then adds the marketing copy. The remaining cards use native Simulator
+captures. The standalone Apple Design Resources file is not stored in this
+repository.
+
+Selected integration prompts were intentionally short:
+
+- Wall: `Place the provided 13-inch iPad naturally mounted on this wall. Make
+  it clearly smaller than the lamp shade and look like a real interior
+  photograph.`
+- Table: `Place the provided iPad naturally on the table in this room using a
+  simple stand. Make it look like a real interior photograph.`
 
 ## Source library
 
