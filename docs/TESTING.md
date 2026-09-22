@@ -3111,3 +3111,160 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-Release11-PartialRace-iPad.xcresult
 git diff --check
 ```
+
+## Album status stability and iPad PPO screenshots — 2026-09-21
+
+- The full `AutomaticAlbumControllerTests` suite passed **29/29** on iPhone 17
+  Pro Max and **29/29** on iPad (A16) Simulators, with no failures, skips, or
+  runtime warnings. The new checks assert that 10- and 30-photo reels are
+  playable while the synchronizer remains active, and that the published phase
+  stays `syncing` instead of flashing `ready`.
+- `scripts/capture_app_store_landscape_screenshots.sh` passed for the 13-inch
+  iPad and iPhone landscape Simulators. The iPad run captured ten scenes and
+  the iPhone run captured three. The replacement storage scene uses bundled
+  project photos and shows both cleanup actions.
+- The dedicated normalized storage capture passed on the 13-inch iPad Pro (M5)
+  Simulator. Its XCUITest scrolls the Privacy & Data sheet and requires both
+  `Free Up Unused Space` and `Delete All FrameWink Photos` to be hittable before
+  saving the screenshot.
+- Image generation completed locally. All ten final PPO images are JPEGs at
+  2752 x 2064 with no alpha, and the generator rejected any other dimensions or
+  count. Visual inspection covered the contact sheet, both lifestyle scenes,
+  and the storage card. Xcode emitted the existing StoreKitTest deprecation and
+  non-failing debugger-version lookup notices.
+
+Commands run from `/private/tmp/framewink-app-store-screenshots`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun simctl list devices available
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-AlbumStatus-iPhone -resultBundlePath /private/tmp/FrameWink-AlbumStatus-iPhone.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testInitialCheckpointAllowsPlaybackBeforeFullSyncFinishes -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testThirtyPhotoCheckpointRefinesPlayableReelBeforeFullSyncFinishes test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-AlbumStatus-iPad -resultBundlePath /private/tmp/FrameWink-AlbumStatus-iPad.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testInitialCheckpointAllowsPlaybackBeforeFullSyncFinishes -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testThirtyPhotoCheckpointRefinesPlayableReelBeforeFullSyncFinishes test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-AlbumStatus-Final-iPhone -resultBundlePath /private/tmp/FrameWink-AlbumStatus-Final-iPhone.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-AlbumStatus-Final-iPad -resultBundlePath /private/tmp/FrameWink-AlbumStatus-Final-iPad.xcresult CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-AlbumStatus-Final-iPhone.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-AlbumStatus-Final-iPad.xcresult
+FRAMEWINK_IPAD_LANDSCAPE_SIMULATOR_ID=1BDA7ABF-4236-406E-8ACD-7E3B10569753 FRAMEWINK_IPHONE_LANDSCAPE_SIMULATOR_ID=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE scripts/capture_app_store_landscape_screenshots.sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=1BDA7ABF-4236-406E-8ACD-7E3B10569753' -derivedDataPath /private/tmp/FrameWink-PPO-Capture -resultBundlePath /private/tmp/FrameWink-PPO-Storage.xcresult -only-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests/testCaptureStorageMarketingScreen test
+scripts/generate_landscape_marketing_assets.sh
+scripts/generate_app_store_ipad_ppo_screenshots.sh
+git diff --check
+```
+
+## Paused-frame stability — 2026-09-21
+
+- `FrameSessionControllerTests` and `AutomaticAlbumControllerTests` passed
+  **47/47** on iPad (A16) and **47/47** on iPhone 17 Pro Max, iOS 27.0
+  Simulators. Both result bundles report zero failures, skips, and runtime
+  warnings.
+- The new pause regression applies successive provisional and final slide
+  updates while playback is paused. The visible slide snapshot remains fixed
+  until Resume applies the newest update.
+- The new storage regression keeps the cache over budget across 10, 30, 60,
+  and 90-photo checkpoints. Cache pruning continues at each checkpoint, while
+  provisional curation runs only at 10 and 30 before the final 90-photo reel.
+- A first iPad run caught a regression where a large first checkpoint protected
+  only 30 images. The corrected implementation curates the complete checkpoint
+  when that planned refinement is already over budget. The final runs below
+  include that correction.
+
+Commands run from `/private/tmp/framewink-app-store-screenshots`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild test -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination 'platform=iOS Simulator,name=iPad (A16),OS=27.0' -derivedDataPath /private/tmp/FrameWink-Pause-Fix -only-testing:FrameWinkTests/FrameSessionControllerTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild test -quiet -project FrameWink.xcodeproj -scheme FrameWink -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max,OS=27.0' -derivedDataPath /private/tmp/FrameWink-Pause-Fix-iPhone -only-testing:FrameWinkTests/FrameSessionControllerTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /tmp/FrameWink-Pause-Fix/Logs/Test/Test-FrameWink-2026.09.21_16-39-42--0400.xcresult
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun xcresulttool get test-results summary --path /tmp/FrameWink-Pause-Fix-iPhone/Logs/Test/Test-FrameWink-2026.09.21_16-40-19--0400.xcresult
+git diff --check
+```
+
+## Realistic-scale iPad screenshot treatment — 2026-09-21
+
+- The deterministic generator produced six JPEG screenshots at exactly
+  2752 x 2064 with no alpha and rejected any other count or dimensions.
+- Multiple wall and tabletop integrations were generated from an empty room
+  and the licensed official iPad bezel derivative. The selected wall result
+  keeps the iPad visibly smaller than the nearby lamp shade; the selected table
+  result has coherent perspective, contact shadows, and a supported stand.
+- The generator replaces the model-interpreted display in both lifestyle
+  scenes with the exact bundled Yellowstone Falls source before resizing and
+  adding typography.
+- Screenshots 3–6 reuse one close tabletop source and a fixed screen
+  perspective transform. The album and review images retain their exact native
+  modal while softening the surrounding setup screen; the smart-layout and
+  privacy images use clean native full-screen displays. No storage, scheduling,
+  purchase, or readable setup-detail screen appears in the treatment.
+- Visual inspection covered all six images through the regenerated contact
+  sheet. `git diff --check` passes.
+
+Commands run from `/private/tmp/framewink-app-store-screenshots`:
+
+```sh
+/bin/bash -n scripts/generate_app_store_ipad_ppo_screenshots.sh
+scripts/generate_app_store_ipad_ppo_screenshots.sh
+git diff --check
+```
+
+## Seven-image iPad screenshot recovery — 2026-09-22
+
+- `MarketingLandscapeScreenshotTests/testCaptureLandscapeMarketingScreens`
+  passed on the iPad Pro 13-inch (M5) Simulator and exported eleven native
+  attachments, including the newly added permission-free sample setup scene.
+- The five captures used by the product cards are exact 2752 x 2064 app
+  renders. The album picker contains six distinct sample thumbnails.
+- The deterministic generator produced seven 2752 x 2064 JPEGs without alpha.
+  The first two lifestyle files retained their prior SHA-256 values. The final
+  checksum verifier, shell syntax checks, and `git diff --check` passed.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=1BDA7ABF-4236-406E-8ACD-7E3B10569753' -derivedDataPath /private/tmp/FrameWink-iPad-PPO-Recovery-DerivedData -resultBundlePath /private/tmp/FrameWink-iPad-PPO-Recovery.xcresult -only-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests/testCaptureLandscapeMarketingScreens test
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool export attachments --path /private/tmp/FrameWink-iPad-PPO-Recovery.xcresult --output-path /private/tmp/FrameWink-iPad-PPO-Recovery-Attachments
+/bin/bash -n scripts/generate_app_store_ipad_ppo_screenshots.sh
+/bin/bash scripts/generate_app_store_ipad_ppo_screenshots.sh
+/bin/bash -n scripts/verify_locked_app_store_screenshots.sh
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```
+
+## Unified iPad and iPhone screenshot wall color — 2026-09-22
+
+- Regenerated all seven iPad and six iPhone final screenshots after calibrating
+  the shared wall source separately for each canvas crop. Representative
+  background samples are `#CFB9A1` after iPad JPEG encoding and `#CFB8A2` on
+  iPhone.
+- All iPad files remain 2752 x 2064 JPEGs without alpha. All iPhone files remain
+  1320 x 2868 JPEGs without alpha. Both contact sheets were visually inspected,
+  both checksum locks passed, shell syntax checks passed, and `git diff --check`
+  passed.
+
+```sh
+/bin/bash scripts/generate_app_store_ipad_ppo_screenshots.sh
+/bin/bash scripts/generate_app_store_iphone_ppo_screenshots.sh
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```
+
+## Version 1.2 repository preparation — 2026-09-22
+
+- The unsigned generic iOS Release build and Release Analyze action passed with
+  Xcode 27.0. The built app reports marketing version 1.2, minimum OS 15.0,
+  and iPhone/iPad device families 1 and 2.
+- The archive release guard passed with the production bundle identifier,
+  Jenny Media LLC team, production lifetime-product identifier, iOS/iPadOS 15
+  minimum, iPhone/iPad-only platform scope, and version 1.2.
+- `FrameSessionControllerTests` and `AutomaticAlbumControllerTests` passed
+  **47/47** on iPhone 17 Pro Max and **47/47** on iPad (A16), iOS 27.0
+  Simulators. Both result bundles report zero failures, skips, expected
+  failures, and runtime warnings. Compilation emitted the existing
+  StoreKitTest deprecation warning.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -showdestinations
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-12-Release-Build CODE_SIGNING_ALLOWED=NO build
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-12-Release-Analyze CODE_SIGNING_ALLOWED=NO analyze
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer CI_XCODEBUILD_ACTION=archive /bin/sh ci_scripts/ci_pre_xcodebuild.sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-12-iPhone-Tests -resultBundlePath /private/tmp/FrameWink-12-iPhone.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/FrameSessionControllerTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-12-iPad-Tests -resultBundlePath /private/tmp/FrameWink-12-iPad.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/FrameSessionControllerTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-12-iPhone.xcresult
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-12-iPad.xcresult
+git diff --check
+```

@@ -137,12 +137,13 @@ capture_family() {
 03-landscape-review:03-landscape-review
 04-landscape-album-picker:04-landscape-album-picker
 05-landscape-controls:05-landscape-controls
-06-landscape-sample:06-landscape-sample
+06-landscape-privacy-data:06-landscape-privacy-data
 07-landscape-night-schedule:07-landscape-night-schedule
 08-landscape-mounted-tips:08-landscape-mounted-tips
 09-landscape-lifetime-purchase:09-landscape-lifetime-purchase
-10-landscape-lifetime-features:10-landscape-lifetime-features'
-        expected_count=10
+10-landscape-lifetime-features:10-landscape-lifetime-features
+11-landscape-sample-setup:11-landscape-sample-setup'
+        expected_count=11
     else
         screenshot_map='01-landscape-frame:01-landscape-frame
 02-landscape-controls:02-landscape-controls

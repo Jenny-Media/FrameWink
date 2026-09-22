@@ -408,14 +408,17 @@ final class AutomaticAlbumController: ObservableObject {
                     guard overBudget || targetCount != nil else { return }
                     self.records = checkpoint.records
                     do {
-                        try await self.curate(
-                            currentGeneration: currentGeneration,
-                            candidateRecords: overBudget
-                                ? checkpoint.records
-                                : Array(checkpoint.preparedRecords.prefix(targetCount ?? 0))
-                        )
-                        guard self.generation == currentGeneration else { return }
                         if let targetCount {
+                            try await self.curate(
+                                currentGeneration: currentGeneration,
+                                candidateRecords: overBudget
+                                    ? checkpoint.records
+                                    : Array(
+                                        checkpoint.preparedRecords.prefix(targetCount)
+                                    ),
+                                completionPhase: .syncing(checkpoint.progress)
+                            )
+                            guard self.generation == currentGeneration else { return }
                             self.provisionalCandidateCount = targetCount
                         }
                         if overBudget {
@@ -696,7 +699,8 @@ final class AutomaticAlbumController: ObservableObject {
 
     private func curate(
         currentGeneration: UUID,
-        candidateRecords: [CachedAlbumAsset]? = nil
+        candidateRecords: [CachedAlbumAsset]? = nil,
+        completionPhase: AutomaticAlbumPhase? = nil
     ) async throws {
         let recordsToCurate = candidateRecords ?? records
         guard !recordsToCurate.isEmpty else {
@@ -742,7 +746,7 @@ final class AutomaticAlbumController: ObservableObject {
         )
         smartReel = readyReel
         try store.markSavedReelForCurrentAlbum()
-        phase = .ready(
+        phase = completionPhase ?? .ready(
             photoCount: records.count,
             suggestionCount: readyReel.selections.count
         )

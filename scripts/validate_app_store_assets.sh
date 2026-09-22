@@ -11,6 +11,7 @@ iphone_landscape_dir="$repo_root/AppStore/Screenshots/Landscape/iPhone-6.9-inch"
 ipad_landscape_dir="$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"
 iphone_landscape_marketing_dir="$repo_root/AppStore/Screenshots/Marketing-Landscape/iPhone-6.9-inch"
 ipad_landscape_marketing_dir="$repo_root/AppStore/Screenshots/Marketing-Landscape/iPad-13-inch"
+ipad_ppo_dir="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final"
 iap_review="$repo_root/AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg"
 icon="$repo_root/FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png"
 icon_contents="$repo_root/FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json"
@@ -123,7 +124,7 @@ validate_submission_set "$ipad_landscape_dir" 2752 2064 \
     03-landscape-review.jpg \
     04-landscape-album-picker.jpg \
     05-landscape-controls.jpg \
-    06-landscape-sample.jpg \
+    06-landscape-privacy-data.jpg \
     07-landscape-night-schedule.jpg \
     08-landscape-mounted-tips.jpg \
     09-landscape-lifetime-purchase.jpg \
@@ -140,9 +141,21 @@ validate_submission_set "$ipad_landscape_marketing_dir" 2752 2064 \
     03-review-before-display.jpg \
     04-automatic-album.jpg \
     05-landscape-controls.jpg \
-    06-sample-before-access.jpg \
+    06-storage-controls.jpg \
     07-night-schedule.jpg \
     08-mounted-display.jpg \
+    09-lifetime-upgrade.jpg \
+    10-free-stays-useful.jpg
+
+validate_submission_set "$ipad_ppo_dir" 2752 2064 \
+    01-wall-mounted-frame.jpg \
+    02-tabletop-frame.jpg \
+    03-review-before-display.jpg \
+    04-automatic-album.jpg \
+    05-storage-controls.jpg \
+    06-simple-controls.jpg \
+    07-night-schedule.jpg \
+    08-mounted-guidance.jpg \
     09-lifetime-upgrade.jpg \
     10-free-stays-useful.jpg
 

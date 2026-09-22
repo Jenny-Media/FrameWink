@@ -42,6 +42,51 @@ Apple references:
 - [Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)
 - [Upload app previews and screenshots](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots/)
 
+## iPad Product Page Optimization candidate
+
+The current screenshot-only treatment is in
+`ProductPageOptimization/iPad-13-inch/Final/`. It contains exactly seven
+landscape JPEGs at 2752 x 2064 with no alpha. Run
+`scripts/generate_app_store_ipad_ppo_screenshots.sh` to rebuild it and the
+review contact sheet at
+`Review/ContactSheets/iPad-PPO-Bezel-Proposed.jpg`.
+Run `scripts/verify_locked_app_store_screenshots.sh` to confirm that the final
+files still match the approved iPad and iPhone checksum locks.
+
+Treatment order:
+
+1. Realistically scaled wall use created from the licensed official iPad bezel
+   reference and the bundled Yellowstone Falls photo.
+2. Realistically integrated table use with the same device and photo sources.
+3. One exact full-frame app capture inside Apple's 13-inch iPad Pro bezel.
+4. The exact four-photo Mosaic app capture in the same bezel and placement.
+5. Album choice with six distinct sample covers.
+6. Direct timing controls over a full-frame sample photo.
+7. Permission-free sample setup before choosing personal photos.
+
+The generated empty rooms and selected integrated scenes are retained under
+`Sources/`. The first two lifestyle images keep their accepted room scale and
+exact bundled Yellowstone Falls display. Screenshots 3–7 use a single warm
+wall, a restrained sunlight accent on the left, one straight-on device size,
+and exact native Simulator captures. The generator places each 2752 x 2064
+capture at Apple's original +124,+118 screen opening in the 3000 x 2300
+13-inch iPad Pro landscape bezel. It does not tilt, redraw, blur, or apply a
+perspective transform to the app UI. The standalone Apple Design Resources
+file is not stored in this repository.
+
+The iPad and iPhone product cards use the same wall source and a calibrated
+neutral warm-beige treatment. Representative clear-wall samples render at
+approximately `#CFB8A2` on both canvases, keeping the later detail cards aligned
+with the more muted lifestyle rooms while preserving the left-side sunlight.
+
+Selected integration prompts were intentionally short:
+
+- Wall: `Place the provided 13-inch iPad naturally mounted on this wall. Make
+  it clearly smaller than the lamp shade and look like a real interior
+  photograph.`
+- Table: `Place the provided iPad naturally on the table in this room using a
+  simple stand. Make it look like a real interior photograph.`
+
 ## Source library
 
 Run `scripts/capture_app_store_screenshots.sh` with a booted iPad Simulator to

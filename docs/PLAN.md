@@ -13,7 +13,7 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 27.5 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
+| 6. Hardening and release | 8 h | 27.5 h | Version 1.2 preparation in progress — archive and App Store draft pending |
 | **Total** | **40 h** | **50.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
@@ -1924,6 +1924,107 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   Simulator with no warnings; the iPad build-for-testing and Release Analyze
   actions pass after the change. Full-scheme results above precede this small
   fix, and hosted validation remains pending cloud minutes.
+
+### Album preparation status and iPad screenshot refresh — 2026-09-21
+
+- Status: album-state fix and iPad screenshot treatment are complete. Pull
+  request #15 is open, and the screenshot-only Product Page Optimization test
+  `iPad Bezel and Storage` was submitted to App Review on 2026-09-21.
+- The reported status flash was reproducible from source: each provisional
+  10- or 30-candidate reel ended curation by publishing `ready`, even while the
+  album synchronizer continued. Provisional reels still become playable early,
+  but now return to the current synchronization progress. Only the final full
+  album curation publishes the finished `ready` state.
+- The full 29-test automatic-album controller suite passes on both iPhone 17
+  Pro Max and iPad (A16) Simulators. The deterministic screenshot flow also
+  completed on the 13-inch iPad and iPhone landscape Simulators, including an
+  iPad storage capture that asserts both cleanup choices are visible.
+- A ten-image 2752 x 2064 iPad Product Page Optimization candidate now leads
+  with wall and tabletop scenes. Those two images place existing licensed Apple
+  iPad bezel derivatives containing actual FrameWink captures over newly
+  generated room backgrounds. The other eight images use actual app screens,
+  including the 1.1 storage controls. The source backgrounds, final JPEGs,
+  deterministic generator, and contact sheet are retained in the repository.
+- App Store Connect has one treatment with 50% traffic and the ten iPad images
+  in their intended order. The existing iPhone gallery remains inherited from
+  the original product page. Submission `27b8cebc-ffcd-48f4-8a74-10d05394f319`
+  is awaiting App Review; the test has not started and no treatment has been
+  applied to the default product page.
+- Active implementation, capture, and review time: approximately 1.2 hours.
+  Real PhotoKit behavior, the transition on a large physical album, App Store
+  review acceptance, the later test result, and any live product-page
+  application remain separate checks.
+
+### Paused-frame stability and screenshot redesign — 2026-09-21
+
+- Status: pause and checkpoint fixes are implemented and verified; the revised
+  six-image iPad treatment is generated for review on pull request #15.
+- Frame pause now holds the exact visible slide data while automatic album
+  synchronization, analysis, and cache maintenance continue. The newest reel
+  is applied once when playback resumes. Storage checkpoints can still prune
+  excess cached files, but only the planned 10-photo and 30-photo checkpoints
+  rebuild a provisional reel before the final curation.
+- The submitted ten-image iPad treatment is being replaced because its first
+  two room scenes made the iPad physically too large and the later images
+  exposed too many settings details. New concept mocks use everyday furniture,
+  lamps, books, and cups as scale references and shift the story to wall use,
+  tabletop use, album choice, private curation, review, and simple playback.
+  The final candidate uses a two-stage lifestyle workflow: image generation
+  integrates the licensed device reference into an empty room, then the local
+  generator restores the exact bundled Yellowstone Falls photo and adds the
+  headline. Several wall candidates were evaluated; the selected result keeps
+  the iPad smaller than the nearby lamp shade. Screenshots 3–6 use one close
+  view of the accepted tabletop scene, with the same device geometry and exact
+  native FrameWink screens for album choice, smart layouts, review, and private
+  frame display. Album and review focus their native modal over a softened
+  background so no underlying settings detail remains readable.
+- The affected 47-test set passed on iPad (A16) and iPhone 17 Pro Max, iOS
+  27.0 Simulators, with no failures, skips, or runtime warnings. Final
+  screenshot generation is complete at 2752 x 2064 with six JPEGs and no
+  alpha. Physical-device pause acceptance and App Store Connect replacement
+  remain pending. Active time so far: approximately 1.4 hours.
+
+### Locked seven-image iPad screenshot recovery — 2026-09-22
+
+- Status: restored in an isolated recovery worktree. The two accepted
+  lifestyle images retain their previous bytes. Five product cards use exact
+  current Simulator captures, Apple's original 3000 x 2300 13-inch iPad Pro
+  landscape bezel, and a consistent close-up warm-wall treatment.
+- The album chooser now shows six distinct bundled sample covers. The final
+  sequence is wall use, table use, full-frame photo, Mosaic, album choice,
+  timing controls, and permission-free sample setup. All seven final files are
+  2752 x 2064 JPEGs without alpha and are protected by a checksum lock.
+- The focused iPad screenshot UI test passed and exported all eleven native
+  scenes. The final set and contact sheet were also copied to the persistent
+  Codex visualization folder so cleanup of a disposable worktree cannot make
+  the review links blank again. Pull request #15 was not updated. Active
+  recovery time: approximately 0.8 hours.
+
+### Unified iPad and iPhone screenshot wall color — 2026-09-22
+
+- Status: complete in the isolated screenshot recovery worktree. The shared
+  detail-card wall was recalibrated from peach/orange to neutral warm beige.
+  Representative clear-wall samples now measure approximately `#CFB8A2` on
+  both the landscape iPad and portrait iPhone canvases.
+- Both complete galleries were regenerated and visually reviewed. The room
+  scenes, device geometry, exact app captures, typography, and restrained
+  left-side sunlight remain unchanged. New checksum locks cover seven iPad and
+  six iPhone final images. Pull request #15 remains unchanged.
+
+### Version 1.2 release preparation — 2026-09-22
+
+- Status: repository preparation in progress after the owner confirmed that
+  version 1.1 is released. The app target and release guard now use marketing
+  version 1.2.
+- The release input includes concise What's New copy, focused App Review notes,
+  and updated TestFlight checks for paused playback during an automatic album
+  refresh and stable preparation status. The approved checksum-locked iPad and
+  iPhone galleries are the proposed replacement screenshots.
+- The unsigned Release build, Release Analyze, archive guard, and affected
+  47-test suites on both iPhone and iPad Simulators pass. Remaining gates are
+  an exact-source archive and TestFlight smoke test, App Store Connect version
+  creation and metadata upload, build attachment, and explicit authorization
+  before review submission.
 
 ## Timebox rule
 

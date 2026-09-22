@@ -1,0 +1,11 @@
+FrameWink 1.2 is a focused stability update for automatic albums and paused playback. No account or reviewer credentials are required.
+
+To review the changes:
+1. Launch the clearly labelled bundled sample frame. No Photos permission is requested.
+2. Open More Frame Features and use Apple's StoreKit sandbox to purchase or restore FrameWink Lifetime.
+3. Choose a Photos album and start the frame. Pause on a recognizable photo, then switch albums or change the selected album in Photos and return to FrameWink. The visible paused photo remains fixed while synchronization and curation continue. Resume applies the newest reel.
+4. During album preparation, a playable provisional reel may become available early, but the status continues to report preparation progress until the full synchronization and final curation finish. It no longer flashes a finished state while syncing remains active.
+
+FrameWink reads only the album the user explicitly chooses, excludes hidden photos and screenshots from automatic selection, and never edits or deletes originals in Apple Photos. Photos and analysis remain on-device. The app has no account, developer server, ads, analytics SDK, or tracking.
+
+The existing FrameWink Lifetime non-consumable is media.jenny.FrameWink.wallmode. Guided Access remains a manual Apple system feature, and scheduled display behavior works only while FrameWink remains open.

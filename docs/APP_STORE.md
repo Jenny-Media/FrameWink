@@ -5,17 +5,34 @@ it aligned with the shipping build and update it before every submitted version.
 
 ## Current availability
 
-FrameWink 1.0 is approved and available on the App Store at
+FrameWink 1.1 is approved and available on the App Store at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
-## Version 1.1 preparation
+## Version 1.2 preparation
 
-App Store Connect has an editable iOS 1.1 draft saved on 2026-09-18. Its
-earlier 1.0.1 Build 19 was detached, and no 1.1 archive is attached yet.
-Manual release after approval remains selected. The current 1.1 source must
-pass release validation and produce an App Store Connect-eligible Xcode Cloud
-archive before adding the version for review.
+Version 1.2 is a focused stability update for automatic album preparation and
+paused playback. The repository release inputs are under
+`AppStore/Version-1.2/`; the app target and Xcode Cloud release guard use
+marketing version 1.2. The proposed replacement galleries are the checksum
+locked iPad and iPhone sets under
+`AppStore/Screenshots/ProductPageOptimization/`.
+
+English (U.S.) What's New:
+
+> • Paused frames now stay on the photo you chose while an automatic album refreshes in the background.
+> • Album preparation progress now remains steady while photos continue syncing.
+> • Improved large-album cache maintenance during preparation.
+
+The App Review notes provide a concrete pause-during-refresh test and explain
+that a provisional reel may become playable while preparation correctly
+remains in progress. Manual release should remain selected. A 1.2 build has not
+yet been archived, uploaded, attached, or submitted for review.
+
+## Released version 1.1
+
+The owner confirmed that FrameWink 1.1 was released before version 1.2
+preparation began. The saved release copy was:
 
 Saved English (U.S.) What's New, as a bullet list:
 
@@ -24,10 +41,8 @@ Saved English (U.S.) What's New, as a bullet list:
 > • Use one clearly warned action to remove all FrameWink photo data. Storage actions now show visible progress; originals in Apple Photos are never changed.
 > • Enjoy an expanded sample reel, improved framing and multi-photo layouts, plus fixes for playback timing and purchase restore feedback.
 
-App Review notes were updated to explain safe cleanup, the warned full reset,
-album-cache behavior, permission timing, and StoreKit sandbox review. The
-approved 1.0 screenshots remain the current galleries; confirm they still
-represent the shipping binary before submission.
+Its App Review notes explained safe cleanup, the warned full reset,
+album-cache behavior, permission timing, and StoreKit sandbox review.
 
 ## Superseded version 1.0.1 release candidate
 

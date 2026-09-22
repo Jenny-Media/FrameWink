@@ -19,6 +19,7 @@ struct SampleSlideshowView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
     @State private var playback = FramePlaybackCoordinator()
+    @State private var slidePresentation = FrameSlidePresentationState()
     @State private var layoutPreference: FrameLayoutPreference = .automatic
     @State private var controlsVisible = true
     @State private var hintVisible = false
@@ -38,18 +39,22 @@ struct SampleSlideshowView: View {
 
     var body: some View {
         GeometryReader { proxy in
+            let presentedSlides = slidePresentation.resolvedSlides(fallback: slides)
             let viewport = PixelSize(
                 width: Int(proxy.size.width.rounded()),
                 height: Int(proxy.size.height.rounded())
             )
             let pages = layoutChooser.pages(
-                for: slides.map(\.frameLayoutItem),
+                for: presentedSlides.map(\.frameLayoutItem),
                 viewport: viewport,
                 preference: layoutPreference,
                 allowsAutomaticMosaic: allowsAutomaticMosaic
             )
             let layoutSignature = pages.map(\.id).joined(separator: "|")
-            let slidesByID = Dictionary(uniqueKeysWithValues: slides.map { ($0.id, $0) })
+            let slidesByID = Dictionary(
+                uniqueKeysWithValues: presentedSlides.map { ($0.id, $0) }
+            )
+            let sourceSlidesRevision = slides.map(\.presentationRevision).joined(separator: "|")
 
             ZStack {
                 Color.black
@@ -116,7 +121,8 @@ struct SampleSlideshowView: View {
                             isCompact: proxy.size.width < 600,
                             pages: pages,
                             signature: layoutSignature,
-                            slidesByID: slidesByID
+                            slidesByID: slidesByID,
+                            latestSlides: slides
                         )
                             .transition(reduceMotion ? .identity : .opacity)
 
@@ -137,6 +143,11 @@ struct SampleSlideshowView: View {
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .onAppear {
+                slidePresentation.synchronize(
+                    with: slides,
+                    isFrameMode: isFrameMode,
+                    isPlaying: playback.isPlaying
+                )
                 applyPreferredPresentation()
                 synchronizePages(pages, signature: layoutSignature)
                 if isFrameMode {
@@ -153,6 +164,13 @@ struct SampleSlideshowView: View {
             }
             .onChange(of: layoutSignature) { newSignature in
                 synchronizePages(pages, signature: newSignature)
+            }
+            .onChange(of: sourceSlidesRevision) { _ in
+                slidePresentation.synchronize(
+                    with: slides,
+                    isFrameMode: isFrameMode,
+                    isPlaying: playback.isPlaying
+                )
             }
             .onChange(of: isFrameMode) { active in
                 guard active, let page = activePage(in: pages) else { return }
@@ -218,6 +236,11 @@ struct SampleSlideshowView: View {
             if isActive {
                 showInitialGuidance()
             } else {
+                slidePresentation.synchronize(
+                    with: slides,
+                    isFrameMode: false,
+                    isPlaying: playback.isPlaying
+                )
                 isShowingFrameControls = false
                 hideControlsTask?.cancel()
                 hideHintTask?.cancel()
@@ -585,7 +608,8 @@ struct SampleSlideshowView: View {
         isCompact: Bool,
         pages: [FramePage],
         signature: String,
-        slidesByID: [String: DisplaySlide]
+        slidesByID: [String: DisplaySlide],
+        latestSlides: [DisplaySlide]
     ) -> some View {
         let visibleSlides = shareableSlides(
             pages: pages,
@@ -615,6 +639,9 @@ struct SampleSlideshowView: View {
                 .accessibilityIdentifier("frame-share-current-photos")
 
                 Button {
+                    if !playback.isPlaying {
+                        slidePresentation.replace(with: latestSlides)
+                    }
                     playback.togglePlayback(at: Date())
                     if playback.isPlaying {
                         scheduleControlsToRecede()
@@ -1007,7 +1034,34 @@ private enum FramePageTransitionDirection {
     }
 }
 
+struct FrameSlidePresentationState {
+    private(set) var slides: [DisplaySlide] = []
+    private(set) var isInitialized = false
+
+    func resolvedSlides(fallback: [DisplaySlide]) -> [DisplaySlide] {
+        isInitialized ? slides : fallback
+    }
+
+    mutating func synchronize(
+        with incomingSlides: [DisplaySlide],
+        isFrameMode: Bool,
+        isPlaying: Bool
+    ) {
+        guard !isInitialized || !isFrameMode || isPlaying else { return }
+        replace(with: incomingSlides)
+    }
+
+    mutating func replace(with incomingSlides: [DisplaySlide]) {
+        slides = incomingSlides
+        isInitialized = true
+    }
+}
+
 private extension DisplaySlide {
+    var presentationRevision: String {
+        id + ":" + imageCacheKey
+    }
+
     var imageCacheKey: String {
         switch source {
         case .bundled(let resourceName):

@@ -444,6 +444,11 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertTrue(synchronizer.isSynchronizing)
         XCTAssertEqual(controller.smartReel?.selections.count, 10)
         XCTAssertEqual(controller.slides.count, 10)
+        guard case .syncing(let progress) = controller.phase else {
+            return XCTFail("A provisional reel must keep showing album preparation progress.")
+        }
+        XCTAssertEqual(progress.completedCount, 10)
+        XCTAssertEqual(progress.totalCount, 10)
 
         try await waitUntil(timeout: 1) { !synchronizer.isSynchronizing }
         XCTAssertTrue(controller.canDisplay)
@@ -470,9 +475,40 @@ final class AutomaticAlbumControllerTests: XCTestCase {
 
         XCTAssertTrue(synchronizer.isSynchronizing)
         XCTAssertEqual(controller.slides.count, 30)
+        guard case .syncing(let progress) = controller.phase else {
+            return XCTFail("A refined provisional reel must not report that album preparation is finished.")
+        }
+        XCTAssertEqual(progress.completedCount, 30)
+        XCTAssertEqual(progress.totalCount, 30)
 
         try await waitUntil(timeout: 1) { !synchronizer.isSynchronizing }
         XCTAssertTrue(controller.canDisplay)
+    }
+
+    func testStorageCheckpointsPruneWithoutRepeatedlyRebuildingTheReel() async throws {
+        let client = ControllerPhotoLibraryClient(authorization: .authorized)
+        let store = ControllerAlbumStore()
+        store.configuration.albumIdentifier = "family"
+        store.cachedBytes = PhotoStoragePolicy.automaticAlbumImageBudgetBytes + 1
+        store.retainsCachedBytesAfterPrune = true
+        let synchronizer = ControllerAlbumSynchronizer()
+        synchronizer.checkpointRecordCounts = [10, 30, 60, 90]
+        let builder = ControllerSmartReelBuilder()
+        let controller = AutomaticAlbumController(
+            client: client,
+            store: store,
+            synchronizer: synchronizer,
+            smartReelBuilder: builder
+        )
+
+        controller.setEntitled(true)
+        try await waitUntil {
+            if case .ready = controller.phase { return true }
+            return false
+        }
+
+        XCTAssertEqual(builder.buildCandidateCounts, [10, 30, 90])
+        XCTAssertGreaterThanOrEqual(store.pruneCallCount, 4)
     }
 
     func testLargeAlbumCheckpointPrunesOnlyPhotosOutsideCurrentReel() async throws {
@@ -905,6 +941,8 @@ private final class ControllerAlbumStore: AlbumSourceStoring {
     var configurationSaveError: Error?
     var cachedBytes: Int64 = 0
     var prunedKeepIDs: Set<UUID>?
+    var pruneCallCount = 0
+    var retainsCachedBytesAfterPrune = false
     var deletionRanOnMainThread = true
     var missingImageFilenames: Set<String> = []
 
@@ -935,7 +973,10 @@ private final class ControllerAlbumStore: AlbumSourceStoring {
     func cachedImageBytes() -> Int64 { cachedBytes }
     func pruneCachedImages(keepingPhotoIDs: Set<UUID>) throws -> Int64 {
         prunedKeepIDs = keepingPhotoIDs
-        cachedBytes = 0
+        pruneCallCount += 1
+        if !retainsCachedBytesAfterPrune {
+            cachedBytes = 0
+        }
         return 1
     }
     func deleteAllCachedData() throws {
@@ -1029,6 +1070,7 @@ private final class ControllerSmartReelBuilder: SmartReelBuilding {
     var savedReel: SmartReel?
     var exclusions: Set<UUID> = []
     var resetExclusionsCount = 0
+    var buildCandidateCounts: [Int] = []
 
     func loadSavedReel() throws -> SmartReel? { savedReel }
     func loadExclusions() throws -> Set<UUID> { exclusions }
@@ -1052,6 +1094,7 @@ private final class ControllerSmartReelBuilder: SmartReelBuilding {
         imageProvider: @escaping (UUID) async -> UIImage?,
         progress: @escaping @MainActor (ImportProgress) -> Void
     ) async throws -> SmartReel {
+        buildCandidateCounts.append(candidates.count)
         await progress(
             ImportProgress(completedCount: candidates.count, totalCount: candidates.count)
         )

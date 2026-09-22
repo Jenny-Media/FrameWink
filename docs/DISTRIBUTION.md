@@ -606,9 +606,11 @@ blocker affects only a later boundary.
   accepted before use. Two derivative hero assets combine the official 13-inch
   iPad Pro (M5) Space Black landscape bezel with actual FrameWink captures; the
   standalone Apple resource is not copied into the repository.
-- Impact: none. The website room hero now reads as an authentic iPad while the
-  App Store galleries continue to use direct native screens without unnecessary
-  device decoration.
+- Impact: none. The website room hero uses the authentic iPad derivative. A
+  later iPad Product Page Optimization candidate also uses the existing bezel
+  derivatives for two straight-on lifestyle scenes, followed by eight direct
+  native-screen cards. The standalone Apple resource remains outside the
+  repository.
 
 ### B-027 — Version 1.0.1 release candidate
 
@@ -652,6 +654,40 @@ blocker affects only a later boundary.
   Cloud currently has zero minutes available until its September 18, 8:51 PM
   Eastern renewal. The exact-source Xcode Cloud archive remains necessary
   before attaching a build for review.
+
+### B-029 — iPad Product Page Optimization screenshot treatment
+
+- Status: Submitted to App Review on 2026-09-21
+- Scope: screenshot-only test named `iPad Bezel and Storage`, with one
+  treatment and 50% traffic. The treatment replaces the 13-inch iPad gallery
+  with ten 2752 x 2064 images led by wall-mounted and tabletop scenes, followed
+  by direct app screens including the storage controls. The iPhone gallery is
+  inherited from the original product page.
+- Review evidence: App Store Connect confirmed `1 Item Submitted` and linked
+  review submission `27b8cebc-ffcd-48f4-8a74-10d05394f319`. Apple states that
+  review can take up to 48 hours.
+- Remaining gates: App Review approval, test start and result review, then an
+  explicit owner decision before applying a winning treatment to the default
+  product page.
+
+### B-030 — Version 1.2 release candidate
+
+- Status: Repository preparation in progress; no 1.2 archive or submission
+- First recorded: 2026-09-22
+- Scope: keep a paused frame visually fixed while automatic album updates and
+  curation continue, prevent the album status from briefly reporting completion
+  while synchronization remains active, and retain cache pruning during large
+  album preparation. The free/paid boundary, supported platforms, lifetime
+  price, product identifier, and privacy behavior are unchanged.
+- Release input: the app target and Xcode Cloud archive guard use marketing
+  version 1.2. English What's New, focused App Review notes, updated TestFlight
+  instructions, and checksum-locked iPad and iPhone screenshot galleries are
+  prepared in the repository. The unsigned Release build, Release Analyze,
+  archive guard, and affected 47-test suites pass on both iPhone and iPad
+  Simulators.
+- Remaining gates: exact-source archive, physical TestFlight smoke checks, App
+  Store Connect metadata and screenshot upload, build attachment, and explicit
+  authorization before submitting for review.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
