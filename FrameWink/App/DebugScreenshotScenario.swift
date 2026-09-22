@@ -388,14 +388,16 @@ final class DebugScreenshotPhotoLibraryClient: PhotoLibraryClient {
         albumIdentifier: String,
         maxPixelDimension: Int
     ) async -> UIImage? {
-        let resources = [
-            "sample-yellowstone-falls",
-            "sample-san-francisco-sunset",
-            "sample-golden-gate",
-            "sample-antelope-canyon",
+        let resourcesByAlbum = [
+            "screenshot-family-favorites": "sample-spring-flowers",
+            "screenshot-recently-added": "sample-coast-aerial",
+            "screenshot-travel": "sample-sunset-city",
+            "screenshot-weekends": "sample-autumn-cyclist",
+            "screenshot-portraits": "sample-water-bird",
+            "screenshot-favorites": "sample-mountain-icicles",
         ]
-        let index = abs(albumIdentifier.hashValue) % resources.count
-        guard let url = BundledSampleImageLoader.url(named: resources[index]) else {
+        guard let resource = resourcesByAlbum[albumIdentifier],
+              let url = BundledSampleImageLoader.url(named: resource) else {
             return nil
         }
         return UIImage(contentsOfFile: url.path)

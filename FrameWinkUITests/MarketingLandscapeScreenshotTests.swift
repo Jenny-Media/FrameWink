@@ -59,6 +59,10 @@ final class MarketingLandscapeScreenshotTests: XCTestCase {
                 scenario: "paywall-features",
                 name: "10-landscape-lifetime-features"
             )
+            try capture(
+                scenario: "sample",
+                name: "11-landscape-sample-setup"
+            )
             return
         }
         try capture(

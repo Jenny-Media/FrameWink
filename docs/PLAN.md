@@ -1984,6 +1984,33 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   alpha. Physical-device pause acceptance and App Store Connect replacement
   remain pending. Active time so far: approximately 1.4 hours.
 
+### Locked seven-image iPad screenshot recovery — 2026-09-22
+
+- Status: restored in an isolated recovery worktree. The two accepted
+  lifestyle images retain their previous bytes. Five product cards use exact
+  current Simulator captures, Apple's original 3000 x 2300 13-inch iPad Pro
+  landscape bezel, and a consistent close-up warm-wall treatment.
+- The album chooser now shows six distinct bundled sample covers. The final
+  sequence is wall use, table use, full-frame photo, Mosaic, album choice,
+  timing controls, and permission-free sample setup. All seven final files are
+  2752 x 2064 JPEGs without alpha and are protected by a checksum lock.
+- The focused iPad screenshot UI test passed and exported all eleven native
+  scenes. The final set and contact sheet were also copied to the persistent
+  Codex visualization folder so cleanup of a disposable worktree cannot make
+  the review links blank again. Pull request #15 was not updated. Active
+  recovery time: approximately 0.8 hours.
+
+### Unified iPad and iPhone screenshot wall color — 2026-09-22
+
+- Status: complete in the isolated screenshot recovery worktree. The shared
+  detail-card wall was recalibrated from peach/orange to neutral warm beige.
+  Representative clear-wall samples now measure approximately `#CFB8A2` on
+  both the landscape iPad and portrait iPhone canvases.
+- Both complete galleries were regenerated and visually reviewed. The room
+  scenes, device geometry, exact app captures, typography, and restrained
+  left-side sunlight remain unchanged. New checksum locks cover seven iPad and
+  six iPhone final images. Pull request #15 remains unchanged.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

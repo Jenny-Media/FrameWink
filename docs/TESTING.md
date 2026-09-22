@@ -3203,3 +3203,42 @@ Commands run from `/private/tmp/framewink-app-store-screenshots`:
 scripts/generate_app_store_ipad_ppo_screenshots.sh
 git diff --check
 ```
+
+## Seven-image iPad screenshot recovery — 2026-09-22
+
+- `MarketingLandscapeScreenshotTests/testCaptureLandscapeMarketingScreens`
+  passed on the iPad Pro 13-inch (M5) Simulator and exported eleven native
+  attachments, including the newly added permission-free sample setup scene.
+- The five captures used by the product cards are exact 2752 x 2064 app
+  renders. The album picker contains six distinct sample thumbnails.
+- The deterministic generator produced seven 2752 x 2064 JPEGs without alpha.
+  The first two lifestyle files retained their prior SHA-256 values. The final
+  checksum verifier, shell syntax checks, and `git diff --check` passed.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=1BDA7ABF-4236-406E-8ACD-7E3B10569753' -derivedDataPath /private/tmp/FrameWink-iPad-PPO-Recovery-DerivedData -resultBundlePath /private/tmp/FrameWink-iPad-PPO-Recovery.xcresult -only-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests/testCaptureLandscapeMarketingScreens test
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool export attachments --path /private/tmp/FrameWink-iPad-PPO-Recovery.xcresult --output-path /private/tmp/FrameWink-iPad-PPO-Recovery-Attachments
+/bin/bash -n scripts/generate_app_store_ipad_ppo_screenshots.sh
+/bin/bash scripts/generate_app_store_ipad_ppo_screenshots.sh
+/bin/bash -n scripts/verify_locked_app_store_screenshots.sh
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```
+
+## Unified iPad and iPhone screenshot wall color — 2026-09-22
+
+- Regenerated all seven iPad and six iPhone final screenshots after calibrating
+  the shared wall source separately for each canvas crop. Representative
+  background samples are `#CFB9A1` after iPad JPEG encoding and `#CFB8A2` on
+  iPhone.
+- All iPad files remain 2752 x 2064 JPEGs without alpha. All iPhone files remain
+  1320 x 2868 JPEGs without alpha. Both contact sheets were visually inspected,
+  both checksum locks passed, shell syntax checks passed, and `git diff --check`
+  passed.
+
+```sh
+/bin/bash scripts/generate_app_store_ipad_ppo_screenshots.sh
+/bin/bash scripts/generate_app_store_iphone_ppo_screenshots.sh
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```

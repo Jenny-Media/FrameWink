@@ -45,35 +45,39 @@ Apple references:
 ## iPad Product Page Optimization candidate
 
 The current screenshot-only treatment is in
-`ProductPageOptimization/iPad-13-inch/Final/`. It contains exactly six
+`ProductPageOptimization/iPad-13-inch/Final/`. It contains exactly seven
 landscape JPEGs at 2752 x 2064 with no alpha. Run
 `scripts/generate_app_store_ipad_ppo_screenshots.sh` to rebuild it and the
 review contact sheet at
 `Review/ContactSheets/iPad-PPO-Bezel-Proposed.jpg`.
+Run `scripts/verify_locked_app_store_screenshots.sh` to confirm that the final
+files still match the approved iPad and iPhone checksum locks.
 
 Treatment order:
 
 1. Realistically scaled wall use created from the licensed official iPad bezel
    reference and the bundled Yellowstone Falls photo.
 2. Realistically integrated table use with the same device and photo sources.
-3. Focused album choice with automatic refresh messaging.
-4. Smart highlights in a four-photo layout.
-5. Focused review-before-display controls.
-6. On-device privacy with a clean full-frame photo.
+3. One exact full-frame app capture inside Apple's 13-inch iPad Pro bezel.
+4. The exact four-photo Mosaic app capture in the same bezel and placement.
+5. Album choice with six distinct sample covers.
+6. Direct timing controls over a full-frame sample photo.
+7. Permission-free sample setup before choosing personal photos.
 
 The generated empty rooms and selected integrated scenes are retained under
-`Sources/`. For each lifestyle scene, image generation received an empty room
-and the licensed official iPad bezel derivative as references, then integrated
-the device with the room's perspective, lighting, stand, and shadows. The wall
-candidate was selected from several results so the 13-inch iPad is visibly
-smaller than the nearby lamp shade. The deterministic generator replaces the
-interpreted display with FrameWink's exact bundled Yellowstone Falls source,
-then adds the marketing copy. Screenshots 3–6 reuse one close view of the same
-tabletop scene and device position. The generator swaps in exact native
-Simulator captures for album choice, smart layouts, review, and frame display.
-For the two modal screens, it softens the surrounding setup screen and restores
-only the exact modal so no settings detail remains readable. The standalone
-Apple Design Resources file is not stored in this repository.
+`Sources/`. The first two lifestyle images keep their accepted room scale and
+exact bundled Yellowstone Falls display. Screenshots 3–7 use a single warm
+wall, a restrained sunlight accent on the left, one straight-on device size,
+and exact native Simulator captures. The generator places each 2752 x 2064
+capture at Apple's original +124,+118 screen opening in the 3000 x 2300
+13-inch iPad Pro landscape bezel. It does not tilt, redraw, blur, or apply a
+perspective transform to the app UI. The standalone Apple Design Resources
+file is not stored in this repository.
+
+The iPad and iPhone product cards use the same wall source and a calibrated
+neutral warm-beige treatment. Representative clear-wall samples render at
+approximately `#CFB8A2` on both canvases, keeping the later detail cards aligned
+with the more muted lifestyle rooms while preserving the left-side sunlight.
 
 Selected integration prompts were intentionally short:
 
