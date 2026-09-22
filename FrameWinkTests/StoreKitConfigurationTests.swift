@@ -96,6 +96,12 @@ final class StoreKitConfigurationTests: XCTestCase {
     }
 
     func testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking() async throws {
+        if isXcodeCloud {
+            throw XCTSkip(
+                "SKTestSession Ask to Buy blocks until Xcode Cloud's ten-minute "
+                    + "allowance; keep this transaction check on supported local runtimes."
+            )
+        }
         _ = try await requireRuntimeProduct()
         session.askToBuyEnabled = true
         let client = StoreKitPurchaseClient(
@@ -156,6 +162,7 @@ final class StoreKitConfigurationTests: XCTestCase {
         return cloudValue == "true"
             || cloudValue == "1"
             || environment["CI_WORKSPACE"]?.hasPrefix("/Volumes/workspace") == true
+            || #filePath.hasPrefix("/Volumes/workspace/")
     }
 
     private func waitForEntitlement(

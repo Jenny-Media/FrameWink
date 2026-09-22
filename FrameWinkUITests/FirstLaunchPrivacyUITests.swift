@@ -104,10 +104,10 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         app.buttons["Privacy & Data"].tap()
         XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
         let deleteAllPhotos = app.buttons["delete-all-framewink-photos"]
-        if !deleteAllPhotos.waitForExistence(timeout: 1) {
-            app.swipeUp()
-        }
-        XCTAssertTrue(deleteAllPhotos.waitForExistence(timeout: 8))
+        XCTAssertTrue(
+            scrollUntilHittable(deleteAllPhotos),
+            "Delete All FrameWink Photos must be reachable on compact screens."
+        )
         deleteAllPhotos.tap()
 
         let confirmation = app.alerts["Delete All FrameWink Photos?"]
@@ -141,20 +141,26 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         app.buttons["Privacy & Data"].tap()
         XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
         let cleanup = app.buttons["free-unused-photo-space"]
-        if !cleanup.waitForExistence(timeout: 1) {
-            app.swipeUp()
-        }
-        XCTAssertTrue(cleanup.waitForExistence(timeout: 8))
+        XCTAssertTrue(
+            scrollUntilHittable(cleanup),
+            "Free Up Unused Space must be reachable on compact screens."
+        )
         cleanup.tap()
 
         let cleanupProgress = app.descendants(matching: .any)[
             "free-unused-photo-space-progress"
         ].firstMatch
-        XCTAssertTrue(cleanupProgress.waitForExistence(timeout: 3))
+        XCTAssertTrue(
+            scrollUntilExists(cleanupProgress, maxSwipes: 3),
+            "Cleanup progress must be visible while the compact screen is scrolled."
+        )
         let cleanupResult = app.staticTexts.matching(
             NSPredicate(format: "label BEGINSWITH %@", "Last cleanup freed ")
         ).firstMatch
-        XCTAssertTrue(cleanupResult.waitForExistence(timeout: 8))
+        XCTAssertTrue(
+            scrollUntilExists(cleanupResult),
+            "Cleanup completion must be reachable on compact screens."
+        )
 
         app.buttons["Close"].tap()
         XCTAssertTrue(app.staticTexts["3 photos are ready."].waitForExistence(timeout: 8))
@@ -207,10 +213,10 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Choose What Plays"].waitForExistence(timeout: 4))
         app.buttons["photo-source-personal"].tap()
 
-        let startFrame = app.buttons["Start Frame"]
-        XCTAssertTrue(startFrame.waitForExistence(timeout: 8))
-        startFrame.tap()
-
+        XCTAssertTrue(
+            app.staticTexts["3 photos are ready."].waitForExistence(timeout: 8),
+            "The personal source must finish replacing the stale sample source."
+        )
         let personalPhotos = app.descendants(matching: .any).matching(
             NSPredicate(
                 format: "identifier IN %@",
@@ -221,6 +227,15 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
                 ]
             )
         )
+        XCTAssertTrue(
+            personalPhotos.firstMatch.waitForExistence(timeout: 8),
+            "The home preview must show the newly selected personal source."
+        )
+
+        let startFrame = app.buttons["Start Frame"]
+        XCTAssertTrue(startFrame.waitForExistence(timeout: 8))
+        startFrame.tap()
+
         XCTAssertTrue(personalPhotos.firstMatch.waitForExistence(timeout: 8))
 
         let playbackControl = app.buttons["frame-playback-control"]
@@ -473,14 +488,21 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             options.tap()
             let picker = app.segmentedControls["frame-duration-picker"]
             XCTAssertTrue(picker.waitForExistence(timeout: 3))
-            picker.buttons[label].tap()
+            let duration = picker.buttons[label]
+            duration.tap()
+            XCTAssertTrue(
+                waitUntil(timeout: 3) { duration.isSelected },
+                "The first tap must select \(label) before controls close."
+            )
             let close = app.buttons["close-frame-controls"]
             if close.exists { close.tap() }
             XCTAssertTrue(options.waitForExistence(timeout: 3))
             options.tap()
             XCTAssertTrue(picker.waitForExistence(timeout: 3))
-            XCTAssertTrue(picker.buttons[label].isSelected,
-                          "The first selection of \(label) must survive reopening.")
+            XCTAssertTrue(
+                waitUntil(timeout: 3) { picker.buttons[label].isSelected },
+                "The first selection of \(label) must survive reopening."
+            )
             app.buttons["close-frame-controls"].tap()
         }
     }
@@ -640,10 +662,13 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         neverShowButtons.firstMatch.tap()
 
         let hiddenPhotos = app.buttons["manage-hidden-photos"]
-        XCTAssertTrue(hiddenPhotos.waitForExistence(timeout: 3))
+        XCTAssertTrue(
+            scrollUntilHittable(hiddenPhotos),
+            "Hidden from Frame must be reachable after excluding a photo."
+        )
         hiddenPhotos.tap()
 
-        XCTAssertTrue(app.navigationBars["Hidden from Frame"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.navigationBars["Hidden from Frame"].waitForExistence(timeout: 8))
         let allowAgain = app.buttons.matching(
             NSPredicate(format: "identifier BEGINSWITH 'allow-again-'")
         ).firstMatch
@@ -981,6 +1006,36 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             object: nil
         )
         return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    private func scrollUntilHittable(
+        _ element: XCUIElement,
+        maxSwipes: Int = 6
+    ) -> Bool {
+        for attempt in 0...maxSwipes {
+            if element.exists && element.isHittable {
+                return true
+            }
+            guard attempt < maxSwipes else { break }
+            app.swipeUp()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        return element.exists && element.isHittable
+    }
+
+    private func scrollUntilExists(
+        _ element: XCUIElement,
+        maxSwipes: Int = 6
+    ) -> Bool {
+        for attempt in 0...maxSwipes {
+            if element.exists {
+                return true
+            }
+            guard attempt < maxSwipes else { break }
+            app.swipeUp()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        return element.exists
     }
 
     private func waitForPortrait(timeout: TimeInterval = 8) -> Bool {

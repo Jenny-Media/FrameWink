@@ -10,7 +10,7 @@ output_root="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-
 contact_sheet="$repo_root/AppStore/Screenshots/Review/ContactSheets/iPhone-PPO-Bezel-Proposed.jpg"
 sample_photo="$repo_root/FrameWink/Resources/SamplePhotos/sample-autumn-cyclist.jpg"
 product_background="$source_root/wall-closeup-portrait-v1.png"
-official_iphone=${FRAMEWINK_IPHONE_BEZEL:-'/Volumes/Bezel-iPhone-17/PNG/iPhone 17 Pro Max/iPhone 17 Pro Max - Deep Blue - Portrait.png'}
+official_iphone=${FRAMEWINK_IPHONE_BEZEL:-'/Volumes/Bezel-iPhone-18/PNG/iPhone 18 Pro Max/iPhone 18 Pro Max - Black - Portrait.png'}
 working_directory=$(mktemp -d "${TMPDIR:-/tmp}/framewink-iphone-ppo.XXXXXX")
 
 trap 'rm -rf "$working_directory"' EXIT
@@ -48,8 +48,10 @@ render_lifestyle() {
     local scene=$1
     local destination=$2
     local headline=$3
+    local zoom=${4:-100}
     local prefix="$working_directory/$(basename "$destination" .jpg)"
-    "$magick_bin" "$scene" -resize '1320x2868^' -gravity center -extent '1320x2868' "$prefix-scene.png"
+    "$magick_bin" "$scene" -resize '1320x2868^' -resize "${zoom}%" \
+        -gravity center -extent '1320x2868' "$prefix-scene.png"
     make_eyebrow "$prefix-eyebrow.png"
     make_headline "$headline" "$prefix-headline.png"
     "$magick_bin" "$prefix-scene.png" \
@@ -105,14 +107,14 @@ render_product() {
 
 render_lifestyle "$source_root/lifestyle-portrait-integrated-v2.png" \
     "$output_root/01-beautifully-framed.jpg" $'Your photos.\nBeautifully framed.'
-render_lifestyle "$source_root/lifestyle-landscape-integrated-v4.png" \
-    "$output_root/02-portrait-or-landscape.jpg" $'Portrait or landscape.\nRight at home.'
 render_product "$sample_photo" \
-    "$output_root/03-made-for-every-screen.jpg" $'Made for\nevery screen.'
+    "$output_root/02-made-for-every-screen.jpg" $'Made for\nevery screen.'
 render_product "$source_root/native-album-picker-v1.jpg" \
-    "$output_root/04-choose-an-album.jpg" $'Choose an album.\nKeep it fresh.'
+    "$output_root/03-choose-an-album.jpg" $'Choose an album.\nKeep it fresh.'
+render_lifestyle "$source_root/lifestyle-landscape-integrated-v4.png" \
+    "$output_root/04-portrait-or-landscape.jpg" $'Portrait or landscape.\nRight at home.' 125
 render_product "$source_root/native-controls-v1.jpg" \
-    "$output_root/05-simple-controls.jpg" $'Simple timing.\nDirect sharing.'
+    "$output_root/05-simple-controls.jpg" $'Simple timing.\nEasy control.'
 render_product "$source_root/native-sample-setup-v1.jpg" \
     "$output_root/06-see-it-first.jpg" $'See it first.\nChoose photos later.'
 

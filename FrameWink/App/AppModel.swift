@@ -139,6 +139,17 @@ final class AppModel: ObservableObject {
                 )
                 return pairOrder.compactMap { photosByID[$0]?.slide }
             }
+            if scenario == .duoGalleryFrame {
+                let galleryOrder = [
+                    "sample-coast-aerial",
+                    "sample-open-road",
+                    "sample-sunset-city",
+                ]
+                let photosByID = Dictionary(
+                    uniqueKeysWithValues: BundledSampleCatalog.photos.map { ($0.id, $0) }
+                )
+                return galleryOrder.compactMap { photosByID[$0]?.slide }
+            }
             if scenario == .mosaicFrame,
                UIDevice.current.userInterfaceIdiom == .phone,
                let compactPhoto = BundledSampleCatalog.photos.first(where: {
@@ -148,7 +159,7 @@ final class AppModel: ObservableObject {
             }
             if scenario == .frameControls,
                let controlsPhoto = BundledSampleCatalog.photos.first(where: {
-                   $0.id == "sample-antelope-canyon"
+                   $0.id == "sample-evening-sail"
                }) {
                 return [controlsPhoto.slide]
             }
