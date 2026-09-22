@@ -1,6 +1,8 @@
 FrameWink turns an iPhone or iPad into a private local photo frame.
 
 Please test:
+- With an automatic album playing, pause on a recognizable photo while the album refreshes or after switching albums. Confirm the visible photo stays fixed until Resume, then the latest reel is applied.
+- During automatic album preparation, confirm the status continues to show preparation progress instead of briefly reporting that all photos are ready while syncing is still active.
 - Launch and watch the expanded twenty-photo bundled sample reel without a Photos permission prompt. Confirm the new travel and nature photos appear varied and well framed.
 - Choose photos with the system picker, confirm the count is shown out of 500, and verify a first Smart Reel becomes playable while a larger import continues. Review suggestions and use Never Show Again.
 - Start the frame, navigate in both directions, pause/resume, change Photo Duration from More, rotate the device, and close the frame.

@@ -13,7 +13,7 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 27.5 h | Version 1.1 preparation in progress — cloud/App Store completion pending |
+| 6. Hardening and release | 8 h | 27.5 h | Version 1.2 preparation in progress — archive and App Store draft pending |
 | **Total** | **40 h** | **50.5 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
@@ -2010,6 +2010,21 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   scenes, device geometry, exact app captures, typography, and restrained
   left-side sunlight remain unchanged. New checksum locks cover seven iPad and
   six iPhone final images. Pull request #15 remains unchanged.
+
+### Version 1.2 release preparation — 2026-09-22
+
+- Status: repository preparation in progress after the owner confirmed that
+  version 1.1 is released. The app target and release guard now use marketing
+  version 1.2.
+- The release input includes concise What's New copy, focused App Review notes,
+  and updated TestFlight checks for paused playback during an automatic album
+  refresh and stable preparation status. The approved checksum-locked iPad and
+  iPhone galleries are the proposed replacement screenshots.
+- The unsigned Release build, Release Analyze, archive guard, and affected
+  47-test suites on both iPhone and iPad Simulators pass. Remaining gates are
+  an exact-source archive and TestFlight smoke test, App Store Connect version
+  creation and metadata upload, build attachment, and explicit authorization
+  before review submission.
 
 ## Timebox rule
 

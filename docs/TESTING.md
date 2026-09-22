@@ -3242,3 +3242,29 @@ git diff --check
 /bin/bash scripts/verify_locked_app_store_screenshots.sh
 git diff --check
 ```
+
+## Version 1.2 repository preparation — 2026-09-22
+
+- The unsigned generic iOS Release build and Release Analyze action passed with
+  Xcode 27.0. The built app reports marketing version 1.2, minimum OS 15.0,
+  and iPhone/iPad device families 1 and 2.
+- The archive release guard passed with the production bundle identifier,
+  Jenny Media LLC team, production lifetime-product identifier, iOS/iPadOS 15
+  minimum, iPhone/iPad-only platform scope, and version 1.2.
+- `FrameSessionControllerTests` and `AutomaticAlbumControllerTests` passed
+  **47/47** on iPhone 17 Pro Max and **47/47** on iPad (A16), iOS 27.0
+  Simulators. Both result bundles report zero failures, skips, expected
+  failures, and runtime warnings. Compilation emitted the existing
+  StoreKitTest deprecation warning.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -showdestinations
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-12-Release-Build CODE_SIGNING_ALLOWED=NO build
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-12-Release-Analyze CODE_SIGNING_ALLOWED=NO analyze
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer CI_XCODEBUILD_ACTION=archive /bin/sh ci_scripts/ci_pre_xcodebuild.sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-12-iPhone-Tests -resultBundlePath /private/tmp/FrameWink-12-iPhone.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/FrameSessionControllerTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-12-iPad-Tests -resultBundlePath /private/tmp/FrameWink-12-iPad.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/FrameSessionControllerTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests test
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-12-iPhone.xcresult
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-12-iPad.xcresult
+git diff --check
+```

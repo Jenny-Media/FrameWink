@@ -670,6 +670,25 @@ blocker affects only a later boundary.
   explicit owner decision before applying a winning treatment to the default
   product page.
 
+### B-030 — Version 1.2 release candidate
+
+- Status: Repository preparation in progress; no 1.2 archive or submission
+- First recorded: 2026-09-22
+- Scope: keep a paused frame visually fixed while automatic album updates and
+  curation continue, prevent the album status from briefly reporting completion
+  while synchronization remains active, and retain cache pruning during large
+  album preparation. The free/paid boundary, supported platforms, lifetime
+  price, product identifier, and privacy behavior are unchanged.
+- Release input: the app target and Xcode Cloud archive guard use marketing
+  version 1.2. English What's New, focused App Review notes, updated TestFlight
+  instructions, and checksum-locked iPad and iPhone screenshot galleries are
+  prepared in the repository. The unsigned Release build, Release Analyze,
+  archive guard, and affected 47-test suites pass on both iPhone and iPad
+  Simulators.
+- Remaining gates: exact-source archive, physical TestFlight smoke checks, App
+  Store Connect metadata and screenshot upload, build attachment, and explicit
+  authorization before submitting for review.
+
 ### B-016 — Simulator debugger integration cannot locate Xcode
 
 - Status: Open, non-blocking tooling issue
