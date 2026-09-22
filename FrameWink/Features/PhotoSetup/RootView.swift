@@ -811,6 +811,9 @@ struct RootView: View {
         if initialPresentation == .mosaicFrame {
             return .mosaic
         }
+        if initialPresentation == .fillFrame {
+            return .fill
+        }
         return .automatic
     }
 
@@ -865,7 +868,7 @@ struct RootView: View {
         guard !didApplyInitialPresentation else { return }
         didApplyInitialPresentation = true
         switch initialPresentation {
-        case .frameMode, .mosaicFrame:
+        case .frameMode, .fillFrame, .mosaicFrame:
             isFrameMode = true
         case .wallModePaywallFeatures, .wallModePaywallPurchase:
             presentedSheet = .wallModePaywall

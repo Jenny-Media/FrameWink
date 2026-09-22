@@ -2057,6 +2057,54 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   1.0 hour. A new cloud run, TestFlight processing, and physical-device
   acceptance remain separate gates.
 
+### iPhone 18 Pro Max and iPhone Duo screenshot preparation — 2026-09-22
+
+- Status: the six-image 6.9-inch iPhone gallery is regenerated and locked with
+  Apple's official iPhone 18 Pro Max Black bezel. Apple's current bezel keeps
+  the same 1470 x 3000 artwork size and exact 1320 x 2868 screen opening at
+  +75,+66 as the previous frame, so the native app captures, card geometry,
+  lifestyle scenes, and accepted 1320 x 2868 output size remain unchanged.
+- Added a reproducible Xcode 27.1 iPhone Duo proof-source capture for four app
+  states on the 1398 x 2034 outer display and 2007 x 2853 inner display. The
+  script rejects a powered-off or blank display instead of saving misleading
+  output. App Store Connect submission support is not yet available, so these
+  remain separate design proofs.
+- The Apple Design Resources license was accepted with owner authorization, and
+  the standalone Duo bezel package remains outside the repository. Four exact
+  outer-display app states were captured, validated at 1398 x 2034, and
+  visually inspected. The first outer-display proof now uses the official Night
+  Sky closed portrait bezel and the shared calibrated wall background.
+- The owner installed Xcode's required system components. After resetting the
+  crash-damaged test Simulator, Device Hub opened the Duo and rotated its inner
+  screen to portrait. Four exact inner-display app states were captured and
+  validated at 2007 x 2853. The complete proof now contains one outer card and
+  three inner cards with exact app pixels inside Apple's official Night Sky
+  bezels, plus a visually reviewed contact sheet. No scaled, blank, or generated
+  app UI is used. Active implementation and verification time: approximately
+  1.5 hours.
+- Standalone review revisions are complete in the isolated worktree. The
+  standard iPhone sequence now leads with lifestyle use, follows with the large
+  product and album views, and moves the closer landscape lifestyle view to
+  fourth. The controls card uses a full-screen bundled sail photo and copy that
+  matches the visible timing interaction.
+- Explicit `Fill` now honors the user's choice on compact screens; automatic
+  layout keeps its existing crop-safety fallback. The Duo inner lead uses a
+  genuine native two-photo stack instead of repeating the outer-display bird.
+  The standard six-image gallery and four-image Duo proof are checksum locked.
+- All 33 `FrameLayoutChooserTests` pass on both iPhone 17 Pro Max and iPad
+  (A16) Simulators. The revised screenshots were visually reviewed at full size
+  and as contact sheets. No commit or pull-request update was made. Additional
+  review and verification time: approximately 0.5 hours.
+- The inner Duo bezel's narrow left-side protrusions were removed with a
+  deterministic alpha intersection after visual review found that they read as
+  broken top and bottom edges at card scale. The official device silhouette,
+  screen opening, and native app pixels remain intact.
+- Final corner fitting now derives both outer and inner screen masks directly
+  from the isolated transparent components in Apple's bezel artwork. This
+  replaces the former 120- and 170-pixel corner estimates, removes the outer
+  display's offset rear layer, and keeps native app pixels continuous beneath
+  the bezel's antialiased inner edge.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

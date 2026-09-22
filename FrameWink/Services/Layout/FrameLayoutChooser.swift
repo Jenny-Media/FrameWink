@@ -326,7 +326,7 @@ struct FrameLayoutChooser: FrameLayoutChoosing {
             ? safeCrop(for: item, targetAspectRatio: viewport.aspectRatio)
             : nil
         let crop = proposedCrop.flatMap { crop in
-            guard isCompact(viewport) else { return crop }
+            guard preference == .automatic, isCompact(viewport) else { return crop }
             let retainedSourceFraction = crop.width * crop.height
             return retainedSourceFraction >= compactSingleMinimumSourceFraction
                 ? crop

@@ -97,6 +97,22 @@ final class FrameLayoutChooserTests: XCTestCase {
         XCTAssertEqual(page.placements.first?.contentMode, .fit)
     }
 
+    func testExplicitFillHonorsTheChoiceOnACompactPortraitScreen() throws {
+        let item = fixture(id: "compact-portrait", width: 1_365, height: 2_048)
+
+        let page = try XCTUnwrap(
+            chooser.pages(
+                for: [item],
+                viewport: PixelSize(width: 430, height: 932),
+                preference: .fill
+            ).first
+        )
+
+        XCTAssertEqual(page.kind, .singleFill)
+        XCTAssertEqual(page.placements.first?.contentMode, .crop)
+        XCTAssertLessThan(try XCTUnwrap(page.placements.first?.sourceCrop.width), 1)
+    }
+
     func testCompactLandscapeFitsWhenFillWouldDiscardMoreThanThirtyPercent() throws {
         let item = fixture(id: "compact-landscape-building", width: 1_500, height: 1_000)
 

@@ -3,6 +3,7 @@ import UIKit
 
 enum RootInitialPresentation: Equatable {
     case frameMode
+    case fillFrame
     case mosaicFrame
     case wallModePaywallFeatures
     case wallModePaywallPurchase
@@ -38,6 +39,7 @@ enum DebugScreenshotScenario: String {
     case wallChecklist = "wall-checklist"
     case automaticAlbumReview = "automatic-album-review"
     case mosaicFrame = "mosaic-frame"
+    case duoGalleryFrame = "duo-gallery-frame"
     case freeReview = "free-review-grid"
     case personalReel = "personal-reel"
     case sourceIntegrity = "source-integrity"
@@ -60,8 +62,11 @@ enum DebugScreenshotScenario: String {
         switch self {
         case .sample, .personalReel, .sourceIntegrity, .personalImport, .albumPicker:
             return nil
-        case .smartFrame, .portraitFrame, .pairedFrame, .blackoutFrame, .frameControls:
+        case .smartFrame, .portraitFrame, .pairedFrame, .duoGalleryFrame,
+                .blackoutFrame:
             return .frameMode
+        case .frameControls:
+            return .fillFrame
         case .paywall, .paywallUnavailable:
             return .wallModePaywallPurchase
         case .paywallFeatures:
@@ -86,7 +91,8 @@ enum DebugScreenshotScenario: String {
     var requiresWallModeEntitlement: Bool {
         switch self {
         case .wallModeSetup, .wallSchedule, .wallChecklist,
-                .automaticAlbumReview, .mosaicFrame, .blackoutFrame, .albumPicker,
+                .automaticAlbumReview, .mosaicFrame, .duoGalleryFrame,
+                .blackoutFrame, .albumPicker,
                 .sourceIntegrity, .frameControls, .privacyData:
             return true
         default:
@@ -96,7 +102,8 @@ enum DebugScreenshotScenario: String {
 
     var hidesFrameChrome: Bool {
         switch self {
-        case .smartFrame, .portraitFrame, .pairedFrame, .mosaicFrame, .blackoutFrame:
+        case .smartFrame, .portraitFrame, .pairedFrame, .mosaicFrame,
+                .duoGalleryFrame, .blackoutFrame:
             return true
         default:
             return false
@@ -217,7 +224,9 @@ extension DebugScreenshotScenario {
                         interval: 10
                     ),
                 ],
-                activeConfigurationID: self == .mosaicFrame ? galleryID : livingRoomID
+                activeConfigurationID: self == .mosaicFrame
+                    ? galleryID
+                    : livingRoomID
             )
         )
     }

@@ -3315,3 +3315,72 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool get 
 /bin/bash scripts/verify_locked_app_store_screenshots.sh
 git diff --check
 ```
+
+## iPhone 18 Pro Max and iPhone Duo screenshot preparation — 2026-09-22
+
+- Apple's iPhone 18 Pro Max Black portrait PNG reports 1470 x 3000 with an
+  exact transparent screen component at 1320 x 2868+75+66. The regenerated
+  screenshot contact sheet was inspected: the four straight-on product cards
+  use the current narrower camera island, preserve exact app pixels, and match
+  the approved first two lifestyle cards.
+- All six standard iPhone files are JPEG, 1320 x 2868, and have no alpha. The
+  seven unchanged iPad checksum locks and six updated iPhone checksum locks
+  pass.
+- Xcode 27.1 exposes an `iPhone Duo` Simulator with LCD outer and LCD-1 inner
+  frame buffers at 1398 x 2034 and 2007 x 2853 respectively. Four exact outer
+  app states were captured as JPEG with no alpha; dimension and nonblank checks
+  passed, and visual inspection confirmed a full-frame photo, a six-cover album
+  picker, frame controls, and sample setup.
+- Apple's authorized Night Sky outer and inner bezel PNGs measure 1574 x 2194
+  and 2247 x 3093. Their exact transparent screen components are
+  1398 x 2034+88+80 and 2007 x 2853+120+120. The generated outer proof preserves
+  the native outer capture at its exact size and was visually inspected for
+  screen fit, rounded corners, hardware alignment, and background consistency.
+- After the owner installed Xcode's required system components, the existing
+  crash-damaged Duo test Simulator failed data migration and was erased. A clean
+  boot completed, Device Hub opened the Duo, and its inner display was rotated
+  to portrait. The live frame buffer then reported 2007 x 2853 with nonzero
+  image deviation.
+- Four exact inner-display app states were captured as JPEG with no alpha. The
+  dimension and nonblank checks passed, and visual inspection confirmed a
+  full-frame photo, six distinct album covers, frame controls, and sample setup.
+  The final proof contains one 1398 x 2034 outer card and three 2007 x 2853 inner
+  cards. Contact-sheet inspection confirms consistent background color,
+  readable text, correct official bezel geometry, and exact native app content.
+- The focused revision recaptured the standard controls state with a bundled
+  portrait photo and explicit Fill. The final native image has no unused black
+  region. The 6.9-inch sequence was reordered to put the large product and
+  album views before the tighter landscape lifestyle view.
+- The Duo inner lead now contains a native two-photo stack from FrameWink's
+  layout engine. The controls copy on both revised iPhone sets describes the
+  visible timing interaction. Full-size inspection and the contact sheets show
+  exact device geometry, readable UI, consistent wall color, and no duplicated
+  lead image between the outer and inner Duo displays.
+- `FrameLayoutChooserTests` passed 33/33 on iPhone 17 Pro Max and 33/33 on iPad
+  (A16), with no failures, skips, expected failures, or runtime warnings. The
+  only compiler warning is Apple's existing StoreKitTest deprecation warning.
+  Locked screenshot verification covers the seven iPad files, six standard
+  iPhone files, and four Duo proof files.
+- Full-size corner inspection isolated the Duo lead's left-edge fragments to
+  protrusions in the official inner-open bezel artwork. Intersecting the bezel
+  alpha with its uninterrupted rounded silhouette removes those fragments from
+  all three inner proof cards without changing the exact screen opening.
+- A second full-size inspection showed the outer artwork also contained an
+  offset rear layer and that estimated screen radii could leave small corner
+  gaps. The final generator flood-fills the exterior transparency away and
+  uses the remaining internal transparent component as the exact screen mask.
+  Full-size crops of all four left corners show continuous screen-to-bezel
+  coverage without the former cut edges or tiny gaps.
+
+```sh
+/bin/bash scripts/generate_app_store_iphone_ppo_screenshots.sh
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcrun simctl io 921F86AE-642B-4721-8C54-38D2AF15AFDD enumerate
+FRAMEWINK_DUO_DISPLAY=outer scripts/capture_app_store_iphone_duo_proof_screenshots.sh
+FRAMEWINK_DUO_DISPLAY=inner scripts/capture_app_store_iphone_duo_proof_screenshots.sh
+scripts/generate_app_store_iphone_duo_proof_screenshots.sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-ScreenshotReview-iPhone -resultBundlePath /private/tmp/FrameWink-ScreenshotReview-iPhone.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/FrameLayoutChooserTests test
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-ScreenshotReview-iPad -resultBundlePath /private/tmp/FrameWink-ScreenshotReview-iPad.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/FrameLayoutChooserTests test
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```

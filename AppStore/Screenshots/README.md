@@ -51,7 +51,8 @@ landscape JPEGs at 2752 x 2064 with no alpha. Run
 review contact sheet at
 `Review/ContactSheets/iPad-PPO-Bezel-Proposed.jpg`.
 Run `scripts/verify_locked_app_store_screenshots.sh` to confirm that the final
-files still match the approved iPad and iPhone checksum locks.
+files still match the approved iPad, iPhone, and iPhone Duo proof checksum
+locks.
 
 Treatment order:
 
@@ -74,10 +75,31 @@ capture at Apple's original +124,+118 screen opening in the 3000 x 2300
 perspective transform to the app UI. The standalone Apple Design Resources
 file is not stored in this repository.
 
+## iPhone 6.9-inch Product Page Optimization candidate
+
+The six-image iPhone treatment is in
+`ProductPageOptimization/iPhone-6.9-inch/Final/`. Run
+`scripts/generate_app_store_iphone_ppo_screenshots.sh` to rebuild it and the
+review contact sheet at `Review/ContactSheets/iPhone-PPO-Bezel-Proposed.jpg`.
+
+Treatment order:
+
+1. Close tabletop lifestyle use in portrait orientation.
+2. A large straight-on frame view using a bundled photo.
+3. Album choice with six distinct sample covers.
+4. Closer tabletop lifestyle use in landscape orientation.
+5. Native timing controls over a full-screen bundled portrait photo.
+6. Permission-free sample setup before choosing personal photos.
+
 The iPad and iPhone product cards use the same wall source and a calibrated
 neutral warm-beige treatment. Representative clear-wall samples render at
 approximately `#CFB8A2` on both canvases, keeping the later detail cards aligned
 with the more muted lifestyle rooms while preserving the left-side sunlight.
+The iPhone detail cards use Apple's original 1470 x 3000 iPhone 18 Pro Max
+portrait bezel. Their exact native 1320 x 2868 app captures are placed at the
+bezel's unchanged +75,+66 screen opening without redrawing or perspective
+transforms. The standalone Apple Design Resources file remains outside the
+repository.
 
 Selected integration prompts were intentionally short:
 
@@ -86,6 +108,32 @@ Selected integration prompts were intentionally short:
   photograph.`
 - Table: `Place the provided iPad naturally on the table in this room using a
   simple stand. Make it look like a real interior photograph.`
+
+## iPhone Duo proof sources
+
+The non-submission proof source captures are under
+`ProductPageOptimization/iPhone-Duo/Sources/`. Run
+`scripts/capture_app_store_iphone_duo_proof_screenshots.sh` with Xcode 27.1 and
+a booted iPhone Duo Simulator. Set `FRAMEWINK_DUO_DISPLAY=outer` for the
+1398 x 2034 outer display or `FRAMEWINK_DUO_DISPLAY=inner` for the 2007 x 2853
+inner display after opening the device in Device Hub. The script captures four
+exact app states and rejects a powered-off or blank display.
+
+These files are design proofs while App Store Connect upload support remains
+unavailable. Final device compositions require Apple's official iPhone Duo
+bezel package. Keep that standalone licensed resource outside the repository.
+Run `scripts/generate_app_store_iphone_duo_proof_screenshots.sh` after capturing
+both display families. It creates one outer-display card and three inner-display
+cards with exact app pixels inside Apple's Night Sky closed and open portrait
+bezels, plus the review contact sheet at
+`Review/ContactSheets/iPhone-Duo-Proof.jpg`. During staged capture, set
+`FRAMEWINK_DUO_PROOF_FAMILY=outer` or `inner` to generate only the available
+family. The inner lead uses FrameWink's native two-photo stacked layout to show
+the larger canvas. The controls proof uses an exact full-screen app render and
+copy limited to the visible timing interaction. The generator isolates the
+uninterrupted front-device silhouettes and extracts the exact internal screen
+openings from Apple's bezel alpha channels. This removes the offset left layers
+that read as broken edge fragments while avoiding estimated corner radii.
 
 ## Source library
 
