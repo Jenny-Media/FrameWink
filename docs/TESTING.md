@@ -3268,3 +3268,50 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool get 
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-12-iPad.xcresult
 git diff --check
 ```
+
+## Xcode Cloud Build 29 stabilization — 2026-09-22
+
+- App Store Connect Build 29 used Xcode 27.0 and eight simulator destinations.
+  Analyze passed. Test reported 222 of 237 tests passed, ten failed, and five
+  skipped. Downloaded iPhone SE and iPad Air logs confirmed the failures below.
+- The source-integrity UI test reproduced locally. Its failure hierarchy showed
+  `My Photos` and `3 photos are ready` while the slideshow still exposed sample
+  photo identifiers. Giving `SampleSlideshowView` source-specific identity
+  resets presentation state at the source boundary; the final test confirms a
+  personal photo before and after entering frame mode and changing duration.
+- Compact storage failures occurred before deletion or cleanup: one swipe left
+  the buttons outside the lazy Form viewport. Tests now scroll to hittable
+  controls, the temporary cleanup progress row, and the final cleanup result.
+  Review navigation and duration selection use state-based waits as well.
+- The two controller failures stopped at the old two-second helper limit on
+  loaded iPhone Pro runners. The helper now allows five seconds without adding
+  delay when state arrives promptly.
+- `MarketingLandscapeScreenshotTests` is a capture utility. It still passed on
+  iPad (A16), including storage, but skips when its compiled source or runtime
+  identifies `/Volumes/workspace`. This prevents redundant generation on all
+  cloud devices while the dedicated checksum verifier protects the committed
+  final assets.
+- `testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking` blocked for Xcode
+  Cloud's full ten-minute allowance on every device. A focused local Xcode 27
+  run also failed to return and was interrupted. The test now skips only on the
+  cloud workspace; it remains available to local StoreKit runtimes. The next
+  exact-source hosted run must prove that detection and the complete cloud
+  matrix.
+- Final focused result bundles report 7/7 passing on the iPhone SE (3rd
+  generation) and 9/9 passing on iPad (A16), with zero failures, skips, or
+  runtime warnings. The iPad count includes the two screenshot captures. The
+  unsigned Release build, Release Analyze, and locked iPad/iPhone screenshot
+  checksum verification also passed. Compilation emitted Apple's existing
+  `SKPaymentTransactionState` deprecation warning from the StoreKitTest SDK.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=8782C2D6-1D6A-4195-A5C1-8A948D1B7AC6' -derivedDataPath /private/tmp/FrameWink-CloudFix-Phone-Final -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testLibraryChangesDoNotRestartActiveICloudPreparation -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testChangingPlaybackSettingsKeepsTheSelectedPhotoSource -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewCanRestoreAnOlderNeverShowChoice -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFreeFrameDurationSurvivesClosingAndReopeningControls test
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-CloudFix-iPad -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testLibraryChangesDoNotRestartActiveICloudPreparation -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testChangingPlaybackSettingsKeepsTheSelectedPhotoSource -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewCanRestoreAnOlderNeverShowChoice -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFreeFrameDurationSurvivesClosingAndReopeningControls -only-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests/testCaptureLandscapeMarketingScreens -only-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests/testCaptureStorageMarketingScreen test
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-CloudFix-Release CODE_SIGNING_ALLOWED=NO build
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-CloudFix-Analyze CODE_SIGNING_ALLOWED=NO analyze
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-CloudFix-Phone-Final/Logs/Test/Test-FrameWink-2026.09.22_14-07-22--0400.xcresult
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun xcresulttool get test-results summary --path /private/tmp/FrameWink-CloudFix-iPad/Logs/Test/Test-FrameWink-2026.09.22_13-59-07--0400.xcresult
+/bin/bash -n scripts/verify_locked_app_store_screenshots.sh
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```

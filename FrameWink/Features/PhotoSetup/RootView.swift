@@ -106,6 +106,7 @@ struct RootView: View {
                         wallVisualState: wallMode.visualState,
                         refreshWallSchedule: wallMode.refresh
                     )
+                    .id(model.collectionMode.id)
                     .ignoresSafeArea()
 
                     if FramePreparationPresentation.showsBackdrop(

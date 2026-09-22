@@ -807,7 +807,7 @@ final class AutomaticAlbumControllerTests: XCTestCase {
     }
 
     private func waitUntil(
-        timeout: TimeInterval = 2,
+        timeout: TimeInterval = 5,
         condition: @escaping @MainActor () -> Bool
     ) async throws {
         let deadline = Date().addingTimeInterval(timeout)

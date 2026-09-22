@@ -6,12 +6,27 @@ final class MarketingLandscapeScreenshotTests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        if isXcodeCloud {
+            throw XCTSkip(
+                "Marketing captures run on the exact local screenshot destinations; "
+                    + "the dedicated checksum script validates committed assets."
+            )
+        }
         XCUIDevice.shared.orientation = .landscapeLeft
     }
 
     override func tearDownWithError() throws {
         app?.terminate()
         XCUIDevice.shared.orientation = .portrait
+    }
+
+    private var isXcodeCloud: Bool {
+        let environment = ProcessInfo.processInfo.environment
+        let cloudValue = environment["CI_XCODE_CLOUD"]?.lowercased()
+        return cloudValue == "true"
+            || cloudValue == "1"
+            || environment["CI_WORKSPACE"]?.hasPrefix("/Volumes/workspace") == true
+            || #filePath.hasPrefix("/Volumes/workspace/")
     }
 
     func testCaptureLandscapeMarketingScreens() throws {

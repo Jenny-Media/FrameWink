@@ -2026,6 +2026,37 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   creation and metadata upload, build attachment, and explicit authorization
   before review submission.
 
+### Xcode Cloud Build 29 stabilization — 2026-09-22
+
+- Status: implemented and locally verified in an isolated worktree. A new
+  exact-source Xcode Cloud run is still required before the fix can be called
+  hosted-CI complete.
+- Build 29 passed Analyze, then reported 222 of 237 tests passed, ten failed,
+  and five skipped across eight iPhone and iPad destinations. Its main causes
+  were compact-screen tests that assumed one swipe exposed storage controls,
+  two-second controller waits on loaded runners, a source-switch race that
+  exposed a real mixed UI state, screenshot-generation tests running on every
+  cloud destination, and an `SKTestSession` Ask to Buy call that consumed the
+  full ten-minute allowance on each runner.
+- Switching from bundled samples to personal photos now recreates the
+  slideshow presentation state. This keeps the visible photo in agreement
+  with the `My Photos` status card before frame mode starts. Compact storage
+  and hidden-photo tests scroll until their controls and results are actually
+  reachable; duration tests wait for selection state before closing or
+  checking the controls. Controller state waits allow five seconds.
+- Marketing screenshot capture remains locally executable on its exact
+  destinations and is skipped on Xcode Cloud. A dedicated checksum script
+  validates the committed final images. The cloud-only Ask to Buy test is
+  skipped because the Xcode 27 runner never returns from purchase; catalog,
+  purchase, refund, restore, and simulated-error tests remain in the suite.
+- The final focused set passed 7/7 on the iPhone SE (3rd generation) Simulator
+  and 9/9 on iPad (A16), including both local iPad marketing captures. The
+  unsigned generic iOS Release build, Release Analyze, and locked screenshot
+  checksum verification passed. Xcode emitted only the existing StoreKitTest
+  deprecation warning. Active investigation and repair time: approximately
+  1.0 hour. A new cloud run, TestFlight processing, and physical-device
+  acceptance remain separate gates.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight
