@@ -487,11 +487,18 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         for label in ["10s", "5m", "1m"] {
             let options = app.buttons["More playback options"]
             if !options.isHittable { app.tap() }
-            XCTAssertTrue(options.waitForExistence(timeout: 3))
+            XCTAssertTrue(
+                waitUntil(timeout: 3) { options.isHittable },
+                "Playback options must finish appearing before they are tapped."
+            )
             options.tap()
             let picker = app.segmentedControls["frame-duration-picker"]
             XCTAssertTrue(picker.waitForExistence(timeout: 3))
             let duration = picker.buttons[label]
+            XCTAssertTrue(
+                waitUntil(timeout: 3) { duration.isHittable },
+                "The \(label) duration must be interactive before its single tap."
+            )
             duration.tap()
             XCTAssertTrue(
                 waitUntil(timeout: 3) { duration.isSelected },
@@ -499,7 +506,14 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             )
             let close = app.buttons["close-frame-controls"]
             if close.exists { close.tap() }
-            XCTAssertTrue(options.waitForExistence(timeout: 3))
+            XCTAssertTrue(
+                waitUntil(timeout: 3) { !picker.exists },
+                "Frame controls must finish closing before they reopen."
+            )
+            XCTAssertTrue(
+                waitUntil(timeout: 3) { options.isHittable },
+                "Playback options must be interactive before controls reopen."
+            )
             options.tap()
             XCTAssertTrue(picker.waitForExistence(timeout: 3))
             XCTAssertTrue(
@@ -507,6 +521,10 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
                 "The first selection of \(label) must survive reopening."
             )
             app.buttons["close-frame-controls"].tap()
+            XCTAssertTrue(
+                waitUntil(timeout: 3) { !picker.exists },
+                "Frame controls must finish closing before the next selection."
+            )
         }
     }
 

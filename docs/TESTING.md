@@ -3398,21 +3398,28 @@ git diff --check
   not scroll to the inserted delete-progress row. The production progress UI
   was unchanged. The assertion now follows the same scroll-aware lookup as the
   cleanup-progress test and passes on both iPhone and iPad.
+- The first merge-candidate iPhone run then found a separate transition race in
+  the duration persistence test: it could reopen the controls while the old
+  sheet was still dismissing, so a valid single tap was lost. The test now
+  waits for dismissal and for each control to become interactive. It passed
+  twice on each device family before the complete gate was repeated.
 - Final iPhone result: 230 passed, zero failed, four intentional
   environment-limited skips. Final iPad result: 230 passed, zero failed, four
   intentional environment-limited skips. The locked seven-image iPad,
   six-image iPhone, and four-image iPhone Duo sets pass checksum verification.
-- Result bundles:
-  `/private/tmp/FrameWink-LocalOnly-20260922/iPhone.xcresult`,
-  `/private/tmp/FrameWink-LocalOnly-iPad-Final.xcresult`,
-  `/private/tmp/FrameWink-LocalOnly-DeleteProgress-iPhone.xcresult`, and
-  `/private/tmp/FrameWink-LocalOnly-DeleteProgress-iPad.xcresult`.
+- Merge-candidate result bundles:
+  `/private/tmp/FrameWink-LocalGate-Merge-20260922/iPhone.xcresult` and
+  `/private/tmp/FrameWink-LocalGate-Merge-20260922/iPad.xcresult`. The repeated
+  focused duration result is
+  `/private/tmp/FrameWink-Duration-Stability.xcresult`.
 - Expected diagnostics remain Apple's StoreKitTest deprecation and
   transaction-listener test notices, a SwiftUI hosting-view hierarchy warning,
   and Xcode 27 simulator build/debugger metadata notices.
 
 ```sh
 DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/FrameWink-LocalOnly-20260922 scripts/test_local.sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Duration-Stability -resultBundlePath /private/tmp/FrameWink-Duration-Stability.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFreeFrameDurationSurvivesClosingAndReopeningControls -test-iterations 2 test
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/FrameWink-LocalGate-Merge-20260922 scripts/test_local.sh
 DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-LocalOnly-iPad-Final-DerivedData -resultBundlePath /private/tmp/FrameWink-LocalOnly-iPad-Final.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -skip-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking -skip-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests test
 /bin/bash scripts/verify_locked_app_store_screenshots.sh
 /bin/bash -n scripts/test_local.sh

@@ -681,8 +681,10 @@ blocker affects only a later boundary.
   version 1.2. English What's New, focused App Review notes, updated TestFlight
   instructions, and checksum-locked iPad and iPhone screenshot galleries are
   prepared in the repository. The unsigned Release build, Release Analyze,
-  archive guard, and affected 47-test suites pass on both iPhone and iPad
-  Simulators.
+  archive guard, and complete local scheme pass on both iPhone and iPad
+  Simulators: 230 passed, zero failed, and four intentional environment skips
+  on each family. Locked iPad, iPhone, and iPhone Duo screenshot verification
+  also passes.
 - Remaining gates: exact-source archive, physical TestFlight smoke checks, App
   Store Connect metadata and screenshot upload, build attachment, and explicit
   authorization before submitting for review.

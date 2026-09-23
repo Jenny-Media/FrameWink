@@ -2123,13 +2123,19 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   delete-progress row can be below the current Form viewport. The assertion now
   scrolls to the row, matching the existing cleanup-progress test. The focused
   regression passes on both device families.
+- The merge-candidate iPhone run exposed another test-only transition race:
+  the duration test could try to reopen controls before the dismissed sheet
+  finished leaving. It now waits for sheet dismissal and control interactivity
+  while retaining the one-tap selection assertion. Two consecutive runs pass
+  on both iPhone and iPad.
 - Final local results: 230 passed, zero failed, and four intentional
   environment-limited skips on iPhone 17 Pro Max; 230 passed, zero failed, and
   four intentional environment-limited skips on iPad (A16). Locked iPad,
   iPhone, and iPhone Duo screenshot verification passes. Xcode reports its
   existing StoreKitTest deprecation, transaction-listener test notices,
   SwiftUI hosting-view warning, and simulator metadata/debugger notices.
-  Active implementation and verification time: approximately 0.8 hours.
+  These final complete results include the 800 MiB cache policy. Active
+  implementation and verification time: approximately 1.1 hours.
 
 ### 800 MiB automatic-album cache target — 2026-09-22
 
