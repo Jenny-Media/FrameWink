@@ -4,15 +4,18 @@ import XCTest
 
 final class LocalStorageUsageTests: XCTestCase {
     func testAlbumBudgetUsesSharedHeadroomWithoutOscillatingAsCacheChanges() {
+        let mib: Int64 = 1_024 * 1_024
         let gib: Int64 = 1_024 * 1_024 * 1_024
         let cached = PhotoStoragePolicy.constrainedAlbumImageBudgetBytes
+
+        XCTAssertEqual(PhotoStoragePolicy.automaticAlbumImageBudgetBytes, 800 * mib)
 
         XCTAssertEqual(
             PhotoStoragePolicy.automaticAlbumBudget(
                 availableStorageBytes: 3 * gib - cached,
                 cachedImageBytes: cached
             ),
-            gib
+            PhotoStoragePolicy.automaticAlbumImageBudgetBytes
         )
         XCTAssertEqual(
             PhotoStoragePolicy.automaticAlbumBudget(

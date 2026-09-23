@@ -3418,3 +3418,25 @@ DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -q
 /bin/bash -n scripts/test_local.sh
 git diff --check
 ```
+
+## 800 MiB automatic-album cache target — 2026-09-22
+
+- The ample-storage automatic-album image budget is 800 MiB. The constrained
+  512 MiB budget and 3 GiB shared-headroom boundary are unchanged.
+- `LocalStorageUsageTests` asserts the exact 800 MiB target and both sides of
+  the headroom boundary. `AutomaticAlbumControllerTests` and
+  `AlbumSyncServiceTests` cover pruning, current-reel protection, checkpoint
+  behavior, and synchronization against the reduced budget.
+- The affected set passed 45/45 on iPhone 17 Pro Max and 45/45 on iPad (A16),
+  iOS 27.0 Simulators, with zero failures, skips, or runtime warnings.
+- Result bundles: `/private/tmp/FrameWink-800MiB-iPhone.xcresult` and
+  `/private/tmp/FrameWink-800MiB-iPad.xcresult`.
+- Compilation emitted Apple's existing StoreKitTest
+  `SKPaymentTransactionState` deprecation warning. Xcode also logged its
+  non-failing simulator build metadata notice.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-800MiB-iPhone-DerivedData -resultBundlePath /private/tmp/FrameWink-800MiB-iPhone.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkTests/AlbumSyncServiceTests test
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-800MiB-iPad-DerivedData -resultBundlePath /private/tmp/FrameWink-800MiB-iPad.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkTests/AlbumSyncServiceTests test
+git diff --check
+```

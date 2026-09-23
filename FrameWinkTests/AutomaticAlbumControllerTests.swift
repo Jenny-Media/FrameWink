@@ -557,7 +557,7 @@ final class AutomaticAlbumControllerTests: XCTestCase {
         XCTAssertEqual(store.prunedKeepIDs?.count, 100)
     }
 
-    func testAmpleHeadroomKeepsAlbumDownloadsBelowOneGiB() async throws {
+    func testAmpleHeadroomKeepsAlbumDownloadsBelowEightHundredMiB() async throws {
         let client = ControllerPhotoLibraryClient(authorization: .authorized)
         let store = ControllerAlbumStore()
         store.configuration.albumIdentifier = "family"

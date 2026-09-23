@@ -2,7 +2,7 @@ import Foundation
 
 enum PhotoStoragePolicy {
     static let minimumFreeStorageBytes: Int64 = 512 * 1_024 * 1_024
-    static let automaticAlbumImageBudgetBytes: Int64 = 1_024 * 1_024 * 1_024
+    static let automaticAlbumImageBudgetBytes: Int64 = 800 * 1_024 * 1_024
     static let constrainedAlbumImageBudgetBytes: Int64 = 512 * 1_024 * 1_024
     static let preferredAlbumHeadroomBytes: Int64 = 3 * 1_024 * 1_024 * 1_024
     static let recentAlbumLimit = 3

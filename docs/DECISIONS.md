@@ -610,3 +610,15 @@ date; do not silently rewrite historical decisions during implementation.
   allowance. The local gate preserves both device families and produces
   reviewable result bundles without multiplying the suite across hosted
   destinations.
+
+## D-048 — Keep the automatic-album cache below the 1 GB storage display
+
+- **Decision:** Supersede D-046's 1 GiB ample-storage target with an 800 MiB
+  soft target. Keep the 512 MiB constrained target, 3 GiB headroom boundary,
+  current-reel protection, recent-album limit, and manual cleanup behavior.
+- **Reason:** A full 1 GiB image cache plus the app and its metadata currently
+  appears as approximately 1.12 GB in iOS Storage. Reducing the cache by 224 MiB
+  should keep that representative automatic-album case below the 1 GB display
+  boundary while retaining substantially more reusable downloads than the
+  constrained 512 MiB tier. Individually imported photos can still increase
+  total app storage beyond 1 GB.

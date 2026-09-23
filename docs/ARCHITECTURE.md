@@ -148,7 +148,7 @@ Automatic-album candidate metadata and revisioned analysis can remain after an
 unused display JPEG is evicted. A recent-album index retains membership for the
 chosen album and two previously used albums; one shared image record prevents
 duplicate downloads for assets in multiple albums. Oldest inactive images are
-evicted first above a shared 1 GiB target when free device space plus album
+evicted first above a shared 800 MiB target when free device space plus album
 cache size is at least 3 GiB; the target is 512 MiB below that headroom. This
 combined measure stays stable as the cache grows or shrinks. The current reel's
 images stay cached; a later selection restores an evicted image through PhotoKit. Manual

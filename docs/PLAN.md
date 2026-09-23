@@ -2131,6 +2131,24 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   SwiftUI hosting-view warning, and simulator metadata/debugger notices.
   Active implementation and verification time: approximately 0.8 hours.
 
+### 800 MiB automatic-album cache target — 2026-09-22
+
+- Status: complete and locally verified.
+- The ample-storage automatic-album image target is reduced from 1 GiB to
+  800 MiB so the representative 1.12 GB iOS Storage total can fall below the
+  1 GB display boundary after sync pruning or manual cleanup.
+- The constrained 512 MiB target, 3 GiB tier boundary, current-reel protection,
+  three-recent-album policy, and explicit cleanup behavior remain unchanged.
+  This is a soft automatic-album target; individually imported photos and other
+  app data can still make total storage exceed 1 GB.
+- The affected storage-policy, album-sync, and automatic-album controller set
+  passed 45/45 on iPhone 17 Pro Max and 45/45 on iPad (A16), with zero failures,
+  skips, or runtime warnings. Compilation emitted Apple's existing StoreKitTest
+  deprecation warning; Xcode also logged its non-failing simulator metadata
+  notice. Physical iOS Storage reporting after the next sync or manual cleanup
+  remains an owner device check. Active implementation and verification time:
+  approximately 0.2 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

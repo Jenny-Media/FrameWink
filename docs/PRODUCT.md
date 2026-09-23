@@ -125,7 +125,7 @@ preloaded gifts, family contributions, and remote administration.
 - Automatic refresh as a selected PhotoKit album changes.
 - Album recommendations consider every eligible photo, while downloaded
   display copies are shared across the chosen album and up to two recently
-  used albums. One shared 1 GiB soft target applies when the device has enough
+  used albums. One shared 800 MiB soft target applies when the device has enough
   storage headroom; it falls to 512 MiB when space is tight. Oldest inactive
   copies are removed first when needed, while the current reel stays available.
   Evicted copies can be fetched again when needed.
