@@ -343,10 +343,10 @@ The configured workflows are:
 1. **Validation**
    - Start on pushes to `main` with automatic cancellation of superseded
      builds.
-   - Actions: Analyze (FrameWink, iOS) and Test on both an iPhone Simulator and
-     an iPad Simulator.
-     The shared scheme's Test action includes both `FrameWinkTests` and the
-     first-launch/privacy `FrameWinkUITests` bundle.
+   - Action: Analyze (FrameWink, iOS), required to pass.
+   - Tests run locally with `scripts/test_local.sh` on one iPhone Simulator and
+     one iPad Simulator before release changes merge. The cloud workflow has no
+     Test action.
    - Deployment preparation: none.
 2. **Internal TestFlight / release candidate**
    - Start manually from a chosen branch. Automatic branch archives are

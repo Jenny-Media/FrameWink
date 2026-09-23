@@ -91,10 +91,15 @@ date; do not silently rewrite historical decisions during implementation.
 ## D-013 — Xcode Cloud is the release builder
 
 - **Decision:** Xcode Cloud performs the authoritative archive and distributes
-  successful builds to TestFlight. Local builds provide development feedback
-  but are not the release-upload procedure.
+  successful builds to TestFlight. Its automatic Validation workflow performs
+  static analysis without a Test action. The shared iPhone and iPad test suite
+  runs locally before release changes merge. Local archives are not the
+  release-upload procedure.
 - **Reason:** Keeps signing and distribution reproducible in Jenny Media's
-  managed CI/CD path and avoids dependence on one developer Mac.
+  managed CI/CD path while avoiding repeated, slow hosted Simulator matrices.
+  Local testing uses one deliberate iPhone destination and one deliberate iPad
+  destination, which makes failures reproducible and keeps the cloud workflow
+  focused on source analysis and release distribution.
 
 ## D-014 — The app shell is content-first, not mode-first
 
@@ -591,3 +596,17 @@ date; do not silently rewrite historical decisions during implementation.
   shared target allows more recent downloads to survive while remaining far
   below unbounded caching. Using free space plus existing cache bytes avoids
   changing tiers merely because FrameWink pruned or downloaded its own files.
+
+## D-047 — Simulator tests are a local release gate
+
+- **Decision:** Run the shared scheme locally on one current iPhone Simulator
+  and one current iPad Simulator. Exclude the StoreKitTest Ask to Buy case that
+  does not return on the Xcode 27 runtime and the marketing screenshot capture
+  utility. Verify the locked screenshot set separately. Xcode Cloud Validation
+  retains its required Analyze action and has no Test action.
+- **Reason:** Build 30 failed after 33 minutes and consumed 258 hosted build
+  minutes across its test destinations, reporting five test failures. Earlier
+  runs also showed the Ask to Buy API consuming the complete ten-minute worker
+  allowance. The local gate preserves both device families and produces
+  reviewable result bundles without multiplying the suite across hosted
+  destinations.

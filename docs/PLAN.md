@@ -2105,6 +2105,32 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   display's offset rear layer, and keeps native app pixels continuous beneath
   the bezel's antialiased inner edge.
 
+### Local-only Simulator validation — 2026-09-22
+
+- Status: complete. The owner chose local iPhone and iPad testing after Xcode
+  Cloud Build 30 failed with five test failures after 33 minutes and consumed
+  258 hosted build minutes across its test destinations. Its Analyze action
+  succeeded.
+- The saved Xcode Cloud Validation workflow now contains only its required
+  Analyze action. The workflow description records that iPhone and iPad tests
+  run locally before release.
+- Added `scripts/test_local.sh` as the reproducible local gate. It runs the
+  shared scheme on one current iPhone and one current iPad Simulator, skips the
+  Xcode 27 StoreKit Ask to Buy call that can wait indefinitely, skips the
+  marketing screenshot capture utility, and verifies the locked App Store
+  screenshot set separately.
+- The first complete iPad run exposed a test-only visibility assumption: the
+  delete-progress row can be below the current Form viewport. The assertion now
+  scrolls to the row, matching the existing cleanup-progress test. The focused
+  regression passes on both device families.
+- Final local results: 230 passed, zero failed, and four intentional
+  environment-limited skips on iPhone 17 Pro Max; 230 passed, zero failed, and
+  four intentional environment-limited skips on iPad (A16). Locked iPad,
+  iPhone, and iPhone Duo screenshot verification passes. Xcode reports its
+  existing StoreKitTest deprecation, transaction-listener test notices,
+  SwiftUI hosting-view warning, and simulator metadata/debugger notices.
+  Active implementation and verification time: approximately 0.8 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

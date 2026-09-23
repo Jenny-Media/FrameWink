@@ -125,7 +125,10 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let deletionProgress = app.descendants(matching: .any)[
             "delete-all-framewink-photos-progress"
         ].firstMatch
-        XCTAssertTrue(deletionProgress.waitForExistence(timeout: 3))
+        XCTAssertTrue(
+            scrollUntilExists(deletionProgress, maxSwipes: 3),
+            "Delete progress must be visible while the form is scrolled."
+        )
 
         XCTAssertTrue(
             app.staticTexts["Bundled sample photos"].waitForExistence(timeout: 8)
