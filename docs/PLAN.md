@@ -2105,6 +2105,56 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   display's offset rear layer, and keeps native app pixels continuous beneath
   the bezel's antialiased inner edge.
 
+### Local-only Simulator validation — 2026-09-22
+
+- Status: complete. The owner chose local iPhone and iPad testing after Xcode
+  Cloud Build 30 failed with five test failures after 33 minutes and consumed
+  258 hosted build minutes across its test destinations. Its Analyze action
+  succeeded.
+- The saved Xcode Cloud Validation workflow now contains only its required
+  Analyze action. The workflow description records that iPhone and iPad tests
+  run locally before release.
+- Added `scripts/test_local.sh` as the reproducible local gate. It runs the
+  shared scheme on one current iPhone and one current iPad Simulator, skips the
+  Xcode 27 StoreKit Ask to Buy call that can wait indefinitely, skips the
+  marketing screenshot capture utility, and verifies the locked App Store
+  screenshot set separately.
+- The first complete iPad run exposed a test-only visibility assumption: the
+  delete-progress row can be below the current Form viewport. The assertion now
+  scrolls to the row, matching the existing cleanup-progress test. The focused
+  regression passes on both device families.
+- The merge-candidate iPhone run exposed another test-only transition race:
+  the duration test could try to reopen controls before the dismissed sheet
+  finished leaving. It now waits for sheet dismissal and control interactivity
+  while retaining the one-tap selection assertion. Two consecutive runs pass
+  on both iPhone and iPad.
+- Final local results: 230 passed, zero failed, and four intentional
+  environment-limited skips on iPhone 17 Pro Max; 230 passed, zero failed, and
+  four intentional environment-limited skips on iPad (A16). Locked iPad,
+  iPhone, and iPhone Duo screenshot verification passes. Xcode reports its
+  existing StoreKitTest deprecation, transaction-listener test notices,
+  SwiftUI hosting-view warning, and simulator metadata/debugger notices.
+  These final complete results include the 800 MiB cache policy. Active
+  implementation and verification time: approximately 1.1 hours.
+
+### 800 MiB automatic-album cache target — 2026-09-22
+
+- Status: complete and locally verified.
+- The ample-storage automatic-album image target is reduced from 1 GiB to
+  800 MiB so the representative 1.12 GB iOS Storage total can fall below the
+  1 GB display boundary after sync pruning or manual cleanup.
+- The constrained 512 MiB target, 3 GiB tier boundary, current-reel protection,
+  three-recent-album policy, and explicit cleanup behavior remain unchanged.
+  This is a soft automatic-album target; individually imported photos and other
+  app data can still make total storage exceed 1 GB.
+- The affected storage-policy, album-sync, and automatic-album controller set
+  passed 45/45 on iPhone 17 Pro Max and 45/45 on iPad (A16), with zero failures,
+  skips, or runtime warnings. Compilation emitted Apple's existing StoreKitTest
+  deprecation warning; Xcode also logged its non-failing simulator metadata
+  notice. Physical iOS Storage reporting after the next sync or manual cleanup
+  remains an owner device check. Active implementation and verification time:
+  approximately 0.2 hours.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

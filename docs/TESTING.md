@@ -3384,3 +3384,66 @@ DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -q
 /bin/bash scripts/verify_locked_app_store_screenshots.sh
 git diff --check
 ```
+
+## Local-only Simulator validation — 2026-09-22
+
+- App Store Connect's saved `Validation` workflow now has one required
+  `Analyze - iOS` action and no Test action. Xcode Cloud remains the release
+  archive and TestFlight distributor.
+- `scripts/test_local.sh` is the local merge and release gate. It runs the
+  shared scheme on iPhone 17 Pro Max and iPad (A16), excludes the Xcode 27
+  StoreKitTest Ask to Buy case that does not return, excludes the marketing
+  screenshot capture utility, and checks the locked screenshot sets.
+- The first iPad run passed 229 tests and found one UI-test assertion that did
+  not scroll to the inserted delete-progress row. The production progress UI
+  was unchanged. The assertion now follows the same scroll-aware lookup as the
+  cleanup-progress test and passes on both iPhone and iPad.
+- The first merge-candidate iPhone run then found a separate transition race in
+  the duration persistence test: it could reopen the controls while the old
+  sheet was still dismissing, so a valid single tap was lost. The test now
+  waits for dismissal and for each control to become interactive. It passed
+  twice on each device family before the complete gate was repeated.
+- Final iPhone result: 230 passed, zero failed, four intentional
+  environment-limited skips. Final iPad result: 230 passed, zero failed, four
+  intentional environment-limited skips. The locked seven-image iPad,
+  six-image iPhone, and four-image iPhone Duo sets pass checksum verification.
+- Merge-candidate result bundles:
+  `/private/tmp/FrameWink-LocalGate-Merge-20260922/iPhone.xcresult` and
+  `/private/tmp/FrameWink-LocalGate-Merge-20260922/iPad.xcresult`. The repeated
+  focused duration result is
+  `/private/tmp/FrameWink-Duration-Stability.xcresult`.
+- Expected diagnostics remain Apple's StoreKitTest deprecation and
+  transaction-listener test notices, a SwiftUI hosting-view hierarchy warning,
+  and Xcode 27 simulator build/debugger metadata notices.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/FrameWink-LocalOnly-20260922 scripts/test_local.sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-Duration-Stability -resultBundlePath /private/tmp/FrameWink-Duration-Stability.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFreeFrameDurationSurvivesClosingAndReopeningControls -test-iterations 2 test
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/FrameWink-LocalGate-Merge-20260922 scripts/test_local.sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-LocalOnly-iPad-Final-DerivedData -resultBundlePath /private/tmp/FrameWink-LocalOnly-iPad-Final.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -skip-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking -skip-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests test
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+/bin/bash -n scripts/test_local.sh
+git diff --check
+```
+
+## 800 MiB automatic-album cache target — 2026-09-22
+
+- The ample-storage automatic-album image budget is 800 MiB. The constrained
+  512 MiB budget and 3 GiB shared-headroom boundary are unchanged.
+- `LocalStorageUsageTests` asserts the exact 800 MiB target and both sides of
+  the headroom boundary. `AutomaticAlbumControllerTests` and
+  `AlbumSyncServiceTests` cover pruning, current-reel protection, checkpoint
+  behavior, and synchronization against the reduced budget.
+- The affected set passed 45/45 on iPhone 17 Pro Max and 45/45 on iPad (A16),
+  iOS 27.0 Simulators, with zero failures, skips, or runtime warnings.
+- Result bundles: `/private/tmp/FrameWink-800MiB-iPhone.xcresult` and
+  `/private/tmp/FrameWink-800MiB-iPad.xcresult`.
+- Compilation emitted Apple's existing StoreKitTest
+  `SKPaymentTransactionState` deprecation warning. Xcode also logged its
+  non-failing simulator build metadata notice.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' -derivedDataPath /private/tmp/FrameWink-800MiB-iPhone-DerivedData -resultBundlePath /private/tmp/FrameWink-800MiB-iPhone.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkTests/AlbumSyncServiceTests test
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-800MiB-iPad-DerivedData -resultBundlePath /private/tmp/FrameWink-800MiB-iPad.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkTests/AlbumSyncServiceTests test
+git diff --check
+```

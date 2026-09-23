@@ -11,22 +11,20 @@
 
 ## Intended delivery path
 
-Xcode Cloud is the authoritative release builder. Local builds are for fast
-development feedback; the project does not depend on a local archive-and-upload
-procedure.
+Xcode Cloud is the authoritative release builder. Simulator tests are a local
+merge and release gate; the project does not depend on a local
+archive-and-upload procedure.
 
-The first cloud workflow should:
+The cloud workflows should:
 
 1. Start on updates to the release branch and allow manual runs.
-2. Build and run the shared unit- and UI-test targets on iPhone and iPad
-   Simulators.
-3. Analyze the app target.
-4. Perform a clean archive for distribution.
-5. Use a TestFlight post-action to distribute successful builds to Jenny Media
+2. Analyze the app target in the automatic Validation workflow.
+3. Perform a clean archive for distribution in the manual release workflow.
+4. Use a TestFlight post-action to distribute successful builds to Jenny Media
    LLC internal testers.
 
-A faster validation workflow may later run build and test actions on pull
-requests without archiving.
+Before release changes merge, `scripts/test_local.sh` runs the shared scheme on
+one iPhone and one iPad Simulator and verifies the locked screenshot set.
 
 Apple requires the first Xcode Cloud workflow to be configured from Xcode. The
 project must be in an accessible Git repository, Xcode Cloud must be granted
@@ -683,8 +681,10 @@ blocker affects only a later boundary.
   version 1.2. English What's New, focused App Review notes, updated TestFlight
   instructions, and checksum-locked iPad and iPhone screenshot galleries are
   prepared in the repository. The unsigned Release build, Release Analyze,
-  archive guard, and affected 47-test suites pass on both iPhone and iPad
-  Simulators.
+  archive guard, and complete local scheme pass on both iPhone and iPad
+  Simulators: 230 passed, zero failed, and four intentional environment skips
+  on each family. Locked iPad, iPhone, and iPhone Duo screenshot verification
+  also passes.
 - Remaining gates: exact-source archive, physical TestFlight smoke checks, App
   Store Connect metadata and screenshot upload, build attachment, and explicit
   authorization before submitting for review.
@@ -743,13 +743,14 @@ Cloud action. FrameWink's script validates its two privacy property lists and
 Release identity for every action. For an archive, it additionally requires the
 Jenny Media LLC team, `media.jenny.FrameWink`, and a nonempty non-local Wall Mode
 product identifier. This makes B-006 fail closed at the cloud archive boundary
-without preventing Build, Analyze, or Test workflows.
+without preventing Build or Analyze workflows.
 
 ## Remaining release decisions
 
 - The Account Holder is now a tester in `Jenny Media Internal`; install and
   smoke-test Build 8 from TestFlight on a physical iPhone or iPad.
-- Confirm the distributed-test repair in the automatic Validation workflow.
+- Review the local iPhone and iPad result bundles before merging release
+  changes; the automatic Validation workflow intentionally has no Test action.
 - Release mode must remain manual. The owner withdrew the two-item iOS 1.0 (8)
   and FrameWink Lifetime package to replace its screenshots; it must be
   resubmitted after the new galleries and review metadata are rechecked.

@@ -97,6 +97,16 @@ and unattended frame acceptance are guided by
 verifies authorized album discovery, and captures ignored, device-local
 acceptance evidence without committing device identifiers or tester photos.
 
+Run the required local iPhone and iPad Simulator gate with:
+
+```sh
+scripts/test_local.sh
+```
+
+Xcode Cloud performs analysis and release archives. Its Validation workflow
+does not run tests; local test results must be reviewed before a release change
+is merged.
+
 ## Forty-hour rule
 
 The goal is a narrow TestFlight-ready product, not a complete digital-frame
