@@ -3447,3 +3447,52 @@ DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -q
 DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' -derivedDataPath /private/tmp/FrameWink-800MiB-iPad-DerivedData -resultBundlePath /private/tmp/FrameWink-800MiB-iPad.xcresult -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO -only-testing:FrameWinkTests/LocalStorageUsageTests -only-testing:FrameWinkTests/AutomaticAlbumControllerTests -only-testing:FrameWinkTests/AlbumSyncServiceTests test
 git diff --check
 ```
+
+## Larger Text setup layout — 2026-09-24
+
+- Reproduced the iPad setup failure at AX3 on iPad (A16): the setup
+  explanation ended in an ellipsis and the sample headline was partly covered
+  by the setup card.
+- Visually inspected the repaired sample setup at AX3 and AX5. The iPad keeps
+  its complete explanation, caption, and actions separated. The iPhone AX5
+  layout uses a short `Samples` badge, removes the decorative visible photo
+  caption, and scrolls the complete setup card; a runtime swipe exposed both
+  actions.
+- `testAX3SampleSetupKeepsDescriptionAndCaptionReadable` and
+  `testAX5SampleSetupKeepsDescriptionAndCaptionReadable` passed 2/2 on iPhone
+  17 Pro Max and 2/2 on iPad (A16). Each test launches the sample setup with an
+  explicit UIKit content-size override, verifies the explanation wraps rather
+  than truncates, checks card/caption geometry where applicable, and opens and
+  closes the photo picker.
+- The existing normal-size sample-caption and picker-interaction tests passed
+  2/2 on each device family. The only compiler warning was the existing
+  StoreKitTest `SKPaymentTransactionState` deprecation.
+- XcodeBuildMCP result bundles:
+  `~/Library/Developer/XcodeBuildMCP/workspaces/FrameWink-7e761f2caa7d/result-bundles/test_sim_2026-09-24T13-29-39-709Z_pid48126_aea8230a.xcresult`
+  (iPhone AX3/AX5),
+  `~/Library/Developer/XcodeBuildMCP/workspaces/FrameWink-7e761f2caa7d/result-bundles/test_sim_2026-09-24T13-30-33-596Z_pid48126_621946a0.xcresult`
+  (iPad AX3/AX5),
+  `~/Library/Developer/XcodeBuildMCP/workspaces/FrameWink-7e761f2caa7d/result-bundles/test_sim_2026-09-24T13-32-21-190Z_pid48126_b4af1427.xcresult`
+  (iPhone normal size), and
+  `~/Library/Developer/XcodeBuildMCP/workspaces/FrameWink-7e761f2caa7d/result-bundles/test_sim_2026-09-24T13-31-41-265Z_pid48126_116262bc.xcresult`
+  (iPad normal size).
+
+```text
+mcp__xcodebuildmcp__test_sim
+  simulator: iPhone 17 Pro Max (B41C6094-A3CA-48E6-AA25-1E08D0B98BCE)
+  only-testing:
+    FrameWinkUITests/FirstLaunchPrivacyUITests/testAX3SampleSetupKeepsDescriptionAndCaptionReadable
+    FrameWinkUITests/FirstLaunchPrivacyUITests/testAX5SampleSetupKeepsDescriptionAndCaptionReadable
+
+mcp__xcodebuildmcp__test_sim
+  simulator: iPad (A16) (B3A8D8D4-D576-4245-A0EC-ED914C0C744F)
+  only-testing:
+    FrameWinkUITests/FirstLaunchPrivacyUITests/testAX3SampleSetupKeepsDescriptionAndCaptionReadable
+    FrameWinkUITests/FirstLaunchPrivacyUITests/testAX5SampleSetupKeepsDescriptionAndCaptionReadable
+
+mcp__xcodebuildmcp__test_sim
+  simulators: each device above
+  only-testing:
+    FrameWinkUITests/FirstLaunchPrivacyUITests/testSampleModeDoesNotPromptUntilPickerActionAndPickerCancelsCleanly
+    FrameWinkUITests/FirstLaunchPrivacyUITests/testSampleCaptionStaysAboveTheCompactSetupCard
+```

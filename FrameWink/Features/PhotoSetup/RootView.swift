@@ -49,6 +49,14 @@ enum FramePreparationPresentation {
     }
 }
 
+private struct SetupCardHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 struct RootView: View {
     @ObservedObject var model: AppModel
     @ObservedObject var wallMode: WallModeController
@@ -61,7 +69,9 @@ struct RootView: View {
     @State private var presentedSheet: SheetDestination?
     @State private var isFrameMode = false
     @State private var didApplyInitialPresentation = false
+    @State private var setupCardHeight: CGFloat = 0
     @AppStorage("preferredPhotoCollectionMode") private var preferredPhotoMode = ""
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     init(
         model: AppModel,
@@ -85,6 +95,10 @@ struct RootView: View {
         NavigationView {
             GeometryReader { proxy in
                 let isCompact = proxy.size.width < 700 || proxy.size.height < 620
+                let usesAccessibilityLayout = dynamicTypeSize.isAccessibilitySize
+                let usesCompactSetup = isCompact || usesAccessibilityLayout
+                let usesNarrowAccessibilityLayout = usesAccessibilityLayout
+                    && proxy.size.width < 600
 
                 ZStack {
                     SampleSlideshowView(
@@ -104,7 +118,10 @@ struct RootView: View {
                         presentationDidChange: saveCurrentPresentation,
                         isFrameMode: $isFrameMode,
                         wallVisualState: wallMode.visualState,
-                        refreshWallSchedule: wallMode.refresh
+                        refreshWallSchedule: wallMode.refresh,
+                        previewCaptionBottomInset: setupCardHeight
+                            + (usesCompactSetup ? 24 : 36),
+                        showsPreviewCaption: !usesNarrowAccessibilityLayout
                     )
                     .id(model.collectionMode.id)
                     .ignoresSafeArea()
@@ -119,7 +136,12 @@ struct RootView: View {
                     }
 
                     if !isFrameMode && !isInitialPersonalImport {
-                        chrome(isCompact: isCompact)
+                        chrome(
+                            isCompact: usesCompactSetup,
+                            availableHeight: proxy.size.height,
+                            allowsScrolling: usesNarrowAccessibilityLayout,
+                            usesShortSampleBadge: usesNarrowAccessibilityLayout
+                        )
                     }
 
                 }
@@ -226,10 +248,37 @@ struct RootView: View {
         }
     }
 
-    private func chrome(isCompact: Bool) -> some View {
+    @ViewBuilder
+    private func chrome(
+        isCompact: Bool,
+        availableHeight: CGFloat,
+        allowsScrolling: Bool,
+        usesShortSampleBadge: Bool
+    ) -> some View {
+        if allowsScrolling {
+            ScrollView(.vertical, showsIndicators: false) {
+                chromeContents(
+                    isCompact: isCompact,
+                    usesShortSampleBadge: usesShortSampleBadge
+                )
+                .frame(minHeight: availableHeight)
+            }
+            .accessibilityIdentifier("home-setup-scroll")
+        } else {
+            chromeContents(
+                isCompact: isCompact,
+                usesShortSampleBadge: usesShortSampleBadge
+            )
+        }
+    }
+
+    private func chromeContents(
+        isCompact: Bool,
+        usesShortSampleBadge: Bool
+    ) -> some View {
         VStack(spacing: isCompact ? 10 : 16) {
             HStack(alignment: .top) {
-                sampleBadge
+                sampleBadge(usesShortTitle: usesShortSampleBadge)
 
                 Spacer()
 
@@ -238,7 +287,7 @@ struct RootView: View {
             .padding(.horizontal, isCompact ? 16 : 26)
             .padding(.top, isCompact ? 10 : 18)
 
-            Spacer()
+            Spacer(minLength: isCompact ? 20 : 8)
 
             setupCard(isCompact: isCompact)
                 .padding(.horizontal, isCompact ? 14 : 26)
@@ -318,9 +367,12 @@ struct RootView: View {
     }
 
     @ViewBuilder
-    private var sampleBadge: some View {
+    private func sampleBadge(usesShortTitle: Bool) -> some View {
         if model.collectionMode == .samples {
-            Label("Sample Photos", systemImage: "sparkles")
+            Label(
+                usesShortTitle ? "Samples" : "Sample Photos",
+                systemImage: "sparkles"
+            )
                 .font(.caption.weight(.bold))
                 .foregroundColor(.white)
                 .padding(.horizontal, 14)
@@ -336,10 +388,12 @@ struct RootView: View {
                 Text(setupTitle)
                     .font((isCompact ? Font.title3 : Font.title2).weight(.semibold))
                     .foregroundColor(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 if model.collectionMode == .automaticAlbum {
                     Text(automaticAlbumStatus)
                         .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     if case .syncing(let progress) = automaticAlbum.phase {
                         automaticAlbumProgress(progress, label: "Automatic album sync progress")
@@ -349,9 +403,12 @@ struct RootView: View {
                 } else if model.collectionMode == .samples {
                     Text(sampleSetupDescription)
                         .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("home-setup-description")
                 } else {
                     Text(curationStatus)
                         .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     if case .analyzing(let progress) = model.curationPhase {
                         ProgressView(value: progress.fractionCompleted)
@@ -365,10 +422,22 @@ struct RootView: View {
         }
         .padding(isCompact ? 16 : 22)
         .frame(maxWidth: 860)
+        .fixedSize(horizontal: false, vertical: true)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background {
+            GeometryReader { proxy in
+                Color.clear.preference(
+                    key: SetupCardHeightPreferenceKey.self,
+                    value: proxy.size.height
+                )
+            }
+        }
         .shadow(color: .black.opacity(0.22), radius: 20, y: 8)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("home-setup-card")
+        .onPreferenceChange(SetupCardHeightPreferenceKey.self) { height in
+            setupCardHeight = height
+        }
     }
 
     @ViewBuilder
