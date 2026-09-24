@@ -2155,6 +2155,32 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   remains an owner device check. Active implementation and verification time:
   approximately 0.2 hours.
 
+### Larger Text setup layout — 2026-09-24
+
+- Status: implementation and focused iPhone/iPad Simulator verification
+  complete. The iPad setup explanation no longer collapses to one truncated
+  line at AX3, and the preview caption now reserves the measured setup-card
+  height instead of a fixed 250-point allowance.
+- Accessibility text sizes use compact, vertically stacked setup actions. The
+  setup title and status keep their full vertical size. On narrow iPhone
+  screens, accessibility sizes use a scrollable setup overlay, the compact
+  `Samples` badge, and omit the decorative visible preview caption; the photo
+  remains exposed with its full accessibility description.
+- New AX3 and AX5 UI regressions passed 2/2 on iPhone 17 Pro Max and 2/2 on
+  iPad (A16). They verify complete setup text, card containment, iPad caption
+  separation, and opening and closing the photo picker. Existing normal-size
+  sample-caption and picker tests also passed 2/2 on each device family.
+- Runtime inspection at AX3 and AX5 confirmed the complete iPad explanation,
+  separated preview caption, and fully visible actions. At iPhone AX5, a
+  runtime swipe exposed both complete actions in the scrollable card without
+  text overlap. The only compiler warning was Apple's existing StoreKitTest
+  deprecation. Active implementation and verification time: approximately
+  0.7 hours.
+- Remaining gate before publishing the Larger Text App Store label: repeat the
+  complete common-task checklist at AX3 or larger on physical iPhone and iPad,
+  including album selection, review, frame controls, settings, cleanup, and
+  purchase/restore flows.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

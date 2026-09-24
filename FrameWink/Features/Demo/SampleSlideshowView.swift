@@ -15,6 +15,8 @@ struct SampleSlideshowView: View {
     @Binding var isFrameMode: Bool
     let wallVisualState: WallVisualState
     let refreshWallSchedule: (Date) -> Void
+    let previewCaptionBottomInset: CGFloat
+    let showsPreviewCaption: Bool
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
@@ -74,6 +76,7 @@ struct SampleSlideshowView: View {
                         )
 
                     if !isFrameMode,
+                       showsPreviewCaption,
                        let slide = slidesByID[page.placements.first?.photoID ?? ""] {
                         caption(for: slide, viewport: proxy.size)
                             .id(slide.id)
@@ -404,8 +407,13 @@ struct SampleSlideshowView: View {
     }
 
     private func previewCaptionBottomPadding(for viewport: CGSize) -> CGFloat {
-        guard viewport.width < 600 else { return 250 }
-        return min(max(viewport.height * 0.58, 280), 560)
+        let defaultPadding: CGFloat
+        if viewport.width < 600 {
+            defaultPadding = min(max(viewport.height * 0.58, 280), 560)
+        } else {
+            defaultPadding = 250
+        }
+        return max(defaultPadding, previewCaptionBottomInset)
     }
 
     private func interactionLayer(
@@ -1333,7 +1341,9 @@ struct SampleSlideshowView_Previews: PreviewProvider {
             presentationDidChange: { _ in },
             isFrameMode: .constant(false),
             wallVisualState: .normal,
-            refreshWallSchedule: { _ in }
+            refreshWallSchedule: { _ in },
+            previewCaptionBottomInset: 250,
+            showsPreviewCaption: true
         )
         .previewInterfaceOrientation(.landscapeLeft)
     }

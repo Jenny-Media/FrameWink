@@ -542,6 +542,18 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         )
     }
 
+    func testAX3SampleSetupKeepsDescriptionAndCaptionReadable() {
+        assertAccessibleSampleSetup(
+            contentSizeCategory: "UICTContentSizeCategoryAccessibilityXL"
+        )
+    }
+
+    func testAX5SampleSetupKeepsDescriptionAndCaptionReadable() {
+        assertAccessibleSampleSetup(
+            contentSizeCategory: "UICTContentSizeCategoryAccessibilityXXXL"
+        )
+    }
+
     func testSceneOffersOneShareActionMatchingTheResponsiveLayout() {
         launch(scenario: "mosaic-frame")
 
@@ -1011,10 +1023,84 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Saved frame configurations"].exists)
     }
 
-    private func launch(scenario: String) {
+    private func launch(
+        scenario: String,
+        contentSizeCategory: String? = nil
+    ) {
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_SCREENSHOT_SCENARIO"] = scenario
+        if let contentSizeCategory {
+            app.launchArguments += [
+                "-UIPreferredContentSizeCategoryName",
+                contentSizeCategory
+            ]
+        }
         app.launch()
+    }
+
+    private func assertAccessibleSampleSetup(contentSizeCategory: String) {
+        launch(
+            scenario: "sample",
+            contentSizeCategory: contentSizeCategory
+        )
+
+        let caption = app.staticTexts["sample-caption-title"]
+        let setupCard = app.descendants(matching: .any)["home-setup-card"]
+        let description = app.staticTexts["home-setup-description"]
+        let choosePhotos = app.buttons["Choose Photos"]
+        let startSampleFrame = app.buttons["Start Sample Frame"]
+        let usesNarrowLayout = app.frame.width < 600
+
+        if usesNarrowLayout {
+            XCTAssertFalse(caption.waitForExistence(timeout: 1))
+        } else {
+            XCTAssertTrue(caption.waitForExistence(timeout: 8))
+        }
+        XCTAssertTrue(setupCard.waitForExistence(timeout: 3))
+        XCTAssertTrue(description.waitForExistence(timeout: 3))
+        XCTAssertTrue(choosePhotos.waitForExistence(timeout: 3))
+        XCTAssertTrue(startSampleFrame.waitForExistence(timeout: 3))
+        XCTAssertGreaterThan(
+            description.frame.height,
+            40,
+            "The setup explanation must wrap instead of truncating to one line."
+        )
+        XCTAssertGreaterThanOrEqual(description.frame.minY, setupCard.frame.minY)
+        XCTAssertLessThanOrEqual(description.frame.maxY, setupCard.frame.maxY)
+        if !usesNarrowLayout {
+            XCTAssertLessThanOrEqual(
+                caption.frame.maxY,
+                setupCard.frame.minY,
+                "The enlarged sample title must remain above the setup card."
+            )
+        }
+        for button in [choosePhotos, startSampleFrame] {
+            XCTAssertGreaterThanOrEqual(button.frame.minY, setupCard.frame.minY)
+            XCTAssertLessThanOrEqual(
+                button.frame.maxY,
+                setupCard.frame.maxY,
+                "Enlarged action labels must remain inside the setup card."
+            )
+        }
+
+        choosePhotos.tap()
+        let cancel = app.buttons["Cancel"]
+        XCTAssertTrue(
+            cancel.waitForExistence(timeout: 8),
+            "Choose Photos must remain operable at the requested text size."
+        )
+        cancel.tap()
+        XCTAssertTrue(
+            waitUntil(timeout: 3) { !cancel.exists },
+            "The photo picker must finish closing before the setup card scrolls."
+        )
+        if usesNarrowLayout {
+            let setupScroll = app.scrollViews["home-setup-scroll"]
+            XCTAssertTrue(setupScroll.waitForExistence(timeout: 3))
+            XCTAssertTrue(startSampleFrame.exists)
+        } else {
+            XCTAssertTrue(startSampleFrame.isHittable)
+        }
     }
 
     private func waitForLandscape(timeout: TimeInterval = 8) -> Bool {
