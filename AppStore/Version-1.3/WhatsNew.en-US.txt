@@ -1,0 +1,2 @@
+• Improved Larger Text support on the setup screen for iPhone and iPad.
+• Setup explanations now wrap completely and controls remain reachable at accessibility text sizes.

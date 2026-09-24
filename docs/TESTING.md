@@ -3496,3 +3496,33 @@ mcp__xcodebuildmcp__test_sim
     FrameWinkUITests/FirstLaunchPrivacyUITests/testSampleModeDoesNotPromptUntilPickerActionAndPickerCancelsCleanly
     FrameWinkUITests/FirstLaunchPrivacyUITests/testSampleCaptionStaysAboveTheCompactSetupCard
 ```
+
+## Version 1.3 train repair — 2026-09-24
+
+- Xcode Cloud Build 34 archived the current `main` source as version 1.2, then
+  App Store validation rejected it with `90186 Invalid Pre-Release Train` and
+  `90062 This bundle is invalid` because version 1.2 is already approved.
+- The application target and Xcode Cloud release guard now require marketing
+  version 1.3. This changes release metadata only; application behavior and
+  the previously verified Larger Text implementation are unchanged.
+- Verification checks the resolved Release settings, unsigned product
+  metadata, archive-mode guard, property-list validity, shell syntax, and diff
+  whitespace. The next Xcode Cloud run remains the signed upload proof.
+- The unsigned generic iOS Release build passed with Xcode 27. The built app
+  reports version 1.3, build 1, and bundle identifier
+  `media.jenny.FrameWink`. The archive-mode guard passed with the production
+  identity, supported device families, minimum OS, and lifetime product.
+- `plutil` validation, `bash -n`, and `git diff --check` pass. No app behavior
+  changed, so the previously completed iPhone and iPad local test gate remains
+  the behavior evidence for this source baseline.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-13-Release-Build CODE_SIGNING_ALLOWED=NO build
+plutil -extract CFBundleShortVersionString raw -o - /private/tmp/FrameWink-13-Release-Build/Build/Products/Release-iphoneos/FrameWink.app/Info.plist
+plutil -extract CFBundleVersion raw -o - /private/tmp/FrameWink-13-Release-Build/Build/Products/Release-iphoneos/FrameWink.app/Info.plist
+plutil -extract CFBundleIdentifier raw -o - /private/tmp/FrameWink-13-Release-Build/Build/Products/Release-iphoneos/FrameWink.app/Info.plist
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer CI_XCODEBUILD_ACTION=archive /bin/sh ci_scripts/ci_pre_xcodebuild.sh
+/bin/bash -n ci_scripts/ci_pre_xcodebuild.sh
+plutil -lint FrameWink/Info.plist FrameWink/PrivacyInfo.xcprivacy
+git diff --check
+```

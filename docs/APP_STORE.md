@@ -5,18 +5,30 @@ it aligned with the shipping build and update it before every submitted version.
 
 ## Current availability
 
-FrameWink 1.1 is approved and available on the App Store at
+FrameWink 1.2 is approved and available on the App Store at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
-## Version 1.2 preparation
+## Version 1.3 preparation
+
+Version 1.3 improves the setup screen at accessibility text sizes. The app
+target and Xcode Cloud release guard use marketing version 1.3 because Apple
+closed the released 1.2 pre-release train to new builds. Release inputs are
+under `AppStore/Version-1.3/`.
+
+English (U.S.) What's New:
+
+> • Improved Larger Text support on the setup screen for iPhone and iPad.
+> • Setup explanations now wrap completely and controls remain reachable at accessibility text sizes.
+
+The 1.3 candidate keeps the existing product behavior, privacy boundary,
+screenshots, and lifetime purchase. The next successful `main` archive should
+be distributed automatically to `Jenny Media Internal` for device validation.
+
+## Released version 1.2
 
 Version 1.2 is a focused stability update for automatic album preparation and
-paused playback. The repository release inputs are under
-`AppStore/Version-1.2/`; the app target and Xcode Cloud release guard use
-marketing version 1.2. The proposed replacement galleries are the checksum
-locked iPad and iPhone sets under
-`AppStore/Screenshots/ProductPageOptimization/`.
+paused playback. Its release inputs remain under `AppStore/Version-1.2/`.
 
 English (U.S.) What's New:
 
@@ -26,8 +38,7 @@ English (U.S.) What's New:
 
 The App Review notes provide a concrete pause-during-refresh test and explain
 that a provisional reel may become playable while preparation correctly
-remains in progress. Manual release should remain selected. A 1.2 build has not
-yet been archived, uploaded, attached, or submitted for review.
+remains in progress.
 
 ## Released version 1.1
 

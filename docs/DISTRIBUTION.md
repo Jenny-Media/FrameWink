@@ -17,10 +17,10 @@ archive-and-upload procedure.
 
 The cloud workflows should:
 
-1. Start on updates to the release branch and allow manual runs.
+1. Start both saved workflows on updates to `main` and allow manual runs.
 2. Analyze the app target in the automatic Validation workflow.
-3. Perform a clean archive for distribution in the manual release workflow.
-4. Use a TestFlight post-action to distribute successful builds to Jenny Media
+3. Perform a clean archive in the automatic Internal TestFlight workflow.
+4. Use its TestFlight post-action to distribute successful builds to Jenny Media
    LLC internal testers.
 
 Before release changes merge, `scripts/test_local.sh` runs the shared scheme on
@@ -235,6 +235,13 @@ blocker affects only a later boundary.
   issues; both are fixed and pass artifact-only local reproduction.
 - Does not block: all App Store Connect/IAP metadata, local verification,
   physical-device discovery, or commits.
+- Current workflow update: on 2026-09-24 the owner enabled a `main` branch-change
+  start condition for `Internal TestFlight`. Every new `main` push now archives
+  automatically and retains the post-action for `Jenny Media Internal`; manual
+  starts remain available. Build 34 proved the trigger-independent archive path
+  reached App Store validation, where Apple rejected marketing version 1.2
+  because that released train is closed. The repository now advances the next
+  candidate to version 1.3.
 - Validation Build 7 confirmed the compact-height UI repair and all
   non-StoreKit suites, but Apple's iOS 26.5 artifact workers still returned no
   StoreKit products. The test bundle now validates the catalog contract on
@@ -670,7 +677,7 @@ blocker affects only a later boundary.
 
 ### B-030 — Version 1.2 release candidate
 
-- Status: Repository preparation in progress; no 1.2 archive or submission
+- Status: Resolved; the owner confirmed version 1.2 is released
 - First recorded: 2026-09-22
 - Scope: keep a paused frame visually fixed while automatic album updates and
   curation continue, prevent the album status from briefly reporting completion
@@ -685,9 +692,9 @@ blocker affects only a later boundary.
   Simulators: 230 passed, zero failed, and four intentional environment skips
   on each family. Locked iPad, iPhone, and iPhone Duo screenshot verification
   also passes.
-- Remaining gates: exact-source archive, physical TestFlight smoke checks, App
-  Store Connect metadata and screenshot upload, build attachment, and explicit
-  authorization before submitting for review.
+- Resolution: version 1.2 was archived, distributed through TestFlight,
+  submitted, approved, and released. Apple now rejects additional 1.2 uploads
+  because the pre-release train is closed; version 1.3 is the next candidate.
 
 ### B-016 — Simulator debugger integration cannot locate Xcode
 

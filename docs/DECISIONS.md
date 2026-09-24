@@ -622,3 +622,14 @@ date; do not silently rewrite historical decisions during implementation.
   boundary while retaining substantially more reusable downloads than the
   constrained 512 MiB tier. Individually imported photos can still increase
   total app storage beyond 1 GB.
+
+## D-049 — Every main push produces an internal TestFlight candidate
+
+- **Decision:** Keep local iPhone and iPad tests as the merge gate, then run
+  both Xcode Cloud workflows for every push to `main`. Validation performs
+  static analysis. Internal TestFlight performs the clean archive and assigns a
+  successful build to `Jenny Media Internal`. Preserve manual starts for
+  recovery and targeted reruns.
+- **Reason:** A merge should produce one installable candidate without a second
+  manual release action. The cloud archive remains the authoritative signing
+  and distribution boundary, while expensive Simulator tests stay local.
