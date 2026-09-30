@@ -19,7 +19,12 @@ Learn more. The saved live 1.4 draft retains the existing screenshots, price,
 supported platforms, review contact, and manual release after approval. Release
 notes, review instructions, and promotional text are saved. The complete local
 release gate passed on iPhone and iPad, as did Release analysis and the archive
-guard. The signed Cloud build and final submission are pending publication.
+guard. Release source `f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9` is pushed
+to `main`; its Cloud validation and archive checks passed. The updated public
+privacy policy is live. App Store Connect's session expired after metadata
+was saved, so processed-build verification, attachment, and App Review
+submission are pending the owner's password or passkey sign-in. **Version 1.4
+has not been submitted.**
 
 English (U.S.) What's New:
 

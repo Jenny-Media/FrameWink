@@ -2227,29 +2227,40 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### Version 1.4 submission — 2026-09-30
 
-- Status: preparation in progress after the owner confirmed the installed
-  feedback and privacy changes work and authorized commit, push, and App
-  Review submission.
-- Integrated only the approved task onto current main, retaining its Larger
-  Text, source-switch, cache-budget, and local release-gate fixes. The original
-  dirty checkout and unrelated website artwork remain preserved.
-- Version 1.3 is Ready for Distribution in live App Store Connect. The 1.4 draft
-  has saved release notes, review instructions, promotional text, inherited
-  listing fields, and review contact. Existing six iPhone and seven iPad
-  screenshots are present. Privacy, accessibility, approved Lifetime purchase,
-  and disabled Mac/Vision Pro distribution are verified.
+- Status: approved changes committed and pushed; App Review submission is
+  pending App Store Connect authentication. The owner confirmed the installed
+  feedback and privacy changes work and explicitly authorized publication and
+  review submission.
+- Release source `f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9` is published on
+  `main`. It retains current main's Larger Text, source-switch, cache-budget,
+  and local release-gate fixes. The original dirty checkout and unrelated
+  website artwork remain preserved; the snapshot audit found no unexpected
+  changes.
 - The full iPhone and iPad gates each passed 237 tests, zero failures, and four
-  existing environment-limited skips. Release analysis, archive guard, website tests and
-  lint, and locked screenshot verification pass. Exact commands and warning
-  boundaries are recorded in `docs/TESTING.md`.
-- Xcode Cloud remains the authoritative archive and upload path. After both
-  local device-family gates pass, push the reviewed 1.4 candidate, verify its
-  signed Cloud build and the automatically published privacy update, then submit with manual
-  release after approval.
-- Active integration/release preparation time: approximately 0.5 hours,
-  excluding unattended test and Cloud execution. Remaining risks are the
-  historical real-device gates documented in `docs/TESTING.md`; the owner's
-  installed-app acceptance does not establish every one of those checks.
+  existing environment-limited skips. Release analysis, archive guard, website
+  tests and lint, and locked screenshot verification pass. Exact commands and
+  warning boundaries are recorded in `docs/TESTING.md`.
+- Xcode Cloud Validation and Internal TestFlight Archive checks both passed
+  for the release source with zero errors, analysis issues, or warnings.
+  Build processing, internal distribution, and an App Review build attachment
+  have not yet been verified in live App Store Connect.
+- Production Vercel deployment `dpl_3owFCGm1c41FyYrmVmJ3TZH6szw7` is Ready
+  for the same source commit. The public privacy page was inspected and shows
+  the September 30 policy and voluntary Send Feedback explanation.
+- The live 1.4 draft has saved release notes, review instructions, promotional
+  text, inherited listing fields, and review contact. Existing six iPhone and
+  seven iPad screenshots are present. Privacy, accessibility, approved Lifetime
+  purchase, and disabled Mac/Vision Pro distribution are verified. Manual
+  release and the existing rating are retained.
+- App Store Connect's session expired after those fields were saved. The
+  sign-in page requires the owner's password or passkey; sign-in assistance
+  was requested. Resume by confirming the processed 1.4 build for the release
+  source, attaching it, adding the version for review, submitting, and verifying
+  Waiting for Review. Submission has not occurred.
+- Active integration/release preparation time: approximately 0.6 hours,
+  excluding unattended tests, Cloud execution, and authentication waiting.
+  Historical real-device gates remain documented in `docs/TESTING.md`; the
+  owner's installed-app acceptance does not establish every one of them.
 
 ## Timebox rule
 

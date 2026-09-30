@@ -3742,3 +3742,32 @@ Result bundles: `/private/tmp/FrameWink-14-LocalGate/iPhone.xcresult` and
 under `/private/tmp/framewink-feedback-20260930/`. Xcode Cloud remains the
 authoritative signed archive and upload path; local analysis is not proof of
 upload or App Review submission.
+
+
+Post-push verification:
+
+- GitHub `main` resolved to release source
+  `f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9` after the fast-forward push.
+- Cloud Validation Analyze and Internal TestFlight Archive both completed
+  successfully for that source; each reports zero errors, analysis issues,
+  test failures, and warnings. Validation build UUID:
+  `00393ea0-6449-4689-95cd-e588d5aaa602`; archive UUID:
+  `a387038b-7b21-48d6-a5c7-d3bfeb996620`. Cloud does not run the local suite.
+- Vercel production deployment `dpl_3owFCGm1c41FyYrmVmJ3TZH6szw7` is Ready,
+  source `git`, and tied to that same commit. `frame.jenny.media/privacy` was
+  read live and shows the September 30 policy plus editable voluntary Mail
+  feedback with no automatic attachments or app transmission.
+- The original checkout's 80-path pre-task snapshot has 73 unchanged paths
+  and exactly the seven expected implementation/documentation changes; no
+  unexpected change was found.
+- Authentication expired after saving the 1.4 App Store fields. No processed
+  build number, internal distribution, build attachment, or App Review
+  submission is inferred from Cloud archive success. Those live checks remain
+  pending owner sign-in.
+
+```sh
+git push origin HEAD:main
+git ls-remote origin refs/heads/main
+gh api repos/Jenny-Media/FrameWink/commits/f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9/check-runs \
+  --jq '.check_runs[] | {name,status,conclusion,output: .output.summary}'
+```
