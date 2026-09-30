@@ -1,11 +1,12 @@
 # FrameWink Privacy Policy
 
-Effective: September 18, 2026
+Effective: September 30, 2026
 
 FrameWink is provided by Jenny Media LLC. FrameWink is designed to process
 photos locally on the device. The app has no Jenny Media LLC account or server
-and does not upload photos, app activity, identifiers, diagnostics, purchases,
-or other personal data to Jenny Media LLC. It does not use advertising,
+and never uploads your photos. It does not automatically send app activity,
+identifiers, diagnostics, purchases, or other personal data to Jenny Media LLC.
+It does not use advertising,
 tracking, or third-party analytics SDKs.
 
 ## Photos
@@ -51,6 +52,15 @@ process the information you choose to provide. GitHub issues are public; do not
 include private photos, receipts, or other sensitive information.
 
 ## Contact and support
+
+`Send Feedback` opens Apple's Mail composer with an editable draft addressed to
+Jenny Media LLC. The draft includes the app version and build, device model,
+and iOS or iPadOS version. You can edit or remove those details before sending.
+FrameWink does not attach photos or logs automatically and does not send the
+message itself. If Mail is unavailable, you can copy the support email address
+and use your preferred mail app. Jenny Media LLC receives only the information
+you choose to send; your email provider handles that message under its own
+privacy terms.
 
 For privacy questions or support, email
 [framewink@jenny.media](mailto:framewink@jenny.media) or open a

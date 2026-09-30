@@ -10,7 +10,7 @@ export default function PrivacyPage() {
   return (
     <main className="document-page" id="main-content" tabIndex={-1}>
       <header className="document-hero">
-        <p className="section-kicker">Effective September 18, 2026</p>
+        <p className="section-kicker">Effective September 30, 2026</p>
         <h1>Privacy Policy</h1>
         <p>FrameWink is provided by Jenny Media LLC and is designed to keep your photo experience on your device.</p>
       </header>
@@ -18,7 +18,7 @@ export default function PrivacyPage() {
         <section>
           <h2>The short version</h2>
           <p>
-            FrameWink does not send your photos, app activity, device details, or purchase
+            FrameWink never uploads your photos. It does not automatically send app activity, device details, or purchase
             information to Jenny Media LLC. You do not need an account, and the app has no
             ads, tracking, or third-party analytics.
           </p>
@@ -71,6 +71,14 @@ export default function PrivacyPage() {
         </section>
         <section>
           <h2>Contact and support</h2>
+          <p>
+            Send Feedback opens an editable draft in Apple’s Mail composer. It includes the app
+            version and build, device model, and iOS or iPadOS version. You can edit or remove
+            those details before sending. FrameWink does not attach photos or logs automatically
+            or send the message itself. If Mail is unavailable, you can copy the email address
+            and use your preferred mail app. We receive only the information you choose to send;
+            your email provider handles the message under its own privacy terms.
+          </p>
           <p>
             For privacy questions or support, email <a href="mailto:framewink@jenny.media">framewink@jenny.media</a>
             {" "}or open a <a href="https://github.com/Jenny-Media/FrameWink/issues">FrameWink support issue</a>.

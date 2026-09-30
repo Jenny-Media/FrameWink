@@ -3526,3 +3526,219 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer CI_XCODEBUILD_ACTION=ar
 plutil -lint FrameWink/Info.plist FrameWink/PrivacyInfo.xcprivacy
 git diff --check
 ```
+
+## Compact Privacy & Data and Send Feedback — 2026-09-30
+
+Affected verification passes on the iOS 27.0 iPhone 17 Pro Max and iPad (A16)
+Simulators using Xcode 27.0 (27A266a). The selected unit suites cover feedback
+context, storage measurement/cleanup, import recovery, automatic albums, and
+saved-frame source preservation. UI coverage exercises the concise summary and
+Learn more toggle, largest accessibility text, free/paid feedback fallback,
+existing cleanup/deletion progress, and permission-safe source selection.
+
+| Check | Result |
+| --- | --- |
+| Selected unit suites | 74 passed on each iPhone and iPad; zero failed or skipped |
+| Eight selected UI tests | Eight passed on each iPhone and iPad after scrolling fully visible controls into view; zero failed or skipped |
+| Final privacy/storage UI rerun | Four passed on each family with the final short, bidirectional scroll helper; zero failed or skipped |
+| Compact iPhone SE (3rd generation) | Summary and free/paid feedback fallback passed in the initial run; largest accessibility-text check passed after the scroll-helper correction |
+| Unsigned generic iOS Release | Build passed, minimum OS 15.0, iPhone/iPad families only |
+| Website privacy copy | Nine existing Node tests and ESLint passed |
+
+The initial combined bundle has 82 passes on iPhone and 81 passes/one failure
+on iPad. Its cleanup test tapped a partially clipped Form button, so cleanup
+never started. Tests now scroll a full control inside the visible sheet before
+tapping. The first compact-phone largest-text attempt likewise needed to scroll
+the native More menu; a later full swipe skipped Learn more. Short bidirectional
+drags resolve both interactions. Production cleanup, deletion, and storage
+measurement method bodies are byte-for-byte equal to the pre-task snapshot.
+
+The initial SE run completed with two passes/one failure, then Xcode's
+`simctl diagnose` collector stalled for over six minutes. Only this task's
+collector and xcodebuild process were stopped (xcodebuild exit 75). It is not
+reported as a successful run. Subsequent focused runs use
+`-collect-test-diagnostics never`; test execution, assertions, result bundles,
+and retained screenshot attachments remain enabled.
+
+Result bundles:
+
+- Initial unit/UI run: `/private/tmp/FrameWink-Feedback-Both.xcresult`.
+- Eight UI tests passing on both families: `/private/tmp/FrameWink-Feedback-UI-Final.xcresult`.
+- Final four-test rerun: `/private/tmp/FrameWink-Feedback-StorageUI-Final.xcresult`.
+- Initial SE checks: `/private/tmp/FrameWink-Feedback-SE.xcresult`.
+- Intermediate largest-text checks (phone/iPad pass, SE fails): `/private/tmp/FrameWink-Feedback-LargeText-Final.xcresult`.
+- Final SE largest-text pass: `/private/tmp/FrameWink-Feedback-SE-Final.xcresult`.
+
+Passing final result summaries contain no runtime warnings. Debug compilation
+emits an Apple StoreKitTest-header deprecation warning for
+`SKPaymentTransactionState`; UI launch logs also contain Xcode debugger-version
+lookup messages (`noURL`). Neither prevents builds or assertions from passing.
+The Copy Email fallback was exercised for free and lifetime fixtures without a
+Photos prompt; iPhone Simulator pasteboard content was separately verified to
+equal only `framewink@jenny.media` after Copy Email.
+
+Commands from `/Users/yihong/work/FrameWink`:
+
+```sh
+xcodebuild -project FrameWink.xcodeproj -scheme FrameWink -showdestinations
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug \
+  -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' \
+  -disable-concurrent-destination-testing -parallel-testing-enabled NO \
+  -derivedDataPath /private/tmp/FrameWink-Feedback-DerivedData \
+  -resultBundlePath /private/tmp/FrameWink-Feedback-Both.xcresult CODE_SIGNING_ALLOWED=NO \
+  -only-testing:FrameWinkTests/FeedbackDraftTests \
+  -only-testing:FrameWinkTests/LocalStorageUsageTests \
+  -only-testing:FrameWinkTests/LocalAlbumSourceStoreTests \
+  -only-testing:FrameWinkTests/AlbumSyncServiceTests \
+  -only-testing:FrameWinkTests/AppModelRecoveryTests \
+  -only-testing:FrameWinkTests/AutomaticAlbumControllerTests \
+  -only-testing:FrameWinkTests/PhotoImportServiceTests \
+  -only-testing:FrameWinkTests/FrameConfigurationControllerTests \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPrivacySummaryKeepsDetailsBehindLearnMore \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPrivacyActionsRemainReachableWithLargerText \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFeedbackMailFallbackIsAvailableForFreeAndLifetime \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testHomeUsesOnePrimaryActionAndMovesMaintenanceBehindMore \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testChooseWhatPlaysExplainsIndividualPhotosBeforeSystemPicker \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testLockedAlbumChoiceExplainsLifetimeBeforeRequestingPhotosAccess test
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug \
+  -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+  -destination 'platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' \
+  -disable-concurrent-destination-testing -parallel-testing-enabled NO \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -maximum-test-execution-time-allowance 90 \
+  -derivedDataPath /private/tmp/FrameWink-Feedback-DerivedData \
+  -resultBundlePath /private/tmp/FrameWink-Feedback-StorageUI-Final.xcresult \
+  CODE_SIGNING_ALLOWED=NO \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPrivacySummaryKeepsDetailsBehindLearnMore \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPrivacyActionsRemainReachableWithLargerText \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalReelPlaysFromLocalCopiesAndDeleteAllReturnsToSamples \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSafeCleanupShowsProgressAndKeepsPersonalSelection test
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug \
+  -destination 'platform=iOS Simulator,id=8782C2D6-1D6A-4195-A5C1-8A948D1B7AC6' \
+  -parallel-testing-enabled NO -collect-test-diagnostics never \
+  -test-timeouts-enabled YES -maximum-test-execution-time-allowance 90 \
+  -derivedDataPath /private/tmp/FrameWink-Feedback-DerivedData \
+  -resultBundlePath /private/tmp/FrameWink-Feedback-SE-Final.xcresult \
+  CODE_SIGNING_ALLOWED=NO \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPrivacyActionsRemainReachableWithLargerText test
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Release \
+  -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-Feedback-Release \
+  CODE_SIGNING_ALLOWED=NO build
+# From website/:
+node --test tests/site.test.mjs
+npm run lint
+git diff --check
+```
+
+The unsigned Release build passes without compiler diagnostics. Its plist has
+`MinimumOSVersion = 15.0` and `UIDeviceFamily = [1, 2]`; the executable links
+Apple's MessageUI. Website privacy copy passes nine existing Node tests and
+ESLint. Neither a message nor a public website update has been sent/published.
+
+Still required on physical iPhone and iPad: configure Apple's Mail, open the
+draft, review/edit/remove its context, cancel/save/send and return to the app;
+also check unavailable Mail and Copy Email in another mail app. Verify spoken
+VoiceOver traversal, large text, and iOS/iPadOS 15 runtime behavior. Simulator
+cannot prove Mail-account sending/delivery or physical assistive navigation.
+Prior real-photo storage, PhotoKit, and mounted-display acceptance gates remain
+open; this UI change does not substitute for those checks.
+
+### Owner-requested iPhone 18 Pro Max installation — 2026-09-30
+
+- CoreDevice identified the paired physical Yihong iPhone 18 Pro Max
+  (`iPhone19,3`, `00008160-0019491C01A80036`), iOS 27.2 (`24B5089g`), with
+  Developer Mode enabled and a connected local-network tunnel.
+- The initial signed Debug build exited 65 because the existing development
+  profile did not contain this new phone. The retry with Xcode's provisioning
+  update/device-registration flags passed (exit 0, no compiler diagnostics).
+  Existing team `5736QK4NZX`, bundle identifier `media.jenny.FrameWink`, and
+  project settings were retained; the project file matches the pre-task hash.
+- Verified the app signature and embedded profile for this device. Version is
+  1.0.1 (1), development entitlement is enabled, minimum OS is 15.0, and device
+  families are iPhone/iPad. The sandboxed signature check initially reported
+  `CSSMERR_TP_NOT_TRUSTED`; the same check passed with access to macOS trust
+  services. No signing workaround or project change was required.
+- The pre-install bundle-specific query returned no FrameWink installation on
+  this phone. Installation succeeded without an uninstall. The installed app
+  record reports the expected version/bundle and developer-app status; launch
+  succeeded and a subsequent process query found FrameWink running as PID 8990.
+- No physical UI interaction, configured-Mail sending, purchase, PhotoKit,
+  accessibility, or long-running acceptance result is implied by installation
+  and launch. Previously passing Simulator evidence remains applicable.
+
+Commands from `/Users/yihong/work/FrameWink`, with active Xcode 27.0:
+
+```sh
+xcrun devicectl list devices --timeout 25 --json-output /private/tmp/framewink-feedback-20260930/devices-install.json
+xcrun devicectl device info details --device 00008160-0019491C01A80036 --json-output /private/tmp/framewink-feedback-20260930/iphone18-details.json --timeout 30
+xcrun devicectl device info apps --device 00008160-0019491C01A80036 --bundle-id media.jenny.FrameWink --columns '*' --json-output /private/tmp/framewink-feedback-20260930/iphone18-app-before.json --timeout 30
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug \
+  -destination 'platform=iOS,id=00008160-0019491C01A80036' \
+  -derivedDataPath /private/tmp/FrameWink-Feedback-Physical-iPhone18ProMax build
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink -configuration Debug \
+  -destination 'platform=iOS,id=00008160-0019491C01A80036' \
+  -derivedDataPath /private/tmp/FrameWink-Feedback-Physical-iPhone18ProMax \
+  -allowProvisioningUpdates -allowProvisioningDeviceRegistration build
+codesign --verify --deep --strict /private/tmp/FrameWink-Feedback-Physical-iPhone18ProMax/Build/Products/Debug-iphoneos/FrameWink.app
+xcrun devicectl device install app --device 00008160-0019491C01A80036 --timeout 120 \
+  --json-output /private/tmp/framewink-feedback-20260930/iphone18-install.json \
+  /private/tmp/FrameWink-Feedback-Physical-iPhone18ProMax/Build/Products/Debug-iphoneos/FrameWink.app
+xcrun devicectl device process launch --device 00008160-0019491C01A80036 --terminate-existing --timeout 30 --json-output /private/tmp/framewink-feedback-20260930/iphone18-launch.json media.jenny.FrameWink
+xcrun devicectl device info apps --device 00008160-0019491C01A80036 --bundle-id media.jenny.FrameWink --columns '*' --timeout 30 --json-output /private/tmp/framewink-feedback-20260930/iphone18-app-after.json
+xcrun devicectl device info processes --device 00008160-0019491C01A80036 --search FrameWink --timeout 30 --json-output /private/tmp/framewink-feedback-20260930/iphone18-processes.json
+git diff --check
+```
+
+Build logs and machine-readable install/launch records are retained in
+`/private/tmp/framewink-feedback-20260930/`; the signed bundle remains under
+`/private/tmp/FrameWink-Feedback-Physical-iPhone18ProMax/Build/Products/Debug-iphoneos/`.
+
+
+## Version 1.4 release integration — 2026-09-30
+
+The owner confirmed the installed privacy and feedback changes work and
+authorized commit, push, and App Review submission. The approved changes are
+integrated onto current main (`9e5f0b9`) in the managed release worktree,
+retaining the newer Larger Text, source-switch, album cache-budget, and local
+release-gate fixes. The original dirty checkout and unrelated artwork remain
+preserved. Storage cleanup, deletion, and measurement method bodies match
+current main. This acceptance report does not establish every historical
+PhotoKit, purchase, thermal, Guided Access, accessibility, or iOS 15 device gate.
+
+Commands from the managed release worktree:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
+  FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/FrameWink-14-LocalGate \
+  FRAMEWINK_IPHONE_DESTINATION='platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+  FRAMEWINK_IPAD_DESTINATION='platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' \
+  scripts/test_local.sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -quiet \
+  -project FrameWink.xcodeproj -scheme FrameWink -configuration Release \
+  -destination 'generic/platform=iOS' -derivedDataPath /private/tmp/FrameWink-14-Release \
+  CODE_SIGNING_ALLOWED=NO analyze
+CI_XCODEBUILD_ACTION=archive /bin/sh ci_scripts/ci_pre_xcodebuild.sh
+node --test website/tests/site.test.mjs
+npm --prefix website run lint
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```
+
+Release analysis and the archive guard passed; website tests passed 9/9,
+ESLint passed, and the locked screenshot checksums passed. The full iPhone
+17 Pro Max and iPad (A16) suites each passed 237 tests with zero failures and
+four existing environment-limited skips on iOS/iPadOS 27.0. The local gate
+completed successfully and excludes the known hanging StoreKit
+Ask-to-Buy test and the marketing screenshot capture utility. Compiler output
+contains the existing StoreKitTest deprecation; runtime warnings on both families concern
+Apple's hosting hierarchy and test-only StoreKit purchases without a transaction
+listener. Xcode also logs a debugger noURL lookup during Simulator launches.
+
+Result bundles: `/private/tmp/FrameWink-14-LocalGate/iPhone.xcresult` and
+`/private/tmp/FrameWink-14-LocalGate/iPad.xcresult`. Release and website logs are
+under `/private/tmp/framewink-feedback-20260930/`. Xcode Cloud remains the
+authoritative signed archive and upload path; local analysis is not proof of
+upload or App Review submission.

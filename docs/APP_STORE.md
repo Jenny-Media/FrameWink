@@ -5,9 +5,27 @@ it aligned with the shipping build and update it before every submitted version.
 
 ## Current availability
 
-FrameWink 1.2 is approved and available on the App Store at
+FrameWink 1.3 is approved and available on the App Store at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
+
+## Version 1.4 preparation
+
+The owner confirmed the installed privacy and feedback changes work and
+provided explicit publication and App Review submission authorization on
+2026-09-30. Release inputs are in `AppStore/Version-1.4/`. Version 1.4 adds one
+voluntary Send Feedback action and a compact Privacy & Data summary with inline
+Learn more. The saved live 1.4 draft retains the existing screenshots, price,
+supported platforms, review contact, and manual release after approval. Release
+notes, review instructions, and promotional text are saved. The complete local
+release gate passed on iPhone and iPad, as did Release analysis and the archive
+guard. The signed Cloud build and final submission are pending publication.
+
+English (U.S.) What's New:
+
+> • Send feedback directly from the More menu, with an editable email draft and an easy copy-email option.
+> • Understand Privacy & Data at a glance with shorter explanations, clear icons, and optional details.
+> • Keep your existing photo cleanup controls and safeguards for originals in Apple Photos.
 
 ## Version 1.3 preparation
 

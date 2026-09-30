@@ -203,3 +203,16 @@ not exposed as a persistent technical mode.
 - After 1,000 activated downloads, target at least 4% D35 paid conversion.
 - Below 2% after one onboarding/paywall iteration is a stop or maintenance-mode
   signal.
+
+## Feedback and privacy presentation
+
+Privacy & Data starts with a compact privacy summary and an optional Learn more
+explanation. Storage sizes, safe cleanup, full deletion confirmation/progress,
+and applicable hidden-photo controls remain native and directly available.
+
+Send Feedback is one More-menu action for free and paid users. It opens Apple's
+editable Mail draft to `framewink@jenny.media`, with basic app version/build,
+device model, and OS version. No photos or logs are attached automatically;
+the user reviews and sends the message. If Mail is unavailable, a native alert
+offers Copy Email for use in another mail app. Feedback adds no developer
+server, account, tracking, or production dependency.

@@ -2191,6 +2191,66 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   accepts and distributes the resulting 1.3 build. Active implementation and
   verification time: approximately 0.2 hours.
 
+### Compact Privacy & Data and Send Feedback — 2026-09-30
+
+- Status: implementation and affected Simulator verification complete. Native
+  Mail composer and physical accessibility acceptance remain open.
+- Implemented the owner-approved minimal revision: small privacy header,
+  concise summary, inline Learn more, short storage-action explanations, and
+  small native action icons. Storage tasks, progress, source preservation, and
+  the full deletion warning retain their behavior.
+- Added Send Feedback to the existing More menu for free and paid users. Mail
+  gets an editable basic app/device-context draft with no automatic attachments.
+  An unavailable Mail account or failed compose result offers Copy Email.
+- Updated local privacy-policy sources for voluntary support email. Public
+  website publication is a separate follow-up; no deployment is performed.
+- Verification: 74 selected unit tests and eight selected UI tests pass on each
+  iPhone 17 Pro Max and iPad (A16). The four privacy/storage checks pass again
+  with the final scroll helper. Compact iPhone SE summary, feedback fallback,
+  and largest-text checks have passing evidence. Unsigned Release build,
+  website's nine existing tests, ESLint, and diff whitespace check pass; exact
+  commands, intermediate failures, and result bundles are in `docs/TESTING.md`.
+- Test-only scroll corrections account for native sheet/menu clipping at large
+  text sizes; cleanup and deletion implementations match the pre-task snapshot.
+  Existing uncommitted storage and website artwork is preserved.
+- Active implementation/verification time: approximately 0.6 hours, excluding
+  unattended test execution and a stalled Xcode diagnostics collector. Remaining
+  risks: configured Mail send/save/cancel/failure and delivery, physical
+  VoiceOver, and iOS/iPadOS 15 runtime acceptance. Earlier real-photo and
+  mounted-display gates remain open.
+- Owner-requested installation: signed Debug 1.0.1 (1) installed and launched
+  on Yihong iPhone 18 Pro Max, iOS 27.2, on 2026-09-30. Installed app record and
+  running process confirmed. Xcode updated the existing development profile to
+  include the new phone; project signing settings and identifiers are unchanged.
+  Additional active setup/installation time: approximately 0.1 hours. This
+  confirms installation and launch; the manual acceptance gates above remain.
+
+### Version 1.4 submission — 2026-09-30
+
+- Status: preparation in progress after the owner confirmed the installed
+  feedback and privacy changes work and authorized commit, push, and App
+  Review submission.
+- Integrated only the approved task onto current main, retaining its Larger
+  Text, source-switch, cache-budget, and local release-gate fixes. The original
+  dirty checkout and unrelated website artwork remain preserved.
+- Version 1.3 is Ready for Distribution in live App Store Connect. The 1.4 draft
+  has saved release notes, review instructions, promotional text, inherited
+  listing fields, and review contact. Existing six iPhone and seven iPad
+  screenshots are present. Privacy, accessibility, approved Lifetime purchase,
+  and disabled Mac/Vision Pro distribution are verified.
+- The full iPhone and iPad gates each passed 237 tests, zero failures, and four
+  existing environment-limited skips. Release analysis, archive guard, website tests and
+  lint, and locked screenshot verification pass. Exact commands and warning
+  boundaries are recorded in `docs/TESTING.md`.
+- Xcode Cloud remains the authoritative archive and upload path. After both
+  local device-family gates pass, push the reviewed 1.4 candidate, verify its
+  signed Cloud build and the automatically published privacy update, then submit with manual
+  release after approval.
+- Active integration/release preparation time: approximately 0.5 hours,
+  excluding unattended test and Cloud execution. Remaining risks are the
+  historical real-device gates documented in `docs/TESTING.md`; the owner's
+  installed-app acceptance does not establish every one of those checks.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

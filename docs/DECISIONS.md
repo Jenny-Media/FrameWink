@@ -633,3 +633,22 @@ date; do not silently rewrite historical decisions during implementation.
 - **Reason:** A merge should produce one installable candidate without a second
   manual release action. The cloud archive remains the authoritative signing
   and distribution boundary, while expensive Simulator tests stay local.
+
+## D-050 — Compact privacy summary and voluntary email feedback
+
+- Keep Privacy & Data as a native Form with its existing storage categories,
+  safe cleanup, confirmed full reset, and conditional hidden-photo reset.
+- Show a small shield label and one short privacy summary first. Learn more
+  expands the photo-access, local-storage, cleanup, and support explanation in
+  the same section. Short action explanations do not replace the complete
+  destructive confirmation or asynchronous progress.
+- Add one Send Feedback item to the existing More menu for free and paid users.
+  Use Apple's Mail composer directly, after checking Mail availability. Prefill
+  only the support address, subject, editable message, app version/build,
+  nonunique device model, and OS version. Attach no photos or logs automatically.
+- The user decides whether to send. A missing Mail account or failed compose
+  result offers a native alert with Copy Email and Cancel. Copying happens only
+  after that explicit action. No developer endpoint, account, feedback form,
+  third-party SDK, or automatic transmission is introduced.
+- Owner approved the minimal mockup on 2026-09-30. Native Mail behavior needs a
+  configured physical device; Simulator validates the unavailable-Mail path.

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 private enum SheetDestination: String, Identifiable, Equatable {
     case photos
@@ -6,10 +7,18 @@ private enum SheetDestination: String, Identifiable, Equatable {
     case importStatus
     case albumPicker
     case privacy
+    case feedback
     case reviewSuggestions
     case automaticAlbumReview
     case frameSettings
     case wallModePaywall
+
+    var id: String { rawValue }
+}
+
+private enum FeedbackAlert: String, Identifiable {
+    case mailUnavailable
+    case mailFailed
 
     var id: String { rawValue }
 }
@@ -67,6 +76,8 @@ struct RootView: View {
     let initialPresentation: RootInitialPresentation?
 
     @State private var presentedSheet: SheetDestination?
+    @State private var feedbackAlert: FeedbackAlert?
+    @State private var feedbackMailFailed = false
     @State private var isFrameMode = false
     @State private var didApplyInitialPresentation = false
     @State private var setupCardHeight: CGFloat = 0
@@ -151,7 +162,12 @@ struct RootView: View {
         .navigationViewStyle(StackNavigationViewStyle())
         .statusBarHidden(isFrameMode)
         .framePersistentSystemOverlaysHidden(isFrameMode)
-        .sheet(item: $presentedSheet) { destination in
+        .sheet(item: $presentedSheet, onDismiss: {
+            if feedbackMailFailed {
+                feedbackMailFailed = false
+                feedbackAlert = .mailFailed
+            }
+        }) { destination in
             switch destination {
             case .photos:
                 PhotosSheet(
@@ -189,6 +205,11 @@ struct RootView: View {
                     currentPhotoMode: $model.collectionMode,
                     storageBaseURL: storageBaseURL
                 )
+            case .feedback:
+                FeedbackMailView(draft: .current()) {
+                    feedbackMailFailed = true
+                }
+                .ignoresSafeArea()
             case .reviewSuggestions:
                 ReviewSuggestionsView(model: model)
             case .automaticAlbumReview:
@@ -205,6 +226,16 @@ struct RootView: View {
                         == .wallModePaywallPurchase
                 )
             }
+        }
+        .alert(item: $feedbackAlert) { kind in
+            Alert(
+                title: Text(kind == .mailUnavailable ? "Mail Isn't Set Up" : "Unable to Send Feedback"),
+                message: Text("Email framewink@jenny.media from your preferred mail app."),
+                primaryButton: .default(Text("Copy Email")) {
+                    UIPasteboard.general.string = FeedbackDraft.recipient
+                },
+                secondaryButton: .cancel()
+            )
         }
         .onChange(of: isFrameMode) { isActive in
             wallMode.setFrameModeActive(isActive)
@@ -331,6 +362,17 @@ struct RootView: View {
             } label: {
                 Label("Privacy & Data", systemImage: "lock.shield")
             }
+
+            Button {
+                if FeedbackMailView.canSendMail {
+                    presentedSheet = .feedback
+                } else {
+                    feedbackAlert = .mailUnavailable
+                }
+            } label: {
+                Label("Send Feedback…", systemImage: "envelope")
+            }
+            .accessibilityIdentifier("send-feedback")
         } label: {
             Image(systemName: "ellipsis.circle.fill")
                 .font(.system(size: 34))
@@ -341,7 +383,7 @@ struct RootView: View {
                 .contentShape(Rectangle())
         }
         .accessibilityLabel("More")
-        .accessibilityHint("Choose what plays, review this frame, or open settings")
+        .accessibilityHint("Choose what plays, review this frame, open settings, or send feedback")
     }
 
     private var canReviewCurrentSource: Bool {
@@ -1178,6 +1220,7 @@ private struct PrivacyAndDataSheet: View {
     @Environment(\.presentationMode) private var presentationMode
     @State private var showDeleteAllConfirmation = false
     @State private var showResetNeverShowConfirmation = false
+    @State private var showsPrivacyDetails = false
     @State private var storageUsage: LocalStorageUsage?
     @State private var isMeasuringStorage = false
     @State private var storageMeasurementGeneration = UUID()
@@ -1190,37 +1233,27 @@ private struct PrivacyAndDataSheet: View {
         NavigationView {
             Form {
                 Section {
-                    VStack(alignment: .leading, spacing: 18) {
-                    Image(systemName: "lock.shield.fill")
-                        .font(.system(size: 54))
-                        .foregroundColor(.accentColor)
-                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Private by design", systemImage: "lock.shield")
+                            .font(.headline)
 
-                    Text("Private by design")
-                        .font(.largeTitle.bold())
+                        Text("Processed on this device. No photo uploads. Apple Photos stays unchanged.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
 
-                    Text("FrameWink has no server and never uploads your photos. Selection, preparation, and display happen on this device.")
-                        .font(.title3)
+                        Button {
+                            showsPrivacyDetails.toggle()
+                        } label: {
+                            Text(showsPrivacyDetails ? "Show less" : "Learn more")
+                                .frame(minHeight: 44, alignment: .leading)
+                        }
+                        .accessibilityIdentifier("privacy-learn-more")
+                        .accessibilityValue(showsPrivacyDetails ? "Expanded" : "Collapsed")
 
-                    privacyPoint(
-                        icon: "photo.on.rectangle.angled",
-                        title: "You choose what enters",
-                        detail: "Free Smart Reel uses the private system picker. Paid automatic albums request Photos access only after you choose that feature, list albums so you can choose, then read photo content only from that album."
-                    )
-
-                    privacyPoint(
-                        icon: "arrow.down.right.and.arrow.up.left",
-                        title: "Display-sized local copies",
-                        detail: "Picker imports and automatic-album cache items are downsampled before they are saved to keep storage and memory use bounded. Photo copies and derived analysis are excluded from device backup."
-                    )
-
-                    privacyPoint(
-                        icon: "trash",
-                        title: "Delete whenever you want",
-                        detail: "Free Up Unused Space keeps your choices. Delete All FrameWink Photos clears your selected photos and album setup, but never changes Apple Photos."
-                    )
+                        if showsPrivacyDetails {
+                            privacyDetails
+                        }
                     }
-                    .padding(.vertical, 8)
                 }
 
                 Section("Data on This Device") {
@@ -1232,8 +1265,10 @@ private struct PrivacyAndDataSheet: View {
                 }
 
                 Section("Free Up Space") {
-                    Button("Free Up Unused Space") {
+                    Button {
                         Task { await freeUpUnusedSpace() }
+                    } label: {
+                        Label("Free Up Unused Space", systemImage: "sparkles")
                     }
                     .accessibilityIdentifier("free-unused-photo-space")
                     .disabled(isStorageOperationInProgress)
@@ -1242,7 +1277,7 @@ private struct PrivacyAndDataSheet: View {
                             .progressViewStyle(LinearProgressViewStyle())
                             .accessibilityIdentifier("free-unused-photo-space-progress")
                     }
-                    Text("Keeps photos you picked individually, the current reel, and your chosen album. Removes old working files, downloads from other recently used albums, and unused downloads from the current album. FrameWink also limits album downloads automatically.")
+                    Text("Keeps your selected photos, current frame, and chosen album.")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                     if let lastFreedUnusedBytes {
@@ -1253,8 +1288,10 @@ private struct PrivacyAndDataSheet: View {
                 }
 
                 Section("Delete Photo Data") {
-                    Button("Delete All FrameWink Photos…", role: .destructive) {
+                    Button(role: .destructive) {
                         showDeleteAllConfirmation = true
+                    } label: {
+                        Label("Delete All FrameWink Photos…", systemImage: "trash")
                     }
                     .accessibilityIdentifier("delete-all-framewink-photos")
                     .disabled(isStorageOperationInProgress)
@@ -1263,7 +1300,7 @@ private struct PrivacyAndDataSheet: View {
                             .progressViewStyle(LinearProgressViewStyle())
                             .accessibilityIdentifier("delete-all-framewink-photos-progress")
                     }
-                    Text("Erases imported photos, reels, album downloads and selection, saved frames using those photos, and photo analysis. Apple Photos is unchanged.")
+                    Text("Clears local photos and frame setup. Apple Photos stays unchanged.")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                     if let storageOperationError {
@@ -1302,7 +1339,7 @@ private struct PrivacyAndDataSheet: View {
             .accessibilityIdentifier("confirm-delete-all-framewink-photos")
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This erases every photo copied into FrameWink, your current selections and reels, the chosen automatic album, saved frames using those photos, photo analysis, and Never Show Again choices. You will need to select photos or an album again. Your Apple Photos library is never changed.")
+            Text("Deletes local photo copies, your current selections and reels, the chosen automatic album, saved frames using those photos, analysis, and Never Show Again choices. Choose photos or an album again afterward. Your Apple Photos library is never changed.")
         }
         .alert("Reset Hidden Photos?", isPresented: $showResetNeverShowConfirmation) {
             Button("Reset") {
@@ -1323,7 +1360,7 @@ private struct PrivacyAndDataSheet: View {
             if storageUsage.temporaryBytes > 0 {
                 storageRow("Import working files", bytes: storageUsage.temporaryBytes)
             }
-            Text("Photo data sizes are approximate. The app itself and Apple Photos storage are separate.")
+            Text("Approximate photo-data sizes. Apple Photos storage is separate.")
                 .font(.footnote)
                 .foregroundColor(.secondary)
         } else if isMeasuringStorage {
@@ -1428,24 +1465,15 @@ private struct PrivacyAndDataSheet: View {
         isMeasuringStorage = false
     }
 
-    private func privacyPoint(
-        icon: String,
-        title: LocalizedStringKey,
-        detail: LocalizedStringKey
-    ) -> some View {
-        HStack(alignment: .top, spacing: 16) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(.accentColor)
-                .frame(width: 34)
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 5) {
-                Text(title)
-                    .font(.headline)
-                Text(detail)
-                    .foregroundColor(.secondary)
-            }
+    private var privacyDetails: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("You choose the photos. The system picker shares only your selections. Automatic albums request Photos access only when you enable that feature, then read photos from your chosen album.")
+            Text("FrameWink saves smaller, display-sized copies and analysis on this device, excluded from device backup. Apple Photos may download a chosen photo from iCloud.")
+            Text("Unused album downloads and old import working files can be cleared safely. FrameWink also limits album downloads automatically. Full deletion clears your photo choices and album setup; sample-only saved frames remain.")
+            Text("No account, ads, tracking, or developer server. Send Feedback opens an editable email draft; basic app and device details are shared only if you send it. No photos or logs are attached automatically.")
         }
+        .font(.subheadline)
+        .foregroundColor(.secondary)
+        .accessibilityIdentifier("privacy-details")
     }
 }

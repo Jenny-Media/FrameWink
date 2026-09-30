@@ -581,21 +581,19 @@ blocker affects only a later boundary.
 
 ### B-025 — Automatic website deployment needs GitHub App authorization
 
-- Status: Open, non-blocking deployment automation
+- Status: Resolved, verified live on 2026-09-30
 - First recorded: 2026-08-14
-- Evidence: the Vercel project `framewink` exists with `website` as its root,
-  but Vercel could not connect `Jenny-Media/FrameWink` through the GitHub App.
-  The organization/repository grant is outside the repository and cannot be
-  supplied by source code.
-- Impact: pushes do not yet create automatic website deployments.
-- Does not block: local validation, committing the website, direct production
-  deployment with the authenticated Vercel CLI, assigning
-  `frame.jenny.media`, or the iOS App Review package.
-- Needed from owner: authorize the Vercel GitHub App for the
-  `Jenny-Media/FrameWink` repository, reconnect it to the `framewink` project,
-  and configure the project to ignore changes outside `website/`. Separately,
-  add an Xcode Cloud Files and Folders condition that ignores website-only
-  commits.
+- Original evidence: Vercel could not connect `Jenny-Media/FrameWink` through
+  the GitHub App, so early website publication used the authenticated CLI.
+- Current evidence: production deployment `dpl_38eSLMZv3fxt7hzZgMG2Aedw3sko`
+  reports source `git`, branch `main`, repository `Jenny-Media/FrameWink`, and
+  commit `9e5f0b948bd67af601b34059b2a8d9c1ea1d7881`. It is Ready and assigned to
+  `frame.jenny.media`. The existing `framewink` project uses `website` as its
+  root and Node.js 24.x. This verifies the repository connection without
+  changing permissions or project settings.
+- Remaining optimization: configure the project to ignore changes outside
+  `website/`, and consider a matching Xcode Cloud condition for website-only
+  changes. Neither optimization blocks release.
 
 ### B-026 — Authentic Apple product bezel needs license acceptance
 

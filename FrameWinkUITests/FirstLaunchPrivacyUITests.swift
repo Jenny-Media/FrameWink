@@ -104,10 +104,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         app.buttons["Privacy & Data"].tap()
         XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
         let deleteAllPhotos = app.buttons["delete-all-framewink-photos"]
-        XCTAssertTrue(
-            scrollUntilHittable(deleteAllPhotos),
-            "Delete All FrameWink Photos must be reachable on compact screens."
-        )
+        scrollPrivacyActionIntoView(deleteAllPhotos)
         deleteAllPhotos.tap()
 
         let confirmation = app.alerts["Delete All FrameWink Photos?"]
@@ -144,10 +141,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         app.buttons["Privacy & Data"].tap()
         XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
         let cleanup = app.buttons["free-unused-photo-space"]
-        XCTAssertTrue(
-            scrollUntilHittable(cleanup),
-            "Free Up Unused Space must be reachable on compact screens."
-        )
+        scrollPrivacyActionIntoView(cleanup)
         cleanup.tap()
 
         let cleanupProgress = app.descendants(matching: .any)[
@@ -167,6 +161,147 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
         app.buttons["Close"].tap()
         XCTAssertTrue(app.staticTexts["3 photos are ready."].waitForExistence(timeout: 8))
+    }
+
+    func testPrivacySummaryKeepsDetailsBehindLearnMore() {
+        launch(scenario: "personal-reel")
+        app.buttons["More"].tap()
+        app.buttons["Privacy & Data"].tap()
+
+        XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.staticTexts[
+            "Processed on this device. No photo uploads. Apple Photos stays unchanged."
+        ].exists)
+        let details = app.descendants(matching: .any)["privacy-details"].firstMatch
+        XCTAssertFalse(details.exists)
+        let disclosure = app.buttons["privacy-learn-more"]
+        XCTAssertEqual(disclosure.label, "Learn more")
+        let summary = XCTAttachment(screenshot: app.screenshot())
+        summary.name = "Privacy & Data — compact summary"
+        summary.lifetime = .keepAlways
+        add(summary)
+
+        disclosure.tap()
+        XCTAssertTrue(details.waitForExistence(timeout: 4))
+        XCTAssertEqual(disclosure.label, "Show less")
+        disclosure.tap()
+        XCTAssertFalse(details.exists)
+
+        let delete = app.buttons["delete-all-framewink-photos"]
+        scrollPrivacyActionIntoView(delete)
+        delete.tap()
+        let confirmation = app.alerts["Delete All FrameWink Photos?"]
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 4))
+        confirmation.buttons["Cancel"].tap()
+        app.buttons["Close"].tap()
+        XCTAssertTrue(app.staticTexts["3 photos are ready."].waitForExistence(timeout: 4))
+    }
+
+    func testPrivacyActionsRemainReachableWithLargerText() {
+        launch(scenario: "personal-reel", contentSizeCategory: "UICTContentSizeCategoryAccessibilityXXXL")
+        app.buttons["More"].tap()
+        let privacy = app.buttons["Privacy & Data"]
+        if !privacy.waitForExistence(timeout: 1) {
+            let menu = app.collectionViews.firstMatch
+            for _ in 0..<5 {
+                if privacy.exists, privacy.frame.midY < app.frame.midY + 80 {
+                    break
+                }
+                // Keep the gesture inside the menu's visible portion on a small phone.
+                menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55))
+                    .press(
+                        forDuration: 0.05,
+                        thenDragTo: menu.coordinate(
+                            withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)
+                        )
+                    )
+            }
+        }
+        XCTAssertTrue(privacy.waitForExistence(timeout: 4))
+        privacy.tap()
+        XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
+
+        let disclosure = app.buttons["privacy-learn-more"]
+        scrollPrivacyActionIntoView(disclosure)
+        disclosure.tap()
+        XCTAssertEqual(disclosure.label, "Show less")
+        disclosure.tap()
+
+        let cleanup = app.buttons["free-unused-photo-space"]
+        scrollPrivacyActionIntoView(cleanup)
+        XCTAssertTrue(cleanup.isHittable)
+        let delete = app.buttons["delete-all-framewink-photos"]
+        scrollPrivacyActionIntoView(delete)
+        delete.tap()
+        let confirmation = app.alerts["Delete All FrameWink Photos?"]
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 4))
+        confirmation.buttons["Cancel"].tap()
+
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Privacy & Data — larger text"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        app.buttons["Close"].tap()
+    }
+
+    func testFeedbackMailFallbackIsAvailableForFreeAndLifetime() throws {
+#if targetEnvironment(simulator)
+        for scenario in ["sample", "source-integrity"] {
+            launch(scenario: scenario)
+            XCTAssertTrue(app.buttons["More"].waitForExistence(timeout: 8))
+            app.buttons["More"].tap()
+            XCTAssertTrue(app.buttons["Send Feedback…"].waitForExistence(timeout: 4))
+            app.buttons["Send Feedback…"].tap()
+
+            let fallback = app.alerts["Mail Isn't Set Up"]
+            XCTAssertTrue(fallback.waitForExistence(timeout: 4))
+            XCTAssertTrue(fallback.staticTexts[
+                "Email framewink@jenny.media from your preferred mail app."
+            ].exists)
+            let screenshot = XCTAttachment(screenshot: app.screenshot())
+            screenshot.name = "Feedback — Mail unavailable — \(scenario)"
+            screenshot.lifetime = .keepAlways
+            add(screenshot)
+            fallback.buttons["Cancel"].tap()
+            XCTAssertTrue(app.buttons["More"].waitForExistence(timeout: 4))
+
+            app.buttons["More"].tap()
+            app.buttons["Send Feedback…"].tap()
+            XCTAssertTrue(fallback.waitForExistence(timeout: 4))
+            fallback.buttons["Copy Email"].tap()
+            XCTAssertTrue(waitForNonexistence(fallback, timeout: 4))
+            XCTAssertTrue(app.buttons["More"].isHittable)
+            XCTAssertFalse(XCUIApplication(bundleIdentifier: "com.apple.springboard")
+                .alerts.firstMatch.exists)
+            app.terminate()
+        }
+#else
+        throw XCTSkip("Mail composer and fallback require a tester-controlled physical Mail account.")
+#endif
+    }
+
+    private func scrollPrivacyActionIntoView(_ action: XCUIElement) {
+        let form = app.collectionViews.firstMatch
+        var scrollDown = false
+        for _ in 0..<16 {
+            let visibleContent = form.frame.intersection(app.frame).insetBy(dx: 0, dy: 60)
+            if action.exists {
+                if visibleContent.contains(action.frame), action.isHittable {
+                    return
+                }
+                scrollDown = action.frame.minY < visibleContent.minY
+            }
+            // Short gestures avoid skipping a control at very large text sizes.
+            form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: scrollDown ? 0.35 : 0.65))
+                .press(
+                    forDuration: 0.05,
+                    thenDragTo: form.coordinate(
+                        withNormalizedOffset: CGVector(dx: 0.5, dy: scrollDown ? 0.65 : 0.35)
+                    )
+                )
+        }
+        XCTAssertTrue(action.exists)
+        XCTAssertTrue(action.isHittable)
     }
 
     func testReadyHomePreviewCanSwipeBeforeStartingFrame() {

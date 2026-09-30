@@ -178,3 +178,13 @@ Application Support data.
 - Include fixture images representing landscapes, portraits, duplicates,
   bursts, blur, under/overexposure, screenshots, panoramas, multiple faces, and
   awkward edge-positioned faces.
+
+## Feedback presentation
+
+`FeedbackDraft` contains only editable app version/build, nonunique device
+model, and OS context. `FeedbackMailView` wraps Apple's Mail composer, assigns
+its delegate, and dismisses after send, save, or cancellation. The More menu
+checks Mail availability before presenting it. A failed compose result is
+reported after the sheet dismisses; unavailable Mail and failure both offer an
+explicit Copy Email action. No photo source, file store, or networking service
+is passed into feedback, and no attachments are added automatically.

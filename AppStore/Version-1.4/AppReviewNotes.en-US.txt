@@ -1,0 +1,9 @@
+FrameWink 1.4 adds voluntary email feedback and simplifies Privacy & Data. No account or reviewer credentials are required. The free sample experience starts immediately without a Photos prompt.
+
+Review steps:
+1. Open More > Privacy & Data. Confirm the concise summary appears, Learn more expands the explanation, and storage sizes and cleanup controls remain reachable at large accessibility text sizes.
+2. Free Up Unused Space preserves selected photos, the current reel, and the chosen album. Delete All FrameWink Photos shows a complete warning and progress. Neither action changes originals in Apple Photos.
+3. Open More > Send Feedback. If Apple Mail is configured, this opens an editable draft to framewink@jenny.media with app version/build, nonunique device model, and OS version. These details can be removed. The app attaches no photos or logs automatically and sends nothing itself. With no configured Mail account, Copy Email and Cancel are offered. Feedback is available without a purchase.
+4. Confirm normal photo selection, review, playback, and timing. The system picker shares only selected photos. Full PhotoKit access is requested only after a verified Lifetime entitlement and an explicit automatic-album choice.
+
+The existing FrameWink Lifetime non-consumable is media.jenny.FrameWink.wallmode. App Review may use its StoreKit sandbox; no sign-in is needed. Photos and analysis remain on-device. The app has no developer server, ads, analytics SDK, or tracking. Guided Access requires manual setup. No automatic relaunch after restart is promised. Requires iOS/iPadOS 15 or later. Manual release after approval remains selected.
