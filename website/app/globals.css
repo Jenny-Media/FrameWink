@@ -30,7 +30,7 @@ a { color: inherit; text-decoration: none; }
 
 h1,
 h2,
-h3 { text-wrap: balance; }
+h3 { overflow-wrap: break-word; text-wrap: balance; }
 
 p,
 li,
@@ -294,24 +294,19 @@ h1 {
 
 .hero-visual {
   animation: capture-settle 1.15s cubic-bezier(0.22, 1, 0.36, 1) both;
-  min-height: 640px;
-  position: relative;
 }
 
 .flat-device-stage {
-  aspect-ratio: 4 / 3;
+  display: grid;
+  gap: 24px;
   margin: 0;
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
   width: 100%;
 }
 
 .flat-device-cycle {
+  aspect-ratio: 1500 / 1150;
   filter: drop-shadow(0 28px 30px rgb(17 23 53 / 25%));
-  inset: 0 0 8%;
-  position: absolute;
+  position: relative;
 }
 
 .flat-device-image {
@@ -330,14 +325,12 @@ h1 {
 }
 
 .flat-device-stage figcaption {
-  bottom: 20px;
   color: rgb(17 23 53 / 62%);
-  font-size: 0.72rem;
+  font-size: 0.875rem;
   font-weight: 760;
-  left: 0;
-  letter-spacing: 0.1em;
-  position: absolute;
-  right: 0;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  padding-inline: 8px;
   text-align: center;
   text-transform: uppercase;
 }
@@ -481,7 +474,7 @@ h1 {
   background: #e9f0db;
   display: grid;
   gap: clamp(50px, 8vw, 128px);
-  grid-template-columns: minmax(280px, 0.72fr) minmax(430px, 1.28fr);
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
   margin: 0 auto;
   max-width: 1640px;
   overflow: hidden;
@@ -526,7 +519,10 @@ h1 {
 }
 
 .flat-showcase-device {
+  display: grid;
+  gap: 24px;
   margin: 0;
+  min-width: 0;
 }
 
 .flat-showcase-device img {
@@ -538,10 +534,10 @@ h1 {
 
 .flat-showcase-device figcaption {
   color: #4f5748;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   font-weight: 680;
   line-height: 1.4;
-  padding: 4px 8px 0;
+  padding-inline: 8px;
   text-align: center;
 }
 
@@ -559,7 +555,8 @@ h1 {
   align-items: center;
   display: grid;
   gap: clamp(24px, 3vw, 48px);
-  grid-template-columns: minmax(300px, 0.82fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
+  min-width: 0;
 }
 
 .iphone-note h2 {
@@ -609,7 +606,10 @@ h1 {
 }
 
 .duo-preview-device {
+  display: grid;
+  gap: 20px;
   margin: 0;
+  min-width: 0;
 }
 
 .duo-preview-device img {
@@ -621,9 +621,9 @@ h1 {
 
 .duo-preview-device figcaption {
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   line-height: 1.5;
-  margin-top: 14px;
+  margin: 0;
   text-align: center;
 }
 
@@ -839,7 +839,7 @@ h1 {
 .footer-legal {
   border-top: 1px solid rgb(17 23 53 / 12%);
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.875rem;
   grid-column: 1 / -1;
   line-height: 1.5;
   padding-top: 24px;
@@ -925,8 +925,7 @@ h1 {
   }
 
   .hero-copy { max-width: 720px; }
-  .hero-visual { min-height: min(64vw, 620px); }
-  .flat-device-stage { position: relative; top: auto; transform: none; }
+  .iphone-note-copy { gap: 16px; grid-template-columns: 1fr; }
 }
 
 @media (max-width: 900px) {
@@ -943,6 +942,10 @@ h1 {
   .site-footer nav { justify-content: start; }
 }
 
+@media (max-width: 700px) {
+  .steps-grid, .plan-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 560px) {
   .site-header { padding-block: 18px; }
   .brand > span, .features-link, .review-pill { display: none; }
@@ -952,8 +955,6 @@ h1 {
   h1 { font-size: clamp(2.65rem, 10.5vw, 3.5rem); }
   .hero-actions { align-items: start; grid-template-columns: 1fr; }
   .hero-actions p { grid-column: auto; }
-  .hero-visual { min-height: 78vw; }
-  .flat-device-cycle { inset: 0 0 10%; }
   .privacy-strip::after { height: 40px; right: 8%; top: 14%; width: 40px; }
   .content-section { padding-block: 68px; }
   .feature-grid { margin-top: 50px; }
@@ -962,7 +963,6 @@ h1 {
   .showcase { grid-template-columns: 1fr; }
   .iphone-note { grid-template-columns: 1fr; padding-block: 28px; }
   .iphone-mini-preview { justify-self: center; margin-top: 14px; width: 200px; }
-  .steps-grid, .plan-grid { grid-template-columns: 1fr; }
   .steps-grid { gap: 42px; margin-top: 52px; }
   .steps-grid .step-symbol { margin-bottom: 34px; }
   .plans-section { padding-block: 76px; }
@@ -972,6 +972,7 @@ h1 {
   .review-callout > img { margin: 0 auto; }
   .site-footer nav { align-items: flex-start; flex-direction: column; gap: 4px; }
   .document-page { padding-top: 124px; }
+  .document-hero h1 { font-size: clamp(2.65rem, 10.5vw, 3.5rem); line-height: 1.05; }
   .help-grid { gap: 36px; }
 }
 

@@ -180,7 +180,6 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.doesNotMatch(landscapeGenerator, /room_base|prefix-(?:device|shell)|-strokewidth/);
   assert.doesNotMatch(portraitGenerator, /-bordercolor|-border 2/);
   assert.doesNotMatch(styles, /\.landscape-shot|\.landscape-gallery/);
-  assert.match(styles, /\.flat-device-stage\s*\{[^}]*aspect-ratio:\s*4 \/ 3/s);
   assert.doesNotMatch(styles, /\.flat-device-stage\s*\{[^}]*(?:background|border-radius|box-shadow):/s);
   assert.match(styles, /\.flat-device-cycle\s*\{[^}]*filter:\s*drop-shadow/s);
   assert.match(styles, /\.flat-device-image\s*\{[^}]*object-fit:\s*contain/s);
@@ -195,7 +194,7 @@ test("shows authentic native captures inside a licensed flat iPad bezel", async 
   assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.iphone-mini-preview\s*\{[^}]*width:\s*200px/s);
   assert.match(styles, /@media \(max-width: 1180px\)[\s\S]*\.hero\s*\{[^}]*grid-template-columns:\s*1fr/s);
   assert.match(styles, /\.privacy-strip \.privacy-summary/);
-  assert.match(styles, /h1,\s*h2,\s*h3\s*\{\s*text-wrap:\s*balance;/s);
+  assert.match(styles, /h1,\s*h2,\s*h3\s*\{[^}]*text-wrap:\s*balance;/s);
   assert.match(styles, /h1\s*\{[^}]*font-size:\s*clamp\(3\.1rem,\s*3\.8vw,\s*4\.8rem\)/s);
   assert.match(styles, /h1\s*\{[^}]*letter-spacing:\s*-0\.02em/s);
   assert.match(styles, /h1\s*\{[^}]*line-height:\s*0\.99/s);

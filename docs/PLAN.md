@@ -2307,3 +2307,32 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight
 hours only for hardening and release. Move incomplete optional behavior to the
 backlog rather than extending the MVP.
+
+## Website layout audit — 2026-10-01
+
+- Status: full homepage and linked-page UI audit completed; fixes validated
+  in an isolated local production build. PR review and production publication
+  remain pending; native Duo PR #20 and app release gates are unchanged.
+- Audited all ten homepage sections, shared navigation/footer, Privacy,
+  Support, and Terms. Confirmed the owner's crowded hero caption and found
+  an iPhone text/image collision at 901 px, step-card overflow at 561 px,
+  tight pairing captions, small supporting text, and document headings that
+  clipped at 320 px.
+- Placed image/caption pairs in normal flow with 20–24 px gaps, retained the
+  actual screenshot aspect ratio, removed redundant fixed mobile spacing,
+  relaxed image/text grid minimums, stacked narrow cards sooner, and improved
+  small supporting text and mobile document headings. Section order, public
+  copy, device artwork, and app sources remain unchanged.
+- Verification: 18 homepage widths from 320 to 1920 px, including both sides
+  of layout breakpoints, passed overflow and caption-gap checks. No measured
+  text/image collisions or clipped text remain. The corrected linked pages
+  passed 320/390 px checks. All FAQ answers, keyboard focus, skip-link
+  activation, existing 44 px links, and sampled text contrast passed.
+  `npm test` passed 9 tests; `npm run lint` and `npm run build` passed, with
+  no browser errors or build warnings found.
+- Report and committed proof: `website/reports/2026-10-01-layout-audit.md`.
+  Additional local logs: `/private/tmp/framewink-website-audit-20261001/`.
+- Active audit/implementation time: approximately 0.5 hours. Known limits:
+  responsive browser measurements used Chrome; physical iPhone Safari zoom,
+  larger text, and VoiceOver acceptance still require a manual check. No
+  iOS code changed, so native app regression gates were not repeated.

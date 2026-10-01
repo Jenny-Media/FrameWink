@@ -1,0 +1,74 @@
+[
+  {
+    "width": 320,
+    "viewportHeight": 844,
+    "pageHeight": 10525,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": -13,
+      "flat-showcase-device": 0,
+      "duo-preview-device": 14
+    }
+  },
+  {
+    "width": 390,
+    "viewportHeight": 844,
+    "pageHeight": 9905,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": -8,
+      "flat-showcase-device": 0,
+      "duo-preview-device": 14
+    }
+  },
+  {
+    "width": 768,
+    "viewportHeight": 1024,
+    "pageHeight": 8522,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 8,
+      "flat-showcase-device": 0,
+      "duo-preview-device": 14
+    }
+  },
+  {
+    "width": 1024,
+    "viewportHeight": 768,
+    "pageHeight": 7676,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 22,
+      "flat-showcase-device": 0,
+      "duo-preview-device": 14
+    }
+  },
+  {
+    "width": 1181,
+    "viewportHeight": 900,
+    "pageHeight": 7517,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 3,
+      "flat-showcase-device": 0,
+      "duo-preview-device": 14
+    }
+  },
+  {
+    "width": 1440,
+    "viewportHeight": 900,
+    "pageHeight": 8174,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 11,
+      "flat-showcase-device": 0,
+      "duo-preview-device": 14
+    }
+  }
+]
