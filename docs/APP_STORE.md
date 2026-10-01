@@ -23,6 +23,12 @@ remains unchanged.
 The next native Duo candidate uses version 1.5; release inputs are in
 `AppStore/Version-1.5/`.
 
+Cloud Validation Build 56 and Internal TestFlight Build 57 succeeded on
+`088b17caea92d8f0cc6ac7f9625a3abcab109882` with Xcode 27.2 beta 2.
+Processed version 1.5 (57) is assigned to Jenny Media Internal; saved tester
+notes match the repository file. This is internal distribution, with physical
+Duo acceptance and App Review toolchain eligibility still pending.
+
 `TestFlight/WhatToTest.en-US.txt` includes open/closed, Book/Tabletop, rotation,
 both Split View positions, Larger Text, and paused-photo continuity checks.
 The one owner-approved automated Duo rotation exclusion does not replace

@@ -5,9 +5,11 @@ draft, submission, or public release. Version 1.4 / Build 39 is already Ready
 for Distribution; the next native app update therefore uses 1.5.
 
 The compatible Xcode Cloud toolchain currently available is Xcode 27.2 beta 2
-(27B5028f), pinned for Validation and Internal TestFlight. A beta-built internal
-candidate does not establish App Review eligibility; use an Apple-accepted
-release toolchain with iOS 27.1 SDK or newer before an App Store submission.
+(27B5028f), pinned for Validation and Internal TestFlight. Validation Build 56
+and internal TestFlight Build 57 passed on `088b17c`;
+processed 1.5 (57) is assigned to Jenny Media Internal, with tester notes
+read-back verified. A beta-built internal candidate does not establish App
+Review eligibility; use an Apple-accepted release toolchain with iOS 27.1 SDK or newer before an App Store submission.
 
 Keep the locked iPhone/iPad screenshots and upcoming-preview website wording
 while physical Duo acceptance and a public 1.5 release remain pending.

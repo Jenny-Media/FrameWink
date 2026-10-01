@@ -2506,11 +2506,21 @@ backlog rather than extending the MVP.
   Internal TestFlight retains its existing main trigger, manual starts, clean
   archive, and Jenny Media Internal post-action. Beta candidate acceptance and
   release-toolchain App Review eligibility remain separate.
-- Validation Build 55 passed Analyze on `fa6c26d`. The 1.5 source requires a
-  subsequent exact-commit validation and internal archive.
+- Validation Build 55 passed Analyze on `fa6c26d`; Build 56 then passed on the
+  exact 1.5 candidate `088b17c`. Internal TestFlight Build 57 was started on
+  that same commit after Validation succeeded. Both Archive and internal
+  distribution succeeded; processed version 1.5 / Build 57 is assigned to
+  Jenny Media Internal (one existing tester), and saved What to Test matches
+  the repository file.
 - Fresh focused tests on `fa6c26d` passed 56 each on iPhone, iPad, and Duo, with
   zero failures/skips/runtime warnings. All three subsequent 1.5 builds passed
   and embedded 1.5; archive guard and all locked screenshot checks passed.
   SDK StoreKitTest deprecation and beta build-number diagnostics remain known warnings. Details and commands are recorded in docs/TESTING.md.
-- Active follow-up time so far: approximately 0.4 hours, excluding unattended
-  tests and cloud waiting. Physical Duo acceptance remains pending.
+- Apple upload errors 90062 and 90186 confirm main Build 53 was rejected because
+  version 1.4 is approved and its pre-release train is closed. The 1.5 bump
+  addresses this verified upload restriction.
+- Status: synchronized PR and internal 1.5 candidate are ready for owner review.
+  PR #20 remains unmerged, and no new App Review submission is made. Physical
+  Duo acceptance and an Apple-accepted App Review toolchain remain pending.
+- Active follow-up time: approximately 0.6 hours, excluding unattended tests
+  and cloud waiting. No milestone is marked complete by this internal build.

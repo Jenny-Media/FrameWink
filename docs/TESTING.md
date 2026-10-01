@@ -4373,10 +4373,44 @@ Review eligibility.
 
 Separately, main's website-triggered Internal TestFlight Build 53 failed with
 “Preparing build for App Store Connect failed,” although compilation, archive,
-export, and detailed preparation logs showed Passed. No specific upload
-rejection reason was exposed; this is not a native Duo source failure or proof
-of a closed release train. No new App Review submission was made.
+export, and detailed preparation logs showed Passed. The TestFlight Build
+Uploads error dialog subsequently exposed the authoritative cause: error 90062
+requires a version higher than the approved 1.4; error 90186 confirms the 1.4
+pre-release train is closed. This explains the main archive failure and the
+need for the native candidate to use 1.5. No new App Review submission was made.
 
 Physical Duo pose/rotation acceptance and the previously listed PhotoKit,
 purchase, brightness, thermal, Guided Access, VoiceOver, Reduce Motion,
 long-running and iOS 15 checks remain separate manual requirements.
+
+
+### Exact version 1.5 cloud validation
+
+Xcode Cloud Validation **Build 56 succeeded** on
+`088b17caea92d8f0cc6ac7f9625a3abcab109882` with Xcode 27.2 beta 2
+(27B5028f), Analyze only, zero reported warnings/errors, in 51 seconds:
+[Apple build record](https://appstoreconnect.apple.com/teams/69a6de81-5b05-47e3-e053-5b8c7c11a4d1/xcode-cloud/products/62eea1ab-f057-459c-a7b3-6406b895bdb6/builds/adfa36be-a944-436f-b607-a71970717e74/summary).
+Internal TestFlight Build 57 was then started manually on the same exact commit.
+No App Review submission or public release was triggered.
+
+
+### Signed internal TestFlight 1.5 (57)
+
+Internal TestFlight **Build 57 succeeded** on the same validated commit
+`088b17caea92d8f0cc6ac7f9625a3abcab109882` with Xcode 27.2 beta 2:
+[Cloud archive and distribution](https://appstoreconnect.apple.com/teams/69a6de81-5b05-47e3-e053-5b8c7c11a4d1/xcode-cloud/products/62eea1ab-f057-459c-a7b3-6406b895bdb6/builds/3a14f621-3f5c-406c-b094-5e7bdf7228bd/summary).
+Both Archive - iOS and TestFlight Internal Testing - iOS report Succeeded.
+App Store Connect processed version **1.5 (57)**, assigned the existing
+**Jenny Media Internal** group (one tester), and saved the exact repository
+`TestFlight/WhatToTest.en-US.txt` contents; a read-back comparison passed.
+[Processed build](https://appstoreconnect.apple.com/teams/69a6de81-5b05-47e3-e053-5b8c7c11a4d1/apps/6800849400/testflight/ios/dd381faa-fc8c-40a4-9c1b-8660064e61cb).
+No tester membership, external distribution, or App Review submission changed.
+No physical installation or manual acceptance of this TestFlight binary is
+claimed. The subsequent release-record commit changes documentation only;
+app, tests, project settings, CI guard, and tester notes match the validated
+and archived candidate exactly.
+
+PR #20 is ready for source review, retaining the owner-approved Duo rotation
+exception and pending device checks. Before public submission, use an
+Apple-accepted release toolchain with iOS 27.1 SDK or newer and obtain separate
+merge/submission approval. Closed/Tabletop marketing capture limits remain.

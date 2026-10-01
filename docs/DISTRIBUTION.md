@@ -30,6 +30,13 @@ select a compatible toolchain in both cloud workflows before distributing
 this change. The pre-build guard rejects older SDKs. The minimum supported
 iOS/iPadOS version remains 15.
 
+On October 1, 2026, both saved workflows were pinned to the available
+compatible Xcode 27.2 beta 2 (27B5028f). Validation Build 56 and Internal
+TestFlight Build 57 succeeded on the native 1.5 candidate `088b17c`. Build 57
+was processed and assigned to the existing Jenny Media Internal group. Use an
+Apple-accepted release toolchain with iOS 27.1 SDK or newer before public App
+Review submission; this internal beta build does not establish that eligibility.
+
 Apple requires the first Xcode Cloud workflow to be configured from Xcode. The
 project must be in an accessible Git repository, Xcode Cloud must be granted
 access to it, and FrameWink needs an App Store Connect app record. The account
