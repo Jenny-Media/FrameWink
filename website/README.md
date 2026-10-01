@@ -28,6 +28,16 @@ FrameWink is available on the App Store at
 [apps.apple.com/us/app/framewink/id6800849400](https://apps.apple.com/us/app/framewink/id6800849400).
 The homepage uses Apple's official, unmodified Download on the App Store badge.
 
+## Appearance
+
+One sun/moon button at the top right switches between light and dark themes.
+The first visit follows the device appearance. A choice is stored only in this
+browser (`framewink-theme` in local storage), persists across pages and visits,
+and synchronizes between tabs. The quiet “Use system appearance” button in the
+footer removes that choice and follows device appearance again. If storage is
+unavailable, both buttons still work for the current visit. No account, cookie,
+or network request is needed.
+
 ## Deployment
 
 Configure the Vercel project with `website` as its Root Directory and `main` as

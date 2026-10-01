@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { SiteFooter, SiteHeader } from "./components/SiteChrome";
+import { themeInitialization } from "./theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -50,13 +51,16 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  colorScheme: "light",
-  themeColor: "#fffdf7",
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* First-party appearance setup must run synchronously before the body paints. */}
+        <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeInitialization }} />
+      </head>
       <body>
         <SiteHeader />
         {children}

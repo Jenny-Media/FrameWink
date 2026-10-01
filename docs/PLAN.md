@@ -2408,3 +2408,81 @@ backlog rather than extending the MVP.
   Validation and Internal TestFlight workflows; both reported success.
   These runs contain the existing main app code, not the native Duo
   candidate in draft PR #20, so they do not satisfy its cloud gates.
+
+
+## Website layout audit — 2026-10-01
+
+- Status: full homepage and linked-page UI audit completed; fixes validated
+  locally and merged as PR #21 (`2eb2e81`). Vercel production publication and
+  the served caption-spacing CSS were verified on October 1, 2026.
+  Native Duo PR #20 and app release gates are unchanged.
+- Audited all ten homepage sections, shared navigation/footer, Privacy,
+  Support, and Terms. Confirmed the owner's crowded hero caption and found
+  an iPhone text/image collision at 901 px, step-card overflow at 561 px,
+  tight pairing captions, small supporting text, and document headings that
+  clipped at 320 px.
+- Placed image/caption pairs in normal flow with 20–24 px gaps, retained the
+  actual screenshot aspect ratio, removed redundant fixed mobile spacing,
+  relaxed image/text grid minimums, stacked narrow cards sooner, and improved
+  small supporting text and mobile document headings. Section order, public
+  copy, device artwork, and app sources remain unchanged.
+- Verification: 18 homepage widths from 320 to 1920 px, including both sides
+  of layout breakpoints, passed overflow and caption-gap checks. No measured
+  text/image collisions or clipped text remain. The corrected linked pages
+  passed 320/390 px checks. All FAQ answers, keyboard focus, skip-link
+  activation, existing 44 px links, and sampled text contrast passed.
+  `npm test` passed 9 tests; `npm run lint` and `npm run build` passed, with
+  no browser errors or build warnings found.
+- Report and committed proof: `website/reports/2026-10-01-layout-audit.md`.
+  Additional local logs: `/private/tmp/framewink-website-audit-20261001/`.
+- Active audit/implementation time: approximately 0.5 hours. Known limits:
+  responsive browser measurements used Chrome; physical iPhone Safari zoom,
+  larger text, and VoiceOver acceptance still require a manual check. No
+  iOS code changed, so native app regression gates were not repeated.
+
+
+## Website appearance toggle — 2026-10-01
+
+- Status: implementation and local verification complete on
+  `codex/website-theme-toggle`, based on the merged website spacing audit
+  (`2eb2e81`). Preview review and production merge remain pending.
+- Owner requested one button at the top right. Added a 44 px native sun/moon
+  button to the shared header, with theme-specific accessible action labels,
+  keyboard focus, and responsive spacing. No theme menu or extra setting.
+- First visit follows device appearance; explicit light/dark choice stays in
+  local browser storage. Initialization runs before the body paints, with
+  cross-tab synchronization, live device appearance changes until a choice is
+  made, and a working session fallback when storage is unavailable.
+- Added dark colors for every public route, cards, captions, links, and footer.
+  Native app sources, dependencies, and the separate Duo release are unchanged.
+- Verification: `npm test` passed all 23 tests on Node 24.19.0;
+  `npm run lint` and `npm run build` passed without warnings. Chrome checked
+  both themes at nine widths from 320 to 1440 px, with a 44 px toggle, no
+  horizontal overflow/header collision, and no sampled contrast failures.
+  Privacy, Support, and Terms passed dark-theme checks at 320/768/1440 px
+  and light-theme checks at 1440 px. Enter/Space, focus visibility, navigation,
+  reload persistence, cross-tab sync, and open FAQ contrast passed. Browser
+  console errors/warnings were absent. Browser theme-color stays singular
+  through hydration and navigation. Built HTML initializes appearance before
+  the body. First-visit system combinations and denied-storage fallback have
+  unit coverage. Report: `website/reports/2026-10-01-theme-toggle.md`.
+- Active implementation/verification time: approximately 0.4 hours.
+  Manual iPhone Safari and VoiceOver acceptance still require a physical check.
+  No iOS source changed, so native app regression gates were not repeated.
+
+### System appearance reset — 2026-10-01
+
+- Owner approved adding a quiet “Use system appearance” action in the footer,
+  matching the Puzzle website pattern while retaining the single header toggle.
+- Clears the saved light/dark override, immediately applies current device
+  appearance, and resumes reacting to device changes. Clearing synchronizes
+  across tabs; denied storage keeps an in-memory automatic mode for this visit.
+- Verification: all 26 website tests, lint, and production build passed on
+  Node 24.19.0. Chrome verified click/Enter/Space, focus visibility, reset across
+  both tabs, persistence after reload, and the action on all four public pages.
+  Both themes passed footer geometry checks at 320/390/768/900/901/1024/1440 px,
+  with a 44 px control, no overlap/overflow, and no console errors/warnings.
+  Unit tests cover both device appearances, subsequent device changes, saved
+  choice removal, and denied-storage fallback. Hosted preview review is pending.
+- Added active implementation/verification time: approximately 0.15 hours.
+  No iOS source or native Duo release change.
