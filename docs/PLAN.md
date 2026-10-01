@@ -2263,7 +2263,8 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### FrameWink website and Jenny Media apps update — 2026-09-30
 
-- Status: implementation and local website validation complete; publication pending.
+- Status: all three website updates published and verified. Jenny Media main
+  integration awaits approval to include an existing already-live local commit.
 - Add a quiet footer link to the Jenny Media apps directory, with wrapping for
   narrower layouts, and one support sentence for More → Send Feedback in
   version 1.4 or later, including the Copy Email fallback.
@@ -2279,7 +2280,21 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   checks, and Chromium/WebKit Apps checks. Browser checks at 900, 768, 390,
   and 320 px confirm reachable 44 px footer links with no horizontal overflow.
   Existing screenshots are copied unchanged and retain matching SHA-256.
-- Active implementation/verification estimate: approximately 0.3 hours.
+- Production: FrameWink deployment `dpl_C63rRbFBNoF9KqQvqJ6xrtF4a8w2`
+  is Ready for `023eb10` on main. Jenny Media deployment
+  `dpl_EGnRhBEWizawLfVrky6vybBFDsav` is Ready and serves the new previews
+  in every language while retaining the current live Expense Map copy.
+- Jenny Media source commit `9606689` is pushed on `codex/framewink-site-media`;
+  the production checkout applies that exact fix as `9486685` atop existing
+  local commit `f3d46e7`. Its original checkout remains clean and unchanged.
+- Automatic approval review rejected pushing the screenshot-only branch to
+  main: its remote-main base lacks the already-live Expense Map copy and could
+  replace that copy through automatic deployment. The proposed safe main
+  update includes existing `f3d46e7` plus the screenshot fix; its six-file diff
+  is saved at `/private/tmp/framewink-site-20260930/jenny-main-proposed.diff`.
+  Owner approval for publishing the existing local commit remains required.
+- Active implementation/verification time: approximately 0.5 hours, excluding
+  unattended upload and remote build waiting.
 - Known risk: FrameWink 1.4 is awaiting App Review; support instructions are
   explicitly labelled version 1.4 or later. No new device behavior is involved.
 

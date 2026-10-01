@@ -3829,3 +3829,10 @@ gh api repos/Jenny-Media/FrameWink/commits/459d1bf2b33db60eead2d13f78e30a369364f
   targets visible, and each touch target at least 44 px high.
 - Scope is website content and presentation only; no app binary, device
   behavior, or App Store submission changes require new device checks.
+- Production verification: FrameWink support includes the versioned feedback
+  guidance; its homepage/footer link opens `https://jenny.media/apps/`. Jenny
+  Media's card and all three gallery images load, the localized routes use
+  the new captures, and phone layout has no horizontal overflow. The existing
+  live Expense Map tagline is preserved. Production deployments are Ready:
+  FrameWink `dpl_C63rRbFBNoF9KqQvqJ6xrtF4a8w2`, Jenny Media
+  `dpl_EGnRhBEWizawLfVrky6vybBFDsav`.
