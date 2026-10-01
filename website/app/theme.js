@@ -31,10 +31,13 @@ export const themeInitialization = `(() => {
   document.addEventListener("DOMContentLoaded", apply, { once: true });
 
   document.addEventListener("click", (event) => {
-    if (!(event.target instanceof Element) || !event.target.closest("[data-theme-toggle]")) return;
-    preference = root.dataset.theme === "dark" ? "light" : "dark";
+    if (!(event.target instanceof Element)) return;
+    const reset = event.target.closest("[data-theme-reset]");
+    if (!reset && !event.target.closest("[data-theme-toggle]")) return;
+    preference = reset ? null : root.dataset.theme === "dark" ? "light" : "dark";
     try {
-      window.localStorage.setItem(key, preference);
+      if (reset) window.localStorage.removeItem(key);
+      else window.localStorage.setItem(key, preference);
     } catch {
       // Keep the in-memory choice even if it cannot be saved.
     }

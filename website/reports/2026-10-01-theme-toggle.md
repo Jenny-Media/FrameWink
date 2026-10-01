@@ -49,3 +49,24 @@ Device appearance changes and blocked-storage fallback were unit tested rather
 than simulated through browser settings. Physical iPhone Safari and VoiceOver
 still require a manual acceptance check. Native app sources, app test/release
 configuration, and the separate Duo candidate were not changed.
+
+
+## Approved system appearance reset
+
+The footer includes a quiet “Use system appearance” native button with a 44 px
+minimum height and 14 px text. It removes the browser override, applies the
+current device appearance immediately, and follows subsequent device changes.
+The header retains its single sun/moon control. Storage denial still permits a
+reset for the current visit; no account, cookie, or network request is added.
+
+After this addition, `npm test` passed 26 tests on Node 24.19.0;
+`npm run lint` and `npm run build` passed without warnings. New unit coverage
+checks reset from both saved themes, saved-choice removal and a new visit,
+subsequent device changes, repeated reset, and denied-storage behavior.
+
+Chrome verified click, Enter, Space, visible keyboard focus, reset after client
+navigation on all four pages, reload persistence, and clearing another open
+tab's override. Footer checks in both themes at 320/390/768/900/901/1024/1440 px
+found no overflow or overlapping footer columns. The reset measured 163 × 44 px.
+No browser console errors or warnings appeared. Physical Safari/VoiceOver and
+live OS appearance changes retain the manual-check limits described above.

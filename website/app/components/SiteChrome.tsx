@@ -50,6 +50,9 @@ export function SiteFooter() {
         <ActiveNavLink href="/terms">Terms</ActiveNavLink>
         <a href="https://github.com/Jenny-Media/FrameWink">GitHub</a>
         <a href="https://jenny.media/apps/">More apps by Jenny Media</a>
+        <button className="theme-reset" type="button" data-theme-reset title="Follow your device’s light or dark appearance">
+          Use system appearance
+        </button>
       </nav>
       <div className="footer-legal">
         <p>© 2026 Jenny Media LLC. FrameWink supports iPhone and iPad only.</p>

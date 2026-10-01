@@ -14,8 +14,8 @@ function visit({ saved = null, dark = false, blocked = false } = {}) {
   let colorMeta;
   let metaCount = 0;
   class Element {
-    constructor(toggle = false) { this.toggle = toggle; }
-    closest() { return this.toggle ? this : null; }
+    constructor(action = null) { this.action = action; }
+    closest(selector) { return selector === this.action ? this : null; }
   }
   const system = {
     matches: dark,
@@ -35,6 +35,7 @@ function visit({ saved = null, dark = false, blocked = false } = {}) {
       localStorage: {
         getItem(key) { if (blocked) throw new Error("Storage denied"); return storage.get(key) ?? null; },
         setItem(key, value) { if (blocked) throw new Error("Storage denied"); storage.set(key, value); },
+        removeItem(key) { if (blocked) throw new Error("Storage denied"); storage.delete(key); },
       },
       addEventListener: (name, listener) => windowEvents.set(name, listener),
     },
@@ -44,7 +45,8 @@ function visit({ saved = null, dark = false, blocked = false } = {}) {
     color: () => themeColor,
     metaCount: () => metaCount,
     saved: () => storage.get("framewink-theme"),
-    click: (toggle = true) => documentEvents.get("click")({ target: new Element(toggle) }),
+    click: (toggle = true) => documentEvents.get("click")({ target: new Element(toggle ? "[data-theme-toggle]" : null) }),
+    reset: () => documentEvents.get("click")({ target: new Element("[data-theme-reset]") }),
     systemChange(dark) { system.matches = dark; systemEvents.get("change")(); },
     storageChange(value, key = "framewink-theme") { windowEvents.get("storage")({ key, newValue: value }); },
   };
@@ -119,4 +121,32 @@ test("appearance setup precedes the body and remains separate from React hydrati
   assert.ok(layout.indexOf('id="theme-init"') < layout.indexOf("<body>"));
   assert.match(layout, /<html lang="en" suppressHydrationWarning>/);
   assert.doesNotMatch(themeInitialization, /document\.body|innerHTML/);
+});
+
+for (const dark of [false, true]) {
+  test(`system reset clears an override and follows ${dark ? "dark" : "light"} device appearance`, () => {
+    const page = visit({ saved: dark ? "light" : "dark", dark });
+    page.reset();
+    assert.equal(page.theme(), dark ? "dark" : "light");
+    assert.equal(page.saved(), undefined);
+    assert.equal(visit({ saved: page.saved(), dark }).theme(), dark ? "dark" : "light");
+    page.systemChange(!dark);
+    assert.equal(page.theme(), dark ? "light" : "dark");
+    page.reset();
+    assert.equal(page.metaCount(), 1);
+  });
+}
+
+test("system reset works when storage is blocked and a later toggle can override again", () => {
+  const page = visit({ blocked: true });
+  page.click();
+  assert.equal(page.theme(), "dark");
+  page.reset();
+  assert.equal(page.theme(), "light");
+  page.systemChange(true);
+  assert.equal(page.theme(), "dark");
+  page.click();
+  page.systemChange(false);
+  page.systemChange(true);
+  assert.equal(page.theme(), "light");
 });

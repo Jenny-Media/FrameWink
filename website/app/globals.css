@@ -201,6 +201,24 @@ nav a[aria-current="page"] { opacity: 1; text-decoration: underline; text-underl
 :root[data-theme="dark"] .theme-dark-icon,
 :root[data-theme="dark"] .theme-dark-label { display: block; }
 
+.theme-reset {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  display: none;
+  font: inherit;
+  font-size: 0.875rem;
+  min-height: 44px;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+:root[data-theme] .theme-reset { display: inline-flex; }
+.theme-reset:hover { color: var(--ink); }
+
 .visually-hidden {
   clip-path: inset(50%);
   height: 1px;

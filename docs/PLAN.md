@@ -2367,3 +2367,20 @@ backlog rather than extending the MVP.
 - Active implementation/verification time: approximately 0.4 hours.
   Manual iPhone Safari and VoiceOver acceptance still require a physical check.
   No iOS source changed, so native app regression gates were not repeated.
+
+### System appearance reset — 2026-10-01
+
+- Owner approved adding a quiet “Use system appearance” action in the footer,
+  matching the Puzzle website pattern while retaining the single header toggle.
+- Clears the saved light/dark override, immediately applies current device
+  appearance, and resumes reacting to device changes. Clearing synchronizes
+  across tabs; denied storage keeps an in-memory automatic mode for this visit.
+- Verification: all 26 website tests, lint, and production build passed on
+  Node 24.19.0. Chrome verified click/Enter/Space, focus visibility, reset across
+  both tabs, persistence after reload, and the action on all four public pages.
+  Both themes passed footer geometry checks at 320/390/768/900/901/1024/1440 px,
+  with a 44 px control, no overlap/overflow, and no console errors/warnings.
+  Unit tests cover both device appearances, subsequent device changes, saved
+  choice removal, and denied-storage fallback. Hosted preview review is pending.
+- Added active implementation/verification time: approximately 0.15 hours.
+  No iOS source or native Duo release change.
