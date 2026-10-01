@@ -104,9 +104,8 @@ test("links the released app through Apple's official badge", async () => {
   assert.match(styles, /\.hero-explore-icon[\s\S]*background: rgb\(244 94 54 \/ 11%\)/);
   assert.match(styles, /letter-spacing: -0\.02em/);
   assert.match(styles, /line-height: 0\.99/);
-  assert.match(layout, /colorScheme: "light"/);
+  assert.match(layout, /colorScheme: "light dark"/);
   assert.match(layout, /Your photos\. Beautifully framed\./);
-  assert.doesNotMatch(`${home}\n${chrome}`, /theme-toggle|dark mode/i);
 });
 
 test("describes the paid album boundary and foreground behavior precisely", async () => {
