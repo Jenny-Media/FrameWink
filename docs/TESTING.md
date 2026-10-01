@@ -4455,9 +4455,50 @@ DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer \
   -only-testing:FrameWinkTests/FrameLayoutChooserTests test
 ```
 
-Full stable iPhone/iPad gate is in progress; do not infer acceptance until its
-results are recorded. Known tooling diagnostics: Apple's StoreKitTest header
+Full stable release gate completed successfully on source `13d3dcb`:
+
+| Gate | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| iPhone 17 Pro Max / iOS 27.0 | 243 | 0 | 4 |
+| iPad (A16) / iPadOS 27.0 | 243 | 0 | 4 |
+| Native SDK Duo focused cases | 56 | 0 | 0 |
+
+The four existing skips on each ordinary family require physical PhotoKit
+access. The normal rotation case remains enabled on both families. Stable
+builds use the ordinary viewport and do not claim native Duo acceptance.
+Both full suites report the previously documented SwiftUI
+`_UIGravityWellEffectAnchorView` hosting warning and two transaction-listening
+warnings from `StoreKitConfigurationTests`; production PurchaseClient already
+listens for `Transaction.updates`. Stable and native Release Analyze have no
+issues. All locked screenshot checks pass. Full script exits zero.
+Known tooling diagnostics: Apple's StoreKitTest header
 uses deprecated `SKPaymentTransactionState`; beta SDK emits build-number
 `invalidDigitCount`; stable XCTest emits debugger lookup `noURL` messages.
 No production-source warning or failed test has been observed so far.
 Physical checks and future native Duo acceptance remain separate.
+
+### Stable signed release candidate and merge
+
+Stable Cloud Validation Build 59 and Archive/Internal TestFlight Build 60
+succeeded on exact source `13d3dcb5c1cd17a07a91fb2e39e1d15214dd4bda`, using
+Xcode 27 (27A266a). Processed 1.5 (60) is assigned to Jenny Media Internal.
+Saved tester notes match the repository file. ASC binary state is Validated;
+SDK 24A430 matches the local stable Release binary, device family is iPhone/iPad,
+minimum iOS is 15.0, and non-exempt encryption is No.
+
+Owner-authorized PR #20 merged as `91dfde215526228e132dae325cb9be4732c6d1ab`.
+`git diff --exit-code 13d3dcb5c1cd17a07a91fb2e39e1d15214dd4bda
+91dfde215526228e132dae325cb9be4732c6d1ab` exits zero: the complete merged tree
+is identical to the tested and archived candidate. No extra native rerun is
+needed for the later documentation-only release record.
+
+Release draft read-back verifies all applicable public fields, review contact
+presence, six iPhone and seven iPad screenshots, approved Lifetime IAP, current
+privacy declaration, disabled Mac/Vision distribution, build 60, unchanged
+rating, and manual release after approval. App Review outcome is recorded in
+docs/APP_STORE.md and docs/PLAN.md.
+
+ASC confirms the final authorized 1.5 (60) submission as `1 Item Submitted`
+and `Waiting for Review`, submission `cebb6971-3ba3-48da-9a00-f90bdc41b928`.
+This is submission evidence, not App Store approval or public release. No new
+physical-device acceptance is inferred from these simulator and cloud gates.

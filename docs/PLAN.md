@@ -2537,8 +2537,19 @@ backlog rather than extending the MVP.
   Release guard validates SDK/flag compatibility and existing release identity.
 - Prepared ordinary iPhone/iPad What's New, App Review notes, and TestFlight
   notes; locked screenshots and upcoming Duo website claims remain applicable.
-- Status: release verification, exact-source cloud validation, merge, signed
-  stable archive, metadata save/read-back, and App Review submission in progress.
-- Active time estimate: 0.4 hours so far. Physical-device Mail, PhotoKit,
+- Verification passed: 243 tests on each stable iPhone/iPad family, zero
+  failures, four existing physical-library skips each; 56 native Duo focused
+  cases passed. Both Release build/Analyze paths, both archive guards, SDK/flag
+  and binary-symbol checks, and locked screenshots pass. Known SwiftUI and
+  test-only StoreKit warnings are recorded in docs/TESTING.md.
+- Stable Cloud Analyze Build 59 and signed Archive/TestFlight Build 60 pass on
+  `13d3dcb`. Processed 1.5 (60) belongs to Jenny Media Internal; tester notes
+  match the source. PR #20 merged as `91dfde2`, with the identical complete tree.
+- All applicable ASC version fields and inherited listing controls are saved
+  and read-back verified. Submitted version 1.5 / Build 60 on October 1 at
+  approximately 7:55 PM EDT. ASC confirms `1 Item Submitted` and `Waiting for
+  Review`, submission `cebb6971-3ba3-48da-9a00-f90bdc41b928`. Manual release
+  after approval and existing rating are retained; public publication is pending.
+- Active time estimate: approximately 0.75 hours, excluding unattended waiting. Physical-device Mail, PhotoKit,
   StoreKit, long-running, brightness, and Guided Access checks remain separate.
   Native Duo is intentionally deferred; no public Duo acceptance is claimed.

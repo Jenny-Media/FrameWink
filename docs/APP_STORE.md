@@ -21,6 +21,24 @@ validation. Both cloud workflows now use Xcode 27 (27A266a). Save and verify
 inherited listing, screenshots, review contact, new release notes and stable
 build before submission. Retain manual release after approval.
 
+### Verified submission
+
+- PR #20 merged as `91dfde215526228e132dae325cb9be4732c6d1ab`; its complete
+  tree matches the tested/archived source `13d3dcb5c1cd17a07a91fb2e39e1d15214dd4bda`.
+- Stable Xcode 27 Cloud Validation 59 and signed Archive/TestFlight 60 pass.
+  Selected processed **1.5 (60)**, SDK 24A430, with binary state Validated,
+  iPhone/iPad family, minimum iOS 15.0, and non-exempt encryption No.
+- Saved and read back promotional text, inherited description/keywords,
+  support/marketing URLs, version/copyright, new What's New and review notes,
+  existing review contact, no-sign-in requirement, six iPhone and seven iPad
+  screenshots, manual release, and unchanged rating. Existing Lifetime IAP is
+  Approved; privacy is Data Not Collected; Mac/Vision distribution is disabled.
+- Submitted one iOS 1.5 item at approximately **7:55 PM EDT, October 1, 2026**.
+  ASC confirms **1 Item Submitted** and **Waiting for Review**. Submission:
+  [App Review](https://appstoreconnect.apple.com/apps/6800849400/distribution/reviewsubmissions/details/cebb6971-3ba3-48da-9a00-f90bdc41b928).
+- Apple approval and subsequent manual public release remain pending. Native
+  Duo is deferred; this submission does not enable or advertise fold handling.
+
 ## Historical native iPhone Duo 1.5 internal candidate — 2026-10-01
 
 The owner authorized the full local regression matrix, an updated development
