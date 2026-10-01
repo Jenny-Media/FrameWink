@@ -313,7 +313,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(firstPhoto.waitForExistence(timeout: 8))
         XCTAssertTrue(app.buttons["Start Frame"].exists)
 
-        app.swipeLeft()
+        activeWindow.swipeLeft()
 
         let secondPhoto = app.descendants(matching: .any)[
             "frame-photo-5255CD65-7C11-4EEB-B7F5-85FC76A4D11B"
@@ -486,7 +486,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             "The clean blackout scenario must begin without playback chrome."
         )
 
-        app.tap()
+        activeWindow.tap()
         XCTAssertTrue(
             playbackOptions.waitForExistence(timeout: 3),
             "A blackout tap must reveal playback controls."
@@ -703,7 +703,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             shareAction.waitForExistence(timeout: 1),
             "The clean Mosaic scenario must begin without playback chrome."
         )
-        app.tap()
+        activeWindow.tap()
         XCTAssertTrue(shareAction.waitForExistence(timeout: 8))
         let visiblePhotoActions = app.descendants(matching: .any).matching(
             NSPredicate(format: "identifier BEGINSWITH 'frame-photo-actions-'")

@@ -2336,8 +2336,12 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Follow-up authorized on 2026-10-01: full three-family regression run with
   the approved Duo-only rotation exclusion, signed development install on
   iPhone 18 Pro Max, isolated pull request, then internal TestFlight preparation
-  after compatible cloud validation. The final iPhone suite passed 243 tests,
-  with zero failures and four skips; iPad and Duo suites are in progress.
+  after compatible cloud validation. Final ordinary iPhone/iPad suites each
+  passed 243 tests, with zero failures and four physical-library skips. The
+  first full Duo follow-up was 239 passed / 3 failed / 4 skipped: three remaining
+  viewport gestures targeted the application instead of its active window.
+  All three corrected Duo cases passed with assertions intact; ordinary-family
+  confirmation and a complete Duo rerun are in progress.
 - Signed development build installed over the existing app on Yihong iPhone
   18 Pro Max (iOS 27.2) and launched successfully. Local version 1.4 (1) is
   development installation evidence, not a TestFlight archive or human acceptance.

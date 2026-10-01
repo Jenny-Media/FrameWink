@@ -4089,8 +4089,23 @@ isolated pull request, and preparation of a subsequent internal TestFlight
 build after compatible cloud validation. The final matrix is running under
 `/private/tmp/framewink-duo-20261001/FinalGate` with the existing exclusions
 and only the owner-approved additional Duo rotation exclusion. The final
-iPhone suite passed 243 tests, with zero failures and four skips. iPad and Duo
-results will be recorded separately when complete.
+ordinary iPhone and iPad suites each passed 243 tests, with zero failures and
+four physical-library skips. The first Duo follow-up completed 239 passed /
+3 failed / 4 skipped; its failed result remains in `FinalGate/iPhoneDuo.xcresult`.
+
+Those failures were `testBlackoutTapRevealsEscapeControl`,
+`testReadyHomePreviewCanSwipeBeforeStartingFrame`, and
+`testSceneOffersOneShareActionMatchingTheResponsiveLayout`. Each used a
+viewport gesture on the application element. The blackout failure attachment
+has an active 951 x 669 window but the synthesized application tap used
+x=334.5, y=475.5, with portrait orientation, instead of the window center.
+Attachments are preserved in `duo-blackout-failure-attachments`; this is the
+same inactive-display geometry issue diagnosed earlier. Change only those
+three gestures to the existing `activeWindow` helper, retaining assertions.
+The focused Duo rerun passed all three with zero warnings/skips in
+`iPhoneDuo-window-gesture-final.xcresult`. Ordinary-family confirmation and a
+complete Duo rerun are in progress. No further test is excluded and no app
+source changes were needed.
 
 Signed development installation passed with existing signing settings:
 
