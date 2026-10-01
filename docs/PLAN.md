@@ -2263,8 +2263,8 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### FrameWink website and Jenny Media apps update — 2026-09-30
 
-- Status: all three website updates published and verified. Jenny Media main
-  integration awaits approval to include an existing already-live local commit.
+- Status: complete. All three website updates are published and verified,
+  and approved source changes are pushed to main in both repositories.
 - Add a quiet footer link to the Jenny Media apps directory, with wrapping for
   narrower layouts, and one support sentence for More → Send Feedback in
   version 1.4 or later, including the Copy Email fallback.
@@ -2272,9 +2272,9 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   with the existing complete bird-and-sailboat iPad capture. The gallery opens
   with the existing clean single-photo iPad capture; captions remain accurate
   in all three languages. Retain the superseded asset for rollback.
-- Prepare Jenny Media changes in an isolated checkout based on remote main;
-  preserve its local unpublished Expense Map commit and the original dirty
-  FrameWink checkout. This update changes website sources and assets only.
+- Prepared Jenny Media changes in isolated checkouts and preserved the
+  original dirty FrameWink checkout. This update changes website sources and
+  assets only; the existing live Expense Map copy is retained.
 - Validation: FrameWink website passes all 9 tests, ESLint, and the production
   build; Jenny Media passes all 137 tests, production build, media manifest
   checks, and Chromium/WebKit Apps checks. Browser checks at 900, 768, 390,
@@ -2284,15 +2284,19 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   is Ready for `023eb10` on main. Jenny Media deployment
   `dpl_EGnRhBEWizawLfVrky6vybBFDsav` is Ready and serves the new previews
   in every language while retaining the current live Expense Map copy.
-- Jenny Media source commit `9606689` is pushed on `codex/framewink-site-media`;
-  the production checkout applies that exact fix as `9486685` atop existing
-  local commit `f3d46e7`. Its original checkout remains clean and unchanged.
-- Automatic approval review rejected pushing the screenshot-only branch to
-  main: its remote-main base lacks the already-live Expense Map copy and could
-  replace that copy through automatic deployment. The proposed safe main
-  update includes existing `f3d46e7` plus the screenshot fix; its six-file diff
-  is saved at `/private/tmp/framewink-site-20260930/jenny-main-proposed.diff`.
-  Owner approval for publishing the existing local commit remains required.
+- Jenny Media source commit `9606689` was prepared on the isolated
+  `codex/framewink-site-media` branch. Its exact screenshot changes are applied
+  as `9486685` atop existing commit `f3d46e7`, preserving the live Expense Map
+  copy and its deployment ignore rules.
+- After automatic approval review rejected the screenshot-only main push
+  because it could restore older Expense Map copy, the owner explicitly
+  approved pushing all proposed changes. Main is verified at
+  `94866857e85a8a284e795c3f1fed944c45ee853b`; the original Jenny Media main
+  checkout was fast-forwarded and is clean at that same commit.
+- The resulting Git production deployment
+  `dpl_7vQiXhAxXHNgNMy994RfCUNBvRJF` is Ready for `9486685` and supersedes
+  the matching CLI publication. No source integration or approval remains.
+- Additional main integration and verification time: approximately 0.1 hours.
 - Active implementation/verification time: approximately 0.5 hours, excluding
   unattended upload and remote build waiting.
 - Known risk: FrameWink 1.4 is awaiting App Review; support instructions are

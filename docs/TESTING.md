@@ -3836,3 +3836,9 @@ gh api repos/Jenny-Media/FrameWink/commits/459d1bf2b33db60eead2d13f78e30a369364f
   live Expense Map tagline is preserved. Production deployments are Ready:
   FrameWink `dpl_C63rRbFBNoF9KqQvqJ6xrtF4a8w2`, Jenny Media
   `dpl_EGnRhBEWizawLfVrky6vybBFDsav`.
+- Approved main integration: `git push origin HEAD:main` published existing
+  Expense Map commit `f3d46e7` and the screenshot fix `9486685` together.
+  `git ls-remote origin refs/heads/main` matches
+  `94866857e85a8a284e795c3f1fed944c45ee853b`; the original Jenny Media main
+  checkout is clean at the same commit after `git merge --ff-only origin/main`.
+  Git production deployment `dpl_7vQiXhAxXHNgNMy994RfCUNBvRJF` is Ready.
