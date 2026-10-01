@@ -38,6 +38,7 @@ export function SiteFooter() {
         <ActiveNavLink href="/support">Support</ActiveNavLink>
         <ActiveNavLink href="/terms">Terms</ActiveNavLink>
         <a href="https://github.com/Jenny-Media/FrameWink">GitHub</a>
+        <a href="https://jenny.media/apps/">More apps by Jenny Media</a>
       </nav>
       <div className="footer-legal">
         <p>© 2026 Jenny Media LLC. FrameWink supports iPhone and iPad only.</p>

@@ -3807,3 +3807,25 @@ gh api repos/Jenny-Media/FrameWink/commits/459d1bf2b33db60eead2d13f78e30a369364f
 ```
 
 [Live submission](https://appstoreconnect.apple.com/apps/6800849400/distribution/reviewsubmissions/details/967a327e-5e1a-4881-9d53-84c403c55570).
+
+
+### FrameWink website and Jenny Media Apps — 2026-09-30
+
+- FrameWink `website/`: `npm test` (9 passed), `npm run lint` (passed),
+  `npm run build` (passed; all public routes prerendered). The retained
+  checkout initially failed because its dependency symlink escaped the
+  Turbopack filesystem root; a local dependency copy resolved that environment
+  issue without changing build configuration.
+- Jenny Media isolated checkout: `npm run media:check` (1,226 files),
+  `CARTO_BASEMAP_KEY=local-preview npm run build` (passed), `npm test`
+  (137 passed), `npm run test:apps-browser` (Chromium and WebKit passed).
+- Browser verification: the card uses the full bird-and-sailboat iPad capture;
+  gallery slide one uses the clean single-photo iPad capture, with the existing
+  paired iPad and iPhone slides retained. All four language route outputs
+  reference the updated assets. Byte-for-byte screenshot copies preserve
+  their SHA-256 and do not edit the underlying photo content.
+- Support labels feedback instructions for version 1.4 or later. Footer
+  checks at 900, 768, 390, and 320 px pass: no horizontal overflow, all link
+  targets visible, and each touch target at least 44 px high.
+- Scope is website content and presentation only; no app binary, device
+  behavior, or App Store submission changes require new device checks.

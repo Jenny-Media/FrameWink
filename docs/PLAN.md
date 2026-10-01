@@ -2261,6 +2261,28 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   release step: App Review approval followed by an owner-authorized manual
   public release.
 
+### FrameWink website and Jenny Media apps update — 2026-09-30
+
+- Status: implementation and local website validation complete; publication pending.
+- Add a quiet footer link to the Jenny Media apps directory, with wrapping for
+  narrower layouts, and one support sentence for More → Send Feedback in
+  version 1.4 or later, including the Copy Email fallback.
+- Replace the Jenny Media apps card's intrinsically cropped bird screenshot
+  with the existing complete bird-and-sailboat iPad capture. The gallery opens
+  with the existing clean single-photo iPad capture; captions remain accurate
+  in all three languages. Retain the superseded asset for rollback.
+- Prepare Jenny Media changes in an isolated checkout based on remote main;
+  preserve its local unpublished Expense Map commit and the original dirty
+  FrameWink checkout. This update changes website sources and assets only.
+- Validation: FrameWink website passes all 9 tests, ESLint, and the production
+  build; Jenny Media passes all 137 tests, production build, media manifest
+  checks, and Chromium/WebKit Apps checks. Browser checks at 900, 768, 390,
+  and 320 px confirm reachable 44 px footer links with no horizontal overflow.
+  Existing screenshots are copied unchanged and retain matching SHA-256.
+- Active implementation/verification estimate: approximately 0.3 hours.
+- Known risk: FrameWink 1.4 is awaiting App Review; support instructions are
+  explicitly labelled version 1.4 or later. No new device behavior is involved.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

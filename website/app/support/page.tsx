@@ -31,6 +31,7 @@ export default function SupportPage() {
           <a className="primary-action" href="mailto:framewink@jenny.media?subject=FrameWink%20Support">Email support</a>
           <a className="secondary-action" href="https://github.com/Jenny-Media/FrameWink/issues/new">Open a public issue</a>
         </div>
+        <p className="support-note">In FrameWink 1.4 or later, choose <strong>More → Send Feedback</strong> to review an email draft, or Copy Email if Mail isn’t set up.</p>
         <p className="support-note">Please don’t attach private photos, receipts, or personal information to a public GitHub issue.</p>
       </header>
       <section className="help-grid" aria-labelledby="quick-help-heading">
