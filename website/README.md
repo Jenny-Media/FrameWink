@@ -39,3 +39,17 @@ require the Vercel GitHub App to be authorized for `Jenny-Media/FrameWink`;
 once connected, Vercel should skip deployments when `website/` is unchanged.
 Xcode Cloud should use a Files and Folders start condition that does not start
 an app build when all changed files are under `website/`.
+
+## Upcoming iPhone Duo preview
+
+The small Duo showcase is explicitly marked as an upcoming update. It uses
+a real Xcode 27.1 app capture with Apple's complete official Night Sky Inner
+Open Landscape artwork. The owner authorized accepting the Apple Design
+Resources license LYL142 (June 21, 2023), accepted October 1, 2026.
+
+Original app captures, artwork hashes, license-use restrictions, and the
+reproducible generator are archived in
+[the native Duo candidate](https://github.com/Jenny-Media/FrameWink/tree/codex/iphone-duo-native/Design/Website/iPhone-Duo).
+The standalone Apple artwork stays outside Git. Physical Duo acceptance and
+Apple's cloud app validation remain pending. This website publication does
+not release native Duo app support.
