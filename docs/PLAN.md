@@ -2340,15 +2340,18 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   passed 243 tests, with zero failures and four physical-library skips. The
   first full Duo follow-up was 239 passed / 3 failed / 4 skipped: three remaining
   viewport gestures targeted the application instead of its active window.
-  All three corrected Duo cases passed with assertions intact; ordinary-family
-  confirmation and a complete Duo rerun are in progress.
+  All three corrected cases passed on all three families with assertions intact.
+  The complete Duo recovery passed 242 tests / zero failures / four physical-
+  library skips; locked screenshots are unchanged. App source is identical
+  across these follow-up runs. Cloud validation and physical Duo acceptance
+  remain pending; no new review submission.
 - Signed development build installed over the existing app on Yihong iPhone
   18 Pro Max (iOS 27.2) and launched successfully. Local version 1.4 (1) is
   development installation evidence, not a TestFlight archive or human acceptance.
 - Website rechecked live: complete bird preview, feedback instructions, and
   Jenny Media Apps footer link are already deployed. Public Duo copy waits for
   an available app version. No website source change is needed for this candidate.
-- Active implementation and verification time: approximately 2.6 hours,
+- Active implementation and verification time: approximately 3.0 hours,
   excluding unattended test runs. Cloud workflow inspection currently needs
   renewed App Store Connect sign-in; no new review submission.
 

@@ -4086,7 +4086,7 @@ App source and production/review state are unchanged by this exception.
 
 The owner authorized the final local matrix, physical iPhone installation, an
 isolated pull request, and preparation of a subsequent internal TestFlight
-build after compatible cloud validation. The final matrix is running under
+build after compatible cloud validation. The initial final matrix ran under
 `/private/tmp/framewink-duo-20261001/FinalGate` with the existing exclusions
 and only the owner-approved additional Duo rotation exclusion. The final
 ordinary iPhone and iPad suites each passed 243 tests, with zero failures and
@@ -4103,9 +4103,9 @@ Attachments are preserved in `duo-blackout-failure-attachments`; this is the
 same inactive-display geometry issue diagnosed earlier. Change only those
 three gestures to the existing `activeWindow` helper, retaining assertions.
 The focused Duo rerun passed all three with zero warnings/skips in
-`iPhoneDuo-window-gesture-final.xcresult`. Ordinary-family confirmation and a
-complete Duo rerun are in progress. No further test is excluded and no app
-source changes were needed.
+`iPhoneDuo-window-gesture-final.xcresult`. The same three cases also passed on
+ordinary iPhone and iPad, with zero failures, warnings, or skips in each focused
+run. No further test is excluded and no app source changes were needed.
 
 Signed development installation passed with existing signing settings:
 
@@ -4132,3 +4132,65 @@ The public websites were rechecked in Chrome: Jenny Media Apps loads
 support page includes version-labelled Send Feedback instructions and the
 footer link to `https://jenny.media/apps/`. No website update is required until
 an app version containing native Duo support is publicly available.
+
+
+### Completed local Duo follow-up — 2026-10-01
+
+| Run | Passed | Failed | Runtime skips | Result bundle |
+| --- | ---: | ---: | ---: | --- |
+| Full ordinary iPhone | 243 | 0 | 4 | `FinalGate/iPhone.xcresult` |
+| Full ordinary iPad | 243 | 0 | 4 | `FinalGate/iPad.xcresult` |
+| Corrected gestures, Duo | 3 | 0 | 0 | `iPhoneDuo-window-gesture-final.xcresult` |
+| Corrected gestures, iPhone | 3 | 0 | 0 | `iPhone-window-gesture-final.xcresult` |
+| Corrected gestures, iPad | 3 | 0 | 0 | `iPad-window-gesture-final.xcresult` |
+| Full Duo recovery | 242 | 0 | 4 | `iPhoneDuo-final-recovery.xcresult` |
+
+All result bundles are under `/private/tmp/framewink-duo-20261001`. The four
+runtime skips on each family are the existing configured-physical-Photos
+checks. The owner-approved Duo rotation case is excluded by selection, not
+counted as a runtime skip. The ordinary iPhone/iPad rotation case passed. The
+existing Ask to Buy and marketing-capture exclusions remain unchanged.
+
+The first complete local script exited 65 on the three Duo gesture failures.
+The recovery script exited zero after three targeted cases on every family,
+the complete Duo suite, and locked iPad/iPhone/Duo screenshot checks. The
+production app source is identical across these runs; only the three test
+gesture targets changed after the full ordinary iPhone/iPad gates. Historical
+failed results are retained rather than represented as passing.
+
+Exact top-level commands:
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer
+FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/framewink-duo-20261001/FinalGate \
+FRAMEWINK_IPHONE_DESTINATION='platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+FRAMEWINK_IPAD_DESTINATION='platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' \
+FRAMEWINK_DUO_DESTINATION='platform=iOS Simulator,id=921F86AE-642B-4721-8C54-38D2AF15AFDD' \
+/bin/bash scripts/test_local.sh
+/bin/bash /private/tmp/framewink-duo-20261001/run-window-gesture-gates.sh
+```
+
+The saved recovery script contains the exact `xcodebuild` commands: Debug,
+120-second test allowance, diagnostics collection disabled, signing disabled,
+and the same three simulator IDs/derived-data directories. Its targeted runs
+select only the three corrected cases; its full Duo run uses the exact three
+selection exclusions already in `scripts/test_local.sh`, then calls
+`verify_locked_app_store_screenshots.sh`. Logs are `final-gate.log` and
+`window-gesture-final-gates.log`. Re-running `scripts/test_local.sh` now uses the
+corrected gesture targets on every family.
+
+Observed warnings remain the StoreKitTest SDK deprecation, Xcode beta build-
+number/debugger diagnostics, the SwiftUI hosting warning, and StoreKit listener
+warnings whose source is the StoreKit configuration test. Final targeted
+three-case runs had no runtime warnings. Earlier Release Analyze remains clean;
+no production app code changed after that check.
+
+Commits `b2f7c6b` and `b792b11` are pushed on `codex/iphone-duo-native`, with
+[PR #20](https://github.com/Jenny-Media/FrameWink/pull/20) kept draft for Xcode
+Cloud validation. Vercel's website preview check passed; this is not Apple app
+validation. App Store Connect requires renewed sign-in, so compatible Xcode
+Cloud workflow selection, app validation, and an internal TestFlight archive
+are not yet verified or started. Tester notes are prepared. Physical Duo
+acceptance and all existing real-device Photos, purchases, brightness, Guided
+Access, thermal, VoiceOver/Reduce Motion, and long-running checks remain
+separate. No new App Review submission or public Duo claim was made.
