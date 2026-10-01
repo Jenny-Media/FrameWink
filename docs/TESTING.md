@@ -3771,3 +3771,39 @@ git ls-remote origin refs/heads/main
 gh api repos/Jenny-Media/FrameWink/commits/f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9/check-runs \
   --jq '.check_runs[] | {name,status,conclusion,output: .output.summary}'
 ```
+
+
+## Version 1.4 App Review submission — 2026-09-30
+
+- Sign-in was restored by the owner. The saved listing and review fields were
+  rechecked, including contact details, review instructions, six iPhone and
+  seven iPad screenshots, manual release, and the existing rating.
+- Selected the latest processed candidate, **1.4 Build 39**, from source
+  `459d1bf2b33db60eead2d13f78e30a369364f15a`. Compared with implementation
+  commit `f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9`, only
+  `docs/APP_STORE.md`, `docs/PLAN.md`, and `docs/TESTING.md` differ. App code,
+  project settings, and the release guard are unchanged, so the full local
+  release-gate results remain applicable.
+- Live Cloud Build 39 reports successful Archive and internal TestFlight
+  distribution, source `459d1bf`. Its archive UUID is
+  `8a677ec8-d1be-4895-a9fe-b64564ec0040`. Validation Build 40 and Archive Build
+  39 each report zero errors, test failures, analysis issues, and warnings.
+- Saved Build 39, added 1.4 for review, then submitted the single ready item.
+  Apple confirmed **1 Item Submitted**. The live receipt reports
+  **Waiting for Review**, **Items Submitted (1)**, and **iOS App 1.4 (39)**.
+  Submission ID: `967a327e-5e1a-4881-9d53-84c403c55570`; submitted
+  September 30, 2026 at 9:03 PM EDT.
+- Manual release after approval remains selected. Submission does not establish
+  App Review approval or public release. Historical physical-device checks
+  remain as documented above.
+
+```sh
+git diff f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9 \
+  459d1bf2b33db60eead2d13f78e30a369364f15a --name-only
+git diff f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9 \
+  459d1bf2b33db60eead2d13f78e30a369364f15a -- FrameWink FrameWink.xcodeproj ci_scripts
+gh api repos/Jenny-Media/FrameWink/commits/459d1bf2b33db60eead2d13f78e30a369364f15a/check-runs \
+  --jq '.check_runs[] | {name,status,conclusion,output: .output.summary}'
+```
+
+[Live submission](https://appstoreconnect.apple.com/apps/6800849400/distribution/reviewsubmissions/details/967a327e-5e1a-4881-9d53-84c403c55570).

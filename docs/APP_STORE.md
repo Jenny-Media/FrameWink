@@ -9,22 +9,31 @@ FrameWink 1.3 is approved and available on the App Store at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
-## Version 1.4 preparation
+## Version 1.4 submitted
 
 The owner confirmed the installed privacy and feedback changes work and
 provided explicit publication and App Review submission authorization on
 2026-09-30. Release inputs are in `AppStore/Version-1.4/`. Version 1.4 adds one
 voluntary Send Feedback action and a compact Privacy & Data summary with inline
-Learn more. The saved live 1.4 draft retains the existing screenshots, price,
-supported platforms, review contact, and manual release after approval. Release
-notes, review instructions, and promotional text are saved. The complete local
-release gate passed on iPhone and iPad, as did Release analysis and the archive
-guard. Release source `f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9` is pushed
-to `main`; its Cloud validation and archive checks passed. The updated public
-privacy policy is live. App Store Connect's session expired after metadata
-was saved, so processed-build verification, attachment, and App Review
-submission are pending the owner's password or passkey sign-in. **Version 1.4
-has not been submitted.**
+Learn more.
+
+**iOS 1.4 (Build 39) is Waiting for Review**, submitted September 30, 2026 at
+9:03 PM EDT. Submission ID: `967a327e-5e1a-4881-9d53-84c403c55570`.
+[Live submission](https://appstoreconnect.apple.com/apps/6800849400/distribution/reviewsubmissions/details/967a327e-5e1a-4881-9d53-84c403c55570).
+
+Build 39 comes from `459d1bf2b33db60eead2d13f78e30a369364f15a`, whose app
+code and release settings are identical to tested implementation commit
+`f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9`; only the release record changed.
+Cloud validation, archive, and internal TestFlight distribution succeeded.
+The complete local iPhone and iPad release gates, Release analysis, and archive
+guard passed. The updated public privacy policy is live.
+
+The submitted version retains the existing six iPhone and seven iPad
+screenshots, listing copy, price, supported platforms, review contact, and
+rating. Promotional text, What's New, and review instructions were saved and
+rechecked after sign-in. All applicable fields were accepted by submission
+validation. **Manual release after approval remains selected.** Version 1.3
+remains the public released version while 1.4 awaits review.
 
 English (U.S.) What's New:
 

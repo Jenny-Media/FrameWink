@@ -2227,40 +2227,39 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 
 ### Version 1.4 submission — 2026-09-30
 
-- Status: approved changes committed and pushed; App Review submission is
-  pending App Store Connect authentication. The owner confirmed the installed
-  feedback and privacy changes work and explicitly authorized publication and
-  review submission.
-- Release source `f2c143a0c36e9bbf0e32c5cbf56fbd6824c649a9` is published on
-  `main`. It retains current main's Larger Text, source-switch, cache-budget,
-  and local release-gate fixes. The original dirty checkout and unrelated
-  website artwork remain preserved; the snapshot audit found no unexpected
-  changes.
+- Status: submission complete. **iOS 1.4 (Build 39) is Waiting for Review**.
+  Submitted September 30, 2026 at 9:03 PM EDT; submission ID
+  `967a327e-5e1a-4881-9d53-84c403c55570`. Manual release after approval is
+  retained, so this operation does not publish 1.4 publicly.
+- The owner confirmed the installed changes work and explicitly authorized
+  commit, push, and App Review submission. Code commit `f2c143a` and release
+  record `459d1bf` are published on `main`; the submitted Build 39 comes from
+  the latter. Only three documentation files differ between those commits;
+  app code, project, and release guard match the tested implementation.
 - The full iPhone and iPad gates each passed 237 tests, zero failures, and four
   existing environment-limited skips. Release analysis, archive guard, website
   tests and lint, and locked screenshot verification pass. Exact commands and
   warning boundaries are recorded in `docs/TESTING.md`.
-- Xcode Cloud Validation and Internal TestFlight Archive checks both passed
-  for the release source with zero errors, analysis issues, or warnings.
-  Build processing, internal distribution, and an App Review build attachment
-  have not yet been verified in live App Store Connect.
-- Production Vercel deployment `dpl_3owFCGm1c41FyYrmVmJ3TZH6szw7` is Ready
-  for the same source commit. The public privacy page was inspected and shows
-  the September 30 policy and voluntary Send Feedback explanation.
-- The live 1.4 draft has saved release notes, review instructions, promotional
-  text, inherited listing fields, and review contact. Existing six iPhone and
-  seven iPad screenshots are present. Privacy, accessibility, approved Lifetime
-  purchase, and disabled Mac/Vision Pro distribution are verified. Manual
-  release and the existing rating are retained.
-- App Store Connect's session expired after those fields were saved. The
-  sign-in page requires the owner's password or passkey; sign-in assistance
-  was requested. Resume by confirming the processed 1.4 build for the release
-  source, attaching it, adding the version for review, submitting, and verifying
-  Waiting for Review. Submission has not occurred.
-- Active integration/release preparation time: approximately 0.6 hours,
-  excluding unattended tests, Cloud execution, and authentication waiting.
-  Historical real-device gates remain documented in `docs/TESTING.md`; the
-  owner's installed-app acceptance does not establish every one of them.
+- Cloud Validation Build 40 and Archive Build 39 succeeded with zero errors,
+  analysis issues, or warnings. Build 39's internal TestFlight post-action
+  succeeded, and the processed 1.4 build was selected and saved in App Store
+  Connect before final submission.
+- Version and review fields were rechecked after the owner restored sign-in.
+  Six iPhone and seven iPad screenshots, promotional text, listing copy,
+  release notes, review instructions, and review contact are present. Existing
+  privacy/accessibility disclosures, approved Lifetime purchase, rating, and
+  disabled Mac/Vision Pro distribution are retained.
+- Production privacy deployment `dpl_3owFCGm1c41FyYrmVmJ3TZH6szw7` is Ready
+  for the implementation source. The public policy includes the September 30
+  date and voluntary Send Feedback explanation.
+- The original dirty checkout and unrelated artwork remain preserved.
+  Snapshot verification found no unexpected changes.
+- Active integration/release execution time: approximately 0.7 hours, excluding
+  unattended tests, Cloud execution, and authentication waiting. Historical
+  real-device gates remain documented in `docs/TESTING.md`; the owner's
+  installed-app acceptance does not establish every one of them. Remaining
+  release step: App Review approval followed by an owner-authorized manual
+  public release.
 
 ## Timebox rule
 
