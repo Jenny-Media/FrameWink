@@ -24,7 +24,11 @@ The cloud workflows should:
    LLC internal testers.
 
 Before release changes merge, `scripts/test_local.sh` runs the shared scheme on
-one iPhone and one iPad Simulator and verifies the locked screenshot set.
+an iPhone, an iPad, and an iPhone Duo Simulator and verifies the locked
+screenshot set. Use Xcode 27.1 / iOS 27.1 SDK or newer for native Duo support;
+select a compatible toolchain in both cloud workflows before distributing
+this change. The pre-build guard rejects older SDKs. The minimum supported
+iOS/iPadOS version remains 15.
 
 Apple requires the first Xcode Cloud workflow to be configured from Xcode. The
 project must be in an accessible Git repository, Xcode Cloud must be granted
@@ -744,8 +748,8 @@ blocker affects only a later boundary.
 ## Committed Xcode Cloud guardrail
 
 Apple automatically runs `ci_scripts/ci_pre_xcodebuild.sh` before each Xcode
-Cloud action. FrameWink's script validates its two privacy property lists and
-Release identity for every action. For an archive, it additionally requires the
+Cloud action. FrameWink's script validates the SDK version, its two privacy
+property lists, and Release identity for every action. For an archive, it additionally requires the
 Jenny Media LLC team, `media.jenny.FrameWink`, and a nonempty non-local Wall Mode
 product identifier. This makes B-006 fail closed at the cloud archive boundary
 without preventing Build or Analyze workflows.

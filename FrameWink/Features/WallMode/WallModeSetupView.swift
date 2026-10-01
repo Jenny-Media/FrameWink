@@ -22,7 +22,7 @@ struct WallModeSetupView: View {
     }
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             ScrollViewReader { proxy in
                 Form {
                     displaySection
@@ -45,13 +45,14 @@ struct WallModeSetupView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button {
                         saveAndDismiss()
+                    } label: {
+                        Label("Done", systemImage: "checkmark")
                     }
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
             guidedAccessIsEnabled = UIAccessibility.isGuidedAccessEnabled
         }
@@ -198,7 +199,7 @@ struct AlbumPickerView: View {
     }
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             Group {
                 if controller.authorization == .denied
                     || controller.authorization == .restricted {
@@ -284,8 +285,10 @@ struct AlbumPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button {
                         presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -297,7 +300,6 @@ struct AlbumPickerView: View {
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .onDisappear {
             controller.cancelAlbumCountLoading()
         }

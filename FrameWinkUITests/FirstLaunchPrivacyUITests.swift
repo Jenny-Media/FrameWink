@@ -204,7 +204,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         if !privacy.waitForExistence(timeout: 1) {
             let menu = app.collectionViews.firstMatch
             for _ in 0..<5 {
-                if privacy.exists, privacy.frame.midY < app.frame.midY + 80 {
+                if privacy.exists, privacy.frame.midY < activeWindowFrame.midY + 80 {
                     break
                 }
                 // Keep the gesture inside the menu's visible portion on a small phone.
@@ -284,7 +284,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let form = app.collectionViews.firstMatch
         var scrollDown = false
         for _ in 0..<16 {
-            let visibleContent = form.frame.intersection(app.frame).insetBy(dx: 0, dy: 60)
+            let visibleContent = form.frame.intersection(activeWindowFrame).insetBy(dx: 0, dy: 60)
             if action.exists {
                 if visibleContent.contains(action.frame), action.isHittable {
                     return
@@ -440,9 +440,9 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let secondPhoto = app.descendants(matching: .any)[
             "frame-photo-5255CD65-7C11-4EEB-B7F5-85FC76A4D11B"
         ].firstMatch
-        app.swipeLeft()
+        activeWindow.swipeLeft()
         XCTAssertTrue(secondPhoto.waitForExistence(timeout: 4))
-        app.swipeRight()
+        activeWindow.swipeRight()
         XCTAssertTrue(firstPhoto.waitForExistence(timeout: 4))
 
         let playbackOptions = app.buttons["More playback options"]
@@ -451,15 +451,15 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(playbackOptions.exists, "Paused playback must keep controls visible.")
         XCTAssertFalse(guidance.exists, "Guidance must recede while playback is paused.")
 
-        app.tap()
+        activeWindow.tap()
         XCTAssertTrue(waitForNonexistence(playbackOptions, timeout: 2))
-        app.swipeLeft()
+        activeWindow.swipeLeft()
 
         XCTAssertTrue(secondPhoto.waitForExistence(timeout: 4))
         XCTAssertFalse(firstPhoto.exists, "One swipe must leave the original page.")
         XCTAssertFalse(playbackOptions.exists, "Swipe navigation must keep playback chrome hidden.")
 
-        app.tap()
+        activeWindow.tap()
         XCTAssertTrue(playbackOptions.waitForExistence(timeout: 2))
         XCTAssertTrue(playbackControl.waitForExistence(timeout: 2))
 
@@ -619,6 +619,12 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let start = app.buttons["Start Frame"]
         XCTAssertTrue(start.waitForExistence(timeout: 8))
         start.tap()
+        // This case measures persistence, not elapsed playback time. Keep
+        // chrome visible while XCTest inspects and reopens the native sheet.
+        let playbackControl = app.buttons["frame-playback-control"]
+        XCTAssertTrue(playbackControl.waitForExistence(timeout: 2))
+        playbackControl.tap()
+        XCTAssertEqual(playbackControl.label, "Resume slideshow")
         for label in ["10s", "5m", "1m"] {
             let options = app.buttons["More playback options"]
             if !options.isHittable { app.tap() }
@@ -793,7 +799,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
             // Off-screen SwiftUI buttons can make XCTest's isHittable query
             // fail instead of returning false on compact landscape workers.
             let actionFrame = lastAction.frame
-            let visibleFrame = scrollView.frame.intersection(app.frame)
+            let visibleFrame = scrollView.frame.intersection(activeWindowFrame)
             if !actionFrame.isEmpty && visibleFrame.contains(actionFrame) { break }
             scrollView.swipeUp()
         }
@@ -1184,7 +1190,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         let description = app.staticTexts["home-setup-description"]
         let choosePhotos = app.buttons["Choose Photos"]
         let startSampleFrame = app.buttons["Start Sample Frame"]
-        let usesNarrowLayout = app.frame.width < 600
+        let usesNarrowLayout = activeWindowFrame.width < 600
 
         if usesNarrowLayout {
             XCTAssertFalse(caption.waitForExistence(timeout: 1))
@@ -1236,6 +1242,14 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         } else {
             XCTAssertTrue(startSampleFrame.isHittable)
         }
+    }
+
+    private var activeWindow: XCUIElement { app.windows.firstMatch }
+
+    private var activeWindowFrame: CGRect {
+        // On a device with multiple displays, the application element can retain
+        // the other display's bounds. Layout assertions need the active window.
+        activeWindow.frame
     }
 
     private func waitForLandscape(timeout: TimeInterval = 8) -> Bool {
@@ -1290,10 +1304,17 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
     ) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         repeat {
-            if matches(app.frame.size) { return true }
+            if matches(activeWindowFrame.size) { return true }
             RunLoop.current.run(until: Date().addingTimeInterval(0.1))
         } while Date() < deadline
-        return matches(app.frame.size)
+        let matchesOrientation = matches(activeWindowFrame.size)
+        if !matchesOrientation {
+            let diagnostic = XCTAttachment(string: app.debugDescription)
+            diagnostic.name = "Active window geometry after orientation request"
+            diagnostic.lifetime = .keepAlways
+            add(diagnostic)
+        }
+        return matchesOrientation
     }
 
     private func waitForNonexistence(

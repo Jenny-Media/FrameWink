@@ -14,6 +14,15 @@ make those devices supported FrameWink platforms. Public App Store availability
 and internal TestFlight testing remain disabled for both until a later product
 milestone adds platform-specific design, testing, and support.
 
+## iPhone Duo layout
+
+Use the same frame experience on the outer and inner displays. Fully open
+playback uses the available window; a partly folded display keeps the photo
+above or to the left of the fold and places controls below or to its right.
+Opening, closing, rotating, and resizing preserve the displayed photo and
+playback state. Setup actions remain reachable with large text and Split View.
+There is no separate Duo setting or additional paid feature.
+
 ## Positioning
 
 > Turn a compatible Apple device into a private, beautifully curated photo frame.

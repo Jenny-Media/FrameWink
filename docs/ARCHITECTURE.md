@@ -4,6 +4,9 @@
 
 - Universal iPhone and iPad application with an iPad-first frame experience.
 - Minimum iOS/iPadOS 15.
+- Build with Xcode 27.1 / iOS 27.1 SDK or newer for native iPhone Duo display
+  space. The release guard rejects older SDKs. Cloud workflows must select a
+  compatible toolchain before this change is distributed.
 - SwiftUI application lifecycle.
 - Use `ObservableObject`/`@StateObject` for shared state.
 - Use Swift concurrency only where availability and cancellation behavior are
@@ -73,6 +76,23 @@ The MVP pipeline:
 9. User exclusions applied as hard vetoes.
 
 Never perform all-pairs similarity comparison across an unbounded library.
+
+### Adaptive display regions
+
+`FrameViewportRegions` splits local view bounds around an active division.
+`FrameAdaptiveGeometry` reads SwiftUI reserved division frames and their
+individual margins on iOS 27.1 or later; older systems retain the full viewport.
+Photos may bleed to the display edge, while foreground controls intersect the
+safe area independently on every side. Do not infer geometry from device names,
+`UIScreen.main`, or device orientation.
+
+`RootView` sizes its setup chrome from the usable control region, enabling
+scrolling beside the fold and for narrow accessibility layouts. Playback sends
+the usable photo region to the existing layout chooser. Reflow still uses the
+existing stable photo anchor, remaining timer, pause state, and display history.
+`FrameNavigationContainer` uses standard NavigationStack on iOS 16 and later,
+with the stacked NavigationView fallback on iOS 15. Semantic toolbar actions
+include both a title and a symbol for the system's horizontal/vertical bars.
 
 ### Layout
 

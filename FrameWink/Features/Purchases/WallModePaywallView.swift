@@ -15,7 +15,7 @@ struct WallModePaywallView: View {
     }
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
@@ -107,13 +107,14 @@ struct WallModePaywallView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Not Now") {
+                    Button {
                         presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Label("Not Now", systemImage: "xmark")
                     }
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .alert(item: $restoreResult) { result in
             Alert(
                 title: Text(result.title),

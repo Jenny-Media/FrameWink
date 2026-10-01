@@ -26,6 +26,14 @@ read_build_setting() {
         | awk -F ' = ' -v name="$setting_name" '$1 ~ "^[[:space:]]*" name "$" { print $2; exit }'
 }
 
+sdk_version=$(xcrun --sdk iphoneos --show-sdk-version)
+sdk_major=${sdk_version%%.*}
+sdk_minor=${sdk_version#*.}
+sdk_minor=${sdk_minor%%.*}
+if [ "$sdk_major" -lt 27 ] || { [ "$sdk_major" -eq 27 ] && [ "$sdk_minor" -lt 1 ]; }; then
+    fail "iPhone Duo native support requires the iOS 27.1 SDK or newer (Xcode 27.1+); found $sdk_version."
+fi
+
 [ -d "$project_path" ] || fail "FrameWink.xcodeproj is missing."
 [ -f "$repository_path/FrameWink/Info.plist" ] || fail "Info.plist is missing."
 [ -f "$repository_path/FrameWink/PrivacyInfo.xcprivacy" ] \

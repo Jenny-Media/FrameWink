@@ -17,6 +17,7 @@ struct SampleSlideshowView: View {
     let refreshWallSchedule: (Date) -> Void
     let previewCaptionBottomInset: CGFloat
     let showsPreviewCaption: Bool
+    let controlSafeAreaInsets: EdgeInsets
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
@@ -41,10 +42,11 @@ struct SampleSlideshowView: View {
 
     var body: some View {
         GeometryReader { proxy in
+            let regions = proxy.frameViewportRegions(controlInsets: controlSafeAreaInsets)
             let presentedSlides = slidePresentation.resolvedSlides(fallback: slides)
             let viewport = PixelSize(
-                width: Int(proxy.size.width.rounded()),
-                height: Int(proxy.size.height.rounded())
+                width: Int(regions.photo.width.rounded()),
+                height: Int(regions.photo.height.rounded())
             )
             let pages = layoutChooser.pages(
                 for: presentedSlides.map(\.frameLayoutItem),
@@ -74,11 +76,13 @@ struct SampleSlideshowView: View {
                                 ? .identity
                                 : pageTransitionDirection.transition
                         )
+                        .frameViewportRegion(regions.photo)
 
                     if !isFrameMode,
                        showsPreviewCaption,
                        let slide = slidesByID[page.placements.first?.photoID ?? ""] {
-                        caption(for: slide, viewport: proxy.size)
+                        caption(for: slide, viewport: regions.controls.size)
+                            .frameViewportRegion(regions.controls)
                             .id(slide.id)
                             .transition(.identity)
                             .transaction { transaction in
@@ -97,6 +101,15 @@ struct SampleSlideshowView: View {
                             signature: layoutSignature,
                             slidesByID: slidesByID
                         )
+                        .frameViewportRegion(regions.photo)
+                    }
+
+                    if regions.isDivided {
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .frameViewportRegion(regions.controls)
+                            .onTapGesture { revealControls() }
+                            .accessibilityHidden(true)
                     }
 
                     if sharePreparationID != nil {
@@ -112,25 +125,29 @@ struct SampleSlideshowView: View {
                             .background(.black.opacity(0.62), in: Capsule())
                             .allowsHitTesting(false)
                             .accessibilityIdentifier("share-photo-preparing")
+                            .frameViewportRegion(regions.controls)
                     }
 
                     if hintVisible, wallVisualState != .blackout {
                         controlsHint
+                            .frameViewportRegion(regions.controls)
                             .transition(reduceMotion ? .identity : .opacity)
                     }
 
                     if controlsVisible {
                         frameControls(
-                            isCompact: proxy.size.width < 600,
+                            isCompact: regions.controls.width < 600,
                             pages: pages,
                             signature: layoutSignature,
                             slidesByID: slidesByID,
                             latestSlides: slides
                         )
+                            .frameViewportRegion(regions.controls)
                             .transition(reduceMotion ? .identity : .opacity)
 
                         if !isShowingFrameControls {
                             quickExitControl
+                                .frameViewportRegion(regions.controls)
                                 .transition(reduceMotion ? .identity : .opacity)
                         }
                     }
@@ -142,6 +159,7 @@ struct SampleSlideshowView: View {
                         signature: layoutSignature,
                         slidesByID: slidesByID
                     )
+                    .frameViewportRegion(regions.photo)
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
@@ -945,7 +963,7 @@ private struct FrameControlsPanel: View {
     }
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             Form {
                 Section {
                     Picker("Photo Duration", selection: selection) {
@@ -967,12 +985,13 @@ private struct FrameControlsPanel: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close", action: dismiss)
-                        .accessibilityIdentifier("close-frame-controls")
+                    Button(action: dismiss) {
+                        Label("Close", systemImage: "xmark")
+                    }
+                    .accessibilityIdentifier("close-frame-controls")
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .frame(idealWidth: 410, idealHeight: 220)
         .foregroundColor(.primary)
         .background(Color(uiColor: .systemBackground))
@@ -1343,7 +1362,8 @@ struct SampleSlideshowView_Previews: PreviewProvider {
             wallVisualState: .normal,
             refreshWallSchedule: { _ in },
             previewCaptionBottomInset: 250,
-            showsPreviewCaption: true
+            showsPreviewCaption: true,
+            controlSafeAreaInsets: EdgeInsets()
         )
         .previewInterfaceOrientation(.landscapeLeft)
     }

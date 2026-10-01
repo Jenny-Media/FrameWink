@@ -2302,6 +2302,52 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Known risk: FrameWink 1.4 is awaiting App Review; support instructions are
   explicitly labelled version 1.4 or later. No new device behavior is involved.
 
+### Native iPhone Duo support — 2026-10-01
+
+- Status: implemented on isolated `codex/iphone-duo-native`; release acceptance
+  remains pending physical Duo checks. The owner approved temporarily skipping
+  the unresolved automated Duo rotation case on 2026-10-01.
+- Audit: existing universal/resizable app runs with iOS 27.1, but its custom
+  slideshow spans an active fold and its foreground overlays ignore safe areas.
+- Follow Apple's Preparing your app for iPhone Duo guide: local geometry,
+  reserved division regions, standard navigation and semantic icon/title bar
+  actions, and iOS 27.1 SDK builds. Keep iOS/iPadOS 15 as the minimum.
+- Keep photos above/left of an active fold and controls below/right; preserve
+  photo anchors, pause, timing, and history through the existing playback seam.
+  No new settings or separate Duo mode.
+- Verify Duo open, closed, folded, rotated, and Split View alongside ordinary
+  iPhone and iPad. Physical Duo display transitions/accessibility remain a
+  separate real-device acceptance gate. No new release is submitted.
+- Added deterministic fold/safe-area tests and a Duo destination in the local
+  regression matrix. Debug and Release Analyze pass; all 56 focused Duo tests
+  pass. Ordinary iPhone/iPad full suites each passed 243 tests. Final UI reruns
+  exposed a four-second auto-hide race in the duration persistence test; it now
+  pauses playback while measuring persistence. Final targeted free/paid
+  duration checks passed on iPhone, iPad, and Duo; direct Exit passed on iPad.
+  All eight affected Duo geometry/privacy/review UI cases passed. Detailed
+  results and remaining checks are tracked in `docs/TESTING.md`.
+- Known risk: this Xcode 27.1 beta does not resize Duo in response to XCTest
+  orientation changes; Device Hub controls work. The local matrix temporarily
+  excludes only `testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto` from
+  the Duo suite. Its source/assertions and ordinary iPhone/iPad execution remain
+  intact; all other Duo tests remain enabled. Restore the exclusion after
+  reliable automated display rotation is verified. Cloud workflows need an
+  iOS 27.1 SDK or newer before release.
+- Follow-up authorized on 2026-10-01: full three-family regression run with
+  the approved Duo-only rotation exclusion, signed development install on
+  iPhone 18 Pro Max, isolated pull request, then internal TestFlight preparation
+  after compatible cloud validation. The final iPhone suite passed 243 tests,
+  with zero failures and four skips; iPad and Duo suites are in progress.
+- Signed development build installed over the existing app on Yihong iPhone
+  18 Pro Max (iOS 27.2) and launched successfully. Local version 1.4 (1) is
+  development installation evidence, not a TestFlight archive or human acceptance.
+- Website rechecked live: complete bird preview, feedback instructions, and
+  Jenny Media Apps footer link are already deployed. Public Duo copy waits for
+  an available app version. No website source change is needed for this candidate.
+- Active implementation and verification time: approximately 2.6 hours,
+  excluding unattended test runs. Cloud workflow inspection currently needs
+  renewed App Store Connect sign-in; no new review submission.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

@@ -3842,3 +3842,278 @@ gh api repos/Jenny-Media/FrameWink/commits/459d1bf2b33db60eead2d13f78e30a369364f
   `94866857e85a8a284e795c3f1fed944c45ee853b`; the original Jenny Media main
   checkout is clean at the same commit after `git merge --ff-only origin/main`.
   Git production deployment `dpl_7vQiXhAxXHNgNMy994RfCUNBvRJF` is Ready.
+
+
+### Native iPhone Duo — 2026-10-01
+
+Source is the isolated `codex/iphone-duo-native` branch from main
+`5e17a5b61cf36a3df96d3f218032c8e0c2c6a353`. The original dirty checkout is
+preserved. No version, signing, bundle identifier, device-family, minimum OS,
+Mac/Vision distribution, or StoreKit setting changed.
+
+Apple references:
+[Preparing your app for iPhone Duo](https://developer.apple.com/documentation/technologyoverviews/preparing-your-app-for-iphone-duo),
+[Prepare your app for iPhone Duo](https://developer.apple.com/videos/play/tech-talks/111461/),
+[Strike a pose with adaptive layouts](https://developer.apple.com/videos/play/tech-talks/111463/),
+and [XCUIDevice orientation](https://developer.apple.com/documentation/xcuiautomation/xcuidevice/orientation).
+
+Toolchain: `/Applications/Xcode-27.1-beta.app`, Xcode 27.1 build 27A9269.
+Discovered test destinations: iPhone 17 Pro Max / iOS 27.0
+`B41C6094-A3CA-48E6-AA25-1E08D0B98BCE`, iPad (A16) / iOS 27.0
+`B3A8D8D4-D576-4245-A0EC-ED914C0C744F`, and iPhone Duo / iOS 27.1
+`921F86AE-642B-4721-8C54-38D2AF15AFDD`.
+
+Commands run from the isolated repository root:
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer
+xcrun simctl list devices available
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug \
+  -destination 'platform=iOS Simulator,id=921F86AE-642B-4721-8C54-38D2AF15AFDD' \
+  -derivedDataPath /private/tmp/framewink-duo-20261001/DerivedData \
+  CODE_SIGNING_ALLOWED=NO build
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug \
+  -destination 'platform=iOS Simulator,id=921F86AE-642B-4721-8C54-38D2AF15AFDD' \
+  -derivedDataPath /private/tmp/framewink-duo-20261001/DerivedData \
+  -resultBundlePath /private/tmp/framewink-duo-20261001/geometry-tests.xcresult \
+  -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO \
+  -only-testing:FrameWinkTests/FrameViewportRegionsTests \
+  -only-testing:FrameWinkTests/FrameSessionControllerTests \
+  -only-testing:FrameWinkTests/FrameLayoutChooserTests test
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Release -destination 'generic/platform=iOS' \
+  -derivedDataPath /private/tmp/framewink-duo-20261001/ReleaseDerivedData \
+  CODE_SIGNING_ALLOWED=NO analyze
+FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/framewink-duo-20261001/LocalGate \
+  /bin/bash scripts/test_local.sh
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug \
+  -destination 'platform=iOS Simulator,id=921F86AE-642B-4721-8C54-38D2AF15AFDD' \
+  -derivedDataPath /private/tmp/framewink-duo-20261001/LocalGate/iPhoneDuo-DerivedData \
+  -resultBundlePath /private/tmp/framewink-duo-20261001/duo-final.xcresult \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 \
+  -maximum-test-execution-time-allowance 120 CODE_SIGNING_ALLOWED=NO \
+  -skip-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking \
+  -skip-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests test
+CI_XCODEBUILD_ACTION=archive /bin/sh ci_scripts/ci_pre_xcodebuild.sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
+  CI_XCODEBUILD_ACTION=archive /bin/sh ci_scripts/ci_pre_xcodebuild.sh
+bash -n scripts/test_local.sh
+sh -n ci_scripts/ci_pre_xcodebuild.sh
+/bin/bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```
+
+- Debug build passed. Six new division/safe-area tests and 50 existing playback
+  and chooser tests passed on Duo: 56 passed, no failures or skips.
+- Final Release Analyze passed with an empty diagnostic log
+  (`release-analyze-final.log`). SDK guard passed on iOS 27.1 and intentionally
+  failed on iOS 27.0 with its explicit requirement.
+- Full local gate: iPhone and iPad each passed 243 tests, with zero failures and
+  four existing skips. Duo's initial run was canceled after 189 passes when
+  the test-only StoreKit purchase/refund case stalled in book pose. The same
+  case passed in a fresh closed-pose run (`duo-purchase-closed.xcresult`). The
+  cause of the stall is not confirmed. The script now bounds test execution to
+  120 seconds; no new exclusion was added.
+- The subsequent complete Duo run (`duo-final.xcresult`) had 240 passes,
+  three failures, and four existing skips. All three failures occurred in the
+  helper asserting landscape aspect after `XCUIDevice.orientation` changed.
+  A fully open rerun reproduced them. Its diagnostic showed a correctly sized
+  landscape foreground Window (`951 × 669`) while `XCUIApplication.frame`
+  reported different geometry. Assertions and gestures now use the active
+  Window, including privacy scroll visibility and accessibility width checks.
+  The gesture change is limited to the rotation/navigation case; unrelated
+  gesture tests retain their existing drivers.
+- With the corrected helper, both landscape review tests passed. The personal
+  playback test passed the landscape swipe, hide/reveal, and paused-photo
+  assertions, but the Simulator kept `951 × 669` after the portrait request.
+  In closed pose it kept `466 × 678` after the landscape request. Diagnostics
+  are preserved in `duo-window-gestures.xcresult` and
+  `duo-window-closed-playback.xcresult`. Apple's API documents physical
+  orientation separately from interface orientation. Device Hub rotation
+  controls successfully resize the app; this beta's XCTest-driven Duo rotation
+  remains unresolved. At this stage there was no clean automated Duo gate;
+  source assertions were retained. The later owner-approved exclusion below
+  supersedes execution of this one case in the Duo matrix.
+- All eight Duo cases affected by the geometry helper passed, with zero
+  failures/skips and no runtime warnings (`duo-window-final-ui.xcresult`).
+- Final complete UI-only reruns (`iPhone-window-ui.xcresult` and
+  `iPad-window-ui.xcresult`) reported 39 passes / one failure / four skips on
+  iPhone and 38 passes / two failures / four skips on iPad. Duration persistence
+  was racing the four-second auto-hide timer; isolated runs reproduced a
+  missing More button after its hittability check. The persistence helper now
+  pauses playback before inspecting and reopening controls. Its assertions
+  remain intact; the separate advancing-playback test still runs while playing.
+  Free and paid persistence passed on iPhone (two passes, zero failures/skips,
+  no runtime warnings, `iPhone-paused-duration.xcresult`). The final iPad
+  duration and direct Exit cases passed (three passes, no failures/skips/runtime
+  warnings, `iPad-paused-duration-exit.xcresult`); the unchanged direct Exit
+  test passed in isolation. Both Duo duration cases also passed (two passes,
+  no failures/skips/runtime warnings, `duo-paused-duration.xcresult`). No full
+  clean matrix is claimed after these targeted reruns; the Duo rotation
+  automation gate remains unresolved.
+Additional final UI reruns used the following common command and selectors
+(the result label determines the unique bundle path):
+
+```sh
+run_ui_cases() {
+  duo_test_label="$1"
+  duo_test_device="$2"
+  duo_test_data="$3"
+  shift 3
+  xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+    -configuration Debug \
+    -destination "platform=iOS Simulator,id=$duo_test_device" \
+    -derivedDataPath "/private/tmp/framewink-duo-20261001/LocalGate/$duo_test_data-DerivedData" \
+    -resultBundlePath "/private/tmp/framewink-duo-20261001/$duo_test_label.xcresult" \
+    -collect-test-diagnostics never -test-timeouts-enabled YES \
+    -default-test-execution-time-allowance 120 \
+    -maximum-test-execution-time-allowance 120 CODE_SIGNING_ALLOWED=NO "$@" test
+}
+run_ui_cases iPhone-window-ui B41C6094-A3CA-48E6-AA25-1E08D0B98BCE iPhone \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests
+run_ui_cases iPad-window-ui B3A8D8D4-D576-4245-A0EC-ED914C0C744F iPad \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests
+run_ui_cases duo-window-final-ui 921F86AE-642B-4721-8C54-38D2AF15AFDD iPhoneDuo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAX3SampleSetupKeepsDescriptionAndCaptionReadable \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAX5SampleSetupKeepsDescriptionAndCaptionReadable \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPrivacySummaryKeepsDetailsBehindLearnMore \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPrivacyActionsRemainReachableWithLargerText \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndoInLandscape \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape
+run_ui_cases iPhone-paused-duration B41C6094-A3CA-48E6-AA25-1E08D0B98BCE iPhone \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFreeFrameDurationSurvivesClosingAndReopeningControls \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPaidFrameDurationSurvivesClosingAndReopeningControls
+run_ui_cases iPad-paused-duration-exit B3A8D8D4-D576-4245-A0EC-ED914C0C744F iPad \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFreeFrameDurationSurvivesClosingAndReopeningControls \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPaidFrameDurationSurvivesClosingAndReopeningControls \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFrameQuickCloseExitsWithoutOpeningMore
+run_ui_cases duo-paused-duration 921F86AE-642B-4721-8C54-38D2AF15AFDD iPhoneDuo \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testFreeFrameDurationSurvivesClosingAndReopeningControls \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPaidFrameDurationSurvivesClosingAndReopeningControls
+```
+
+- Native Device Hub checks confirmed the same paused photo (Photo 2 of 3) and
+  Resume control through book, tabletop, open, closed, and supported rotations.
+  Photo and controls avoid the active division. Frame Controls opens on the
+  outer display. Leading Split View keeps Start Frame, Add More Photos, Share,
+  Resume, and Exit reachable. Largest accessibility text in book pose uses
+  `home-setup-scroll` and fits the setup actions after correcting the width to
+  the usable region (`book-accessibility.png`).
+- On the separate `FrameWink Duo Layout QA` Simulator, Privacy & Data and the
+  unavailable-Mail feedback alert remain readable when folded. Trailing Split
+  View preserved paused Photo 3 of 3; Share and Frame Controls opened within
+  the trailing pane, with reachable Close actions. Presentations were canceled
+  without sharing or sending feedback. These are native Simulator observations,
+  not hardware acceptance.
+- Warning inventory: clean unit-test compilation reports a deprecated
+  `SKPaymentTransactionState` declaration in Apple's StoreKitTest headers.
+  Runtime logs include SwiftUI `_UIGravityWellEffectAnchorView` hosting and
+  the test-only StoreKit client's transaction-listening warning. Xcode beta
+  emits `invalidDigitCount` for OS builds 24A94403/24A94401 and debugger-version
+  `noURL` messages. The older-SDK guard probe also reports sandbox cache/event
+  diagnostics before its expected rejection. No Release Analyze diagnostic
+  was reported.
+- Locked iPad, iPhone, and Duo App Store screenshot checksum verification
+  passed; existing release assets are unchanged.
+- Physical Duo still requires opening/closing/folding/rotation and Split View
+  checks with real photos, VoiceOver, Reduce Motion, and largest text. Confirm
+  timer/anchor persistence and reachability of picker, privacy, review, paywall,
+  Mail, share, and Frame Controls presentations on hardware. PhotoKit, purchases,
+  brightness, Guided Access, thermal, and long-running display behavior retain
+  their existing real-device gates. No physical Duo acceptance is claimed.
+- Cloud/toolchain selection and a signed distribution build were not performed.
+  A future release must use iOS 27.1 SDK or newer and pass its release checks.
+  Current App Store review submission is unchanged.
+
+
+### Temporary Duo rotation-test exclusion — 2026-10-01
+
+The owner explicitly approved skipping the unresolved automated Duo rotation
+case for now. `scripts/test_local.sh` passes this exclusion only to its
+`iPhoneDuo` invocation:
+
+```sh
+-skip-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto
+```
+
+The test and assertions remain in source. The ordinary iPhone/iPad suites still
+execute it; all other Duo cases, including landscape review, remain enabled.
+This exception does not establish a passing automated Duo rotation check or
+physical-device acceptance. Restore it after XCTest reliably changes the Duo
+window geometry and the test passes through both orientation requests.
+
+Verification passed: `bash -n scripts/test_local.sh`, `git diff --check`,
+and Xcode test enumeration on all three destinations. Enumeration lists 44
+UI cases on ordinary iPhone/iPad and 43 on Duo. Comparing the enabled-test sets
+confirms the requested rotation case is the only difference. This is test
+selection validation, not test execution or a new full-matrix result.
+
+Exact enumeration commands (Xcode 27.1; result JSON and logs remain under
+`/private/tmp/framewink-duo-20261001`):
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer
+enumerate_ui_cases() {
+  duo_skip_family="$1"
+  duo_skip_device="$2"
+  shift 2
+  xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+    -configuration Debug \
+    -destination "platform=iOS Simulator,id=$duo_skip_device" \
+    -derivedDataPath "/private/tmp/framewink-duo-20261001/LocalGate/$duo_skip_family-DerivedData" \
+    CODE_SIGNING_ALLOWED=NO \
+    -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests "$@" \
+    -enumerate-tests -test-enumeration-style flat -test-enumeration-format json \
+    -test-enumeration-output-path "/private/tmp/framewink-duo-20261001/skip-enumeration-$duo_skip_family.json" test
+}
+enumerate_ui_cases iPhone B41C6094-A3CA-48E6-AA25-1E08D0B98BCE
+enumerate_ui_cases iPad B3A8D8D4-D576-4245-A0EC-ED914C0C744F
+enumerate_ui_cases iPhoneDuo 921F86AE-642B-4721-8C54-38D2AF15AFDD \
+  -skip-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto
+```
+
+All commands exited zero. No new warnings were reported by enumeration.
+App source and production/review state are unchanged by this exception.
+
+
+### Duo release follow-up — 2026-10-01
+
+The owner authorized the final local matrix, physical iPhone installation, an
+isolated pull request, and preparation of a subsequent internal TestFlight
+build after compatible cloud validation. The final matrix is running under
+`/private/tmp/framewink-duo-20261001/FinalGate` with the existing exclusions
+and only the owner-approved additional Duo rotation exclusion. The final
+iPhone suite passed 243 tests, with zero failures and four skips. iPad and Duo
+results will be recorded separately when complete.
+
+Signed development installation passed with existing signing settings:
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -destination 'platform=iOS,id=00008160-0019491C01A80036' \
+  -derivedDataPath /private/tmp/framewink-duo-20261001/DeviceDerivedData build
+xcrun devicectl device install app --device 00008160-0019491C01A80036 \
+  /private/tmp/framewink-duo-20261001/DeviceDerivedData/Build/Products/Debug-iphoneos/FrameWink.app
+xcrun devicectl device process launch --terminate-existing \
+  --device 00008160-0019491C01A80036 media.jenny.FrameWink
+```
+
+All commands exited zero. Build log is `device-build.log` in the same evidence
+root and contains no warnings. Installed local bundle is version 1.4 (1), on
+physical Yihong iPhone 18 Pro Max running iOS 27.2. Existing app data was
+preserved; this is install/launch evidence, not user acceptance, production
+purchase verification, or a TestFlight archive. Physical Duo acceptance
+remains outstanding.
+
+The public websites were rechecked in Chrome: Jenny Media Apps loads
+`framewink-pair-preview.webp` with the complete bird head, and the FrameWink
+support page includes version-labelled Send Feedback instructions and the
+footer link to `https://jenny.media/apps/`. No website update is required until
+an app version containing native Duo support is publicly available.

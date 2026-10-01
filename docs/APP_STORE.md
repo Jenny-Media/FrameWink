@@ -9,6 +9,26 @@ FrameWink 1.3 is approved and available on the App Store at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
+## Native iPhone Duo internal candidate — 2026-10-01
+
+The owner authorized the full local regression matrix, an updated development
+install on iPhone 18 Pro Max, and publication of an isolated pull request. After
+cloud validation passes with Xcode 27.1 or newer, prepare a separate internal
+TestFlight build from the reviewed Duo source. Cloud build numbering supplies
+a new build number; the local development bundle version is not a TestFlight
+upload number. Keep the submitted Build 39 unchanged.
+
+`TestFlight/WhatToTest.en-US.txt` includes open/closed, Book/Tabletop, rotation,
+both Split View positions, Larger Text, and paused-photo continuity checks.
+The one owner-approved automated Duo rotation exclusion does not replace
+manual rotation or physical Duo acceptance. Do not claim native Duo support on
+the public website before an app version containing it is available. The
+existing website feedback instructions, Jenny Media Apps footer link, and
+complete bird screenshot were rechecked live on 2026-10-01.
+
+Pull request merge and any new App Review submission remain separate steps.
+Keep the existing App Review submission unchanged during internal preparation.
+
 ## Version 1.4 submitted
 
 The owner confirmed the installed privacy and feedback changes work and
