@@ -84,8 +84,8 @@ ui_test_bundle_identifier=$(xcodebuild \
     || fail "Release target must not be available as Designed for iPhone/iPad on Apple Vision Pro."
 [ "$minimum_os" = "15.0" ] \
     || fail "Release deployment target is '$minimum_os', expected iOS/iPadOS 15.0."
-[ "$marketing_version" = "1.4" ] \
-    || fail "Release marketing version is '$marketing_version', expected App Store version 1.4."
+[ "$marketing_version" = "1.5" ] \
+    || fail "Release marketing version is '$marketing_version', expected App Store version 1.5."
 [ "$unit_test_bundle_identifier" = "media.jenny.FrameWinkTests" ] \
     || fail "Unit-test bundle identifier is '$unit_test_bundle_identifier', expected media.jenny.FrameWinkTests."
 [ "$ui_test_bundle_identifier" = "media.jenny.FrameWinkUITests" ] \

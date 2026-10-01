@@ -4292,3 +4292,91 @@ TestFlight archive of the native Duo branch. No native source was merged into
 main, and no new App Review submission was made. Physical Duo acceptance,
 native-candidate cloud validation, and fresh closed/Tabletop marketing captures
 remain pending.
+
+
+## PR #20 synchronized-source and version 1.5 gates — 2026-10-01
+
+Website PR #22 merged as `1455af0`. The native Duo branch integrated main as
+`fa6c26db33a31ce68ffba482ef93ca902544074b`; the only conflict was appended
+PLAN history, and both records were retained. Native source and tests were
+identical before and after this integration.
+
+Available destinations were rediscovered with `xcodebuild -showdestinations`
+using `/Applications/Xcode-27.1-beta.app/Contents/Developer` (27A9269):
+
+| Family | Simulator | OS | Destination ID |
+| --- | --- | --- | --- |
+| iPhone | iPhone 17 Pro Max | 27.0 | B41C6094-A3CA-48E6-AA25-1E08D0B98BCE |
+| iPad | iPad (A16) | 27.0 | B3A8D8D4-D576-4245-A0EC-ED914C0C744F |
+| Duo | iPhone Duo | 27.1 | 921F86AE-642B-4721-8C54-38D2AF15AFDD |
+
+The following command was run separately for each destination on `fa6c26d`,
+with a unique family-named DerivedData directory and result bundle:
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -destination "platform=iOS Simulator,id=$fw_pr20_sim" \
+  -derivedDataPath "$fw_pr20_output/$fw_pr20_family-DerivedData" \
+  -resultBundlePath "$fw_pr20_output/$fw_pr20_family.xcresult" \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 \
+  -maximum-test-execution-time-allowance 120 CODE_SIGNING_ALLOWED=NO \
+  -only-testing:FrameWinkTests/FrameViewportRegionsTests \
+  -only-testing:FrameWinkTests/FrameSessionControllerTests \
+  -only-testing:FrameWinkTests/FrameLayoutChooserTests test
+```
+
+Result: **56 passed on each family, 168 total; zero failures, skips, or runtime
+warnings**. Full command script, logs, and `.xcresult` bundles are under
+`/private/tmp/framewink-duo-pr20-20261001/` (`focused-gate.sh`, `iPhone.log`,
+`iPad.log`, `Duo.log`). This focused rerun supplements the previously recorded
+full regression matrix; the full matrix was not repeated for website/docs
+integration. The owner-approved Duo-only automated rotation exclusion remains
+in effect; it does not replace manual rotation or physical Duo acceptance.
+
+App Store Connect now shows version 1.4 / Build 39 as Ready for Distribution.
+The next native candidate's Debug and Release marketing version and archive
+guard were updated to 1.5. The app was then rebuilt on all three destinations:
+
+```sh
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -destination "platform=iOS Simulator,id=$fw_pr20_sim" \
+  -derivedDataPath "$fw_pr20_output/$fw_pr20_family-DerivedData" \
+  CODE_SIGNING_ALLOWED=NO build
+/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' \
+  "$fw_pr20_output/$fw_pr20_family-DerivedData/Build/Products/Debug-iphonesimulator/FrameWink.app/Info.plist"
+CI_XCODEBUILD_ACTION=archive /bin/sh ci_scripts/ci_pre_xcodebuild.sh
+sh -n ci_scripts/ci_pre_xcodebuild.sh
+bash scripts/verify_locked_app_store_screenshots.sh
+```
+
+Result: all three builds passed and embedded **1.5**; archive guard, shell
+syntax, and all locked screenshot checks passed. Logs and exact script:
+`iPhone-version-1.5.log`, `iPad-version-1.5.log`, `Duo-version-1.5.log`, and
+`version-gate.sh` in the same output directory. Apple's StoreKitTest header
+still emits the known deprecated `SKPaymentTransactionState` warning; beta OS
+build parsing emits the known `invalidDigitCount` diagnostic. No new app-source
+warnings were found. Signing, bundle identifiers, minimum iOS 15 deployment,
+platform scope, dependencies, and screenshot gallery hashes were unchanged.
+
+Both saved Xcode Cloud workflows were reload-verified with explicit Xcode
+27.2 beta 2 (27B5028f), currently the available compatible cloud SDK. Validation
+retains required Analyze only and now permits a manual start on the Duo branch;
+its automatic main trigger is unchanged. Internal TestFlight retains its clean
+archive, App Store Connect preparation, and Jenny Media Internal post-action.
+Validation **Build 55 succeeded** on `fa6c26d`:
+[Apple build record](https://appstoreconnect.apple.com/teams/69a6de81-5b05-47e3-e053-5b8c7c11a4d1/xcode-cloud/products/62eea1ab-f057-459c-a7b3-6406b895bdb6/builds/f090ec65-e550-4002-ac78-57926d734416/summary).
+The changed 1.5 candidate still requires its own exact-commit cloud validation
+and internal archive. A beta-built internal candidate does not establish App
+Review eligibility.
+
+Separately, main's website-triggered Internal TestFlight Build 53 failed with
+“Preparing build for App Store Connect failed,” although compilation, archive,
+export, and detailed preparation logs showed Passed. No specific upload
+rejection reason was exposed; this is not a native Duo source failure or proof
+of a closed release train. No new App Review submission was made.
+
+Physical Duo pose/rotation acceptance and the previously listed PhotoKit,
+purchase, brightness, thermal, Guided Access, VoiceOver, Reduce Motion,
+long-running and iOS 15 checks remain separate manual requirements.

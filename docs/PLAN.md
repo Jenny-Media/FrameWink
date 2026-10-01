@@ -2445,7 +2445,8 @@ backlog rather than extending the MVP.
 
 - Status: implementation and local verification complete on
   `codex/website-theme-toggle`, based on the merged website spacing audit
-  (`2eb2e81`). Preview review and production merge remain pending.
+  (`2eb2e81`). Owner-approved PR #22 merged as `1455af0` on October 1,
+  2026; Vercel production and live header/footer controls are verified.
 - Owner requested one button at the top right. Added a 44 px native sun/moon
   button to the shared header, with theme-specific accessible action labels,
   keyboard focus, and responsive spacing. No theme menu or extra setting.
@@ -2483,6 +2484,33 @@ backlog rather than extending the MVP.
   Both themes passed footer geometry checks at 320/390/768/900/901/1024/1440 px,
   with a 44 px control, no overlap/overflow, and no console errors/warnings.
   Unit tests cover both device appearances, subsequent device changes, saved
-  choice removal, and denied-storage fallback. Hosted preview review is pending.
+  choice removal, and denied-storage fallback. Owner reviewed and approved
+  PR #22; its production merge and served controls are verified.
 - Added active implementation/verification time: approximately 0.15 hours.
   No iOS source or native Duo release change.
+
+
+## PR #20 cloud and 1.5 preparation follow-up — 2026-10-01
+
+- Owner requested merging website PR #22 and continuing native Duo PR #20.
+  PR #22 merged as `1455af0`; Vercel deployed it successfully. Integrated main
+  into the isolated Duo branch as `fa6c26d`, preserving both documentation
+  records in the only merge conflict. Native source and tests were unchanged.
+- App Store Connect is signed in. Version 1.4 / Build 39 now shows Ready for
+  Distribution. Set the next native candidate to 1.5 in Debug, Release, and the
+  release guard; prepared draft What's New and App Review notes. No new App
+  Review submission or public Duo release is performed.
+- Saved both cloud workflows with explicit Xcode 27.2 beta 2 (27B5028f), the
+  currently available compatible SDK. Validation keeps required Analyze only,
+  with automatic main builds and a manual start scoped to the Duo branch.
+  Internal TestFlight retains its existing main trigger, manual starts, clean
+  archive, and Jenny Media Internal post-action. Beta candidate acceptance and
+  release-toolchain App Review eligibility remain separate.
+- Validation Build 55 passed Analyze on `fa6c26d`. The 1.5 source requires a
+  subsequent exact-commit validation and internal archive.
+- Fresh focused tests on `fa6c26d` passed 56 each on iPhone, iPad, and Duo, with
+  zero failures/skips/runtime warnings. All three subsequent 1.5 builds passed
+  and embedded 1.5; archive guard and all locked screenshot checks passed.
+  SDK StoreKitTest deprecation and beta build-number diagnostics remain known warnings. Details and commands are recorded in docs/TESTING.md.
+- Active follow-up time so far: approximately 0.4 hours, excluding unattended
+  tests and cloud waiting. Physical Duo acceptance remains pending.
