@@ -2396,5 +2396,15 @@ backlog rather than extending the MVP.
   physical Duo and Xcode Cloud validation gates remain unchanged. The public
   copy says upcoming preview rather than claiming available native support.
 - Additional active implementation and verification time: approximately
-  1.0 hour, including Device Hub recovery and website checks. Live production
-  verification is recorded separately when deployment completes.
+  1.0 hour, including Device Hub recovery and website checks.
+- Live production verification completed October 1, 2026, at 18:15 UTC:
+  `https://frame.jenny.media/#iphone-duo` shows the loaded, complete official
+  bezel with an upcoming-update caption and no horizontal overflow;
+  `https://jenny.media/apps/#framewink` shows the same full device as
+  screenshot 4 of 4 with working gallery navigation. Both Vercel
+  deployments succeeded. Final proof images are retained in the testing
+  directory documented below.
+- The website-only main commit also triggered the existing Apple
+  Validation and Internal TestFlight workflows; both reported success.
+  These runs contain the existing main app code, not the native Duo
+  candidate in draft PR #20, so they do not satisfy its cloud gates.

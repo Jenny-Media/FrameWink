@@ -4260,3 +4260,35 @@ Apple license LYL142; no standalone Apple PNG/PSD artwork is redistributed.
 
 Native cloud validation, physical Duo, TestFlight and App Review are separate
 from this website publication. No new app review submission was made.
+
+
+## Published Duo preview verification — 2026-10-01
+
+At 18:15 UTC, production browser inspection confirmed:
+
+- `https://frame.jenny.media/#iphone-duo`: complete official device artwork,
+  actual bundled-photo app pixels, upcoming-update caption, loaded image at
+  approximately 749 x 544 CSS pixels, and no horizontal overflow.
+- `https://jenny.media/apps/#framewink`: screenshot 4 of 4 shows the complete
+  device after the existing gallery transition finishes. Previous is enabled,
+  Next is disabled, and the caption states that this is an upcoming update.
+
+Saved final live screenshots:
+`/private/tmp/framewink-duo-20261001/live-framewink-duo-desktop.jpg` and
+`/private/tmp/framewink-duo-20261001/live-jenny-apps-duo-desktop.jpg`.
+Both Vercel deployments reported success for FrameWink `0c1ffa4` and Jenny Apps
+`9cf00e2`. Native capture sources and generated composites remain in the
+existing draft PR #20 archive; the published FrameWink commit changed only five
+website paths.
+
+The main-branch website commit also triggered the existing Apple Validation
+and Internal TestFlight workflows. Both reported success:
+
+- Validation build: `a74f6566-891f-49be-876b-8a3f576e136c`.
+- Internal TestFlight build: `3be6aac4-01be-4e82-afd6-92eb3fb479d5`.
+
+Those runs use main's existing native code. They are not validation or a
+TestFlight archive of the native Duo branch. No native source was merged into
+main, and no new App Review submission was made. Physical Duo acceptance,
+native-candidate cloud validation, and fresh closed/Tabletop marketing captures
+remain pending.
