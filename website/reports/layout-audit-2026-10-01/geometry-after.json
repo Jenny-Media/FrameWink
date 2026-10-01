@@ -1,0 +1,218 @@
+[
+  {
+    "width": 320,
+    "viewportHeight": 900,
+    "pageHeight": 10600,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 375,
+    "viewportHeight": 900,
+    "pageHeight": 10031,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 390,
+    "viewportHeight": 900,
+    "pageHeight": 9958,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 430,
+    "viewportHeight": 900,
+    "pageHeight": 9764,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 560,
+    "viewportHeight": 900,
+    "pageHeight": 9331,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 561,
+    "viewportHeight": 900,
+    "pageHeight": 9175,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 640,
+    "viewportHeight": 900,
+    "pageHeight": 9149,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 700,
+    "viewportHeight": 900,
+    "pageHeight": 9203,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 701,
+    "viewportHeight": 900,
+    "pageHeight": 8590,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 768,
+    "viewportHeight": 900,
+    "pageHeight": 8618,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 900,
+    "viewportHeight": 900,
+    "pageHeight": 8913,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 901,
+    "viewportHeight": 900,
+    "pageHeight": 7495,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 960,
+    "viewportHeight": 900,
+    "pageHeight": 7650,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 1024,
+    "viewportHeight": 900,
+    "pageHeight": 7751,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 1180,
+    "viewportHeight": 900,
+    "pageHeight": 8151,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 1181,
+    "viewportHeight": 900,
+    "pageHeight": 7532,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 1440,
+    "viewportHeight": 900,
+    "pageHeight": 8210,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  },
+  {
+    "width": 1920,
+    "viewportHeight": 900,
+    "pageHeight": 8672,
+    "horizontalOverflow": false,
+    "outOfViewportText": [],
+    "captionGaps": {
+      "flat-device-stage": 24,
+      "flat-showcase-device": 24,
+      "duo-preview-device": 20
+    }
+  }
+]
