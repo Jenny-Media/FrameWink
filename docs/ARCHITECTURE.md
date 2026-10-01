@@ -4,6 +4,10 @@
 
 - Universal iPhone and iPad application with an iPad-first frame experience.
 - Minimum iOS/iPadOS 15.
+- Version 1.5 uses stable Xcode 27 / iOS SDK 27.0. The app compiles native
+  iPhone Duo display APIs only with `FRAMEWINK_NATIVE_DUO`, selected by SDK
+  conditions for 27.1/27.2. Older SDKs use the standard viewport. New SDK lines
+  must explicitly extend those conditions and be verified before distribution.
 - SwiftUI application lifecycle.
 - Use `ObservableObject`/`@StateObject` for shared state.
 - Use Swift concurrency only where availability and cancellation behavior are
@@ -73,6 +77,24 @@ The MVP pipeline:
 9. User exclusions applied as hard vetoes.
 
 Never perform all-pairs similarity comparison across an unbounded library.
+
+### Adaptive display regions
+
+`FrameViewportRegions` splits local view bounds around an active division.
+`FrameAdaptiveGeometry` reads SwiftUI reserved division frames and their
+individual margins on iOS 27.1 or later when `FRAMEWINK_NATIVE_DUO` is enabled;
+stable-SDK builds and older systems retain the full viewport.
+Photos may bleed to the display edge, while foreground controls intersect the
+safe area independently on every side. Do not infer geometry from device names,
+`UIScreen.main`, or device orientation.
+
+`RootView` sizes its setup chrome from the usable control region, enabling
+scrolling beside the fold and for narrow accessibility layouts. Playback sends
+the usable photo region to the existing layout chooser. Reflow still uses the
+existing stable photo anchor, remaining timer, pause state, and display history.
+`FrameNavigationContainer` uses standard NavigationStack on iOS 16 and later,
+with the stacked NavigationView fallback on iOS 15. Semantic toolbar actions
+include both a title and a symbol for the system's horizontal/vertical bars.
 
 ### Layout
 

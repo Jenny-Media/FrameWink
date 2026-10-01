@@ -23,8 +23,22 @@ The cloud workflows should:
 4. Use its TestFlight post-action to distribute successful builds to Jenny Media
    LLC internal testers.
 
-Before release changes merge, `scripts/test_local.sh` runs the shared scheme on
-one iPhone and one iPad Simulator and verifies the locked screenshot set.
+Before release changes merge, `scripts/test_local.sh` defaults to stable Xcode
+and runs the shared scheme on iPhone and iPad, then verifies locked screenshots.
+An explicit `DEVELOPER_DIR` pointing to a 27.1/27.2 SDK adds the native Duo suite,
+retaining the owner-approved Duo-only automated rotation exclusion.
+
+Version 1.5 uses stable Xcode 27 (27A266a), SDK 27.0, with native fold APIs
+compiled out. SDK conditions enable `FRAMEWINK_NATIVE_DUO` for 27.1/27.2 builds;
+the release guard checks that the flag matches those SDKs while preserving
+minimum iOS/iPadOS 15 and release identity checks. Add and verify conditions for
+new SDK lines before relying on their Duo behavior.
+
+Historical native beta Validation Build 56 and internal TestFlight Build 57
+passed on `088b17c`, using Xcode 27.2 beta 2. The owner subsequently authorized a
+staged public release: standard iPhone/iPad refinements now, native Duo in a
+later version when an Apple-accepted compatible toolchain is available. Beta
+build 57 is not the stable public candidate. Retain manual release after review.
 
 Apple requires the first Xcode Cloud workflow to be configured from Xcode. The
 project must be in an accessible Git repository, Xcode Cloud must be granted
@@ -744,8 +758,8 @@ blocker affects only a later boundary.
 ## Committed Xcode Cloud guardrail
 
 Apple automatically runs `ci_scripts/ci_pre_xcodebuild.sh` before each Xcode
-Cloud action. FrameWink's script validates its two privacy property lists and
-Release identity for every action. For an archive, it additionally requires the
+Cloud action. FrameWink's script validates the SDK version, its two privacy
+property lists, and Release identity for every action. For an archive, it additionally requires the
 Jenny Media LLC team, `media.jenny.FrameWink`, and a nonempty non-local Wall Mode
 product identifier. This makes B-006 fail closed at the cloud archive boundary
 without preventing Build or Analyze workflows.

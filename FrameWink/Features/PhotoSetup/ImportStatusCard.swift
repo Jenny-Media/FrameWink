@@ -8,7 +8,7 @@ struct ImportStatusCard: View {
     let dismiss: () -> Void
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             Form {
                 content
             }
@@ -21,7 +21,6 @@ struct ImportStatusCard: View {
             }
             .accessibilityIdentifier("import-status-sheet")
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .interactiveDismissDisabled(isBusy)
         .onDisappear {
             if !isBusy {
@@ -55,14 +54,18 @@ struct ImportStatusCard: View {
     private var toolbarAction: some View {
         switch phase {
         case .importing:
-            Button("Cancel", role: .cancel, action: cancel)
-                .accessibilityIdentifier("cancel-photo-import")
+            Button(role: .cancel, action: cancel) {
+                Label("Cancel", systemImage: "xmark")
+            }
+            .accessibilityIdentifier("cancel-photo-import")
         case .cancelling:
             ProgressView()
                 .accessibilityLabel("Stopping import")
         case .idle, .finished, .deletionFailed:
-            Button("Close", action: dismiss)
-                .accessibilityIdentifier("close-import-status")
+            Button(action: dismiss) {
+                Label("Close", systemImage: "xmark")
+            }
+            .accessibilityIdentifier("close-import-status")
         }
     }
 

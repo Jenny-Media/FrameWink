@@ -2302,11 +2302,113 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 - Known risk: FrameWink 1.4 is awaiting App Review; support instructions are
   explicitly labelled version 1.4 or later. No new device behavior is involved.
 
+### Native iPhone Duo support — 2026-10-01
+
+- Status: implemented on isolated `codex/iphone-duo-native`; release acceptance
+  remains pending physical Duo checks. The owner approved temporarily skipping
+  the unresolved automated Duo rotation case on 2026-10-01.
+- Audit: existing universal/resizable app runs with iOS 27.1, but its custom
+  slideshow spans an active fold and its foreground overlays ignore safe areas.
+- Follow Apple's Preparing your app for iPhone Duo guide: local geometry,
+  reserved division regions, standard navigation and semantic icon/title bar
+  actions, and iOS 27.1 SDK builds. Keep iOS/iPadOS 15 as the minimum.
+- Keep photos above/left of an active fold and controls below/right; preserve
+  photo anchors, pause, timing, and history through the existing playback seam.
+  No new settings or separate Duo mode.
+- Verify Duo open, closed, folded, rotated, and Split View alongside ordinary
+  iPhone and iPad. Physical Duo display transitions/accessibility remain a
+  separate real-device acceptance gate. No new release is submitted.
+- Added deterministic fold/safe-area tests and a Duo destination in the local
+  regression matrix. Debug and Release Analyze pass; all 56 focused Duo tests
+  pass. Ordinary iPhone/iPad full suites each passed 243 tests. Final UI reruns
+  exposed a four-second auto-hide race in the duration persistence test; it now
+  pauses playback while measuring persistence. Final targeted free/paid
+  duration checks passed on iPhone, iPad, and Duo; direct Exit passed on iPad.
+  All eight affected Duo geometry/privacy/review UI cases passed. Detailed
+  results and remaining checks are tracked in `docs/TESTING.md`.
+- Known risk: this Xcode 27.1 beta does not resize Duo in response to XCTest
+  orientation changes; Device Hub controls work. The local matrix temporarily
+  excludes only `testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto` from
+  the Duo suite. Its source/assertions and ordinary iPhone/iPad execution remain
+  intact; all other Duo tests remain enabled. Restore the exclusion after
+  reliable automated display rotation is verified. Cloud workflows need an
+  iOS 27.1 SDK or newer before release.
+- Follow-up authorized on 2026-10-01: full three-family regression run with
+  the approved Duo-only rotation exclusion, signed development install on
+  iPhone 18 Pro Max, isolated pull request, then internal TestFlight preparation
+  after compatible cloud validation. Final ordinary iPhone/iPad suites each
+  passed 243 tests, with zero failures and four physical-library skips. The
+  first full Duo follow-up was 239 passed / 3 failed / 4 skipped: three remaining
+  viewport gestures targeted the application instead of its active window.
+  All three corrected cases passed on all three families with assertions intact.
+  The complete Duo recovery passed 242 tests / zero failures / four physical-
+  library skips; locked screenshots are unchanged. App source is identical
+  across these follow-up runs. Cloud validation and physical Duo acceptance
+  remain pending; no new review submission.
+- Signed development build installed over the existing app on Yihong iPhone
+  18 Pro Max (iOS 27.2) and launched successfully. Local version 1.4 (1) is
+  development installation evidence, not a TestFlight archive or human acceptance.
+- Website rechecked live: complete bird preview, feedback instructions, and
+  Jenny Media Apps footer link are already deployed. Public Duo copy waits for
+  an available app version. No website source change is needed for this candidate.
+- Active implementation and verification time: approximately 3.0 hours,
+  excluding unattended test runs. Cloud workflow inspection currently needs
+  renewed App Store Connect sign-in; no new review submission.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight
 hours only for hardening and release. Move incomplete optional behavior to the
 backlog rather than extending the MVP.
+
+
+### Native Duo screenshots and website preview — 2026-10-01
+
+- Status: capture archive, licensed official-bezel composites, and website
+  implementation are complete. Native app release acceptance remains pending.
+- Accepted Apple Design Resources license LYL142 (June 21, 2023) with the
+  owner's explicit authorization. Verified the existing DMG's Apple download
+  provenance and hash. The original package and standalone artwork stay outside
+  Git; all website composites preserve the complete supplied device artwork.
+- Saved two fresh 2853 x 2007 native inner-display PNGs, a retained Book/Larger
+  Text QA capture, capture hashes and artwork provenance under
+  `Design/Website/iPhone-Duo/`. Added capture and compositing scripts. Only the
+  actual app pixels are inserted into Apple's exact 2853 x 2007 screen opening
+  at +120,+120 in its 3093 x 2247 Inner Open Landscape bezel.
+- Kept the addition small: one upcoming Duo section on the FrameWink website
+  and one extra slide in Jenny Apps' existing FrameWink gallery, localized into
+  English, Traditional Chinese, and Simplified Chinese. The existing iPad lead
+  and complete bird photograph remain unchanged.
+- Published the website-only change from an isolated temporary checkout using
+  `0c1ffa4`; its five paths are all under `website/`, and no native app code was
+  included. Jenny Apps' source/asset update is `9cf00e2`. The native capture
+  archive was pushed as `b5c01d4` on the existing draft PR #20 branch.
+- Validation: Duo Debug screenshot build succeeded; FrameWink website 9/9
+  tests, lint, and production build passed; Jenny Apps 137/137 tests, production
+  build, Chromium desktop and WebKit mobile checks passed. Browser inspection
+  confirmed the final image/caption, gallery navigation, and no horizontal
+  overflow at desktop/phone sizes. The FrameWink image was also checked at
+  320-pixel width. All locked App Store gallery checksums remain unchanged.
+- Known gaps: Device Hub pose controls repeatedly timed out or exposed controls
+  without actionable frames. Blank closed-display captures were rejected;
+  fresh closed/Tabletop marketing captures remain pending. Apple supplies open
+  and closed artwork, with no Book/Tabletop bezel in this package. Existing
+  physical Duo and Xcode Cloud validation gates remain unchanged. The public
+  copy says upcoming preview rather than claiming available native support.
+- Additional active implementation and verification time: approximately
+  1.0 hour, including Device Hub recovery and website checks.
+- Live production verification completed October 1, 2026, at 18:15 UTC:
+  `https://frame.jenny.media/#iphone-duo` shows the loaded, complete official
+  bezel with an upcoming-update caption and no horizontal overflow;
+  `https://jenny.media/apps/#framewink` shows the same full device as
+  screenshot 4 of 4 with working gallery navigation. Both Vercel
+  deployments succeeded. Final proof images are retained in the testing
+  directory documented below.
+- The website-only main commit also triggered the existing Apple
+  Validation and Internal TestFlight workflows; both reported success.
+  These runs contain the existing main app code, not the native Duo
+  candidate in draft PR #20, so they do not satisfy its cloud gates.
+
 
 ## Website layout audit — 2026-10-01
 
@@ -2343,7 +2445,8 @@ backlog rather than extending the MVP.
 
 - Status: implementation and local verification complete on
   `codex/website-theme-toggle`, based on the merged website spacing audit
-  (`2eb2e81`). Preview review and production merge remain pending.
+  (`2eb2e81`). Owner-approved PR #22 merged as `1455af0` on October 1,
+  2026; Vercel production and live header/footer controls are verified.
 - Owner requested one button at the top right. Added a 44 px native sun/moon
   button to the shared header, with theme-specific accessible action labels,
   keyboard focus, and responsive spacing. No theme menu or extra setting.
@@ -2381,6 +2484,61 @@ backlog rather than extending the MVP.
   Both themes passed footer geometry checks at 320/390/768/900/901/1024/1440 px,
   with a 44 px control, no overlap/overflow, and no console errors/warnings.
   Unit tests cover both device appearances, subsequent device changes, saved
-  choice removal, and denied-storage fallback. Hosted preview review is pending.
+  choice removal, and denied-storage fallback. Owner reviewed and approved
+  PR #22; its production merge and served controls are verified.
 - Added active implementation/verification time: approximately 0.15 hours.
   No iOS source or native Duo release change.
+
+
+## PR #20 cloud and 1.5 preparation follow-up — 2026-10-01
+
+- Owner requested merging website PR #22 and continuing native Duo PR #20.
+  PR #22 merged as `1455af0`; Vercel deployed it successfully. Integrated main
+  into the isolated Duo branch as `fa6c26d`, preserving both documentation
+  records in the only merge conflict. Native source and tests were unchanged.
+- App Store Connect is signed in. Version 1.4 / Build 39 now shows Ready for
+  Distribution. Set the next native candidate to 1.5 in Debug, Release, and the
+  release guard; prepared draft What's New and App Review notes. No new App
+  Review submission or public Duo release is performed.
+- Saved both cloud workflows with explicit Xcode 27.2 beta 2 (27B5028f), the
+  currently available compatible SDK. Validation keeps required Analyze only,
+  with automatic main builds and a manual start scoped to the Duo branch.
+  Internal TestFlight retains its existing main trigger, manual starts, clean
+  archive, and Jenny Media Internal post-action. Beta candidate acceptance and
+  release-toolchain App Review eligibility remain separate.
+- Validation Build 55 passed Analyze on `fa6c26d`; Build 56 then passed on the
+  exact 1.5 candidate `088b17c`. Internal TestFlight Build 57 was started on
+  that same commit after Validation succeeded. Both Archive and internal
+  distribution succeeded; processed version 1.5 / Build 57 is assigned to
+  Jenny Media Internal (one existing tester), and saved What to Test matches
+  the repository file.
+- Fresh focused tests on `fa6c26d` passed 56 each on iPhone, iPad, and Duo, with
+  zero failures/skips/runtime warnings. All three subsequent 1.5 builds passed
+  and embedded 1.5; archive guard and all locked screenshot checks passed.
+  SDK StoreKitTest deprecation and beta build-number diagnostics remain known warnings. Details and commands are recorded in docs/TESTING.md.
+- Apple upload errors 90062 and 90186 confirm main Build 53 was rejected because
+  version 1.4 is approved and its pre-release train is closed. The 1.5 bump
+  addresses this verified upload restriction.
+- Status: synchronized PR and internal 1.5 candidate are ready for owner review.
+  PR #20 remains unmerged, and no new App Review submission is made. Physical
+  Duo acceptance and an Apple-accepted App Review toolchain remain pending.
+- Active follow-up time: approximately 0.6 hours, excluding unattended tests
+  and cloud waiting. No milestone is marked complete by this internal build.
+
+## Stable version 1.5 staged release — 2026-10-01
+
+- Owner authorized merging PR #20 and releasing version 1.5 with the stable
+  toolchain, followed by native Duo in a later compatible-toolchain release.
+- Added SDK-specific `FRAMEWINK_NATIVE_DUO` compilation conditions for SDK
+  27.1/27.2. Stable SDK 27.0 excludes reserved-region calls and retains the
+  ordinary viewport; compatible builds retain native fold geometry.
+- Local script now defaults to stable Xcode and tests iPhone/iPad; explicit
+  compatible SDK builds also test Duo with the existing rotation exception.
+  Release guard validates SDK/flag compatibility and existing release identity.
+- Prepared ordinary iPhone/iPad What's New, App Review notes, and TestFlight
+  notes; locked screenshots and upcoming Duo website claims remain applicable.
+- Status: release verification, exact-source cloud validation, merge, signed
+  stable archive, metadata save/read-back, and App Review submission in progress.
+- Active time estimate: 0.4 hours so far. Physical-device Mail, PhotoKit,
+  StoreKit, long-running, brightness, and Guided Access checks remain separate.
+  Native Duo is intentionally deferred; no public Duo acceptance is claimed.

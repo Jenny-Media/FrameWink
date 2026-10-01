@@ -652,3 +652,37 @@ date; do not silently rewrite historical decisions during implementation.
   third-party SDK, or automatic transmission is introduced.
 - Owner approved the minimal mockup on 2026-09-30. Native Mail behavior needs a
   configured physical device; Simulator validates the unavailable-Mail path.
+
+
+## D-051 — Native iPhone Duo without a separate mode
+
+- For builds enabling native fold APIs, use iOS 27.1 SDK or newer, as required by Apple's
+  [Preparing your app for iPhone Duo](https://developer.apple.com/documentation/technologyoverviews/preparing-your-app-for-iphone-duo).
+  Retain the iOS/iPadOS 15 minimum and device families 1 and 2; do not enable Mac
+  or Vision Pro compatibility.
+- Derive usable regions from the containing view and active reserved divisions,
+  including Apple's division margins. Keep photos above/left of a partly folded
+  display and controls below/right. Keep foreground controls inside asymmetric
+  safe areas. Fully open playback continues to use the whole available window.
+- Use standard navigation containers and semantic toolbar buttons with symbols
+  and titles so native bars can adapt. Allow folded setup chrome to scroll and
+  use the control region's width for accessibility layout decisions.
+- Preserve the existing photo anchor, pause, timer, and display history across
+  geometry changes. Add no separate Duo setting, purchase, permission, or
+  dependency. Simulator pose and Split View checks supplement the normal
+  iPhone/iPad test gate; physical-device acceptance remains separate.
+
+## D-052 — Stable 1.5 release before native Duo distribution
+
+- Owner authorized merging PR #20 and releasing ordinary iPhone/iPad
+  refinements now, followed by another version when the compatible release
+  toolchain is ready.
+- Compile reserved-region API calls only under `FRAMEWINK_NATIVE_DUO`; explicit
+  27.1/27.2 SDK conditions enable it in Debug and Release. Stable SDK 27.0
+  uses the existing viewport. Swift compiler versions do not distinguish these
+  SDKs, so compiler-version checks are insufficient.
+- Use stable Xcode 27 for public 1.5, retain the minimum iOS/iPadOS 15, and keep
+  Duo website screenshots labelled as an upcoming preview. Public What's New
+  describes shipped iPhone/iPad refinements. Preserve historical beta evidence.
+- A later native Duo release still needs an Apple-accepted SDK, release gates,
+  and physical pose/rotation checks. Keep manual App Store release after review.

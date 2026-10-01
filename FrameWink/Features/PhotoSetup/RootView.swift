@@ -103,13 +103,14 @@ struct RootView: View {
     }
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             GeometryReader { proxy in
-                let isCompact = proxy.size.width < 700 || proxy.size.height < 620
+                let regions = proxy.frameViewportRegions(controlInsets: EdgeInsets())
+                let isCompact = regions.controls.width < 700 || regions.controls.height < 620
                 let usesAccessibilityLayout = dynamicTypeSize.isAccessibilitySize
                 let usesCompactSetup = isCompact || usesAccessibilityLayout
                 let usesNarrowAccessibilityLayout = usesAccessibilityLayout
-                    && proxy.size.width < 600
+                    && regions.controls.width < 600
 
                 ZStack {
                     SampleSlideshowView(
@@ -132,7 +133,8 @@ struct RootView: View {
                         refreshWallSchedule: wallMode.refresh,
                         previewCaptionBottomInset: setupCardHeight
                             + (usesCompactSetup ? 24 : 36),
-                        showsPreviewCaption: !usesNarrowAccessibilityLayout
+                        showsPreviewCaption: !usesNarrowAccessibilityLayout && !regions.isDivided,
+                        controlSafeAreaInsets: proxy.safeAreaInsets
                     )
                     .id(model.collectionMode.id)
                     .ignoresSafeArea()
@@ -149,17 +151,17 @@ struct RootView: View {
                     if !isFrameMode && !isInitialPersonalImport {
                         chrome(
                             isCompact: usesCompactSetup,
-                            availableHeight: proxy.size.height,
-                            allowsScrolling: usesNarrowAccessibilityLayout,
+                            availableHeight: regions.controls.height,
+                            allowsScrolling: usesNarrowAccessibilityLayout || regions.isDivided,
                             usesShortSampleBadge: usesNarrowAccessibilityLayout
                         )
+                        .frameViewportRegion(regions.controls)
                     }
 
                 }
             }
             .navigationBarHidden(true)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .statusBarHidden(isFrameMode)
         .framePersistentSystemOverlaysHidden(isFrameMode)
         .sheet(item: $presentedSheet, onDismiss: {
@@ -1025,7 +1027,7 @@ private struct PhotosSheet: View {
     @Environment(\.presentationMode) private var presentationMode
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             List {
                 Section {
                     choiceButton(
@@ -1072,13 +1074,14 @@ private struct PhotosSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                    Button {
                         presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Label("Close", systemImage: "xmark")
                     }
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 
     private var individualPhotosDetail: String {
@@ -1230,7 +1233,7 @@ private struct PrivacyAndDataSheet: View {
     @State private var storageOperationError: String?
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             Form {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
@@ -1322,13 +1325,14 @@ private struct PrivacyAndDataSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                    Button {
                         presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Label("Close", systemImage: "xmark")
                     }
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .task {
             await refreshStorageUsage()
         }

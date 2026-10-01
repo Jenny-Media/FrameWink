@@ -19,7 +19,7 @@ struct ReviewSuggestionsView: View {
     ]
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     if model.reviewPhotos.isEmpty {
@@ -64,13 +64,14 @@ struct ReviewSuggestionsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                    Button {
                         presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Label("Close", systemImage: "xmark")
                     }
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .onDisappear {
             undoDismissTask?.cancel()
             model.clearNeverShowUndo()
@@ -179,7 +180,7 @@ struct AutomaticAlbumReviewView: View {
     ]
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     if controller.reviewPhotos.isEmpty {
@@ -224,13 +225,14 @@ struct AutomaticAlbumReviewView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                    Button {
                         presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Label("Close", systemImage: "xmark")
                     }
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .onDisappear {
             undoDismissTask?.cancel()
             controller.clearNeverShowUndo()
@@ -340,7 +342,7 @@ private struct HiddenPhotosView: View {
     ]
 
     var body: some View {
-        NavigationView {
+        FrameNavigationContainer {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     Text("These photos from \(source) stay in Apple Photos, but FrameWink won’t show them. Allow any photo again whenever you change your mind.")
@@ -367,21 +369,24 @@ private struct HiddenPhotosView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                    Button {
                         presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Label("Close", systemImage: "xmark")
                     }
                 }
                 ToolbarItem(placement: .primaryAction) {
                     if photos.count > 1 {
-                        Button("Allow All") {
+                        Button {
                             showsAllowAllConfirmation = true
+                        } label: {
+                            Label("Allow All", systemImage: "arrow.uturn.backward")
                         }
                         .accessibilityIdentifier("restore-excluded-photos")
                     }
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .alert("Allow All Photos Again?", isPresented: $showsAllowAllConfirmation) {
             Button("Allow All") {
                 allowAllAgain()

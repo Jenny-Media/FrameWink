@@ -5,11 +5,54 @@ it aligned with the shipping build and update it before every submitted version.
 
 ## Current availability
 
-FrameWink 1.3 is approved and available on the App Store at
+FrameWink 1.4 is Ready for Distribution in App Store Connect, verified
+October 1, 2026.
+The App Store listing is at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
-## Version 1.4 submitted
+## Stable version 1.5 release — 2026-10-01
+
+The owner authorized merging PR #20 and submitting a stable-toolchain 1.5
+release, with native Duo deferred to a later version. `AppStore/Version-1.5/`
+now contains the ordinary iPhone/iPad release copy. Stable Xcode 27 excludes
+native fold API calls; compatible SDK source remains available for future
+validation. Both cloud workflows now use Xcode 27 (27A266a). Save and verify
+inherited listing, screenshots, review contact, new release notes and stable
+build before submission. Retain manual release after approval.
+
+## Historical native iPhone Duo 1.5 internal candidate — 2026-10-01
+
+The owner authorized the full local regression matrix, an updated development
+install on iPhone 18 Pro Max, and publication of an isolated pull request. After
+cloud validation passes with Xcode 27.1 or newer, prepare a separate internal
+TestFlight build from the reviewed Duo source. Cloud build numbering supplies
+a new build number; the local development bundle version is not a TestFlight
+upload number. Version 1.4 / Build 39, shown as Ready for Distribution,
+remains unchanged.
+The internal native Duo candidate used version 1.5; the release inputs were
+subsequently revised for the stable public candidate described above.
+
+Cloud Validation Build 56 and Internal TestFlight Build 57 succeeded on
+`088b17caea92d8f0cc6ac7f9625a3abcab109882` with Xcode 27.2 beta 2.
+Processed version 1.5 (57) is assigned to Jenny Media Internal; saved tester
+notes match the repository file. This is internal distribution, with physical
+Duo acceptance and App Review toolchain eligibility still pending.
+
+The historical native candidate tester notes included open/closed, Book/Tabletop,
+rotation, both Split View positions, Larger Text, and paused-photo continuity.
+The one owner-approved automated Duo rotation exclusion does not replace
+manual rotation or physical Duo acceptance. The owner authorized a website
+screenshot preview on 2026-10-01. Both websites label it as an upcoming update;
+do not describe native Duo support as currently available before an app version
+containing it ships. Actual captures and official-artwork provenance are saved
+under `Design/Website/iPhone-Duo/`. The existing website feedback instructions,
+Jenny Media Apps footer link, and complete bird screenshot remain intact.
+
+Pull request merge and any new App Review submission remain separate steps.
+Internal preparation does not submit a new version to App Review.
+
+## Version 1.4 submission snapshot — 2026-09-30
 
 The owner confirmed the installed privacy and feedback changes work and
 provided explicit publication and App Review submission authorization on
@@ -17,7 +60,8 @@ provided explicit publication and App Review submission authorization on
 voluntary Send Feedback action and a compact Privacy & Data summary with inline
 Learn more.
 
-**iOS 1.4 (Build 39) is Waiting for Review**, submitted September 30, 2026 at
+**At submission, iOS 1.4 (Build 39) was Waiting for Review**, submitted
+September 30, 2026 at
 9:03 PM EDT. Submission ID: `967a327e-5e1a-4881-9d53-84c403c55570`.
 [Live submission](https://appstoreconnect.apple.com/apps/6800849400/distribution/reviewsubmissions/details/967a327e-5e1a-4881-9d53-84c403c55570).
 
@@ -32,8 +76,9 @@ The submitted version retains the existing six iPhone and seven iPad
 screenshots, listing copy, price, supported platforms, review contact, and
 rating. Promotional text, What's New, and review instructions were saved and
 rechecked after sign-in. All applicable fields were accepted by submission
-validation. **Manual release after approval remains selected.** Version 1.3
-remains the public released version while 1.4 awaits review.
+validation. **Manual release after approval remained selected.** At that
+submission snapshot, version 1.3 remained public while 1.4 awaited review.
+The current App Store Connect state is recorded above.
 
 English (U.S.) What's New:
 

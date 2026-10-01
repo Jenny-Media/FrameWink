@@ -1,0 +1,2 @@
+• Refined photo-frame layouts and safe-area spacing on iPhone and iPad.
+• Improved navigation and setup controls when rotating, resizing, or using Larger Text.
