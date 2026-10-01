@@ -1,0 +1,51 @@
+{
+  "captured_at": "2026-10-01",
+  "source_commit": "867d91d630b3b5ce0480097013e96a2679494364",
+  "source_pull_request": "https://github.com/Jenny-Media/FrameWink/pull/20",
+  "xcode": "27.1 (27A9269)",
+  "simulator": "FrameWink Duo Layout QA",
+  "simulator_id": "F25EEFFD-9612-4791-A2EE-D4F4C789BB03",
+  "runtime": "iOS 27.1",
+  "raw_dimensions": [
+    2853,
+    2007
+  ],
+  "display": "LCD-1",
+  "artwork_url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-iPhone-Duo.dmg",
+  "artwork_package_sha256": "f616ee087d310ef089b2261a5f93bd2d52d78cb5fcf63914878a2f0926adac28",
+  "artwork_filename": "iPhone Duo - Night Sky - Inner Open Landscape.png",
+  "artwork_sha256": "bd684d4cd2b68756ca008c158b9c0cbfeeb134bf3b5e481b3d0dd02d783211f1",
+  "artwork_dimensions": [
+    3093,
+    2247
+  ],
+  "screen_opening": {
+    "x": 120,
+    "y": 120,
+    "width": 2853,
+    "height": 2007
+  },
+  "license": "Apple Design Resources LYL142 06/21/2023; accepted with owner authorization on 2026-10-01",
+  "captures": [
+    {
+      "file": "open-landscape.png",
+      "scenario": "duo-gallery-frame",
+      "sha256": "969213676d54b4bfa963f3b34c249a3aa6ea13da72c10a0981e1d993fed0bb22"
+    },
+    {
+      "file": "open-controls-landscape.png",
+      "scenario": "frame-controls",
+      "sha256": "ccfcdd25e9af4d7599a12368a1a600bb4fcc6c397bf82f4aa01251103a0a5dab"
+    },
+    {
+      "file": "book-larger-text.png",
+      "purpose": "Earlier native layout QA evidence from this session; AX XXXL; not used in marketing",
+      "sha256": "462f4a446ef7cecbdc9c4aa19c91b01b882375c254a42bc6662053b49ae4029e"
+    }
+  ],
+  "outputs": {
+    "iphone-duo-open-controls-landscape-v1.webp": "45f1f99b293337ed7c3d7af32ea3447caf0353cbc0f66889a52537c7584d29f9",
+    "iphone-duo-open-landscape-v1.webp": "474a0904dda4a6047d8c941dc71d87e94a21fb4977d007662c78f77eb7f8e838"
+  },
+  "release_status": "Upcoming native Duo update; physical Duo and Xcode Cloud acceptance remain pending"
+}
