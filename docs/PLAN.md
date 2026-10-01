@@ -2311,8 +2311,9 @@ backlog rather than extending the MVP.
 ## Website layout audit — 2026-10-01
 
 - Status: full homepage and linked-page UI audit completed; fixes validated
-  in an isolated local production build. PR review and production publication
-  remain pending; native Duo PR #20 and app release gates are unchanged.
+  locally and merged as PR #21 (`2eb2e81`). Vercel production publication and
+  the served caption-spacing CSS were verified on October 1, 2026.
+  Native Duo PR #20 and app release gates are unchanged.
 - Audited all ten homepage sections, shared navigation/footer, Privacy,
   Support, and Terms. Confirmed the owner's crowded hero caption and found
   an iPhone text/image collision at 901 px, step-card overflow at 561 px,
@@ -2336,3 +2337,33 @@ backlog rather than extending the MVP.
   responsive browser measurements used Chrome; physical iPhone Safari zoom,
   larger text, and VoiceOver acceptance still require a manual check. No
   iOS code changed, so native app regression gates were not repeated.
+
+
+## Website appearance toggle — 2026-10-01
+
+- Status: implementation and local verification complete on
+  `codex/website-theme-toggle`, based on the merged website spacing audit
+  (`2eb2e81`). Preview review and production merge remain pending.
+- Owner requested one button at the top right. Added a 44 px native sun/moon
+  button to the shared header, with theme-specific accessible action labels,
+  keyboard focus, and responsive spacing. No theme menu or extra setting.
+- First visit follows device appearance; explicit light/dark choice stays in
+  local browser storage. Initialization runs before the body paints, with
+  cross-tab synchronization, live device appearance changes until a choice is
+  made, and a working session fallback when storage is unavailable.
+- Added dark colors for every public route, cards, captions, links, and footer.
+  Native app sources, dependencies, and the separate Duo release are unchanged.
+- Verification: `npm test` passed all 23 tests on Node 24.19.0;
+  `npm run lint` and `npm run build` passed without warnings. Chrome checked
+  both themes at nine widths from 320 to 1440 px, with a 44 px toggle, no
+  horizontal overflow/header collision, and no sampled contrast failures.
+  Privacy, Support, and Terms passed dark-theme checks at 320/768/1440 px
+  and light-theme checks at 1440 px. Enter/Space, focus visibility, navigation,
+  reload persistence, cross-tab sync, and open FAQ contrast passed. Browser
+  console errors/warnings were absent. Browser theme-color stays singular
+  through hydration and navigation. Built HTML initializes appearance before
+  the body. First-visit system combinations and denied-storage fallback have
+  unit coverage. Report: `website/reports/2026-10-01-theme-toggle.md`.
+- Active implementation/verification time: approximately 0.4 hours.
+  Manual iPhone Safari and VoiceOver acceptance still require a physical check.
+  No iOS source changed, so native app regression gates were not repeated.
