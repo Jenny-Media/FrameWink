@@ -2360,3 +2360,41 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight
 hours only for hardening and release. Move incomplete optional behavior to the
 backlog rather than extending the MVP.
+
+
+### Native Duo screenshots and website preview — 2026-10-01
+
+- Status: capture archive, licensed official-bezel composites, and website
+  implementation are complete. Native app release acceptance remains pending.
+- Accepted Apple Design Resources license LYL142 (June 21, 2023) with the
+  owner's explicit authorization. Verified the existing DMG's Apple download
+  provenance and hash. The original package and standalone artwork stay outside
+  Git; all website composites preserve the complete supplied device artwork.
+- Saved two fresh 2853 x 2007 native inner-display PNGs, a retained Book/Larger
+  Text QA capture, capture hashes and artwork provenance under
+  `Design/Website/iPhone-Duo/`. Added capture and compositing scripts. Only the
+  actual app pixels are inserted into Apple's exact 2853 x 2007 screen opening
+  at +120,+120 in its 3093 x 2247 Inner Open Landscape bezel.
+- Kept the addition small: one upcoming Duo section on the FrameWink website
+  and one extra slide in Jenny Apps' existing FrameWink gallery, localized into
+  English, Traditional Chinese, and Simplified Chinese. The existing iPad lead
+  and complete bird photograph remain unchanged.
+- Published the website-only change from an isolated temporary checkout using
+  `0c1ffa4`; its five paths are all under `website/`, and no native app code was
+  included. Jenny Apps' source/asset update is `9cf00e2`. The native capture
+  archive was pushed as `b5c01d4` on the existing draft PR #20 branch.
+- Validation: Duo Debug screenshot build succeeded; FrameWink website 9/9
+  tests, lint, and production build passed; Jenny Apps 137/137 tests, production
+  build, Chromium desktop and WebKit mobile checks passed. Browser inspection
+  confirmed the final image/caption, gallery navigation, and no horizontal
+  overflow at desktop/phone sizes. The FrameWink image was also checked at
+  320-pixel width. All locked App Store gallery checksums remain unchanged.
+- Known gaps: Device Hub pose controls repeatedly timed out or exposed controls
+  without actionable frames. Blank closed-display captures were rejected;
+  fresh closed/Tabletop marketing captures remain pending. Apple supplies open
+  and closed artwork, with no Book/Tabletop bezel in this package. Existing
+  physical Duo and Xcode Cloud validation gates remain unchanged. The public
+  copy says upcoming preview rather than claiming available native support.
+- Additional active implementation and verification time: approximately
+  1.0 hour, including Device Hub recovery and website checks. Live production
+  verification is recorded separately when deployment completes.

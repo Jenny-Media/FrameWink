@@ -21,10 +21,12 @@ upload number. Keep the submitted Build 39 unchanged.
 `TestFlight/WhatToTest.en-US.txt` includes open/closed, Book/Tabletop, rotation,
 both Split View positions, Larger Text, and paused-photo continuity checks.
 The one owner-approved automated Duo rotation exclusion does not replace
-manual rotation or physical Duo acceptance. Do not claim native Duo support on
-the public website before an app version containing it is available. The
-existing website feedback instructions, Jenny Media Apps footer link, and
-complete bird screenshot were rechecked live on 2026-10-01.
+manual rotation or physical Duo acceptance. The owner authorized a website
+screenshot preview on 2026-10-01. Both websites label it as an upcoming update;
+do not describe native Duo support as currently available before an app version
+containing it ships. Actual captures and official-artwork provenance are saved
+under `Design/Website/iPhone-Duo/`. The existing website feedback instructions,
+Jenny Media Apps footer link, and complete bird screenshot remain intact.
 
 Pull request merge and any new App Review submission remain separate steps.
 Keep the existing App Review submission unchanged during internal preparation.

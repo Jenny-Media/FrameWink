@@ -4194,3 +4194,69 @@ are not yet verified or started. Tester notes are prepared. Physical Duo
 acceptance and all existing real-device Photos, purchases, brightness, Guided
 Access, thermal, VoiceOver/Reduce Motion, and long-running checks remain
 separate. No new App Review submission or public Duo claim was made.
+
+
+## Native Duo website captures — 2026-10-01
+
+No production Swift source or existing test selection changed in this pass.
+The preceding full iPhone/iPad/Duo gates remain the app regression evidence.
+New screenshot capture build:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer \
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug \
+  -destination 'platform=iOS Simulator,id=F25EEFFD-9612-4791-A2EE-D4F4C789BB03' \
+  -derivedDataPath /private/tmp/framewink-duo-20261001/WebsiteDerivedData build
+```
+
+Result: passed, no build warnings in `website-capture-build.log`. Installed in
+the dedicated FrameWink Duo Layout QA Simulator, iOS 27.1. Captured actual
+`duo-gallery-frame` and `frame-controls` scenarios with bundled sample photos,
+light appearance and full network/battery status. The supported active display
+selector was `LCD-1`; `primary-0` was unsupported on this device. All captures
+were checked for expected dimensions, non-blank pixels, and visually inspected.
+Blank closed-frame screenshots were not archived or used for marketing.
+
+```sh
+bash -n scripts/capture_website_duo_screenshots.sh scripts/generate_website_duo_assets.sh
+bash scripts/generate_website_duo_assets.sh
+bash scripts/verify_locked_app_store_screenshots.sh
+cd website
+npm test
+npm run lint
+npm run build
+```
+
+Result: script syntax passed; official-bezel composites regenerated with hashes
+matching the stored manifest; locked iPad/iPhone/Duo galleries unchanged;
+9 website tests passed, lint passed, Next.js production build passed. Desktop,
+390 x 844, and 320 x 844 browser checks found loaded images, contained hardware,
+clear upcoming-update captions, and no horizontal overflow.
+
+Jenny Apps verification in `/Users/yihong/work/jenny-tv`:
+
+```sh
+npm test
+node --env-file=/private/tmp/framewink-duo-20261001/public-map-build.env build.js
+npm run test:apps-browser
+```
+
+Result: 137 tests passed; production build passed using the current live site's
+existing public map configuration (not committed); Chromium desktop and WebKit
+mobile checks passed. Manual browser inspection confirmed the fourth FrameWink
+slide and localized upcoming-preview text. The existing test's expected gallery
+image count changed from 12 to 13. Earlier plain production build attempts
+failed because the local environment lacked `CARTO_BASEMAP_KEY`; this was a
+configuration limitation, not a source failure. Earlier stale count check
+failure is retained in the logs and was corrected before publication.
+
+Logs and browser proof images are under `/private/tmp/framewink-duo-20261001/`:
+`jenny-tests-final.log`, `jenny-production-build.log`, `jenny-browser-final.log`,
+`website-desktop.jpg`, `website-320px.jpg`, and `jenny-apps-duo-*.jpg`.
+Artwork provenance, exact raw captures and licensing-use restrictions are
+committed under `Design/Website/iPhone-Duo/`. The owner authorized acceptance of
+Apple license LYL142; no standalone Apple PNG/PSD artwork is redistributed.
+
+Native cloud validation, physical Duo, TestFlight and App Review are separate
+from this website publication. No new app review submission was made.
