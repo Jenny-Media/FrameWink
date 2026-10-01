@@ -656,7 +656,7 @@ date; do not silently rewrite historical decisions during implementation.
 
 ## D-051 — Native iPhone Duo without a separate mode
 
-- Build with iOS 27.1 SDK or newer, as required by Apple's
+- For builds enabling native fold APIs, use iOS 27.1 SDK or newer, as required by Apple's
   [Preparing your app for iPhone Duo](https://developer.apple.com/documentation/technologyoverviews/preparing-your-app-for-iphone-duo).
   Retain the iOS/iPadOS 15 minimum and device families 1 and 2; do not enable Mac
   or Vision Pro compatibility.
@@ -671,3 +671,18 @@ date; do not silently rewrite historical decisions during implementation.
   geometry changes. Add no separate Duo setting, purchase, permission, or
   dependency. Simulator pose and Split View checks supplement the normal
   iPhone/iPad test gate; physical-device acceptance remains separate.
+
+## D-052 — Stable 1.5 release before native Duo distribution
+
+- Owner authorized merging PR #20 and releasing ordinary iPhone/iPad
+  refinements now, followed by another version when the compatible release
+  toolchain is ready.
+- Compile reserved-region API calls only under `FRAMEWINK_NATIVE_DUO`; explicit
+  27.1/27.2 SDK conditions enable it in Debug and Release. Stable SDK 27.0
+  uses the existing viewport. Swift compiler versions do not distinguish these
+  SDKs, so compiler-version checks are insufficient.
+- Use stable Xcode 27 for public 1.5, retain the minimum iOS/iPadOS 15, and keep
+  Duo website screenshots labelled as an upcoming preview. Public What's New
+  describes shipped iPhone/iPad refinements. Preserve historical beta evidence.
+- A later native Duo release still needs an Apple-accepted SDK, release gates,
+  and physical pose/rotation checks. Keep manual App Store release after review.

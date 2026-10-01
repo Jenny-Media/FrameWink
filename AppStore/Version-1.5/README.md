@@ -1,21 +1,17 @@
-# Version 1.5 native Duo candidate
+# Version 1.5 stable release
 
-These are draft release inputs for PR #20, not proof of an App Store Connect
-draft, submission, or public release. Version 1.4 / Build 39 is already Ready
-for Distribution; the next native app update therefore uses 1.5.
+The owner authorized merging PR #20 and submitting a stable-toolchain version
+1.5 on October 1, 2026. These files describe the ordinary iPhone/iPad navigation,
+layout, safe-area, and accessibility refinements included in that release.
 
-The compatible Xcode Cloud toolchain currently available is Xcode 27.2 beta 2
-(27B5028f), pinned for Validation and Internal TestFlight. Validation Build 56
-and internal TestFlight Build 57 passed on `088b17c`;
-processed 1.5 (57) is assigned to Jenny Media Internal, with tester notes
-read-back verified. A beta-built internal candidate does not establish App
-Review eligibility; use an Apple-accepted release toolchain with iOS 27.1 SDK or newer before an App Store submission.
+Use stable Xcode 27 (27A266a), iOS SDK 27.0, for this App Review candidate.
+`FRAMEWINK_NATIVE_DUO` is absent from its compilation conditions. The source
+retains native fold handling for explicitly configured 27.1/27.2 SDK builds;
+Apple acceptance and physical Duo checks remain required for a later release.
+Internal beta build 1.5 (57) is historical evidence, not the public candidate.
 
-Keep the locked iPhone/iPad screenshots and upcoming-preview website wording
-while physical Duo acceptance and a public 1.5 release remain pending.
-`TestFlight/WhatToTest.en-US.txt` contains the pose, rotation, Split View,
-Larger Text, paused-photo, and ordinary-device checks. The owner-approved
-Duo-only automated rotation exclusion remains documented in `docs/TESTING.md`.
-
-Review the exact Whats New and App Review notes before any separately
-authorized submission; retain manual release after approval.
+Keep the checksum-locked iPhone/iPad screenshot galleries and existing listing
+fields. Both websites continue to label Duo captures as an upcoming preview.
+Save and read back all version fields, select the new stable archive, submit
+to App Review, and retain manual release after approval. Submission and public
+publication must be recorded separately in docs/PLAN.md and docs/APP_STORE.md.

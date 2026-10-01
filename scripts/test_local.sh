@@ -5,13 +5,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-if [[ -z "${DEVELOPER_DIR:-}" ]]; then
-    if [[ -d /Applications/Xcode-27.1-beta.app/Contents/Developer ]]; then
-        export DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer
-    else
-        export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-    fi
-fi
+export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
+SDK_VERSION="$(xcrun --sdk iphonesimulator --show-sdk-version)"
 
 RUN_ID="$(date +%Y%m%d-%H%M%S)"
 OUTPUT_ROOT="${FRAMEWINK_TEST_OUTPUT_ROOT:-/private/tmp/FrameWink-LocalTests-$RUN_ID}"
@@ -52,10 +47,15 @@ cd "$REPO_ROOT"
 
 run_suite iPhone "$IPHONE_DESTINATION"
 run_suite iPad "$IPAD_DESTINATION"
-# Temporary Duo-only exclusion approved by the owner on 2026-10-01.
-# Restore after XCTest reliably drives Duo display rotation; keep it on iPhone/iPad.
-run_suite iPhoneDuo "$DUO_DESTINATION" \
-    -skip-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto
+case "$SDK_VERSION" in
+    27.1*|27.2*)
+        # Temporary Duo-only exclusion approved by the owner on 2026-10-01.
+        # Restore after XCTest reliably drives Duo display rotation.
+        run_suite iPhoneDuo "$DUO_DESTINATION" \
+            -skip-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto
+        ;;
+    *) echo "SDK $SDK_VERSION: standard iPhone/iPad gate; native Duo gate deferred." ;;
+esac
 
 /bin/bash "$REPO_ROOT/scripts/verify_locked_app_store_screenshots.sh"
 

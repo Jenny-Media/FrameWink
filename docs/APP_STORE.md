@@ -11,7 +11,17 @@ The App Store listing is at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
 
-## Native iPhone Duo 1.5 internal candidate — 2026-10-01
+## Stable version 1.5 release — 2026-10-01
+
+The owner authorized merging PR #20 and submitting a stable-toolchain 1.5
+release, with native Duo deferred to a later version. `AppStore/Version-1.5/`
+now contains the ordinary iPhone/iPad release copy. Stable Xcode 27 excludes
+native fold API calls; compatible SDK source remains available for future
+validation. Both cloud workflows now use Xcode 27 (27A266a). Save and verify
+inherited listing, screenshots, review contact, new release notes and stable
+build before submission. Retain manual release after approval.
+
+## Historical native iPhone Duo 1.5 internal candidate — 2026-10-01
 
 The owner authorized the full local regression matrix, an updated development
 install on iPhone 18 Pro Max, and publication of an isolated pull request. After
@@ -20,8 +30,8 @@ TestFlight build from the reviewed Duo source. Cloud build numbering supplies
 a new build number; the local development bundle version is not a TestFlight
 upload number. Version 1.4 / Build 39, shown as Ready for Distribution,
 remains unchanged.
-The next native Duo candidate uses version 1.5; release inputs are in
-`AppStore/Version-1.5/`.
+The internal native Duo candidate used version 1.5; the release inputs were
+subsequently revised for the stable public candidate described above.
 
 Cloud Validation Build 56 and Internal TestFlight Build 57 succeeded on
 `088b17caea92d8f0cc6ac7f9625a3abcab109882` with Xcode 27.2 beta 2.
@@ -29,8 +39,8 @@ Processed version 1.5 (57) is assigned to Jenny Media Internal; saved tester
 notes match the repository file. This is internal distribution, with physical
 Duo acceptance and App Review toolchain eligibility still pending.
 
-`TestFlight/WhatToTest.en-US.txt` includes open/closed, Book/Tabletop, rotation,
-both Split View positions, Larger Text, and paused-photo continuity checks.
+The historical native candidate tester notes included open/closed, Book/Tabletop,
+rotation, both Split View positions, Larger Text, and paused-photo continuity.
 The one owner-approved automated Duo rotation exclusion does not replace
 manual rotation or physical Duo acceptance. The owner authorized a website
 screenshot preview on 2026-10-01. Both websites label it as an upcoming update;

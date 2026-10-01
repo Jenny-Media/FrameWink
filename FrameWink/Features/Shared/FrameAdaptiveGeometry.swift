@@ -10,6 +10,7 @@ extension GeometryProxy {
             height: max(0, size.height - insets.top - insets.bottom)
         )
         var divisions: [CGRect] = []
+        #if FRAMEWINK_NATIVE_DUO
         if #available(iOS 27.1, *) {
             divisions = reservedRegions(kind: .division, layoutDirectionBehavior: .fixed)
                 .map { region in
@@ -22,6 +23,7 @@ extension GeometryProxy {
                     )
                 }
         }
+        #endif
         return FrameViewportRegions(size: size, safeArea: safeArea, divisions: divisions)
     }
 }

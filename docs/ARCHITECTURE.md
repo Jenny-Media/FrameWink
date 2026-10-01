@@ -4,9 +4,10 @@
 
 - Universal iPhone and iPad application with an iPad-first frame experience.
 - Minimum iOS/iPadOS 15.
-- Build with Xcode 27.1 / iOS 27.1 SDK or newer for native iPhone Duo display
-  space. The release guard rejects older SDKs. Cloud workflows must select a
-  compatible toolchain before this change is distributed.
+- Version 1.5 uses stable Xcode 27 / iOS SDK 27.0. The app compiles native
+  iPhone Duo display APIs only with `FRAMEWINK_NATIVE_DUO`, selected by SDK
+  conditions for 27.1/27.2. Older SDKs use the standard viewport. New SDK lines
+  must explicitly extend those conditions and be verified before distribution.
 - SwiftUI application lifecycle.
 - Use `ObservableObject`/`@StateObject` for shared state.
 - Use Swift concurrency only where availability and cancellation behavior are
@@ -81,7 +82,8 @@ Never perform all-pairs similarity comparison across an unbounded library.
 
 `FrameViewportRegions` splits local view bounds around an active division.
 `FrameAdaptiveGeometry` reads SwiftUI reserved division frames and their
-individual margins on iOS 27.1 or later; older systems retain the full viewport.
+individual margins on iOS 27.1 or later when `FRAMEWINK_NATIVE_DUO` is enabled;
+stable-SDK builds and older systems retain the full viewport.
 Photos may bleed to the display edge, while foreground controls intersect the
 safe area independently on every side. Do not infer geometry from device names,
 `UIScreen.main`, or device orientation.

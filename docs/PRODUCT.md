@@ -16,6 +16,10 @@ milestone adds platform-specific design, testing, and support.
 
 ## iPhone Duo layout
 
+Native Duo fold handling is an upcoming release capability. Version 1.5 ships
+the standard iPhone/iPad experience using stable Xcode 27; compatible SDK builds
+retain the native implementation for later App Review and device acceptance.
+
 Use the same frame experience on the outer and inner displays. Fully open
 playback uses the available window; a partly folded display keeps the photo
 above or to the left of the fold and places controls below or to its right.

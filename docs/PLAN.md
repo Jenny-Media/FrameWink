@@ -2524,3 +2524,21 @@ backlog rather than extending the MVP.
   Duo acceptance and an Apple-accepted App Review toolchain remain pending.
 - Active follow-up time: approximately 0.6 hours, excluding unattended tests
   and cloud waiting. No milestone is marked complete by this internal build.
+
+## Stable version 1.5 staged release — 2026-10-01
+
+- Owner authorized merging PR #20 and releasing version 1.5 with the stable
+  toolchain, followed by native Duo in a later compatible-toolchain release.
+- Added SDK-specific `FRAMEWINK_NATIVE_DUO` compilation conditions for SDK
+  27.1/27.2. Stable SDK 27.0 excludes reserved-region calls and retains the
+  ordinary viewport; compatible builds retain native fold geometry.
+- Local script now defaults to stable Xcode and tests iPhone/iPad; explicit
+  compatible SDK builds also test Duo with the existing rotation exception.
+  Release guard validates SDK/flag compatibility and existing release identity.
+- Prepared ordinary iPhone/iPad What's New, App Review notes, and TestFlight
+  notes; locked screenshots and upcoming Duo website claims remain applicable.
+- Status: release verification, exact-source cloud validation, merge, signed
+  stable archive, metadata save/read-back, and App Review submission in progress.
+- Active time estimate: 0.4 hours so far. Physical-device Mail, PhotoKit,
+  StoreKit, long-running, brightness, and Guided Access checks remain separate.
+  Native Duo is intentionally deferred; no public Duo acceptance is claimed.

@@ -4414,3 +4414,50 @@ PR #20 is ready for source review, retaining the owner-approved Duo rotation
 exception and pending device checks. Before public submission, use an
 Apple-accepted release toolchain with iOS 27.1 SDK or newer and obtain separate
 merge/submission approval. Closed/Tabletop marketing capture limits remain.
+
+## Staged stable 1.5 verification — 2026-10-01
+
+SDK-specific compilation conditions replace the former 27.1-only release gate.
+Debug and Release build-settings queries verify stable SDK 27.0 has no
+`FRAMEWINK_NATIVE_DUO`, while SDK 27.1 includes it and Debug retains `DEBUG`.
+Both archive guards pass with unchanged identity/platform/minimum-OS checks.
+Stable unsigned Release build and Analyze pass, and its embedded version is 1.5.
+A compatible-SDK Duo rerun passed all 56 geometry/session/layout tests with
+zero failures, skips, or runtime warnings. Symbol inspection finds SwiftUI
+reserved-region references only in that native build, absent from stable Debug.
+
+Commands and outputs use `/private/tmp/framewink-stable-1.5-20261001`:
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/framewink-stable-1.5-20261001/FullGate \
+FRAMEWINK_IPHONE_DESTINATION='platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+FRAMEWINK_IPAD_DESTINATION='platform=iOS Simulator,id=B3A8D8D4-D576-4245-A0EC-ED914C0C744F' \
+bash scripts/test_local.sh
+CI_XCODEBUILD_ACTION=archive sh ci_scripts/ci_pre_xcodebuild.sh
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Release -destination 'generic/platform=iOS' \
+  -derivedDataPath /private/tmp/framewink-stable-1.5-20261001/Release-DerivedData \
+  CODE_SIGNING_ALLOWED=NO build analyze
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer \
+  CI_XCODEBUILD_ACTION=archive sh ci_scripts/ci_pre_xcodebuild.sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-beta.app/Contents/Developer \
+  xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug \
+  -destination 'platform=iOS Simulator,id=921F86AE-642B-4721-8C54-38D2AF15AFDD' \
+  -derivedDataPath /private/tmp/framewink-stable-1.5-20261001/Native-DerivedData \
+  -resultBundlePath /private/tmp/framewink-stable-1.5-20261001/Native.xcresult \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 -maximum-test-execution-time-allowance 120 \
+  CODE_SIGNING_ALLOWED=NO \
+  -only-testing:FrameWinkTests/FrameViewportRegionsTests \
+  -only-testing:FrameWinkTests/FrameSessionControllerTests \
+  -only-testing:FrameWinkTests/FrameLayoutChooserTests test
+```
+
+Full stable iPhone/iPad gate is in progress; do not infer acceptance until its
+results are recorded. Known tooling diagnostics: Apple's StoreKitTest header
+uses deprecated `SKPaymentTransactionState`; beta SDK emits build-number
+`invalidDigitCount`; stable XCTest emits debugger lookup `noURL` messages.
+No production-source warning or failed test has been observed so far.
+Physical checks and future native Duo acceptance remain separate.

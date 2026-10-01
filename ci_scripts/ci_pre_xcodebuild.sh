@@ -30,9 +30,6 @@ sdk_version=$(xcrun --sdk iphoneos --show-sdk-version)
 sdk_major=${sdk_version%%.*}
 sdk_minor=${sdk_version#*.}
 sdk_minor=${sdk_minor%%.*}
-if [ "$sdk_major" -lt 27 ] || { [ "$sdk_major" -eq 27 ] && [ "$sdk_minor" -lt 1 ]; }; then
-    fail "iPhone Duo native support requires the iOS 27.1 SDK or newer (Xcode 27.1+); found $sdk_version."
-fi
 
 [ -d "$project_path" ] || fail "FrameWink.xcodeproj is missing."
 [ -f "$repository_path/FrameWink/Info.plist" ] || fail "Info.plist is missing."
@@ -57,6 +54,22 @@ supports_xr_compatibility=$(read_build_setting SUPPORTS_XR_DESIGNED_FOR_IPHONE_I
 minimum_os=$(read_build_setting IPHONEOS_DEPLOYMENT_TARGET)
 marketing_version=$(read_build_setting MARKETING_VERSION)
 wall_mode_product_id=$(read_build_setting FRAMEWINK_WALL_MODE_PRODUCT_ID)
+
+swift_conditions=$(read_build_setting SWIFT_ACTIVE_COMPILATION_CONDITIONS)
+case " $swift_conditions " in
+    *" FRAMEWINK_NATIVE_DUO "*)
+        if [ "$sdk_major" -lt 27 ] || { [ "$sdk_major" -eq 27 ] && [ "$sdk_minor" -lt 1 ]; }; then
+            fail "Native Duo code requires iOS SDK 27.1 or newer; found $sdk_version."
+        fi
+        echo "FrameWink native Duo geometry enabled for SDK $sdk_version."
+        ;;
+    *)
+        case "$sdk_version" in
+            27.1*|27.2*) fail "Compatible SDK $sdk_version must enable FRAMEWINK_NATIVE_DUO." ;;
+        esac
+        echo "FrameWink standard iPhone/iPad geometry enabled for SDK $sdk_version; native Duo deferred."
+        ;;
+esac
 unit_test_bundle_identifier=$(xcodebuild \
     -project "$project_path" \
     -target FrameWinkTests \

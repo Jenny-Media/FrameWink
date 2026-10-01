@@ -23,19 +23,22 @@ The cloud workflows should:
 4. Use its TestFlight post-action to distribute successful builds to Jenny Media
    LLC internal testers.
 
-Before release changes merge, `scripts/test_local.sh` runs the shared scheme on
-an iPhone, an iPad, and an iPhone Duo Simulator and verifies the locked
-screenshot set. Use Xcode 27.1 / iOS 27.1 SDK or newer for native Duo support;
-select a compatible toolchain in both cloud workflows before distributing
-this change. The pre-build guard rejects older SDKs. The minimum supported
-iOS/iPadOS version remains 15.
+Before release changes merge, `scripts/test_local.sh` defaults to stable Xcode
+and runs the shared scheme on iPhone and iPad, then verifies locked screenshots.
+An explicit `DEVELOPER_DIR` pointing to a 27.1/27.2 SDK adds the native Duo suite,
+retaining the owner-approved Duo-only automated rotation exclusion.
 
-On October 1, 2026, both saved workflows were pinned to the available
-compatible Xcode 27.2 beta 2 (27B5028f). Validation Build 56 and Internal
-TestFlight Build 57 succeeded on the native 1.5 candidate `088b17c`. Build 57
-was processed and assigned to the existing Jenny Media Internal group. Use an
-Apple-accepted release toolchain with iOS 27.1 SDK or newer before public App
-Review submission; this internal beta build does not establish that eligibility.
+Version 1.5 uses stable Xcode 27 (27A266a), SDK 27.0, with native fold APIs
+compiled out. SDK conditions enable `FRAMEWINK_NATIVE_DUO` for 27.1/27.2 builds;
+the release guard checks that the flag matches those SDKs while preserving
+minimum iOS/iPadOS 15 and release identity checks. Add and verify conditions for
+new SDK lines before relying on their Duo behavior.
+
+Historical native beta Validation Build 56 and internal TestFlight Build 57
+passed on `088b17c`, using Xcode 27.2 beta 2. The owner subsequently authorized a
+staged public release: standard iPhone/iPad refinements now, native Duo in a
+later version when an Apple-accepted compatible toolchain is available. Beta
+build 57 is not the stable public candidate. Retain manual release after review.
 
 Apple requires the first Xcode Cloud workflow to be configured from Xcode. The
 project must be in an accessible Git repository, Xcode Cloud must be granted
