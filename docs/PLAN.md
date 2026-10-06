@@ -2553,3 +2553,36 @@ backlog rather than extending the MVP.
 - Active time estimate: approximately 0.75 hours, excluding unattended waiting. Physical-device Mail, PhotoKit,
   StoreKit, long-running, brightness, and Guided Access checks remain separate.
   Native Duo is intentionally deferred; no public Duo acceptance is claimed.
+
+## Native Duo version 1.6 release preparation — 2026-10-06
+
+- Status: in progress, authorized by the owner. Reuse the clean managed release
+  checkout on `codex/iphone-duo-1.6`; preserve unrelated dirty primary work.
+- Apple now accepts Duo submissions. Local Xcode 27.1 RC (27A9275), SDK 27.1,
+  enables the retained native geometry in Release. Version 1.5 is currently
+  Ready for Distribution in App Store Connect.
+- Prepared 1.6 version/review/tester notes and archive guard; no new mode,
+  permission, purchase, dependency, or production identity change.
+- Remaining: RC regression on iPhone/iPad/Duo, original rotation-case retry,
+  Simulator pose and fresh capture checks, exact-source Cloud Analyze/archive,
+  processed TestFlight/listing read-back, and App Review status.
+- Use Computer Use for the owner's Chrome session. Reauthentication succeeded.
+  Concurrent Computer Use changed Chrome to another app's release editor;
+  requested permission for a dedicated Chrome browser tab or a pause of other
+  Computer Use sessions before making any App Store changes.
+- RC unsigned Release build/Analyze, native reserved-region symbol, version
+  1.6 / SDK 24A94232, archive guard, old-SDK rejection, shell syntax, diff check,
+  and all locked galleries pass. Original Duo rotation retry fails at line 423
+  (landscape request does not resize the window); keep the approved exception.
+- First full-gate attempt exited 73 with an incomplete result bundle when the
+  disk was full. Removed only this task's disposable rotation build cache and
+  interrupted QA Simulator; 7.8 GiB is free. Restart with one Simulator worker,
+  preserving original logs and rotation result evidence.
+- Computer Use also requires a manual Mac unlock; requested it from the owner.
+  Native capture rejected a completely black display; reset only the disposable
+  Duo QA device after its post-low-space Data Migration Failed boot.
+- Keep approved screenshot hashes and upcoming website labels until the native
+  release is public. Physical Duo, Mail, PhotoKit, StoreKit, thermal, Guided
+  Access, and long-running hardware acceptance remain separate.
+- Active-time estimate so far: approximately 0.4 hours, excluding unattended
+  test/build waiting. No release gate is marked complete prematurely.

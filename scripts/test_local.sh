@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
+export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode-27.1-RC.app/Contents/Developer}"
 SDK_VERSION="$(xcrun --sdk iphonesimulator --show-sdk-version)"
 
 RUN_ID="$(date +%Y%m%d-%H%M%S)"
@@ -26,6 +26,7 @@ run_suite() {
         -project "$REPO_ROOT/FrameWink.xcodeproj" \
         -scheme FrameWink \
         -configuration Debug \
+        -parallel-testing-enabled NO \
         -destination "$destination" \
         -derivedDataPath "$derived_data" \
         -resultBundlePath "$result_bundle" \

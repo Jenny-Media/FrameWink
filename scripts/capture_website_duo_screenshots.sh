@@ -2,7 +2,7 @@
 set -euo pipefail
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 : "${FRAMEWINK_SIMULATOR_ID:?Set a dedicated iPhone Duo Simulator ID and select Open landscape in Device Hub.}"
-export DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-/Applications/Xcode-27.1-beta.app/Contents/Developer}
+export DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-/Applications/Xcode-27.1-RC.app/Contents/Developer}
 derived_data=${FRAMEWINK_DERIVED_DATA:-/private/tmp/FrameWink-Duo-Website-DerivedData}
 output="$repo_root/Design/Website/iPhone-Duo/Sources"
 mkdir -p "$output"

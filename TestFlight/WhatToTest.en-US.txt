@@ -1,7 +1,8 @@
 FrameWink turns an iPhone or iPad into a private local photo frame.
 
 Please test:
-- This version 1.5 candidate uses stable Xcode 27 and the standard iPhone/iPad layout. Native iPhone Duo fold handling is deferred to a later release with an Apple-accepted compatible SDK.
+- Version 1.6 uses Xcode 27.1 RC with native iPhone Duo support. On Duo, check the outer display, fully open inner display, Book and Tabletop poses, rotation, and both Split View positions.
+- Pause on a recognizable photo before opening, closing, or partly folding Duo. Confirm the same photo and paused state remain, with photos above/left of an active fold and controls below/right. Check the setup and sheets with Larger Text. The earlier automated Duo rotation exception is being retried; physical Duo acceptance remains separate.
 - Pause on a recognizable photo, rotate, or resize in either iPad Split View position. Confirm the photo and paused state stay fixed, then resume and check the selected Photo Duration.
 - Open Privacy & Data, review, photo import, and Frame Settings on iPhone and iPad. Confirm native sheets and Close/Done controls remain reachable, including with Larger Text.
 - Open More > Send Feedback, edit the Mail draft or try Copy Email when Mail is unavailable. Check that no photos or logs are attached automatically.

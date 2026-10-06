@@ -23,12 +23,17 @@ The cloud workflows should:
 4. Use its TestFlight post-action to distribute successful builds to Jenny Media
    LLC internal testers.
 
-Before release changes merge, `scripts/test_local.sh` defaults to stable Xcode
+Before release changes merge, `scripts/test_local.sh` defaults to Xcode 27.1 RC
 and runs the shared scheme on iPhone and iPad, then verifies locked screenshots.
-An explicit `DEVELOPER_DIR` pointing to a 27.1/27.2 SDK adds the native Duo suite,
+The default SDK, or an explicit `DEVELOPER_DIR` pointing to 27.1/27.2, also runs
+the native Duo suite,
 retaining the owner-approved Duo-only automated rotation exclusion.
 
-Version 1.5 uses stable Xcode 27 (27A266a), SDK 27.0, with native fold APIs
+Version 1.6 preparation uses Xcode 27.1 RC (27A9275), SDK 27.1; its archive
+guard requires native Duo support and that accepted SDK line. Cloud workflow
+selection and exact-source archive must be verified before submission.
+
+The released version 1.5 used stable Xcode 27 (27A266a), SDK 27.0, with native fold APIs
 compiled out. SDK conditions enable `FRAMEWINK_NATIVE_DUO` for 27.1/27.2 builds;
 the release guard checks that the flag matches those SDKs while preserving
 minimum iOS/iPadOS 15 and release identity checks. Add and verify conditions for

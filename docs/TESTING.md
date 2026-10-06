@@ -4502,3 +4502,46 @@ ASC confirms the final authorized 1.5 (60) submission as `1 Item Submitted`
 and `Waiting for Review`, submission `cebb6971-3ba3-48da-9a00-f90bdc41b928`.
 This is submission evidence, not App Store approval or public release. No new
 physical-device acceptance is inferred from these simulator and cloud gates.
+
+## Native version 1.6 RC preparation — 2026-10-06
+
+Toolchain: Xcode 27.1 RC (27A9275), SDK/runtime 27.1 build 24A94232.
+Output root: `/private/tmp/framewink-1.6-rc-20261006`.
+
+Passed before full regression:
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer
+CI_XCODEBUILD_ACTION=archive sh ci_scripts/ci_pre_xcodebuild.sh
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Release -destination 'generic/platform=iOS' \
+  -derivedDataPath /private/tmp/framewink-1.6-rc-20261006/Release-DerivedData \
+  CODE_SIGNING_ALLOWED=NO build analyze
+bash scripts/verify_locked_app_store_screenshots.sh
+```
+
+The Release app reports 1.6 and SDK 24A94232; `nm -u` confirms SwiftUI's
+reservedRegions symbol. The archive guard passes with RC and rejects stable
+SDK 27.0 with `Version 1.6 requires native Duo compilation conditions`.
+All 7 iPad, 6 iPhone, and 4 Duo locked images pass checksum verification.
+Shell syntax and `git diff --check` pass. Release Analyze has no reported issues.
+
+Retried the original `FirstLaunchPrivacyUITests/
+testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto` on dedicated Duo
+`23EC329C-547C-42B6-BCB2-D35D974AD3F6` under RC, with unmodified assertions.
+`Rotation.xcresult` reports one failure at line 423, immediately after the
+landscape orientation request. Thus automated Duo rotation remains unresolved;
+the owner-approved Duo-only exclusion stays in the full suite. This does not
+prove manual or physical rotation. Known RC diagnostics include Apple's
+StoreKitTest deprecated SKPaymentTransactionState, invalidDigitCount for the
+OS build number, and debugger lookup noURL; no production-source warning.
+
+The initial full suite exited 73 while the disk had about 150 MiB free.
+Its iPhone result bundle is incomplete (Info.plist absent), so no passing-test
+count is claimed. Preserve full-gate.log and the complete Rotation.xcresult.
+Only this task's completed rotation cache and interrupted QA Simulator were
+removed, restoring 7.8 GiB. The retry uses a single Simulator worker to avoid
+extra clones, with iPhone 17 Pro Max, iPad (A16), and a dedicated RC Duo.
+Full RC results and Simulator pose/capture checks remain pending at this entry.
+Physical Duo/Mail/PhotoKit/StoreKit/Guided Access/thermal/long-run checks remain
+separate; no new App Review submission is claimed.

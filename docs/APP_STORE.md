@@ -5,11 +5,22 @@ it aligned with the shipping build and update it before every submitted version.
 
 ## Current availability
 
-FrameWink 1.4 is Ready for Distribution in App Store Connect, verified
-October 1, 2026.
+FrameWink 1.5 is Ready for Distribution in App Store Connect, verified
+October 6, 2026.
 The App Store listing is at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
+
+## Native version 1.6 preparation — 2026-10-06
+
+The owner authorized preparing the native Duo release and using the signed-in
+Chrome session through Computer Use. Xcode 27.1 RC (27A9275), SDK 27.1, enables
+the retained native division API. Version inputs are in `AppStore/Version-1.6/`.
+Local regression, pose/capture checks, Cloud Analyze/archive, processed build,
+all applicable listing fields, and final review state must be verified.
+Retain manual release, inherited approved iPhone/iPad galleries, existing
+privacy/rating, Lifetime IAP, and disabled Mac/Vision availability.
+Native support is not publicly available merely because this candidate exists.
 
 ## Stable version 1.5 release — 2026-10-01
 
