@@ -2586,3 +2586,32 @@ backlog rather than extending the MVP.
   Access, and long-running hardware acceptance remain separate.
 - Active-time estimate so far: approximately 0.4 hours, excluding unattended
   test/build waiting. No release gate is marked complete prematurely.
+
+### RC validation and listing checkpoint — 2026-10-06
+
+- Draft PR #23 is pushed at `13c077e`; primary checkout remains untouched.
+  Required Cloud Analyze Build 65 succeeded on that exact commit. Both Cloud
+  workflows now use explicit Xcode 27.1 RC (27A9275), clean builds, and the
+  compatible fixed macOS 27.2 beta 2 host (26B5091g). Validation manual scope
+  includes `codex/iphone-duo-1.6`.
+- Created ASC version 1.6. Saved and reloaded native release/review notes and
+  the existing promotional text. Description, keywords, URLs, copyright,
+  review contact presence, no sign-in, manual release, and existing rating
+  read back correctly. Six inherited iPhone and seven iPad images remain.
+  Published privacy is Data Not Collected. One authentic 1398x2034 RC outer
+  screenshot processed in the Duo gallery; original PNG and hashes are saved.
+- Full iPhone retry: 241 passed, 2 failed, 4 physical-library skips. Both
+  failures were timeouts and both passed unchanged in an isolated retry.
+  Preserve both reports; no fully passing matrix is claimed. The script stopped
+  before iPad/Duo. Further local verification remains required.
+- Mac unlock/authentication resolved. Computer Use repeatedly times out reading
+  Device Hub; requested manual Open landscape on `FrameWinkRC16DuoQA`. Disk
+  space fell again to 270 MiB, then zero during concurrent release work. Removed
+  only this task's disposable DerivedData, retaining result bundles, logs,
+  release product, and capture evidence. Requested at least 5 GiB free.
+- Remaining: iPhone timing confirmation, iPad/Duo regression, native pose/inner
+  captures, bezel website refresh, final IAP/platform audit, signed archive and
+  processed TestFlight, merge, and App Review. Version 1.6 remains a draft.
+  Keep the approved Duo rotation exception and separate hardware acceptance.
+- Additional active time approximately 0.5 hours, total approximately 0.9 hours
+  excluding unattended waiting. No milestone is marked complete.

@@ -15,3 +15,12 @@ Keep checksum-locked approved iPhone/iPad galleries. Refresh Duo native captures
 with project-owned sample photos and preserve the licensed official artwork.
 Both websites keep upcoming-preview wording until the native version is public.
 See docs/PLAN.md and docs/TESTING.md for actual verification evidence.
+
+October 6 checkpoint: draft PR #23 at `13c077e`; exact-source Cloud Analyze
+Build 65 passed with the pinned RC. ASC 1.6 has saved/reloaded text fields,
+inherited phone/iPad galleries, manual release, existing rating, and no sign-in.
+One native outer-display Duo image is processed; original PNG/JPEG hashes
+are retained here. Two iPhone timeout failures passed unchanged in isolation;
+full iPad/Duo regression and manual poses/inner captures remain pending.
+Disk exhaustion and Device Hub UI timeouts require external-state resolution.
+Signed archive, final IAP/platform audit, merge, and review are still pending.

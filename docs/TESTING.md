@@ -4545,3 +4545,43 @@ extra clones, with iPhone 17 Pro Max, iPad (A16), and a dedicated RC Duo.
 Full RC results and Simulator pose/capture checks remain pending at this entry.
 Physical Duo/Mail/PhotoKit/StoreKit/Guided Access/thermal/long-run checks remain
 separate; no new App Review submission is claimed.
+
+### RC iPhone result and isolated timeout retry — 2026-10-06
+
+Single-worker `scripts/test_local.sh` under RC used output root
+`/private/tmp/framewink-1.6-rc-20261006/FullGateRetry` and phone
+`B41C6094-A3CA-48E6-AA25-1E08D0B98BCE` (iOS 27.0 / 24A434). The complete
+`iPhone.xcresult` reports **241 passed, 2 failed, 4 skipped**, exit 65; iPad
+and Duo did not run. Failures: automatic-album controller's 5-second state wait
+and blackout escape UI's 120-second execution timeout.
+
+Original assertions and production code were unchanged for the isolated retry:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -parallel-testing-enabled NO \
+  -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+  -derivedDataPath /private/tmp/framewink-1.6-rc-20261006/FullGateRetry/iPhone-DerivedData \
+  -resultBundlePath /private/tmp/framewink-1.6-rc-20261006/FailedCasesRetry.xcresult \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 \
+  -maximum-test-execution-time-allowance 120 CODE_SIGNING_ALLOWED=NO \
+  -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testBlackoutTapRevealsEscapeControl \
+  test-without-building
+```
+
+`FailedCasesRetry.xcresult`: **2 passed, 0 failed/skipped/runtime warnings**,
+exit 0. The full result retains the known Apple SwiftUI gravity-anchor warning
+and two test-only StoreKit transaction-update warnings. Resource/timing
+sensitivity is plausible, but the root cause is not proven. No fully passing
+full matrix is claimed. Disposable DerivedData was later removed when disk
+space reached zero; rebuilding requires space. Reports and logs are retained.
+
+Cloud Analyze Build 65 passed on `13c077ec37689afab00be1958a053bdc7e8ac80d`,
+Xcode 27.1 RC (27A9275), macOS 27.2 beta 2 (26B5091g). Visually checked
+1398x2034 outer capture is saved with hashes and processed in ASC. Inner and
+manual Open/Book/Tabletop/rotation checks are pending: Computer Use times out
+reading Device Hub. Further regression requires at least 5 GiB free. Signed
+archive, processed 1.6 build, and review submission remain pending.

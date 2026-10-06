@@ -1,0 +1,31 @@
+{
+  "capturedAt": "2026-10-06T21:46:02.765381+00:00",
+  "sourceCommit": "13c077ec37689afab00be1958a053bdc7e8ac80d",
+  "appVersion": "1.6",
+  "configuration": "Debug",
+  "xcode": "27.1 RC (27A9275)",
+  "sdkBuild": "24A94232",
+  "runtimeBuild": "24A94232",
+  "simulatorName": "FrameWinkRC16DuoQA",
+  "simulatorId": "23EC329C-547C-42B6-BCB2-D35D974AD3F6",
+  "scenario": "duo-gallery-frame",
+  "display": "LCD (outer)",
+  "poseVerification": "Outer display active; manual Device Hub pose verification remains pending.",
+  "dimensions": [
+    1398,
+    2034
+  ],
+  "usesPersonalPhotos": false,
+  "files": [
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/outer-frame.png",
+      "sha256": "20b417d1bf658c71906e07a0cfa3c063f2ada612eee9cd5345227e64d5b76c63"
+    },
+    {
+      "path": "AppStore/Version-1.6/Screenshots/iPhone-Duo/03-outer-frame.jpg",
+      "sha256": "c834802d11618e6b428b13c85aee505aec50934c87c2392a2fd5843875bd2ce0"
+    }
+  ],
+  "appStoreStatus": "Processed in the 1.6 Duo gallery; Prepare for Submission.",
+  "websiteStatus": "Existing upcoming-preview assets retained pending fresh inner capture."
+}

@@ -530,3 +530,17 @@ artifacts and dSYMs before Xcode Cloud's retention window expires.
   `AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg` as
   the private review screenshot for `FrameWink Lifetime`. It is a metadata-free
   derivative of the current in-app paywall and is not a public product image.
+
+### Version 1.6 listing checkpoint — 2026-10-06
+
+Created 1.6 in ASC via the owner's authenticated Chrome Computer Use session.
+Saved and reloaded native What's New, review instructions, and the existing
+promotional text. Description, keywords, support/marketing URLs, copyright,
+review contact presence, no sign-in, manual release, and existing rating are
+verified. Six inherited phone and seven iPad images are present. Privacy URL
+remains https://frame.jenny.media/privacy with Data Not Collected. One authentic
+RC outer-display Duo screenshot processed successfully; sources/hashes are
+under AppStore/Version-1.6. No build is attached; status remains Prepare for
+Submission. Further local gates, signed archive, processed build, and final
+IAP/platform checks are required before submitting. Public availability is
+not claimed, and website Duo wording remains an upcoming preview.
