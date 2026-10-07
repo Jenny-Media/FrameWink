@@ -1,0 +1,2 @@
+• Native iPhone Duo support, with layouts that adapt as you open, fold, rotate, and resize the display.
+• Photos and controls use the available space while keeping your current photo and playback state.

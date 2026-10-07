@@ -1,0 +1,27 @@
+Turn an iPhone or iPad into a calm, private photo frame in a few taps.
+
+On iPhone Duo, use the outer or fully open inner display. Book and Tabletop layouts place photos and controls around the fold, while opening, closing, rotating, and resizing keep your current photo and playback state.
+
+FrameWink starts with clearly labelled sample photos, so you can see the experience before granting access to anything. When you are ready, choose your own photos with Apple's system photo picker. FrameWink prepares a Smart Reel entirely on your device and keeps display-sized copies inside the app.
+
+FREE SMART REEL
+
+• Import up to 500 photo candidates across sessions
+• Get up to 100 locally curated recommendations
+• Review the reel before it plays
+• Remove an unwanted photo with Never Show Again and undo mistakes
+• Let automatic layouts protect faces, pair compatible portraits, and fit each screen
+• Swipe, pause, share, and choose 10-second, 30-second, 1-minute, or 5-minute timing
+• Replay without a watermark, ads, an account, or a trial countdown
+
+FRAMEWINK LIFETIME
+
+A single $4.99 purchase unlocks automatic refresh from one Photos album you explicitly choose, an unlimited supported-album candidate pool, fresher recommendations with longer-term repeat avoidance, additional automatic multi-photo layouts, optional night schedules, foreground Auto-Lock prevention while the frame plays, and practical mounted-display guidance. Family Sharing is supported where available from Apple.
+
+PRIVATE BY DESIGN
+
+FrameWink has no developer server, account, advertising, analytics SDK, or tracking. Photos and analysis stay on your device. FrameWink never edits, hides, favorites, or deletes originals in your Photos library. You can free unused downloads or delete all FrameWink photo data from the app at any time.
+
+Automatic album updates request full Photos access only after you choose that paid feature. FrameWink excludes hidden photos and screenshots from automatic selection. Guided Access setup remains a manual Apple system feature, and scheduled display behavior works only while FrameWink remains open.
+
+Requires iOS or iPadOS 15 or later.

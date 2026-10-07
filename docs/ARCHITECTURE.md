@@ -4,7 +4,8 @@
 
 - Universal iPhone and iPad application with an iPad-first frame experience.
 - Minimum iOS/iPadOS 15.
-- Version 1.5 uses stable Xcode 27 / iOS SDK 27.0. The app compiles native
+- The version 1.6 release candidate uses Xcode 27.1 RC / iOS SDK 27.1.
+  Version 1.5 used stable Xcode 27 / iOS SDK 27.0. The app compiles native
   iPhone Duo display APIs only with `FRAMEWINK_NATIVE_DUO`, selected by SDK
   conditions for 27.1/27.2. Older SDKs use the standard viewport. New SDK lines
   must explicitly extend those conditions and be verified before distribution.

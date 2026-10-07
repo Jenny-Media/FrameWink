@@ -686,3 +686,19 @@ date; do not silently rewrite historical decisions during implementation.
   describes shipped iPhone/iPad refinements. Preserve historical beta evidence.
 - A later native Duo release still needs an Apple-accepted SDK, release gates,
   and physical pose/rotation checks. Keep manual App Store release after review.
+
+## D-053 — Native Duo release 1.6 with accepted Xcode 27.1 RC — 2026-10-06
+
+- The owner authorized the follow-up native release after Apple opened Duo
+  submissions. Use Xcode 27.1 RC (27A9275), iOS SDK 27.1, for the release
+  archive; keep D-051's native geometry and simple shared frame experience.
+- Bump to 1.6 because 1.5 is already Ready for Distribution. Fail the release
+  guard if native support is compiled out or the archive uses another SDK line.
+  Local tests and Duo capture scripts default to RC, without changing global
+  xcode-select or production signing/identity.
+- Re-run iPhone/iPad/Duo regression and retry the owner-approved rotation
+  exception without weakening assertions. Verify poses and refresh authentic
+  captures. Preserve checksum-locked approved screenshot galleries.
+- Prepare Cloud and App Store metadata, retaining manual release after review.
+  Do not infer physical Duo acceptance from Simulator or claim public support
+  on either website before an accepted native version becomes public.

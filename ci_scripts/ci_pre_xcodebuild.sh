@@ -70,6 +70,19 @@ case " $swift_conditions " in
         echo "FrameWink standard iPhone/iPad geometry enabled for SDK $sdk_version; native Duo deferred."
         ;;
 esac
+# Version 1.6 is the native Duo release: an older SDK must not silently
+# compile out the feature, and its archive uses the accepted 27.1 SDK line.
+case " $swift_conditions " in
+    *" FRAMEWINK_NATIVE_DUO "*) ;;
+    *) fail "Version 1.6 requires native Duo compilation conditions." ;;
+esac
+if [ "$xcodebuild_action" = "archive" ]; then
+    case "$sdk_version" in
+        27.1*) ;;
+        *) fail "Version 1.6 release archive requires the accepted iOS 27.1 SDK; found $sdk_version." ;;
+    esac
+fi
+
 unit_test_bundle_identifier=$(xcodebuild \
     -project "$project_path" \
     -target FrameWinkTests \
@@ -97,8 +110,8 @@ ui_test_bundle_identifier=$(xcodebuild \
     || fail "Release target must not be available as Designed for iPhone/iPad on Apple Vision Pro."
 [ "$minimum_os" = "15.0" ] \
     || fail "Release deployment target is '$minimum_os', expected iOS/iPadOS 15.0."
-[ "$marketing_version" = "1.5" ] \
-    || fail "Release marketing version is '$marketing_version', expected App Store version 1.5."
+[ "$marketing_version" = "1.6" ] \
+    || fail "Release marketing version is '$marketing_version', expected App Store version 1.6."
 [ "$unit_test_bundle_identifier" = "media.jenny.FrameWinkTests" ] \
     || fail "Unit-test bundle identifier is '$unit_test_bundle_identifier', expected media.jenny.FrameWinkTests."
 [ "$ui_test_bundle_identifier" = "media.jenny.FrameWinkUITests" ] \

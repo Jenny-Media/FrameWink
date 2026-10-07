@@ -4502,3 +4502,240 @@ ASC confirms the final authorized 1.5 (60) submission as `1 Item Submitted`
 and `Waiting for Review`, submission `cebb6971-3ba3-48da-9a00-f90bdc41b928`.
 This is submission evidence, not App Store approval or public release. No new
 physical-device acceptance is inferred from these simulator and cloud gates.
+
+## Native version 1.6 RC preparation — 2026-10-06
+
+Toolchain: Xcode 27.1 RC (27A9275), SDK/runtime 27.1 build 24A94232.
+Output root: `/private/tmp/framewink-1.6-rc-20261006`.
+
+Passed before full regression:
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer
+CI_XCODEBUILD_ACTION=archive sh ci_scripts/ci_pre_xcodebuild.sh
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Release -destination 'generic/platform=iOS' \
+  -derivedDataPath /private/tmp/framewink-1.6-rc-20261006/Release-DerivedData \
+  CODE_SIGNING_ALLOWED=NO build analyze
+bash scripts/verify_locked_app_store_screenshots.sh
+```
+
+The Release app reports 1.6 and SDK 24A94232; `nm -u` confirms SwiftUI's
+reservedRegions symbol. The archive guard passes with RC and rejects stable
+SDK 27.0 with `Version 1.6 requires native Duo compilation conditions`.
+All 7 iPad, 6 iPhone, and 4 Duo locked images pass checksum verification.
+Shell syntax and `git diff --check` pass. Release Analyze has no reported issues.
+
+Retried the original `FirstLaunchPrivacyUITests/
+testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto` on dedicated Duo
+`23EC329C-547C-42B6-BCB2-D35D974AD3F6` under RC, with unmodified assertions.
+`Rotation.xcresult` reports one failure at line 423, immediately after the
+landscape orientation request. Thus automated Duo rotation remains unresolved;
+the owner-approved Duo-only exclusion stays in the full suite. This does not
+prove manual or physical rotation. Known RC diagnostics include Apple's
+StoreKitTest deprecated SKPaymentTransactionState, invalidDigitCount for the
+OS build number, and debugger lookup noURL; no production-source warning.
+
+The initial full suite exited 73 while the disk had about 150 MiB free.
+Its iPhone result bundle is incomplete (Info.plist absent), so no passing-test
+count is claimed. Preserve full-gate.log and the complete Rotation.xcresult.
+Only this task's completed rotation cache and interrupted QA Simulator were
+removed, restoring 7.8 GiB. The retry uses a single Simulator worker to avoid
+extra clones, with iPhone 17 Pro Max, iPad (A16), and a dedicated RC Duo.
+Full RC results and Simulator pose/capture checks remain pending at this entry.
+Physical Duo/Mail/PhotoKit/StoreKit/Guided Access/thermal/long-run checks remain
+separate; no new App Review submission is claimed.
+
+### RC iPhone result and isolated timeout retry — 2026-10-06
+
+Single-worker `scripts/test_local.sh` under RC used output root
+`/private/tmp/framewink-1.6-rc-20261006/FullGateRetry` and phone
+`B41C6094-A3CA-48E6-AA25-1E08D0B98BCE` (iOS 27.0 / 24A434). The complete
+`iPhone.xcresult` reports **241 passed, 2 failed, 4 skipped**, exit 65; iPad
+and Duo did not run. Failures: automatic-album controller's 5-second state wait
+and blackout escape UI's 120-second execution timeout.
+
+Original assertions and production code were unchanged for the isolated retry:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -parallel-testing-enabled NO \
+  -destination 'platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+  -derivedDataPath /private/tmp/framewink-1.6-rc-20261006/FullGateRetry/iPhone-DerivedData \
+  -resultBundlePath /private/tmp/framewink-1.6-rc-20261006/FailedCasesRetry.xcresult \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 \
+  -maximum-test-execution-time-allowance 120 CODE_SIGNING_ALLOWED=NO \
+  -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testBlackoutTapRevealsEscapeControl \
+  test-without-building
+```
+
+`FailedCasesRetry.xcresult`: **2 passed, 0 failed/skipped/runtime warnings**,
+exit 0. The full result retains the known Apple SwiftUI gravity-anchor warning
+and two test-only StoreKit transaction-update warnings. Resource/timing
+sensitivity is plausible, but the root cause is not proven. No fully passing
+full matrix is claimed. Disposable DerivedData was later removed when disk
+space reached zero; rebuilding requires space. Reports and logs are retained.
+
+Cloud Analyze Build 65 passed on `13c077ec37689afab00be1958a053bdc7e8ac80d`,
+Xcode 27.1 RC (27A9275), macOS 27.2 beta 2 (26B5091g). Visually checked
+1398x2034 outer capture is saved with hashes and processed in ASC. Inner and
+manual Open/Book/Tabletop/rotation checks are pending: Computer Use times out
+reading Device Hub. Further regression requires at least 5 GiB free. Signed
+archive, processed 1.6 build, and review submission remain pending.
+
+## Space-ready version 1.6 RC checkpoint (2026-10-06)
+
+Commands run from the isolated release checkout:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/framewink-1.6-rc-20261006/FullGateSpaceReady \
+FRAMEWINK_IPHONE_DESTINATION='platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+FRAMEWINK_IPAD_DESTINATION='platform=iOS Simulator,id=E5715730-3E48-4D48-BA6B-238DE5C34F58' \
+FRAMEWINK_DUO_DESTINATION='platform=iOS Simulator,id=23EC329C-547C-42B6-BCB2-D35D974AD3F6' \
+bash scripts/test_local.sh
+
+FRAMEWINK_SIMULATOR_ID=23EC329C-547C-42B6-BCB2-D35D974AD3F6 \
+FRAMEWINK_DERIVED_DATA=/private/tmp/framewink-1.6-rc-20261006/Duo-Capture-DerivedData \
+bash scripts/capture_website_duo_screenshots.sh
+bash scripts/generate_website_duo_assets.sh
+bash scripts/generate_app_store_iphone_duo_release_screenshots.sh
+(cd website && npm test && npm run lint && npm run build)
+bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```
+
+The completed iPhone run passes 243 tests, zero failures, four existing skips.
+iPad/Duo results are still pending. The prior full-disk interruption and two
+full-run timeouts remain recorded; both timeout cases passed unchanged in
+isolation and also in this complete iPhone run. Do not infer a fully passing
+matrix before the remaining result bundles complete.
+
+Known warnings: RC `invalidDigitCount(94232)` and debugger `noURL`, deprecated
+StoreKitTest transaction state, SwiftUI gravity-anchor hierarchy warning, and
+test-only StoreKit transaction-listening warnings. Cloud Analyze Build 65
+passed with no issues on the same native/build source.
+
+Manual Device Hub checks verify open/closed and Book/Tabletop geometry,
+open-display rotation, the paused personal reel fixture's unchanged photo ID,
+and scrolling to all duration choices at the largest text size with Close
+reachable. An outer display rotation required scene relaunch before its native
+capture dimensions updated; the approved original Duo XCTest rotation-case
+exception remains. Native inner sources are 2007x2853 or 2853x2007, outer
+portrait is 1398x2034; blank/wrong-sized frames are rejected. Marketing cards
+include headlines and complete official Apple bezels; raw capture originals
+are retained with SHA-256 provenance.
+
+Website tests pass 26/26; lint/build and locked screenshot checks pass. No new
+hardware acceptance is implied: physical Duo folds, PhotoKit/cloud library,
+Mail, StoreKit/Family Sharing, brightness/thermal, Guided Access, and prolonged
+playback still require real-device checks.
+
+### Resumed matrix with persistent result storage — 2026-10-06
+
+The previously observed iPhone 243/0/4 result is historical evidence. On resume,
+its temporary output root and the running process were absent; there is no
+completion evidence for iPad or Duo. The fresh unchanged matrix uses:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+FRAMEWINK_TEST_OUTPUT_ROOT=/Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-1.6-RC-Resumed \
+FRAMEWINK_IPHONE_DESTINATION='platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+FRAMEWINK_IPAD_DESTINATION='platform=iOS Simulator,id=E5715730-3E48-4D48-BA6B-238DE5C34F58' \
+FRAMEWINK_DUO_DESTINATION='platform=iOS Simulator,id=23EC329C-547C-42B6-BCB2-D35D974AD3F6' \
+bash scripts/test_local.sh
+```
+
+Log: `FrameWink-1.6-RC-Resumed.log` beside that result root. Results are pending.
+Four designed Duo gallery images processed and survived ASC page reload in
+correct order. All 15 capture/final manifest SHA-256 hashes match; three inner
+JPEGs are 2007x2853 and the outer JPEG is 1398x2034, three channels without alpha.
+Final generator syntax, locked galleries, and `git diff --check` pass.
+
+
+### Final local matrix and approved gallery — 2026-10-07
+
+The persistent resumed iPhone result was read back: 243 passed, zero failures,
+four existing physical-library skips. The earlier resumed iPad run was canceled
+at the privacy-summary UI case; its 226 passed / four skipped result is retained
+as an incomplete run. The unchanged fresh runs both exit 0: iPad 243 passed,
+zero failures, four skipped; Duo 242 passed, zero failures, 4 skipped.
+The sole owner-approved Duo-only rotation exclusion remains explicit below;
+no assertions or production code were weakened.
+
+The initial closed-display Duo run returned 238 passed, four failed, four
+skipped: a five-second automatic-album state timeout, a 120-second StoreKit
+purchase/refund timeout, and two review-landscape cases that failed at
+waitForLandscape (line 790) before their content-layout assertions. All four
+passed unchanged in the open-display isolated retry (4/0/0, exit 0). The
+retry and complete open-display result identify runtime build 24A94401; the
+initial closed run identifies 24A94232, while the compiled SDK remains
+24A94232. Pose/runtime changes were observed, so the exact cause of the
+timeouts is not proven. Original failed results are retained.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -parallel-testing-enabled NO \
+  -destination 'platform=iOS Simulator,id=E5715730-3E48-4D48-BA6B-238DE5C34F58' \
+  -derivedDataPath /Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-1.6-RC-Resumed/iPad-DerivedData \
+  -resultBundlePath /Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-1.6-Ready-20261007/iPad.xcresult \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 \
+  -maximum-test-execution-time-allowance 120 CODE_SIGNING_ALLOWED=NO \
+  -skip-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking \
+  -skip-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests test
+
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -parallel-testing-enabled NO \
+  -destination 'platform=iOS Simulator,id=23EC329C-547C-42B6-BCB2-D35D974AD3F6' \
+  -derivedDataPath /Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-1.6-Ready-20261007/Duo-DerivedData \
+  -resultBundlePath /Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-1.6-Ready-20261007/Duo-Open.xcresult \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 \
+  -maximum-test-execution-time-allowance 120 CODE_SIGNING_ALLOWED=NO \
+  -skip-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking \
+  -skip-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests \
+  -skip-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto test-without-building
+
+# Isolated unchanged retry
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -parallel-testing-enabled NO \
+  -destination 'platform=iOS Simulator,id=23EC329C-547C-42B6-BCB2-D35D974AD3F6' \
+  -derivedDataPath /Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-1.6-Ready-20261007/Duo-DerivedData \
+  -resultBundlePath /Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-1.6-Ready-20261007/Duo-FailedCasesRetry.xcresult \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 \
+  -maximum-test-execution-time-allowance 120 CODE_SIGNING_ALLOWED=NO \
+  -only-testing:FrameWinkTests/AutomaticAlbumControllerTests/testSelectedAlbumSyncsCuratesAndRefreshesAfterLibraryChange \
+  -only-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestPurchaseAndRefundUpdateCurrentEntitlement \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testReviewHiddenPhotosRemainAboveUndoInLandscape test-without-building
+```
+
+Toolchain: Xcode 27.1 RC (27A9275). iPhone 17 Pro Max and iPad (A16) runtime
+27.0 / 24A434; dedicated Duo open-display runtime 27.1 / 24A94401. Complete result bundles
+and JSON summaries remain in the persistent visualization roots above.
+Warnings retain the Apple SwiftUI gravity-anchor hierarchy message, two
+test-only StoreKit transaction-listening messages, deprecated StoreKitTest
+transaction state, RC invalidDigitCount(94232/94401), and debugger lookup noURL.
+None is silently treated as physical-device acceptance.
+
+All six owner-approved v5 Duo gallery files were uploaded, processed and
+reload-verified in order in ASC. Regeneration to `FrameWink-1.6-Ready-20261007/
+RegeneratedGallery` reproduces all six approved SHA-256 hashes exactly. All
+manifest source/final hashes and the 17 older locked gallery hashes pass.
+Generator shell syntax and `git diff --check` pass. Existing website 26/26
+tests, lint/build and native Release build/Analyze evidence remain applicable:
+app, tests, project and CI sources still match Cloud Analyze 65's revision
+13c077ec37689afab00be1958a053bdc7e8ac80d.
+
+Signed Cloud archive and processed-build attachment are the remaining
+submission-preparation gates. Final Submit for Review remains owner-controlled.
+Physical Duo folds, PhotoKit/iCloud, Mail, StoreKit/Family Sharing, brightness,
+thermal, Guided Access and long-running playback require hardware checks.

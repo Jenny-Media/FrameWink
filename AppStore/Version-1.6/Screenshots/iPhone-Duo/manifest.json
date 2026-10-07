@@ -1,0 +1,132 @@
+{
+  "capturedAt": "2026-10-06",
+  "sourceCommit": "dd78582b846db928ae5242985ca6d20229b725c1",
+  "sourceAppCommit": "13c077ec37689afab00be1958a053bdc7e8ac80d",
+  "appVersion": "1.6",
+  "configuration": "Debug",
+  "xcode": "27.1 RC (27A9275)",
+  "sdkBuild": "24A94232",
+  "runtimeBuild": "24A94232",
+  "simulatorName": "FrameWinkRC16DuoQA",
+  "simulatorId": "23EC329C-547C-42B6-BCB2-D35D974AD3F6",
+  "usesPersonalPhotos": false,
+  "captures": {
+    "Inner/01-gallery.jpg": "duo-gallery-frame, Open portrait, LCD-1, 2007x2853",
+    "Inner/02-album-picker.jpg": "album-picker, Open portrait, LCD-1, 2007x2853",
+    "Inner/03-frame-controls.jpg": "frame-controls, Open portrait, LCD-1, 2007x2853",
+    "Inner/04-sample-setup.jpg": "sample, Open portrait, LCD-1, 2007x2853",
+    "outer-frame-portrait.png": "portrait-frame, Closed portrait, LCD, 1398x2034",
+    "open-landscape.png": "duo-gallery-frame, Open landscape, LCD-1, 2853x2007",
+    "open-controls-landscape.png": "frame-controls, Open landscape, LCD-1, 2853x2007",
+    "outer-frame.png": "earlier RC duo-gallery-frame outer capture, 1398x2034",
+    "open-single-portrait.png": "portrait-frame, Open portrait, LCD-1, 2007x2853; isolated screenshot Simulator 2B3F69CF-65A1-4D7A-8056-20FC38DEE95D"
+  },
+  "marketingScreenshots": [
+    "01-your-photos-beautifully-framed.jpg",
+    "02-open-to-a-bigger-frame.jpg",
+    "03-choose-an-album.jpg",
+    "04-open-or-closed.jpg",
+    "05-simple-timing.jpg",
+    "06-see-it-first.jpg"
+  ],
+  "generator": "scripts/generate_app_store_iphone_duo_release_screenshots.sh",
+  "artwork": {
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-iPhone-Duo.dmg",
+    "packageSha256": "f616ee087d310ef089b2261a5f93bd2d52d78cb5fcf63914878a2f0926adac28",
+    "inner": "iPhone Duo - Night Sky - Inner Open Portrait.png",
+    "outer": "iPhone Duo - Night Sky - Outer Closed Portrait.png",
+    "composition": "Exact native captures composited inside complete original Apple bezels, then uniformly resized. Generated room backgrounds only; foreground wooden cradle rails intentionally occlude the lowest handset strip on lifestyle cards. No generated app UI or hardware.",
+    "license": "Apple Design Resources LYL142 06/21/2023; accepted with owner authorization on 2026-10-01 and 2026-10-06",
+    "innerLandscape": "iPhone Duo - Night Sky - Inner Open Landscape.png"
+  },
+  "poseVerification": "Device Hub manual Closed/Open, Book/Tabletop, paused personal reel photo continuity and open-display rotation verified. Outer rotation needed scene relaunch before capture dimensions updated; retain the approved XCTest rotation exception.",
+  "files": [
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/Inner/01-gallery.jpg",
+      "sha256": "61ff6248745f75859f4b9316ac87629476804d7772a84330a6bbcf9ed13ebbaa"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/Inner/02-album-picker.jpg",
+      "sha256": "96e4100c032fed77c6d3254da96e7183655daa15613894f975d5ab0f7c0bb7a5"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/Inner/03-frame-controls.jpg",
+      "sha256": "0f36438549b8055aaeafa6edc206a5eb3d0328f7e550b56c6d0795d0cbd1bf17"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/Inner/04-sample-setup.jpg",
+      "sha256": "bd6a9c67891df0b994f3fba18f7ca979935dc2e2713aadadc1d54d7218f84cac"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/MarketingBackgrounds/imagegen-prompts.json",
+      "sha256": "7eb3e0a953b18562a8b8e6016258b6052c70ac53e1efe0e42c1162cc23235792"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/MarketingBackgrounds/room-closed-cradle-v5.png",
+      "sha256": "ecfeabd89a82b16ce33f0048385633b1046d18a8a0a2c17ed01b365cf66435f1"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/MarketingBackgrounds/room-open-cradle-v5.png",
+      "sha256": "41419eab9c7be6063e5cfc3f81beb61fb2f55946c4f0481b0a33d5fb54569d5f"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/PlainPreviews/01-open-frame.jpg",
+      "sha256": "948cdc6b472ae19ab73359b306511be6db4469ce4d1c9e709178cfab8160f441"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/PlainPreviews/02-open-controls.jpg",
+      "sha256": "4790a7842e68c4667b7aae83ce7b3b4b98f4ca0a5266cba84534739be2d2d620"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/PlainPreviews/03-outer-frame.jpg",
+      "sha256": "c834802d11618e6b428b13c85aee505aec50934c87c2392a2fd5843875bd2ce0"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/open-controls-landscape.png",
+      "sha256": "61da5d09b89e5bea7dce794c77bc29b402dc394e1444e18f2c7b5bdc361b55c8"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/open-landscape.png",
+      "sha256": "969213676d54b4bfa963f3b34c249a3aa6ea13da72c10a0981e1d993fed0bb22"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/open-single-portrait.png",
+      "sha256": "084f8e927486be7bf2ce46c41d407046116d0312a75344c4d504f478f13c531d"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/outer-frame-portrait.png",
+      "sha256": "57decb269b808ae3da9ec2a1a46b631b6b294e1769a28935a4e7ecd624c98223"
+    },
+    {
+      "path": "AppStore/Version-1.6/CaptureSources/iPhone-Duo/outer-frame.png",
+      "sha256": "20b417d1bf658c71906e07a0cfa3c063f2ada612eee9cd5345227e64d5b76c63"
+    },
+    {
+      "path": "AppStore/Version-1.6/Screenshots/iPhone-Duo/01-your-photos-beautifully-framed.jpg",
+      "sha256": "fd0c030777873ab8bade80880096f4b5b3a738a5cffc0ff5e3f4153aa5a83a46"
+    },
+    {
+      "path": "AppStore/Version-1.6/Screenshots/iPhone-Duo/02-open-to-a-bigger-frame.jpg",
+      "sha256": "510d61551588f7f00a1c0f9a8efb720edc82b807cc8878b79aa0d1dea91334b6"
+    },
+    {
+      "path": "AppStore/Version-1.6/Screenshots/iPhone-Duo/03-choose-an-album.jpg",
+      "sha256": "0e736c5350984f5f4fa67b76a735b72e61f1e4822889b79743caf0b8d9b7cc6e"
+    },
+    {
+      "path": "AppStore/Version-1.6/Screenshots/iPhone-Duo/04-open-or-closed.jpg",
+      "sha256": "214a2663fc94d8e3c24100119e52c277f22cd7b2133c9a71077ae167d1fb291a"
+    },
+    {
+      "path": "AppStore/Version-1.6/Screenshots/iPhone-Duo/05-simple-timing.jpg",
+      "sha256": "8a61f959d73b9d749f0f49502e2e4502b634aa56e7c308837598427f9665718c"
+    },
+    {
+      "path": "AppStore/Version-1.6/Screenshots/iPhone-Duo/06-see-it-first.jpg",
+      "sha256": "8702c5e6eaef947aa81d36354ad79a0681c6b4f419d620687b0e73abc2379eeb"
+    }
+  ],
+  "appStoreStatus": "All six owner-approved v5 screenshots uploaded, processed, and reload-verified in order on 2026-10-07. Version 1.6 remains Prepare for Submission pending its signed build.",
+  "websiteStatus": "Fresh RC open captures composed inside intact official artwork; upcoming-preview wording retained.",
+  "approvedDesign": "v5, all six owner-approved on 2026-10-06"
+}
