@@ -2870,3 +2870,34 @@ Active-time estimate for preparation: about 0.5 hours, excluding test/cloud
 waits. Known risks: owner-approved automated Duo rotation exception; physical
 Duo/library/Mail/purchase/brightness/thermal/Guided Access/long-run acceptance
 remains separate. Exact commands and warning boundaries are in TESTING.md.
+
+
+### Version 1.6 build 66 ready to submit — 2026-10-07
+
+Status: requested submission preparation complete. The final Submit for
+Review action and public release have not occurred. Preserve manual release.
+
+PR #23 merged after local and PR checks passed. Merged application source is
+35843a0e3649e0fc5ba57127ebc40a61f3975628; its tree matched the validated
+495da2674e59cf398c2386c5f0f036103568b547 release tree exactly. Automatic
+Cloud Analyze 67 passed with no issues. Signed Archive 66 and its internal
+TestFlight post-action succeeded on that merged source using Xcode 27.1 RC.
+The Cloud archive guard confirms native Duo geometry for SDK 27.1.
+
+Processed 1.6 (66) is Validated, assigned to Jenny Media Internal, attached
+to the version, saved and reload-verified. What to Test matches the committed
+text. App Review > Drafts shows one iOS 1.6 item Ready for Review; the draft
+detail shows 1.6 (66), Item Ready to Submit and an enabled Submit for Review
+button. All required fields were accepted without missing-field errors.
+The six approved Duo cards and retained iPhone/iPad galleries are present.
+
+Persistent evidence, raw archive with dSYMs, signed App Store export, hashes,
+metadata, complete test summaries and the final release checklist are under
+/Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-1.6-Ready-20261007.
+The primary checkout's unrelated changes remain untouched.
+
+Active-time estimate: about 0.7 hours of preparation, excluding test/cloud
+waits. Remaining owner action is final submission; physical Duo/library/Mail/
+purchase/brightness/thermal/Guided Access/long-run acceptance and the approved
+automated Duo rotation exception remain explicitly documented. Website Duo
+wording changes after public release. This checkpoint changes docs only.

@@ -578,3 +578,27 @@ Local iPhone/iPad/Duo gates are complete with the previously approved
 Duo rotation XCTest exception. Signed Cloud archive, processed 1.6 build
 attachment and Ready for Review read-back remain pending at this source
 checkpoint. Final Submit for Review is intentionally left to the owner.
+
+
+### Version 1.6 build 66 ready to submit — 2026-10-07
+
+The native release PR #23 is merged at 35843a0e3649e0fc5ba57127ebc40a61f3975628.
+Cloud Analyze 67 and signed Archive 66 succeeded on that source. TestFlight
+1.6 (66) is processed, Validated and assigned to Jenny Media Internal.
+Its What to Test text exactly matches the repository. ASC build metadata
+confirms SDK 24A94232, iOS 15 minimum, iPhone/iPad, symbols included and no
+non-exempt encryption. The App Store export independently confirms 1.6 (66),
+iphoneos27.1 and device families 1/2; the raw archive retains project build
+number 1 because Xcode Cloud assigns 66 during export.
+
+Build 66 is attached to version 1.6 and survives save/reload with the complete
+listing, two-bullet What's New, review contact/notes, manual release and
+existing rating. Add for Review succeeded. App Review > Drafts persists one
+iOS 1.6 item Ready for Review; the draft contains 1.6 (66), Item Ready to Submit
+and an enabled Submit for Review button. The final submit button was not
+clicked. Public availability remains 1.5; website Duo copy stays upcoming.
+
+The archived app, dSYMs and App Store export are retained in the persistent
+FrameWink-1.6-Ready-20261007/CloudBuild66 evidence folder, with SHA-256 metadata.
+Optional, inapplicable fields were left empty; all required/relevant listing
+and TestFlight fields are saved. No new tester recipients were added.
