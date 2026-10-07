@@ -2662,3 +2662,190 @@ backlog rather than extending the MVP.
   listing audit, and App Review submission remain pending.
 - Additional active time approximately 0.2 hours, total approximately 1.7 hours,
   excluding unattended regression waiting. Preserve unrelated primary changes.
+
+
+### Duo screenshot design review v2 — 2026-10-06
+
+- Owner paused release work, then authorized two local screenshot previews
+  following the live normal-iPhone gallery's style. Release regression,
+  merge, upload, and submission were not resumed by this preview task.
+- Prepared an open-Duo tabletop card and a closed-display controls card, with
+  the same warm room/wall treatment, concise headlines, and approximately
+  7.4%-of-card-width headline sizing as the normal iPhone artwork.
+- Used built-in imagegen only to remove the old phone and prepare an empty
+  tabletop room. Composed complete original Apple Night Sky artwork with exact
+  native RC app pixels afterward; no generated hardware or UI. Reused the
+  owner's license-acceptance authorization. Original opaque hardware pixels
+  have zero difference before uniform scaling.
+- Captured the closed controls screen in a separate fixture-only Duo Simulator
+  (`2B3F69CF-65A1-4D7A-8056-20FC38DEE95D`) using the previously validated
+  version 1.6 Debug app / SDK 24A94232. Existing release and other tasks'
+  simulators were not modified. Shared Device Hub inspection was blocked by
+  automatic approval review; the isolated Simulator capture completed safely.
+- Saved two native-dimension opaque sRGB JPEGs, originals, generator, full
+  imagegen prompt, hashes, and an equal-card-width iPhone comparison under
+  `/Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-Duo-Design-Review-v2/`.
+- Verification: render script exit 0, shell syntax and diff checks pass, all
+  locked iPhone/iPad/older Duo galleries and all 15 existing 1.6 source/final
+  hashes unchanged. No app/test source change; paused app regression and
+  physical Duo acceptance remain separate. Await owner visual review before
+  preparing the remaining gallery or replacing uploaded assets.
+- Additional active time approximately 0.4 hours, excluding unattended waits.
+  Review previews are prepared; the release milestone remains incomplete.
+
+### Duo screenshot design review v3 — 2026-10-06
+
+- Owner approved reducing the oversized first tabletop Duo and completing the
+  six-card gallery. Reduced the open lifestyle device width from 1070 to 750
+  pixels (29.91%) and resized its walnut stand. Added a matching closed-phone
+  room scene with a narrower stand and the whole bird head/beak visible.
+- Completed all six cards: open tabletop, native two-photo open frame, album
+  selection, closed tabletop, closed-display timing controls, and clearly
+  labeled bundled sample setup. All use concise headlines, warm backgrounds,
+  and complete original Apple Night Sky hardware artwork. Existing authentic
+  version 1.6 RC captures were reused; no hardware/UI generation or new capture.
+- Used built-in imagegen only for the two room/stand edits, followed by exact
+  screen-opening composition and uniform device scaling. Saved six native-size
+  opaque sRGB JPEGs, raw sources, composed device derivatives, full prompts,
+  reproducible renderer, validation report, hashes, contact sheets, and a
+  tabletop before/after comparison under
+  `/Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-Duo-Design-Review-v3/`.
+- Verification: `bash -n render-gallery.sh` and `bash render-gallery.sh` pass;
+  `python3 verify-gallery.py` checks six JPEG dimensions/opacity/color/metadata,
+  unchanged previous drafts, all 17 locked gallery hashes, all 15 existing 1.6
+  capture/final hashes, and zero opaque original hardware pixel difference.
+  All six cards were visually checked individually and in the contact sheet
+  for headline spacing, complete bezels, control legibility, and bird framing.
+  `git diff --check` passes. No app/test source changes or new Xcode tests.
+- These are local review drafts awaiting owner feedback. Uploaded App Store
+  assets and release state remain unchanged; release tests, merge, upload,
+  signing, submission, and physical Duo acceptance remain paused/separate.
+  Device scene sizes are illustrative compositions, not measured calibration.
+- Additional active time approximately 0.3 hours, excluding unattended waits.
+  Screenshot preparation is complete for review; release milestone incomplete.
+
+
+### Duo screenshot design review v4 — 2026-10-06
+
+- Owner clarified that the original wooden holders are approved; the phone
+  looked artificial because its bottom hardware edge appeared in front of
+  the holder. Kept both room backgrounds and reduced device scale. Composed
+  the original wooden front lips above the lower bezel, below app pixels,
+  so cards 1/4 show the device seated inside its holder.
+- Replaced card 2's two-photo view with an authentic single-photo open portrait
+  capture, retaining the bird's whole head/beak and reflection. Computer Use
+  recovered through its JavaScript bridge. Used Device Hub Open/Rotate Right
+  on only the isolated screenshot Simulator, UUID
+  `2B3F69CF-65A1-4D7A-8056-20FC38DEE95D`, with the existing 1.6 Debug app /
+  SDK and runtime 24A94232. Shut down that owned Simulator after capture.
+  Initial black inner-display capture was rejected and retained as diagnostic
+  evidence; an earlier start reported Data Migration Failed, while the later
+  restart, app launch and native capture succeeded. No regression claim.
+- Card 5's previous large closed sheet was real native UI. The revised card
+  uses the existing authentic compact open-display timing popover instead;
+  no app code or UI pixels were edited. Cards 3/6 remain byte-identical.
+- Saved six review JPEGs, full-resolution ZIP, native capture, raw provenance,
+  complete device derivatives, inherited background prompts, reproducible
+  renderer, verification and bundle hashes under
+  `/Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-Duo-Design-Review-v4/`.
+- Verification: `bash -n render-gallery.sh`, full `bash render-gallery.sh`,
+  and `python3 verify-gallery.py` pass. Six opaque metadata-stripped sRGB
+  JPEGs have native marketing dimensions; all 34 v3 bundle files, 17 locked
+  gallery files and 15 existing 1.6 capture/final hashes remain unchanged.
+  All six original hardware composites have zero opaque-artwork difference
+  before uniform scaling and deliberate physical holder occlusion. Native
+  single-photo capture is 2007x2853 and nonblank. ZIP read-back matches every
+  JPEG byte-for-byte. All six were visually reviewed for spacing/cropping.
+- App source and existing App Store assets were not changed. No new Xcode
+  tests, build, commit, push, merge, upload, signing, submission or release.
+  Review preparation is complete, awaiting owner visual approval; release
+  milestone remains incomplete and paused. Physical Duo acceptance and
+  native release regression remain separate pending work.
+- Additional active time approximately 0.6 hours, excluding unattended waits.
+  Device scale remains illustrative rather than measured calibration.
+
+
+### Duo screenshot design review v5 — 2026-10-06
+
+- Owner rejected the v4 holder refinement and requested regenerating only
+  cards 1/4, approving the other four. Used built-in imagegen for two new
+  empty-room backgrounds with a wide/narrow walnut cradle, visible recessed
+  channel, rear ridge, full-width front rail and table contact shadow.
+- Inserted authentic existing native RC app captures and original licensed
+  Apple Night Sky artwork afterward with the editable renderer. No app UI or
+  hardware entered generation. The front rails physically cover the lowest
+  handset/photo strip, so the phones sit down inside their slots. Original
+  app source pixels remain unchanged; no controls or text are obscured.
+  Open artwork width is 720 pixels on the 2007-wide canvas to fit the new
+  slot; closed width remains 267 pixels on the 1398-wide canvas. Scene scale
+  is illustrative rather than physically measured.
+- Cards 2/3/5/6 are copied byte-for-byte from approved v4 JPEGs. Previous
+  v4 remains intact. Saved the revised pair, enlarged holder-contact crops,
+  all-six preview, six-JPEG ZIP, new backgrounds, exact prompt set, source
+  provenance, renderer, validation and bundle hashes under
+  `/Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-Duo-Design-Review-v5/`.
+- Verification: shell syntax and full renderer exit 0;
+  `python3 verify-gallery.py` passes six native-canvas opaque sRGB JPEGs,
+  stripped metadata, all 41 previous v4 files unchanged, the four approved
+  images byte-identical, 17 locked gallery hashes unchanged, and 15 existing
+  1.6 source/final hashes unchanged. Both native device composites preserve
+  original opaque artwork exactly before uniform scaling/physical holder
+  occlusion. ZIP read-back matches every JPEG. Revised pair inspected at
+  full preview size, in enlarged contact crops and in the six-card gallery.
+- Await owner visual review. No native source change, new Simulator capture,
+  app build/test, commit, push, merge, upload, signing, submission or release.
+  App release remains paused/incomplete. Native regression and physical Duo
+  acceptance remain separate pending work.
+- Additional active time approximately 0.3 hours, excluding unattended waits.
+
+
+### Duo screenshot owner approval — 2026-10-06
+
+- Owner confirmed regenerated v5 cards 1/4 work, completing visual approval
+  of all six screenshots; cards 2/3/5/6 were approved previously.
+- Saved approval, exact screenshot hashes and refreshed bundle metadata in
+  the v5 review folder. All final JPEGs and the six-image ZIP are unchanged.
+- Release work remains paused. Upload/integration, native regression and
+  physical Duo acceptance remain separate pending work. No App Store, Git
+  publication, Simulator or app-source action was performed.
+- Additional active time under 0.1 hours. Visual review is complete.
+
+### Submission preparation resumed — 2026-10-07
+
+- Owner resumed all remaining preparation and requested a submission-ready
+  version with bullet-list What's New and all applicable fields completed.
+  Final Submit for Review and public release remain separate actions.
+- Uploaded the six owner-approved v5 Duo designs in ascending order; processing
+  completed and a reload preserved every filename. Integrated byte-identical
+  finals, the authentic open single-portrait capture, generated room sources,
+  complete prompt provenance, an approval checksum file and the six-card renderer.
+  Regeneration to a separate directory reproduces all six approved JPEG bytes;
+  every native Apple hardware composite has zero opaque-pixel difference before
+  uniform resizing and deliberate foreground-holder occlusion. All old locked
+  iPhone/iPad/Duo gallery checksums and all current manifest hashes pass.
+- Saved an updated version description that explains Duo outer/open and
+  Book/Tabletop behavior. The two-item What's New remains a bullet list.
+  Promotional text, keywords, support/marketing URLs, copyright, review contact
+  presence, reviewer notes, no sign-in, manual release and existing rating are
+  filled/read back. Optional nonapplicable surfaces remain unset.
+- App Information: FrameWink, Private smart photo frame, Photo & Video, 4+,
+  content rights and standard Apple license verified. App Privacy is published
+  as Data Not Collected with the working privacy-policy URL. All 175 regions
+  are available; Mac and Vision Pro distribution remain disabled. Lifetime is
+  Approved, non-consumable, US $4.99, all regions, with Family Sharing enabled.
+- Cloud Internal TestFlight is configured with Xcode 27.1 RC (27A9275), clean
+  Archive - iOS, App Store Connect preparation and Jenny Media Internal. Its
+  saved main-branch start condition is enabled, so merging can trigger archive
+  and validation automatically; avoid creating duplicate builds.
+- Recovered persistent full iPhone result: 243 passed, zero failed, four
+  existing physical-library skips. iPad's old result reports Testing was canceled
+  (226 passed before cancellation); no completed iPad/Duo matrix was inferred.
+  Restarted the unchanged complete iPad run on its isolated QA Simulator with
+  results under FrameWink-1.6-Ready-20261007; Duo follows. App/test/project/CI
+  source still matches Cloud Analyze 65's successful native source revision.
+- Remaining: complete iPad/Duo tests, scoped push/merge, exact-source successful
+  Cloud Analyze and signed archive, processed 1.6 build attachment, final listing
+  validation and Ready for Review staging without submission. Physical Duo,
+  PhotoKit/iCloud, Mail, StoreKit/Family Sharing, brightness/thermal, Guided
+  Access and prolonged playback acceptance remain separately unproven.
+- Additional active time approximately 0.3 hours, excluding test waits.

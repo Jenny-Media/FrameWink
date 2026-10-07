@@ -3,7 +3,7 @@ FrameWink 1.6 adds native iPhone Duo support using the iOS 27.1 SDK. The app rem
 Review steps:
 1. On iPhone Duo, start the sample frame on the outer and fully open inner displays. Pause on a recognizable photo, then open, close, rotate, or resize. Confirm the current photo and paused state remain stable. Resume and check the selected Photo Duration.
 2. In Book and Tabletop poses, photos use the region above or to the left of the active division; controls use the region below or to its right and respect the division margins and safe areas. There is no separate Duo mode, permission, or purchase.
-3. Open Privacy & Data, Photos in This Frame, Choose What Plays, Frame Settings, and the Lifetime screen. Check native Close/Cancel/Done actions and Larger Text, including both iPad Split View positions.
+3. Open Privacy & Data, Photos in This Frame, Choose What Plays, Frame Settings, and the Lifetime screen. Check native Close/Cancel/Done actions and Larger Text, including both Duo Split View positions and iPad resizing.
 4. Choose photos through Apple's system picker, review the reel, use Never Show Again, and start the frame. Full PhotoKit authorization is requested only after a verified Lifetime entitlement and an explicit automatic-album choice.
 5. Open More > Send Feedback. This opens an editable Apple Mail draft without automatic photo or log attachments. If Mail is unavailable, Copy Email is offered.
 
