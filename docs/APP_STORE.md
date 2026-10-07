@@ -466,22 +466,24 @@ The configured workflows are:
      Test action.
    - Deployment preparation: none.
 2. **Internal TestFlight / release candidate**
-   - Start manually from a chosen branch. Automatic branch archives are
-     intentionally disabled.
+   - Start automatically on changes to `main`; manual starts on any branch
+     remain available. The live configuration was verified on October 7, 2026.
+     Check for an automatic archive after merging before starting another build.
    - Environment: Clean.
    - Action: Archive `FrameWink` for iOS with `App Store Connect` deployment
      preparation so the same build is eligible for TestFlight and App Review.
    - Post-action: distribute to the existing `Jenny Media Internal` group.
      App Store Connect explicitly states that Xcode Cloud builds are not
      included by the group's automatic-distribution switch.
-   - Use the current production Xcode version after one successful validation
-     workflow; do not pin the local beta toolchain by assumption.
+   - Version 1.6 uses Xcode 27.1 RC (27A9275), macOS Golden Gate 27.2 beta 2
+     (26B5091g), verified in both live workflows. Its archive guard requires the
+     native Duo SDK 27.1 line; Analyze and the signed archive must both pass.
 
 Xcode Cloud automatically increments build numbers. The committed
 `TestFlight/WhatToTest.en-US.txt` supplies the tester notes. Download release
 artifacts and dSYMs before Xcode Cloud's retention window expires.
 
-## App Store Connect readiness
+## Historical first-release App Store Connect readiness
 
 - Internal testing group: `Jenny Media Internal` (currently 1 tester; version
   1.0.1 Build 22 is `Ready to Submit` and assigned to the group; the 1.1 draft
@@ -544,3 +546,35 @@ under AppStore/Version-1.6. No build is attached; status remains Prepare for
 Submission. Further local gates, signed archive, processed build, and final
 IAP/platform checks are required before submitting. Public availability is
 not claimed, and website Duo wording remains an upcoming preview.
+
+
+### Version 1.6 final metadata audit — 2026-10-07
+
+The English (U.S.) listing is saved and reload-verified: version 1.6,
+Duo-aware description, two-bullet What's New, promotional text, keywords,
+support/marketing URLs, copyright, complete existing App Review contact,
+no sign-in, and detailed review steps. Six approved v5 Duo images are
+processed in order; six regular iPhone and seven iPad assets are retained.
+Manual release, immediate updates after that release and the existing rating
+are preserved. Optional header/search artwork, previews, routing coverage,
+App Clip, iMessage, Game Center and review attachment are not applicable.
+
+App Information confirms Photo & Video, Private smart photo frame, 4+,
+content rights, Standard License Agreement and verified trader status.
+Published privacy remains Data Not Collected with the working production
+privacy URL. The app is free across all 175 available regions; Lifetime
+remains approved, US $4.99, non-consumable, all regions, Family Sharing on.
+Public and internal TestFlight availability on Mac and Vision Pro are off.
+
+TestFlight's outdated iPad-only description and GitHub URLs were replaced
+with the universal Duo-aware description and frame.jenny.media links.
+Feedback email, the existing review contact, no-sign-in setting, current
+review instructions and Apple's Standard License Agreement are all saved
+and reload-verified. Private phone details remain only in ASC.
+Jenny Media Internal currently has zero testers; no new recipients or
+external group were added during preparation.
+
+Local iPhone/iPad/Duo gates are complete with the previously approved
+Duo rotation XCTest exception. Signed Cloud archive, processed 1.6 build
+attachment and Ready for Review read-back remain pending at this source
+checkpoint. Final Submit for Review is intentionally left to the owner.

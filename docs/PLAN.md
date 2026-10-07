@@ -2849,3 +2849,24 @@ backlog rather than extending the MVP.
   PhotoKit/iCloud, Mail, StoreKit/Family Sharing, brightness/thermal, Guided
   Access and prolonged playback acceptance remain separately unproven.
 - Additional active time approximately 0.3 hours, excluding test waits.
+
+
+### Local release gates and metadata complete — 2026-10-07
+
+Status: preparation continues; no App Review submission or public release.
+Completed: complete iPhone 243/0/4, fresh iPad 243/0/4 and Duo 242/0/4
+(passed/failed/skipped), without weakening assertions. The owner's temporary
+Duo-only rotation XCTest exception is retained. Approved six-card gallery
+regenerates byte-for-byte; all fields applicable to listing and TestFlight
+are saved/reload-verified. Pricing, purchase, privacy, contact, platform and
+manual-release settings have current UI evidence.
+
+Next: finalize and merge PR #23, verify automatically triggered RC Cloud
+Analyze and signed archive against the merged commit, attach the processed
+1.6 build, verify export compliance and stage Ready for Review. Stop before
+final Submit for Review. Current primary-checkout changes remain untouched.
+
+Active-time estimate for preparation: about 0.5 hours, excluding test/cloud
+waits. Known risks: owner-approved automated Duo rotation exception; physical
+Duo/library/Mail/purchase/brightness/thermal/Guided Access/long-run acceptance
+remains separate. Exact commands and warning boundaries are in TESTING.md.
