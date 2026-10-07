@@ -1,26 +1,39 @@
 # Version 1.6 native iPhone Duo release candidate
 
-Prepared with owner authorization on October 6, 2026, after Apple opened Duo
-App Store submissions and Xcode 27.1 RC became available. Release toolchain:
-Xcode 27.1 RC (27A9275), iOS SDK 27.1. Existing native fold handling is enabled;
-minimum iOS/iPadOS 15, device families 1/2, privacy, and Lifetime scope remain.
-The archive guard rejects a standard-viewport build or a different SDK line.
+Prepared with owner authorization on October 6, 2026. Xcode 27.1 RC (27A9275),
+iOS SDK/runtime 24A94232 enables native reserved-region geometry. Minimum
+OS 15, iPhone/iPad families, privacy, and the approved Lifetime scope remain.
+Keep manual release after approval and upcoming website copy until public.
 
-Status: preparation in progress. Local RC tests, pose/screenshot verification,
-exact-source Cloud Analyze/archive, processed TestFlight build, listing audit,
-and App Review remain to be verified. Retain manual release after approval.
-Physical Duo acceptance remains separate and is not inferred from Simulator.
+Draft PR #23: native/build source matches Cloud Analyze 65 validated commit
+`13c077ec37689afab00be1958a053bdc7e8ac80d`. Analysis has no issues. Unsigned
+Release build/analysis, archive guard, old-SDK rejection, and complete iPhone
+regression pass (243 tests, zero failures, four existing skips). iPad/Duo
+matrix, signed archive, processed build, and App Review remain pending.
 
-Keep checksum-locked approved iPhone/iPad galleries. Refresh Duo native captures
-with project-owned sample photos and preserve the licensed official artwork.
-Both websites keep upcoming-preview wording until the native version is public.
-See docs/PLAN.md and docs/TESTING.md for actual verification evidence.
+ASC 1.6 text fields, privacy, review contact presence, manual release, existing
+rating, approved Lifetime/Family Sharing/US $4.99, free app price, and disabled
+Mac/Vision availability have been read-back verified. Keep inherited locked
+phone/iPad galleries.
 
-October 6 checkpoint: draft PR #23 at `13c077e`; exact-source Cloud Analyze
-Build 65 passed with the pinned RC. ASC 1.6 has saved/reloaded text fields,
-inherited phone/iPad galleries, manual release, existing rating, and no sign-in.
-One native outer-display Duo image is processed; original PNG/JPEG hashes
-are retained here. Two iPhone timeout failures passed unchanged in isolation;
-full iPad/Duo regression and manual poses/inner captures remain pending.
-Disk exhaustion and Device Hub UI timeouts require external-state resolution.
-Signed archive, final IAP/platform audit, merge, and review are still pending.
+The owner requested feature headlines and official Apple bezels. Four designed
+Duo cards are under `Screenshots/iPhone-Duo`; view `ContactSheet-iPhone-Duo.jpg`.
+Authentic RC capture sources and superseded plain previews are kept under
+`CaptureSources`. `manifest.json` records dimensions, SHA-256 hashes, scenarios,
+toolchain, and artwork provenance. The generator preserves complete Apple
+artwork and inserts app pixels only into the exact screen opening. Original
+licensed PNG/PSD artwork stays outside Git.
+
+The three superseded plain images were removed from the 1.6 Duo gallery.
+The four designed replacements were uploaded, processed, and reload-verified
+in the correct order on October 6. Six inherited iPhone images remain.
+Native Closed/Open, Book/Tabletop, paused personal reel photo continuity,
+open-display rotation, and largest-text duration scrolling were checked in
+Device Hub. Outer rotation needed scene relaunch before native dimensions
+updated; retain the owner's Duo-only XCTest exception. Physical hardware
+acceptance remains separate from Simulator results.
+
+After resuming, the earlier temporary test files and process were absent. The
+previously observed iPhone pass remains a historical result; the fresh full
+matrix stores results outside temporary storage. Do not claim remaining
+iPad/Duo results until verified. See docs/TESTING.md for the current command.

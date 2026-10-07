@@ -4585,3 +4585,72 @@ Xcode 27.1 RC (27A9275), macOS 27.2 beta 2 (26B5091g). Visually checked
 manual Open/Book/Tabletop/rotation checks are pending: Computer Use times out
 reading Device Hub. Further regression requires at least 5 GiB free. Signed
 archive, processed 1.6 build, and review submission remain pending.
+
+## Space-ready version 1.6 RC checkpoint (2026-10-06)
+
+Commands run from the isolated release checkout:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+FRAMEWINK_TEST_OUTPUT_ROOT=/private/tmp/framewink-1.6-rc-20261006/FullGateSpaceReady \
+FRAMEWINK_IPHONE_DESTINATION='platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+FRAMEWINK_IPAD_DESTINATION='platform=iOS Simulator,id=E5715730-3E48-4D48-BA6B-238DE5C34F58' \
+FRAMEWINK_DUO_DESTINATION='platform=iOS Simulator,id=23EC329C-547C-42B6-BCB2-D35D974AD3F6' \
+bash scripts/test_local.sh
+
+FRAMEWINK_SIMULATOR_ID=23EC329C-547C-42B6-BCB2-D35D974AD3F6 \
+FRAMEWINK_DERIVED_DATA=/private/tmp/framewink-1.6-rc-20261006/Duo-Capture-DerivedData \
+bash scripts/capture_website_duo_screenshots.sh
+bash scripts/generate_website_duo_assets.sh
+bash scripts/generate_app_store_iphone_duo_release_screenshots.sh
+(cd website && npm test && npm run lint && npm run build)
+bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check
+```
+
+The completed iPhone run passes 243 tests, zero failures, four existing skips.
+iPad/Duo results are still pending. The prior full-disk interruption and two
+full-run timeouts remain recorded; both timeout cases passed unchanged in
+isolation and also in this complete iPhone run. Do not infer a fully passing
+matrix before the remaining result bundles complete.
+
+Known warnings: RC `invalidDigitCount(94232)` and debugger `noURL`, deprecated
+StoreKitTest transaction state, SwiftUI gravity-anchor hierarchy warning, and
+test-only StoreKit transaction-listening warnings. Cloud Analyze Build 65
+passed with no issues on the same native/build source.
+
+Manual Device Hub checks verify open/closed and Book/Tabletop geometry,
+open-display rotation, the paused personal reel fixture's unchanged photo ID,
+and scrolling to all duration choices at the largest text size with Close
+reachable. An outer display rotation required scene relaunch before its native
+capture dimensions updated; the approved original Duo XCTest rotation-case
+exception remains. Native inner sources are 2007x2853 or 2853x2007, outer
+portrait is 1398x2034; blank/wrong-sized frames are rejected. Marketing cards
+include headlines and complete official Apple bezels; raw capture originals
+are retained with SHA-256 provenance.
+
+Website tests pass 26/26; lint/build and locked screenshot checks pass. No new
+hardware acceptance is implied: physical Duo folds, PhotoKit/cloud library,
+Mail, StoreKit/Family Sharing, brightness/thermal, Guided Access, and prolonged
+playback still require real-device checks.
+
+### Resumed matrix with persistent result storage — 2026-10-06
+
+The previously observed iPhone 243/0/4 result is historical evidence. On resume,
+its temporary output root and the running process were absent; there is no
+completion evidence for iPad or Duo. The fresh unchanged matrix uses:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+FRAMEWINK_TEST_OUTPUT_ROOT=/Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-1.6-RC-Resumed \
+FRAMEWINK_IPHONE_DESTINATION='platform=iOS Simulator,id=B41C6094-A3CA-48E6-AA25-1E08D0B98BCE' \
+FRAMEWINK_IPAD_DESTINATION='platform=iOS Simulator,id=E5715730-3E48-4D48-BA6B-238DE5C34F58' \
+FRAMEWINK_DUO_DESTINATION='platform=iOS Simulator,id=23EC329C-547C-42B6-BCB2-D35D974AD3F6' \
+bash scripts/test_local.sh
+```
+
+Log: `FrameWink-1.6-RC-Resumed.log` beside that result root. Results are pending.
+Four designed Duo gallery images processed and survived ASC page reload in
+correct order. All 15 capture/final manifest SHA-256 hashes match; three inner
+JPEGs are 2007x2853 and the outer JPEG is 1398x2034, three channels without alpha.
+Final generator syntax, locked galleries, and `git diff --check` pass.

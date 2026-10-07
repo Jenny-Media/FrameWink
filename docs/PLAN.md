@@ -2615,3 +2615,50 @@ backlog rather than extending the MVP.
   Keep the approved Duo rotation exception and separate hardware acceptance.
 - Additional active time approximately 0.5 hours, total approximately 0.9 hours
   excluding unattended waiting. No milestone is marked complete.
+
+### Space-ready RC validation and gallery revision — 2026-10-06
+
+- Owner cleanup restored approximately 95 GiB free. Restarted the unchanged
+  sequential iPhone/iPad/Duo matrix under `FullGateSpaceReady`; iPhone now
+  passes 243 tests with zero failures and four existing physical-library skips.
+  iPad and Duo remain in progress; previous timeout/disk reports are retained.
+- Computer Use recovered long enough to verify Closed/Open, Book/Tabletop,
+  open-display rotation, paused personal reel photo continuity, and largest
+  text duration-panel scrolling with a reachable Close action. Outer rotation
+  did not immediately update captured dimensions; scene relaunch yielded the
+  verified 1398x2034 portrait capture. Keep the approved Duo XCTest exception.
+- Refreshed two native website sources and official-bezel compositions from
+  SDK/runtime 24A94232. Website tests 26/26, lint, and production build pass.
+  All locked iPhone/iPad/older Duo gallery hashes remain unchanged.
+- Owner requested headlines and official Duo bezels for App Store images.
+  Prepared four matching warm-layout cards with intact licensed Apple artwork
+  and authentic RC app pixels; raw captures remain separate source evidence.
+  The compact bird image retains the full head/beak. Removed the superseded
+  three plain images from only the 1.6 Duo gallery; revised upload is pending
+  a new manual Mac unlock after the screen locked again.
+- Fresh ASC audit: free app (US $0.00), approved non-consumable Lifetime
+  `media.jenny.FrameWink.wallmode` (US $4.99), Family Sharing enabled, all
+  regions selected, and Apple-silicon Mac/Vision Pro distribution disabled.
+  Cloud Analyze 65 has no issues. Signed archive/build attachment, final
+  submission read-back, and public release remain distinct pending gates.
+- Additional active time approximately 0.6 hours, total approximately 1.5 hours
+  excluding unattended waits. Continue final matrix, gallery upload, scoped
+  commit/merge, exact-source signed Cloud archive, and App Review submission.
+
+### Resumed release and persisted evidence — 2026-10-06
+
+- The Mac is unlocked. Uploaded all four revised Duo cards in ascending order;
+  processing completed and a page reload preserved all four names and previews.
+  The six inherited iPhone images remain unchanged. Saved gallery proof outside
+  temporary storage. All 15 source/final hashes, final native JPEG dimensions,
+  generator syntax, locked galleries, and diff whitespace checks pass.
+- On resume, the earlier test process and `/private/tmp/framewink-1.6-rc-20261006`
+  result root are absent. Do not infer how the unfinished iPad/Duo run ended.
+  Keep the historical observed iPhone pass, but rerun the full unchanged matrix
+  with result bundles under the task visualization folder rather than `/tmp`.
+  Approximately 127 GiB is free; no further cleanup was performed.
+- App/test/project/CI source still matches Cloud Analyze 65's validated source.
+  Release remains in progress; merge, signed archive, processed build, final
+  listing audit, and App Review submission remain pending.
+- Additional active time approximately 0.2 hours, total approximately 1.7 hours,
+  excluding unattended regression waiting. Preserve unrelated primary changes.

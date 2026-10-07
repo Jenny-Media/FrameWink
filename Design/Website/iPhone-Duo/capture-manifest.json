@@ -1,10 +1,10 @@
 {
-  "captured_at": "2026-10-01",
-  "source_commit": "867d91d630b3b5ce0480097013e96a2679494364",
-  "source_pull_request": "https://github.com/Jenny-Media/FrameWink/pull/20",
-  "xcode": "27.1 (27A9269)",
-  "simulator": "FrameWink Duo Layout QA",
-  "simulator_id": "F25EEFFD-9612-4791-A2EE-D4F4C789BB03",
+  "captured_at": "2026-10-06",
+  "source_commit": "dd78582b846db928ae5242985ca6d20229b725c1",
+  "source_pull_request": "https://github.com/Jenny-Media/FrameWink/pull/23",
+  "xcode": "27.1 RC (27A9275)",
+  "simulator": "FrameWinkRC16DuoQA",
+  "simulator_id": "23EC329C-547C-42B6-BCB2-D35D974AD3F6",
   "runtime": "iOS 27.1",
   "raw_dimensions": [
     2853,
@@ -25,7 +25,7 @@
     "width": 2853,
     "height": 2007
   },
-  "license": "Apple Design Resources LYL142 06/21/2023; accepted with owner authorization on 2026-10-01",
+  "license": "Apple Design Resources LYL142 06/21/2023; accepted with owner authorization on 2026-10-01 and 2026-10-06",
   "captures": [
     {
       "file": "open-landscape.png",
@@ -35,17 +35,23 @@
     {
       "file": "open-controls-landscape.png",
       "scenario": "frame-controls",
-      "sha256": "ccfcdd25e9af4d7599a12368a1a600bb4fcc6c397bf82f4aa01251103a0a5dab"
+      "sha256": "61da5d09b89e5bea7dce794c77bc29b402dc394e1444e18f2c7b5bdc361b55c8"
     },
     {
       "file": "book-larger-text.png",
       "purpose": "Earlier native layout QA evidence from this session; AX XXXL; not used in marketing",
-      "sha256": "462f4a446ef7cecbdc9c4aa19c91b01b882375c254a42bc6662053b49ae4029e"
+      "sha256": "462f4a446ef7cecbdc9c4aa19c91b01b882375c254a42bc6662053b49ae4029e",
+      "captured_at": "2026-10-01",
+      "source_commit": "867d91d630b3b5ce0480097013e96a2679494364",
+      "xcode": "27.1 beta (27A9269)"
     }
   ],
   "outputs": {
-    "iphone-duo-open-controls-landscape-v1.webp": "45f1f99b293337ed7c3d7af32ea3447caf0353cbc0f66889a52537c7584d29f9",
+    "iphone-duo-open-controls-landscape-v1.webp": "662ae31357caa4bf6e40c01ee3a019adc1e01fdcad5aeaf217859c73c77f1b65",
     "iphone-duo-open-landscape-v1.webp": "474a0904dda4a6047d8c941dc71d87e94a21fb4977d007662c78f77eb7f8e838"
   },
-  "release_status": "Upcoming native Duo update; physical Duo and Xcode Cloud acceptance remain pending"
+  "release_status": "Upcoming native Duo update; Cloud Analyze 65 passed; signed archive and App Review pending; physical Duo acceptance separate",
+  "source_app_commit": "13c077ec37689afab00be1958a053bdc7e8ac80d",
+  "sdk_build": "24A94232",
+  "runtime_build": "24A94232"
 }

@@ -1,24 +1,26 @@
 # Native iPhone Duo website captures
 
-These are real Simulator app pixels from the native Duo candidate in
-[PR #20](https://github.com/Jenny-Media/FrameWink/pull/20), using bundled sample
-photos. The two fresh open-display captures were made on October 1, 2026 with
-Xcode 27.1 (27A9269), iOS 27.1, and source commit
-`867d91d630b3b5ce0480097013e96a2679494364`. The earlier Book/Larger Text capture
-is retained as layout QA evidence and is not used on the website.
+These are real native Duo app pixels from version 1.6 in
+[PR #23](https://github.com/Jenny-Media/FrameWink/pull/23), using bundled sample
+photos. The two open-display captures were refreshed on October 6, 2026 with
+Xcode 27.1 RC (27A9275), SDK/runtime build 24A94232, on the dedicated
+FrameWinkRC16DuoQA Simulator. Native app source is unchanged from the
+Cloud Analyze 65 validated commit `13c077ec37689afab00be1958a053bdc7e8ac80d`.
+The earlier Book/Larger Text file retains its separate beta provenance and is
+not used on the website.
 
-The main website uses one open-screen image. The native controls image is also
-stored for review and future use. All originals, dimensions, artwork provenance,
-and SHA-256 hashes are listed in `capture-manifest.json`. Closed-display blank
-captures were rejected. Fresh closed and Tabletop marketing captures remain
-pending because Device Hub pose controls were unresponsive.
+The website uses the open-screen image. The controls image is also stored for
+review and future use. Dimensions, artwork provenance, and SHA-256 hashes are
+listed in `capture-manifest.json`. Inactive or incorrectly sized captures are
+rejected. Manual RC Book/Tabletop, paused personal reel continuity, and largest
+text duration-panel scrolling were verified through Device Hub.
 
 ## Apple artwork
 
 The owner authorized accepting the Apple Design Resources license. The original
 package was acquired from [Apple Design Resources](https://developer.apple.com/design/resources/)
 and mounted read-only after accepting license **LYL142, June 21, 2023** on
-October 1, 2026. The package and standalone PNG/PSD bezels stay outside Git.
+October 1 and October 6, 2026. The package and standalone PNG/PSD bezels stay outside Git.
 
 The website composites retain the complete supplied Night Sky Inner Open
 Landscape artwork and insert real app pixels into its exact transparent screen
@@ -46,4 +48,4 @@ script checks exact native dimensions and rejects blank displays. It does not
 change App Store screenshots or use anyone's personal library.
 
 These images preview an upcoming update. Native support has not yet shipped;
-physical Duo checks and Apple cloud validation remain required.
+signed archive, App Review, and physical Duo checks remain separate gates.
