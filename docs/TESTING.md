@@ -4739,3 +4739,23 @@ Signed Cloud archive and processed-build attachment are the remaining
 submission-preparation gates. Final Submit for Review remains owner-controlled.
 Physical Duo folds, PhotoKit/iCloud, Mail, StoreKit/Family Sharing, brightness,
 thermal, Guided Access and long-running playback require hardware checks.
+
+
+### Version 1.6 build 66 ready to submit — 2026-10-07
+
+Cloud Analyze 67 passed with no issues and signed Archive 66 plus its internal
+TestFlight post-action succeeded on source 35843a0e3649e0fc5ba57127ebc40a61f3975628.
+The native SDK guard's Cloud log states: native Duo geometry enabled for
+SDK 27.1; release guard passed for archive. App Store export succeeded.
+Archived binary `nm -u` includes SwiftUI reservedRegions. Downloaded archive
+includes dSYMs; downloaded App Store IPA metadata confirms version 1.6,
+build 66, iphoneos27.1 / 24A94232, iOS 15.0, families [1, 2] and non-exempt
+encryption false. The pre-export archive's project build number is 1; the
+exported/submitted binary uses Xcode Cloud build 66. SHA-256 metadata is saved.
+
+ASC identifies 1.6 (66) as Validated and the testing notes match exactly.
+Build attachment, complete version fields and Ready for Review all survive
+reload. The persisted draft has Item Ready to Submit and Submit for Review
+enabled; that final button was deliberately not clicked. No public release
+or physical-device acceptance is inferred. The complete local matrix and
+original/retry failure boundaries remain recorded above.
