@@ -2926,3 +2926,33 @@ Active-time estimate: about 0.3 hours, excluding propagation waits. No native
 source changes or new build are required. The documented automated Duo
 rotation exception and physical Duo/library/Mail/purchase/brightness/thermal/
 Guided Access/long-run acceptance boundaries remain unchanged.
+
+
+### iPad custom page and closed 1.6 train correction — 2026-10-10
+
+The owner authorized an iPad-focused custom product page and correction of
+ITMS-90186/ITMS-90062 from delivery 1.6 (70). Version 1.6 (66) is released,
+so subsequent native archives must use a higher marketing version. The next
+development train is 1.6.1; Debug/Release app configurations and the existing
+release guard are advanced together. Signing, product identifiers, paid
+scope, SDK 27.1/native Duo requirements and iOS 15 compatibility are retained.
+
+Work is isolated from the primary checkout's unrelated edits. Verify the
+Cloud build trigger and source, narrow artwork/docs/website-only triggers,
+validate iPhone/iPad app and test builds plus the release guard, then deliver
+and confirm a processed 1.6.1 build. The iPad custom page uses the message
+Give your spare iPad a new purpose, with real app captures and licensed Apple
+hardware. Prepare matching Header, Search Results and opening screenshots
+for owner review; do not submit the new page or release 1.6.1 yet.
+
+Local validation passed: app and test bundles build on iPhone 17 Pro Max
+and iPad (A16), and 203 unit tests pass on each. The existing Ask to Buy
+Simulator exception remains excluded. Release archive guard passes with
+Xcode 27.1 RC. Both saved Cloud workflows now start only for changes under
+the five native source/project/test/ci folders; read-back survives reload.
+Build 70 originated from website PR #25 merge bc42f43 with the released 1.6
+version and unfiltered branch trigger. The 1.6.1 signed Cloud delivery and
+iPad custom-page draft are the remaining gates.
+Active-time estimate: about 0.5 hours, excluding cloud waits. Existing
+physical acceptance boundaries and the approved automated Duo rotation
+exception remain separate; this correction changes version metadata only.

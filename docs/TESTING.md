@@ -4759,3 +4759,43 @@ reload. The persisted draft has Item Ready to Submit and Submit for Review
 enabled; that final button was deliberately not clicked. No public release
 or physical-device acceptance is inferred. The complete local matrix and
 original/retry failure boundaries remain recorded above.
+
+
+### Closed 1.6 train correction — 2026-10-10
+
+Version-only correction uses Xcode 27.1 RC (27A9275), SDK 27.1. No native
+behavior changed. Both built app Info.plist files report 1.6.1.
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer
+CI_XCODEBUILD_ACTION=archive sh ci_scripts/ci_pre_xcodebuild.sh
+# Run each command once with each destination/derived-data pair below.
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -destination "platform=iOS Simulator,id=$qa_destination" \
+  -derivedDataPath "$qa_derived_data" CODE_SIGNING_ALLOWED=NO build-for-testing
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -destination "platform=iOS Simulator,id=$qa_destination" \
+  -derivedDataPath "$qa_derived_data" -resultBundlePath "$qa_result_bundle" \
+  -parallel-testing-enabled NO -collect-test-diagnostics never \
+  -only-testing:FrameWinkTests \
+  -skip-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking \
+  CODE_SIGNING_ALLOWED=NO test-without-building
+```
+
+- iPhone 17 Pro Max: B41C6094-A3CA-48E6-AA25-1E08D0B98BCE; iOS 27.0.
+  Derived data: /private/tmp/FrameWink-161-Validation/iPhone-DerivedData.
+  Result: iPhone-UnitTests.xcresult in the same validation directory.
+- iPad (A16), FrameWinkRC16PadQA: E5715730-3E48-4D48-BA6B-238DE5C34F58;
+  iPadOS 27.0. Derived data: iPad-DerivedData; result: iPad-UnitTests.xcresult.
+- Both build-for-testing commands and test commands exit 0. Each family has
+  203 passing unit tests, zero failures. The existing Ask to Buy test is
+  excluded, not counted as a pass. The archive guard and shell syntax pass.
+- Existing warnings: deprecated SDK StoreKitTest transaction state, two
+  test-only StoreKit transaction-listening messages, RC invalidDigitCount.
+  No new UI or hardware acceptance is inferred from these tests.
+- Existing physical Duo folds, PhotoKit/iCloud, Mail, StoreKit/Family Sharing,
+  brightness, thermal, Guided Access and long-running playback checks remain.
+  The owner-approved automated Duo rotation exclusion remains unchanged.
+
+Cloud archive, Apple processing and exact-source TestFlight verification are
+recorded separately after successful delivery.
