@@ -2901,3 +2901,28 @@ waits. Remaining owner action is final submission; physical Duo/library/Mail/
 purchase/brightness/thermal/Guided Access/long-run acceptance and the approved
 automated Duo rotation exception remain explicitly documented. Website Duo
 wording changes after public release. This checkpoint changes docs only.
+
+
+### Version 1.6 and Duo page release — 2026-10-10
+
+The owner authorized public release. App Review approved iOS 1.6 (66) and
+FrameWink on iPhone Duo in submission
+97d4cd9e-3573-4c0a-bcea-80096066d14e. Release This Version was confirmed
+for the configured 175 regions; App Store Connect now shows 1.6 Ready for
+Distribution. The approved Duo page link is enabled, with photo frame,
+slideshow and digital frame keywords selected.
+
+The website release update replaces upcoming wording and adds the approved
+Duo product-page link while retaining the general iPad-first download links.
+The public US App Store now shows version 1.6 with the native Duo bullet
+release notes. Website tests pass 26/26; lint and the production build pass.
+Desktop (1280px) and phone (390px) checks confirm the correct Duo URL,
+readable badge spacing, and no horizontal overflow in light/dark appearance.
+App release is complete; the website update passes local verification.
+Release and deployment evidence is retained separately under
+/Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-Release-1.6.
+
+Active-time estimate: about 0.3 hours, excluding propagation waits. No native
+source changes or new build are required. The documented automated Duo
+rotation exception and physical Duo/library/Mail/purchase/brightness/thermal/
+Guided Access/long-run acceptance boundaries remain unchanged.

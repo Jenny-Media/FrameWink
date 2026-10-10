@@ -16,10 +16,9 @@ milestone adds platform-specific design, testing, and support.
 
 ## iPhone Duo layout
 
-Native Duo fold handling is being prepared for version 1.6 with Xcode 27.1 RC.
-Version 1.5 ships the standard iPhone/iPad experience using stable Xcode 27.
-The native candidate still requires release verification and App Review;
-physical Duo acceptance remains separate.
+Native Duo fold handling ships in version 1.6, built with Xcode 27.1 RC.
+Version 1.6 build 66 passed Cloud validation and App Review; manual release
+was requested on October 10, 2026. Physical Duo acceptance remains separate.
 
 Use the same frame experience on the outer and inner displays. Fully open
 playback uses the available window; a partly folded display keeps the photo
