@@ -50,9 +50,10 @@ once connected, Vercel should skip deployments when `website/` is unchanged.
 Xcode Cloud should use a Files and Folders start condition that does not start
 an app build when all changed files are under `website/`.
 
-## Upcoming iPhone Duo preview
+## iPhone Duo showcase
 
-The small Duo showcase is explicitly marked as an upcoming update. It uses
+The Duo showcase links to the approved FrameWink on iPhone Duo custom product
+page for version 1.6. General download links retain the iPad-first listing. It uses
 a real Xcode 27.1 app capture with Apple's complete official Night Sky Inner
 Open Landscape artwork. The owner authorized accepting the Apple Design
 Resources license LYL142 (June 21, 2023), accepted October 1, 2026.
@@ -60,6 +61,7 @@ Resources license LYL142 (June 21, 2023), accepted October 1, 2026.
 Original app captures, artwork hashes, license-use restrictions, and the
 reproducible generator are archived in
 [the native Duo candidate](https://github.com/Jenny-Media/FrameWink/tree/codex/iphone-duo-native/Design/Website/iPhone-Duo).
-The standalone Apple artwork stays outside Git. Physical Duo acceptance and
-Apple's cloud app validation remain pending. This website publication does
-not release native Duo app support.
+The standalone Apple artwork stays outside Git. Version 1.6 build 66 passed
+Cloud validation and App Review; its manual release was requested on October
+10, 2026, and the public US App Store now shows version 1.6. Physical Duo
+acceptance remains separate.

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { appStoreURL } from "./siteMetadata";
+import { appStoreURL, duoProductPageURL } from "./siteMetadata";
 
 /* eslint-disable jsx-a11y/no-redundant-roles -- Explicit list roles preserve Safari and VoiceOver semantics after list markers are removed. */
 
@@ -237,9 +237,21 @@ export default function Home() {
 
       <section className="duo-preview content-section" id="iphone-duo" aria-labelledby="duo-heading">
         <div className="duo-preview-copy">
-          <p className="section-kicker">Coming next · iPhone Duo</p>
+          <p className="section-kicker">Made for iPhone Duo</p>
           <h2 id="duo-heading">More room for your moments.</h2>
-          <p>Your private photo frame, ready to adapt as you open or fold your iPhone Duo.</p>
+          <p>Your private photo frame adapts as you open or fold your iPhone Duo.</p>
+          <a
+            className="app-store-badge-link duo-store-link"
+            href={duoProductPageURL}
+            aria-label="See FrameWink for iPhone Duo on the App Store"
+          >
+            <Image
+              src="/images/download-on-the-app-store.svg"
+              alt="Download on the App Store"
+              width={359}
+              height={120}
+            />
+          </a>
         </div>
         <figure className="duo-preview-device">
           <Image
@@ -249,7 +261,7 @@ export default function Home() {
             height={1123}
             sizes="(max-width: 900px) 92vw, 55vw"
           />
-          <figcaption>Actual app screen with sample photos · Preview of an upcoming update</figcaption>
+          <figcaption>Actual app screen with sample photos</figcaption>
         </figure>
       </section>
 

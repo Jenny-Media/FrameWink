@@ -702,10 +702,14 @@ h1 {
   margin: 14px 0 20px;
 }
 
-.duo-preview-copy > p:last-child {
+.duo-preview-copy > p:last-of-type {
   color: var(--muted);
   line-height: 1.6;
   max-width: 34ch;
+}
+
+.duo-store-link {
+  margin-top: 8px;
 }
 
 .duo-preview-device {
