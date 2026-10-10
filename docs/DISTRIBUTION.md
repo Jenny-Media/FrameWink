@@ -17,7 +17,10 @@ archive-and-upload procedure.
 
 The cloud workflows should:
 
-1. Start both saved workflows on updates to `main` and allow manual runs.
+1. Start both saved workflows when `main` changes files under `FrameWink/`,
+   `FrameWink.xcodeproj/`, `FrameWinkTests/`, `FrameWinkUITests/`, or
+   `ci_scripts/`, and retain the existing manual start conditions. Documentation,
+   website and App Store artwork changes alone must not trigger native builds.
 2. Analyze the app target in the automatic Validation workflow.
 3. Perform a clean archive in the automatic Internal TestFlight workflow.
 4. Use its TestFlight post-action to distribute successful builds to Jenny Media
@@ -29,9 +32,16 @@ The default SDK, or an explicit `DEVELOPER_DIR` pointing to 27.1/27.2, also runs
 the native Duo suite,
 retaining the owner-approved Duo-only automated rotation exclusion.
 
-Version 1.6 preparation uses Xcode 27.1 RC (27A9275), SDK 27.1; its archive
+Version 1.6.1 preparation uses Xcode 27.1 RC (27A9275), SDK 27.1; its archive
 guard requires native Duo support and that accepted SDK line. Cloud workflow
 selection and exact-source archive must be verified before submission.
+
+Version 1.6 (66) is released. Apple closed the 1.6 train, so new native
+deliveries use 1.6.1 in both app configurations and the archive guard. Build
+70 was rejected with ITMS-90186/ITMS-90062 after website PR #25 also changed
+documentation and the unfiltered main trigger attempted another 1.6 archive.
+Both saved workflows now use five native-folder start rules. A corrected
+processed TestFlight build is a separate gate from public submission/release.
 
 The released version 1.5 used stable Xcode 27 (27A266a), SDK 27.0, with native fold APIs
 compiled out. SDK conditions enable `FRAMEWINK_NATIVE_DUO` for 27.1/27.2 builds;
