@@ -2956,3 +2956,27 @@ iPad custom-page draft are the remaining gates.
 Active-time estimate: about 0.5 hours, excluding cloud waits. Existing
 physical acceptance boundaries and the approved automated Duo rotation
 exception remain separate; this correction changes version metadata only.
+
+
+Checkpoint: PR #26 is merged as c243d2e8332ea8450ea99b23d2493226c8dd3d54.
+Cloud Archive 72 and Analyze 73 succeeded on that exact source using Xcode
+27.1 RC. Apple processed 1.6.1 (72): Binary State Validated, build SDK
+24A94232, minimum iOS 15, device families iPhone/iPad, no non-exempt
+encryption. Internal group assignment and updated testing notes persist.
+The delivery rejection is resolved; no public 1.6.1 submission or release.
+
+The iPad custom page draft is Give your spare iPad a new purpose, internal
+page ID ea529ffa-f8aa-4051-abf2-4cdbecf8dd3c, public page ID
+f0bd0693-4d38-4de9-9b9b-761b2ba326ab. Matching Header/Search assets and
+seven iPad screenshots are attached. Promotional text and iPad keyword are
+saved. Other device galleries inherit released assets. Official-bezel and
+authentic-capture pixel checks pass; 18 generated files reproduce exactly
+after excluding volatile proof PNG timestamp chunks. The first three
+screenshots and native ASC previews are retained for owner review.
+
+Status: correction delivered; iPad draft prepared, not submitted. Artwork
+source and render instructions are kept in a separate review branch.
+Active-time estimate: about 1.1 hours total, excluding Cloud/test waits.
+Persistent tests, artwork, workflow rules and App Store screenshots are in
+FrameWink-iPad-CPP-and-161-20261010 under the chat visualization directory.
+Physical acceptance and the automated Duo rotation exclusion remain separate.

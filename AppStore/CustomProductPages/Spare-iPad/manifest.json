@@ -1,0 +1,123 @@
+{
+  "page_name": "Give your spare iPad a new purpose",
+  "asc_internal_page_id": "ea529ffa-f8aa-4051-abf2-4cdbecf8dd3c",
+  "public_product_page_id": "f0bd0693-4d38-4de9-9b9b-761b2ba326ab",
+  "keyword": [
+    "iPad"
+  ],
+  "status": "draft awaiting owner artwork review",
+  "source_capture": "AppStore/Screenshots/Landscape/iPad-13-inch/01-landscape-frame.jpg",
+  "source_capture_sha256": "4cd5b5bfb017ccee22f45e1942f30bc6574681aec8cdf6c696f4de58d0f9932f",
+  "official_bezel_sha256": "1baa558379ab9e0d7e43089927fe9c7f4a16cc020d0675bc21a8c1c898ca619e",
+  "generator": "scripts/generate_app_store_ipad_custom_page.sh",
+  "files": [
+    {
+      "path": "Review-v1/Proofs/Final-Upload-Contact-Sheet.jpg",
+      "sha256": "89ed8d161d8fbbe43e427a601c6fbc350c7429052d9b8852db64ad06c8e6350e",
+      "bytes": 1096189
+    },
+    {
+      "path": "Review-v1/Proofs/Header-landscape-center-crop.png",
+      "sha256": "d301e92d7894a25a78dfc7b28f74fdc441700dcb72deb3ded3d34eb4a2c2eccf",
+      "bytes": 4354054
+    },
+    {
+      "path": "Review-v1/Proofs/Opening-iPad-gallery.jpg",
+      "sha256": "543c57330352b0405e720511fb4e9a7696182c7425b8916430700b950f2107d0",
+      "bytes": 694701
+    },
+    {
+      "path": "Review-v1/Proofs/header-alignment-checks.json",
+      "sha256": "17a7b5c6c37c1ce9df01374c107f4c8ba285dbec860532b8cb413ff6fa4cf66e",
+      "bytes": 204
+    },
+    {
+      "path": "Review-v1/Proofs/header-device-detail.png",
+      "sha256": "b1a875db9fb9e6434bcd97d6c2d16e2c60e26f8a464869a03148f9f4fac69da0",
+      "bytes": 1947707
+    },
+    {
+      "path": "Review-v1/Proofs/search-alignment-checks.json",
+      "sha256": "155881740e2da7d618ef5f4253c420e5cf3b0a902458720aec82421520253b6f",
+      "bytes": 205
+    },
+    {
+      "path": "Review-v1/Proofs/search-device-detail.png",
+      "sha256": "f93b4c21ecf57cb07bb3254ec61d510043cca4daba7a3d0d62d5061f6cf89edf",
+      "bytes": 3174050
+    },
+    {
+      "path": "Review-v1/Screenshots/iPad-13-inch/01-your-spare-ipad.jpg",
+      "sha256": "cfdce6f7dfc9358aea703cac3cdc9c93a258b9c5057c699834d5e79a0519c9f9",
+      "bytes": 2498076
+    },
+    {
+      "path": "Review-v1/Screenshots/iPad-13-inch/02-03-beautifully-framed.jpg",
+      "sha256": "8b34fd04e3cbc1318ffbab5c5cda887084533e7d3c44327038e685e57c42e55d",
+      "bytes": 1658916
+    },
+    {
+      "path": "Review-v1/Screenshots/iPad-13-inch/03-04-beautifully-arranged.jpg",
+      "sha256": "2bb2ba4f99ee9c8dbd0638297f5e3f013109d346ce49a7eab3187ac7cd3e8685",
+      "bytes": 1388402
+    },
+    {
+      "path": "Review-v1/Screenshots/iPad-13-inch/04-07-see-it-first.jpg",
+      "sha256": "b075dd1fa9cb015812a4414f4d46e84a468a0e6261bf2d0d119a9305e69e90f9",
+      "bytes": 952125
+    },
+    {
+      "path": "Review-v1/Screenshots/iPad-13-inch/05-05-choose-an-album.jpg",
+      "sha256": "c3d607f9b32cab35d00127200ed0ff7ef1c15d8c5b1bd2a9c08cc2ad9df2268f",
+      "bytes": 901888
+    },
+    {
+      "path": "Review-v1/Screenshots/iPad-13-inch/06-06-simple-controls.jpg",
+      "sha256": "961ec5b71cf9182f336e5eb8f90a80bb95e56c79375200093dc1791b25ddf114",
+      "bytes": 1068508
+    },
+    {
+      "path": "Review-v1/Screenshots/iPad-13-inch/07-02-wall-or-table.jpg",
+      "sha256": "7e63addbe9975191f60ebab2e4042cf702479d78cb2fe6f7afac6f80ea463221",
+      "bytes": 899174
+    },
+    {
+      "path": "Review-v1/Upload/FrameWink-Spare-iPad-Header-3840x1646.png",
+      "sha256": "2249bd0e362fe53d85a85e2aa6e84ac4613672bde906f6c6fc25fa2275f47606",
+      "bytes": 6001563
+    },
+    {
+      "path": "Review-v1/Upload/FrameWink-Spare-iPad-Search-3840x2560.jpg",
+      "sha256": "dba9481ef6c68d1d699df058133dde6d0c82d76e9d481f66cc90f2441a511167",
+      "bytes": 3960156
+    },
+    {
+      "path": "Review-v1/Upload/FrameWink-Spare-iPad-Search-3840x2560.png",
+      "sha256": "d2fd4073b780667663cb15343eb808060d1e1cc3d40c68144f7044be1c2214d3",
+      "bytes": 8795306
+    },
+    {
+      "path": "Review-v1/native-pixel-verification.json",
+      "sha256": "027fa472b3702b9ae939fdf5a98bd31a99779af2e9c02e56cfad6b00d30bb83f",
+      "bytes": 90
+    },
+    {
+      "path": "Sources/header-empty-room-v1.png",
+      "sha256": "36c36f610f8fcf7efeb540eab6582ac38682749a77b2d765a53d05fdc2aa7e83",
+      "bytes": 1790400
+    },
+    {
+      "path": "Sources/original-room-imagegen-prompts.json",
+      "sha256": "f3903c70c8312e1c13df041546f60713abd6a04bf30ebf14201f884dbe58c6c9",
+      "bytes": 3214
+    },
+    {
+      "path": "Sources/search-empty-room-v1.png",
+      "sha256": "86e610ba1f562eb7bf66aff13d68743828b3368975c623af7a46c81cd8127afd",
+      "bytes": 1827930
+    }
+  ],
+  "reproducible_files": 18,
+  "asc_header_asset_id": "dc400019-55cb-89f8-8024-18eb007bde8b",
+  "asc_search_asset_id": "15000019-55cb-89f8-801f-ab498a6fd67a"
+}

@@ -4799,3 +4799,16 @@ xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
 
 Cloud archive, Apple processing and exact-source TestFlight verification are
 recorded separately after successful delivery.
+
+
+Cloud delivery confirmation: Archive 72 and Analyze 73 pass on exact source
+c243d2e8332ea8450ea99b23d2493226c8dd3d54. ASC shows 1.6.1 (72) upload
+Complete and Binary State Validated, assigned to Jenny Media Internal. The
+What to Test text survives reload. This resolves the version-train errors.
+Local results and ASC/workflow/artwork receipts are retained in
+/Users/yihong/.codex/visualizations/2026/09/30/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/FrameWink-iPad-CPP-and-161-20261010.
+
+iPad creative validation: Header/Search master source-integrity and alignment
+checks pass, all 18 generated files reproduce, and seven gallery screenshots
+are 2752x2064 opaque JPEGs. Live ASC previews retain complete device/content
+and headlines for owner review. The final page remains unsubmitted.

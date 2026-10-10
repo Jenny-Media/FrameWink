@@ -1,0 +1,74 @@
+[
+  {
+    "path": "Proofs/Final-Upload-Contact-Sheet.jpg",
+    "matches": true
+  },
+  {
+    "path": "Proofs/Header-landscape-center-crop.png",
+    "matches": true
+  },
+  {
+    "path": "Proofs/Opening-iPad-gallery.jpg",
+    "matches": true
+  },
+  {
+    "path": "Proofs/header-alignment-checks.json",
+    "matches": true
+  },
+  {
+    "path": "Proofs/header-device-detail.png",
+    "matches": true
+  },
+  {
+    "path": "Proofs/search-alignment-checks.json",
+    "matches": true
+  },
+  {
+    "path": "Proofs/search-device-detail.png",
+    "matches": true
+  },
+  {
+    "path": "Screenshots/iPad-13-inch/01-your-spare-ipad.jpg",
+    "matches": true
+  },
+  {
+    "path": "Screenshots/iPad-13-inch/02-03-beautifully-framed.jpg",
+    "matches": true
+  },
+  {
+    "path": "Screenshots/iPad-13-inch/03-04-beautifully-arranged.jpg",
+    "matches": true
+  },
+  {
+    "path": "Screenshots/iPad-13-inch/04-07-see-it-first.jpg",
+    "matches": true
+  },
+  {
+    "path": "Screenshots/iPad-13-inch/05-05-choose-an-album.jpg",
+    "matches": true
+  },
+  {
+    "path": "Screenshots/iPad-13-inch/06-06-simple-controls.jpg",
+    "matches": true
+  },
+  {
+    "path": "Screenshots/iPad-13-inch/07-02-wall-or-table.jpg",
+    "matches": true
+  },
+  {
+    "path": "Upload/FrameWink-Spare-iPad-Header-3840x1646.png",
+    "matches": true
+  },
+  {
+    "path": "Upload/FrameWink-Spare-iPad-Search-3840x2560.jpg",
+    "matches": true
+  },
+  {
+    "path": "Upload/FrameWink-Spare-iPad-Search-3840x2560.png",
+    "matches": true
+  },
+  {
+    "path": "native-pixel-verification.json",
+    "matches": true
+  }
+]

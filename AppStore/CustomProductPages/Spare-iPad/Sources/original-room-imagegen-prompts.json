@@ -1,0 +1,19 @@
+{
+  "tool": "built-in image_gen",
+  "intent": "precise-object-edit",
+  "purpose": "Empty room plates only. Screens and official hardware are composited from original sources by the repository renderer.",
+  "assets": [
+    {
+      "asset": "Header",
+      "edit_target": "/Users/yihong/.codex/worktrees/privacy-feedback-release/FrameWink/AppStore/Version-1.6/CreativeAssets/Review-v2-iPad/header-ipad-preview-v2.png",
+      "prompt": "Use case: precise-object-edit.\nInput image 1 is the edit target: the approved wide FrameWink Header composition.\nPrimary request: make an empty production background plate by removing ONLY the entire iPad (including screen, all black hardware, its shadow on the wall) and ALL headline lettering. Naturally reconstruct the softly lit cream wall and existing leaf/window shadows behind those removed areas.\nKeep the original wide 1915-by-821 framing, camera angle, room colors, leaf plant at the left, ceramic vessels, wooden tabletop, books at right, lamp and mug exactly as shown. Preserve the low walnut cradle at the exact original position and scale; it must remain an EMPTY realistic horizontal tablet stand with a subtle dark narrow seating groove behind the solid front wooden rail. Keep the original front rail outline and contact shadow on the table. Do not enlarge or redesign the holder.\nThe cleaned wall should be uninterrupted, with no rectangle, no screen, no tablet, no phone, no letters, no placeholder, no ghost edges. One photorealistic clean plate only. Do not add any new object or change the layout.",
+      "output": "/Users/yihong/.codex/generated_images/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/exec-2fa8a241-1f5c-481c-8b75-d888d97f06ce.png"
+    },
+    {
+      "asset": "Search Results",
+      "edit_target": "/Users/yihong/.codex/worktrees/privacy-feedback-release/FrameWink/AppStore/Version-1.6/CreativeAssets/Review-v2-iPad/search-results-ipad-preview-v2.png",
+      "prompt": "Use case: precise-object-edit.\nInput image 1 is the edit target: the approved 3:2 FrameWink Search Results composition.\nPrimary request: make an empty production background plate by removing ONLY the entire iPad (including screen, all black hardware, its shadow on the wall) and ALL headline lettering. Naturally reconstruct the softly lit cream wall and existing leaf/window shadows behind those removed areas.\nKeep the original 1536-by-1024 framing, camera angle, room colors, leafy plant at left, ceramic vessels, walnut tabletop, books at right, woven lamp and mug exactly as shown. Preserve the low walnut cradle at the exact original position and scale; it must remain an EMPTY realistic horizontal tablet stand with a subtle dark narrow seating groove behind the solid front wooden rail. Keep its front rail outline and contact shadow on the table. Do not enlarge or redesign the holder.\nThe cleaned wall should be uninterrupted, with no rectangle, no screen, no tablet, no phone, no lettering, no placeholder, no ghost edges. One photorealistic clean plate only. Do not add any new object or change the layout.",
+      "output": "/Users/yihong/.codex/generated_images/01a0f3f2-685b-73f3-83ce-0a47a7b7b720/exec-e5be0353-a46e-44a2-9c11-6f43cc2f3af3.png"
+    }
+  ]
+}
