@@ -1,0 +1,9 @@
+Version 1.6.1 corrects the release version after 1.6 was approved. App behavior is unchanged from the released version.
+
+- Verify the installed version is 1.6.1 and launch the bundled sample reel without a Photos permission prompt.
+- Choose photos with the system picker, review suggestions, and start, pause, resume, and close the frame.
+- Rotate or resize on iPhone and iPad; confirm the current photo and paused state are preserved.
+- On iPhone Duo, check outer and open displays, Book and Tabletop poses, and rotation manually. Native Duo support remains enabled.
+- Check Send Feedback, Privacy & Data, Photo Duration, and Restore Purchases.
+
+Report the device model, OS version, exact steps, and whether the app was foregrounded. Physical Duo folds, PhotoKit/iCloud, purchases, brightness, thermal behavior, Guided Access, and long-running playback still require hardware checks.
