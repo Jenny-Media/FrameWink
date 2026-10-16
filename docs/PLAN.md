@@ -3106,6 +3106,11 @@ header unmounts; an unavailable observer leaves resize/font checks usable.
 The theme button retains its physical top-right slot. No page wording,
 dependencies, native app source or release settings change.
 
-Validation is being completed against the production website build with Node
-24, all website tests, lint, phone/desktop routes and focused Chromium/WebKit
-interaction checks. The same draft PR #29 remains unmerged for manual review.
+Validation completed with Node 24: the production website build, all 41 website
+tests and lint pass. The all-route phone/desktop audit and focused Chromium/WebKit
+interaction review found no remaining P1/P2 header issues. Final independent
+review covered enlarged text, keyboard focus, adaptive fit boundaries, theme
+hit targets, blocked storage and visible no-JavaScript navigation. The same
+draft PR #29 remains unmerged for manual review. Approximately 35 minutes of
+active implementation and validation time. Evidence is recorded under
+`/private/tmp/jenny-layout-audit/evidence/header-alignment/`.
