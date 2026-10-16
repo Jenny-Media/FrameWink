@@ -64,7 +64,7 @@ or network request is needed.
 
 ## Navigation on compact screens
 
-The appearance button keeps its own top-right slot. At widths up to 900 pixels,
+The appearance button keeps its own top-right slot. At widths up to 900 pixels, or whenever enlarged labels need more room,
 Menu opens all header destinations without crowding the brand. Escape and outside
 clicks close it, and keyboard focus moves to an available control when the layout
 changes. The links remain visible if the menu controller cannot load. The header

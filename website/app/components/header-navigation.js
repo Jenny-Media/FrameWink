@@ -9,6 +9,18 @@ export function initializeHeaderNavigation() {
     const listeners = new AbortController();
     const options = { signal: listeners.signal };
     let lastHeaderFocus = null;
+    let compactLayout = false;
+    let initialized = false;
+
+    function desktopFits() {
+        const brand = header.querySelector('.brand');
+        header.setAttribute('data-header-measuring', '');
+        const style = getComputedStyle(header);
+        const available = header.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+        const needed = brand.getBoundingClientRect().width + desktop.getBoundingClientRect().width + 44 + 32;
+        header.removeAttribute('data-header-measuring');
+        return needed <= available;
+    }
 
     function close(returnFocus = false) {
         const wasOpen = !panel.hidden;
@@ -17,7 +29,9 @@ export function initializeHeaderNavigation() {
         if (wasOpen && returnFocus) control.focus();
     }
 
-    function sync() {
+    function sync(reset = false) {
+        const nextCompact = compact.matches || !desktopFits();
+        if (initialized && nextCompact === compactLayout && !reset) return;
         // Chromium can blur a control as CSS hides it before the media event runs.
         const active = document.activeElement === document.body ? lastHeaderFocus : document.activeElement;
         const inPanel = panel.contains(active);
@@ -25,10 +39,13 @@ export function initializeHeaderNavigation() {
         const href = active?.getAttribute('href');
         const languageFocused = active?.matches('select');
         const menuFocused = active === control;
+        compactLayout = nextCompact;
+        initialized = true;
+        header.toggleAttribute('data-header-compact', compactLayout);
         close();
-        control.hidden = !compact.matches;
-        if (compact.matches && (inPanel || inDesktop)) control.focus();
-        else if (!compact.matches && (inPanel || menuFocused)) {
+        control.hidden = !compactLayout;
+        if (compactLayout && (inPanel || inDesktop)) control.focus();
+        else if (!compactLayout && (inPanel || menuFocused)) {
             const destination = languageFocused ? desktop.querySelector('select') :
                 [...desktop.querySelectorAll('a')].find(link => link.getAttribute('href') === href);
             (destination || desktop.querySelector('a'))?.focus();
@@ -73,13 +90,27 @@ export function initializeHeaderNavigation() {
             }
         }
     }, options);
-    compact.addEventListener('change', sync, options);
+    let pendingSync = null;
+    let disposed = false;
+    const scheduleSync = () => {
+        if (disposed || pendingSync !== null) return;
+        pendingSync = requestAnimationFrame(() => { pendingSync = null; sync(); });
+    };
+    const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(scheduleSync) : null;
+    [header, header.querySelector('.brand'), desktop].forEach(element => observer?.observe(element));
+    compact.addEventListener('change', scheduleSync, options);
+    window.addEventListener('resize', scheduleSync, options);
+    document.fonts?.ready.then(scheduleSync);
     window.addEventListener('popstate', sync, options);
-    window.addEventListener('pageshow', event => { if (event.persisted) sync(); }, options);
+    window.addEventListener('pageshow', event => { if (event.persisted) sync(true); }, options);
     sync();
 
     return () => {
+        disposed = true;
         listeners.abort();
+        observer?.disconnect();
+        if (pendingSync !== null) cancelAnimationFrame(pendingSync);
+        header.removeAttribute('data-header-compact');
         control.hidden = true;
         panel.hidden = false;
     };

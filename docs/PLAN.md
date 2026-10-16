@@ -3088,3 +3088,24 @@ Status: source and local production build validated; keep the same PR #29 as a
 draft for manual review without merging. Approximately 20 minutes of active
 implementation and validation time. GitHub alert closure and public deployment
 are separate from this branch's clean dependency audits.
+
+
+## Website header alignment follow-up — 2026-10-16
+
+The owner requested a shared-header alignment audit of every public page,
+including phone layouts, large text and desktop controls. The existing 900-pixel
+menu threshold allowed enlarged labels to wrap onto a second row. Desktop
+controls also used top alignment, which displaced their centers when the
+Download control grew taller.
+
+The desktop row now centers its brand and controls. A content-fit check reuses
+the existing compact menu when labels need more room. Measurement uses stable
+desktop spacing and preserves focused elements and open menus during same-mode
+resizes. Resize observers and pending animation frames are cleaned up when the
+header unmounts; an unavailable observer leaves resize/font checks usable.
+The theme button retains its physical top-right slot. No page wording,
+dependencies, native app source or release settings change.
+
+Validation is being completed against the production website build with Node
+24, all website tests, lint, phone/desktop routes and focused Chromium/WebKit
+interaction checks. The same draft PR #29 remains unmerged for manual review.
