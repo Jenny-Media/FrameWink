@@ -1098,3 +1098,63 @@ h1 {
   }
   .flat-device-secondary { opacity: 0 !important; }
 }
+
+/* The theme action has a dedicated right-hand slot at every width. */
+.site-header {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr) 44px;
+  align-items: start;
+}
+.site-header [hidden] { display: none !important; }
+.site-header .brand { min-width: 0; min-height: 44px; }
+.site-header .brand img { flex-shrink: 0; }
+.site-header .brand > span { display: inline; min-width: 0; overflow-wrap: anywhere; }
+.site-header .desktop-nav { grid-column: 2; grid-row: 1; justify-content: flex-end; }
+.site-header .features-link, .site-header .review-pill { display: inline-flex; }
+.site-header .theme-toggle { grid-column: 3; grid-row: 1; }
+.site-header .mobile-panel, .menu-toggle { display: none; }
+.menu-toggle {
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--control-surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.menu-toggle svg { width: 20px; height: 20px; flex-shrink: 0; }
+.menu-icon-close, .menu-toggle[aria-expanded="true"] .menu-icon-open { display: none; }
+.menu-toggle[aria-expanded="true"] .menu-icon-close { display: block; }
+@media (max-width: 900px) {
+  .site-header {
+    grid-template-columns: minmax(0, 1fr) auto 44px;
+    align-items: start;
+    gap: 0 8px;
+    padding-block: 18px;
+  }
+  .site-header .brand { font-size: 1rem; gap: 8px; }
+  .site-header .desktop-nav { display: none; }
+  .site-header .menu-toggle { display: inline-flex; grid-column: 2; grid-row: 1; }
+  .site-header .mobile-panel {
+    display: block;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-width: 0;
+    margin-top: 12px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--paper);
+  }
+  .site-header .mobile-panel nav { align-items: stretch; flex-direction: column; gap: 4px; }
+  .site-header .mobile-panel nav a { min-width: 44px; padding: 8px 12px; }
+}
+@media (max-width: 375px) {
+  .site-header .menu-toggle > span { display: none; }
+}

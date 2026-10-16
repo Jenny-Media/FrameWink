@@ -3032,3 +3032,28 @@ Independent review and exact push status are recorded in the Jenny Media audit
 ledger. No new translation or press-kit changes are included.
 
 Active-time estimate: about 0.4 hours shared with the other content corrections.
+
+## Website header follow-up — 2026-10-16
+
+Scope: website headers only, on the existing audit branch. The appearance action
+now has a dedicated physical right-hand slot at every viewport. Compact layouts
+use a native button disclosure with all four navigation destinations; desktop
+links remain visible. The brand stays readable with an optional word break.
+A small client controller enhances the server-rendered header after hydration;
+without its JavaScript the compact navigation links remain directly available.
+Escape, outside focus/click, responsive focus handoff, history restoration and
+reduced motion are covered by the browser gate. No native app, product, privacy,
+purchase, screenshot, release or deployment behavior changes.
+
+Local website tests, lint and production build are the scoped verification gates.
+Before/after captures and Chromium/WebKit interaction evidence are recorded under
+`/private/tmp/jenny-layout-audit/evidence/other-headers/shortcut-frame/`.
+Status: implementation and local verification complete; independent cross-review
+is the remaining gate before the primary agent updates the existing PR. Active
+implementation and verification time: approximately 45 minutes. Physical browser
+acceptance and public deployment remain separate.
+
+The read-only dependency audit separately flags existing production/development
+package advisories in the unchanged lockfile. Dependency upgrades and assessment
+of advisory applicability remain a separate follow-up; this header change does
+not claim that security gate is cleared.

@@ -1,7 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ActiveNavLink } from "./ActiveNavLink";
+import { HeaderMenuController } from "./HeaderMenuController";
 import { appStoreURL } from "../siteMetadata";
+
+function HeaderLinks() {
+  return (
+    <>
+        <Link className="features-link" href="/#features">Features</Link>
+        <ActiveNavLink href="/privacy">Privacy</ActiveNavLink>
+        <ActiveNavLink href="/support">Support</ActiveNavLink>
+        <a className="review-pill" href={appStoreURL}>Download</a>
+    </>
+  );
+}
 
 export function SiteHeader() {
   return (
@@ -11,13 +23,16 @@ export function SiteHeader() {
       </a>
       <Link className="brand" href="/" aria-label="FrameWink home">
         <Image src="/images/framewink-icon.png" alt="" width={44} height={44} preload />
-        <span>FrameWink</span>
+        <span>Frame<wbr />Wink</span>
       </Link>
-      <nav aria-label="Main navigation">
-        <Link className="features-link" href="/#features">Features</Link>
-        <ActiveNavLink href="/privacy">Privacy</ActiveNavLink>
-        <ActiveNavLink href="/support">Support</ActiveNavLink>
-        <a className="review-pill" href={appStoreURL}>Download</a>
+      <nav className="desktop-nav" aria-label="Main navigation">
+        <HeaderLinks />
+      </nav>
+      <button className="menu-toggle" type="button" hidden aria-label="Menu" aria-expanded="false" aria-controls="mobile-navigation">
+        <svg className="menu-icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+        <svg className="menu-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        <span>Menu</span>
+      </button>
         <button className="theme-toggle" type="button" data-theme-toggle title="Change color theme">
           <svg className="theme-light-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4" />
@@ -29,7 +44,10 @@ export function SiteHeader() {
           <span className="visually-hidden theme-light-label">Switch to dark theme</span>
           <span className="visually-hidden theme-dark-label">Switch to light theme</span>
         </button>
-      </nav>
+      <div className="mobile-panel" id="mobile-navigation">
+        <nav aria-label="Main navigation"><HeaderLinks /></nav>
+      </div>
+      <HeaderMenuController />
     </header>
   );
 }
