@@ -20,6 +20,30 @@ npm run build
 npm audit
 ```
 
+Use Node.js 24, matching the deployment configuration. `npm ci` must reproduce
+the checked-in lockfile before running these checks.
+
+### Security dependencies
+
+Next.js and its ESLint plugin are pinned together at 16.4.2. The lockfile also
+updates the affected image-processing, source-map, YAML and brace-expansion
+packages. Full and production-only `npm audit` checks should both report no
+known vulnerabilities.
+
+The pinned Next lint plugin still requires `fast-glob`, whose `braces` dependency
+has an [unpatched recursion advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm).
+The scoped override uses the local, development-only `tools/next-lint-glob`
+adapter. It implements the plugin's sole `globSync` call using pinned
+`tinyglobby`, with directory expansion disabled so literal project roots do not
+unexpectedly include their descendants. All Next lint rules remain enabled.
+The compatibility tests exercise the actual plugin helper and its link/image
+rules with literal, wildcard, array, brace and extglob roots.
+
+Recheck this adapter whenever upgrading the lint plugin: it intentionally
+implements only the API used by 16.4.2. Remove the override, direct development
+dependency and adapter once the upstream plugin no longer needs the vulnerable
+chain, then rerun the clean install, tests, lint, build and audit checks.
+
 The site intentionally has no account, contact form, product analytics,
 advertising, tracking scripts, or marketing cookies. Support is provided by
 email and the repository's public issue tracker.

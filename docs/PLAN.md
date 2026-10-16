@@ -3048,8 +3048,8 @@ purchase, screenshot, release or deployment behavior changes.
 Local website tests, lint and production build are the scoped verification gates.
 Before/after captures and Chromium/WebKit interaction evidence are recorded under
 `/private/tmp/jenny-layout-audit/evidence/other-headers/shortcut-frame/`.
-Status: implementation and local verification complete; independent cross-review
-is the remaining gate before the primary agent updates the existing PR. Active
+Status: implementation, local verification and independent cross-review complete;
+the existing PR remains a draft for manual review. Active
 implementation and verification time: approximately 45 minutes. Physical browser
 acceptance and public deployment remain separate.
 
@@ -3057,3 +3057,34 @@ The read-only dependency audit separately flags existing production/development
 package advisories in the unchanged lockfile. Dependency upgrades and assessment
 of advisory applicability remain a separate follow-up; this header change does
 not claim that security gate is cleared.
+
+## Website security follow-up — 2026-10-16
+
+The owner authorized addressing the website dependency alerts in the same draft
+PR #29, without merging. Scope is website dependencies, focused compatibility
+tests and maintenance documentation; native app and release settings are unchanged.
+
+Next.js and its lint plugin move from 16.3.1 to 16.4.2. Compatible lockfile fixes
+update sharp, source-map-js, js-yaml and both brace-expansion branches. The lint
+plugin's unpatched braces chain is replaced through a scoped, development-only
+glob adapter. It preserves literal-root behavior by disabling tinyglobby's
+directory expansion and retains the framework lint rules. A direct local
+development dependency ensures the scoped override resolves correctly after a
+clean installation. Nested installed dependencies remain ignored.
+
+Verification complete with Node.js 24.22.0: clean `npm ci`, all 41 website tests,
+lint and the default Turbopack production build pass. Full and production-only
+audits both report zero vulnerabilities (previously nine affected packages,
+including three production packages). An independent dependency reviewer approved
+the package resolution and 11 additional glob compatibility fixtures. A separate
+browser reviewer approved all four routes in Chromium and WebKit: 128 combinations
+of viewport, theme and header text size, plus expanded enlarged-text menus, passed
+1,283 checks. Mobile navigation, the top-right theme button, images, metadata,
+App Store links and the existing Photos wording remain correct. No P1/P2 findings
+remain. Evidence is recorded under
+`/private/tmp/jenny-layout-audit/evidence/frame-security/`.
+
+Status: source and local production build validated; keep the same PR #29 as a
+draft for manual review without merging. Approximately 20 minutes of active
+implementation and validation time. GitHub alert closure and public deployment
+are separate from this branch's clean dependency audits.
