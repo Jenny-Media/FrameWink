@@ -73,18 +73,17 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
 }
 
 a { color: inherit; text-decoration: none; }
 
 h1,
 h2,
-h3 { overflow-wrap: break-word; text-wrap: balance; }
+h3 { overflow-wrap: anywhere; text-wrap: balance; }
 
 p,
 li,
-a { overflow-wrap: break-word; }
+a { overflow-wrap: anywhere; }
 
 a:focus-visible,
 button:focus-visible,
@@ -117,13 +116,14 @@ summary:focus-visible {
 .site-header {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 16px;
   left: 0;
   margin: 0 auto;
   max-width: 1440px;
   padding: 24px clamp(24px, 5vw, 76px);
-  position: absolute;
+  position: relative;
   right: 0;
   top: 0;
   z-index: 10;
@@ -155,9 +155,11 @@ summary:focus-visible {
 nav {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   font-size: 0.9rem;
   font-weight: 650;
   gap: clamp(16px, 2.4vw, 34px);
+  min-width: 0;
 }
 
 nav a {
@@ -235,9 +237,9 @@ nav a[aria-current="page"] { opacity: 1; text-decoration: underline; text-underl
   grid-template-columns: minmax(380px, 0.78fr) minmax(600px, 1.22fr);
   margin: 0 auto;
   max-width: 1600px;
-  min-height: 100svh;
+  min-height: calc(100svh - 96px);
   overflow: hidden;
-  padding: 132px clamp(24px, 5vw, 76px) 72px;
+  padding: 36px clamp(24px, 5vw, 76px) 72px;
   position: relative;
 }
 
@@ -610,6 +612,8 @@ h1 {
   line-height: 1.5;
 }
 
+.check-list li > span:not(.check-mark) { min-width: 0; overflow-wrap: anywhere; }
+
 .check-mark {
   border-bottom: 3px solid var(--teal);
   border-right: 3px solid var(--teal);
@@ -822,6 +826,7 @@ h1 {
   gap: 44px;
   justify-content: flex-start;
   min-height: 0;
+  min-width: 0;
   padding: clamp(30px, 4vw, 54px);
 }
 
@@ -957,7 +962,7 @@ h1 {
 
 .document-page {
   min-height: 72svh;
-  padding: 144px clamp(24px, 7vw, 108px) clamp(90px, 10vw, 150px);
+  padding: 48px clamp(24px, 7vw, 108px) clamp(90px, 10vw, 150px);
 }
 
 .document-hero { margin: 0 auto; max-width: 1050px; }
@@ -1028,7 +1033,7 @@ h1 {
   .hero {
     grid-template-columns: 1fr;
     min-height: auto;
-    padding-top: 140px;
+    padding-top: 44px;
   }
 
   .hero-copy { max-width: 720px; }
@@ -1037,8 +1042,8 @@ h1 {
 
 @media (max-width: 900px) {
   .site-header .features-link { display: none; }
-  .split-heading, .showcase, .help-grid, .system-requirements { grid-template-columns: 1fr; }
-  .feature-grid { grid-template-columns: 1fr; }
+  .split-heading, .showcase, .help-grid, .system-requirements { grid-template-columns: minmax(0, 1fr); }
+  .feature-grid { grid-template-columns: minmax(0, 1fr); }
   .feature-card { min-height: 250px; }
   .feature-card h3 { margin-top: 52px; }
   .flat-showcase-device { margin: 0 auto; max-width: 760px; width: 100%; }
@@ -1051,7 +1056,7 @@ h1 {
 }
 
 @media (max-width: 700px) {
-  .steps-grid, .plan-grid { grid-template-columns: 1fr; }
+  .steps-grid, .plan-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 560px) {
@@ -1059,9 +1064,9 @@ h1 {
   .brand > span, .features-link, .review-pill { display: none; }
   .site-header nav { gap: 8px; }
   .site-header nav a { padding-inline: 8px; }
-  .hero { min-height: auto; padding-bottom: 50px; padding-top: 106px; }
+  .hero { min-height: auto; padding-bottom: 50px; padding-top: 26px; }
   h1 { font-size: clamp(2.65rem, 10.5vw, 3.5rem); }
-  .hero-actions { align-items: start; grid-template-columns: 1fr; }
+  .hero-actions { align-items: start; grid-template-columns: minmax(0, 1fr); }
   .hero-actions p { grid-column: auto; }
   .privacy-strip::after { height: 40px; right: 8%; top: 14%; width: 40px; }
   .content-section { padding-block: 68px; }
@@ -1079,7 +1084,7 @@ h1 {
   .review-callout { grid-template-columns: 1fr; text-align: center; }
   .review-callout > img { margin: 0 auto; }
   .site-footer nav { align-items: flex-start; flex-direction: column; gap: 4px; }
-  .document-page { padding-top: 124px; }
+  .document-page { padding-top: 44px; }
   .document-hero h1 { font-size: clamp(2.65rem, 10.5vw, 3.5rem); line-height: 1.05; }
   .help-grid { gap: 36px; }
 }

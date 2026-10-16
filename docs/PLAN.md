@@ -2980,3 +2980,28 @@ Active-time estimate: about 1.1 hours total, excluding Cloud/test waits.
 Persistent tests, artwork, workflow rules and App Store screenshots are in
 FrameWink-iPad-CPP-and-161-20261010 under the chat visualization directory.
 Physical acceptance and the automated Duo rotation exclusion remain separate.
+
+### Website mobile layout audit — 2026-10-16
+
+The owner requested layout fixes from the Jenny Media website audit, followed
+by independent agent review before committing and pushing. Work is isolated
+from the primary checkout's existing app and privacy-copy edits.
+
+- Make the shared website header part of normal page flow. Navigation can wrap
+  when text is enlarged, with the page heading moving below the taller header.
+- Give narrow layout tracks a zero minimum and allow long words and plan
+  checklist text to wrap. Keep browser text enlargement enabled.
+- Remove the old body-wide horizontal overflow hiding so layout containment is
+  verified directly. Preserve the existing decorative section clipping.
+- Adjust section top spacing to retain the existing normal-size presentation.
+
+Validation: website tests 26/26, ESLint, and the production build pass. Local
+Chromium and WebKit checks cover the homepage, privacy, support, and terms at
+320, 390, 768, 844-by-390 landscape, and 1440 pixels, including 200% browser
+text adjustment on narrow screens. Page width fits the configured viewport and
+headings remain below the header. Theme switching, navigation, and Back retain
+the saved appearance. This changes website styles only; native app source,
+permissions, purchases, and private photos are outside this change.
+
+Independent review is tracked in the Jenny Media audit ledger. Active-time
+estimate: about 0.5 hours shared with the ShortcutCycle website checks.
