@@ -87,7 +87,7 @@ test("links the released app through Apple's official badge", async () => {
     source("app/layout.tsx"),
   ]);
 
-  assert.match(metadata, /https:\/\/apps\.apple\.com\/us\/app\/framewink\/id6800849400/);
+  assert.match(metadata, /https:\/\/apps\.apple\.com\/app\/framewink\/id6800849400/);
   assert.match(home, /download-on-the-app-store\.svg/);
   assert.match(home, /Available on the App Store/);
   assert.match(home, /View on the App Store/);
@@ -109,9 +109,10 @@ test("links the released app through Apple's official badge", async () => {
 });
 
 test("describes the paid album boundary and foreground behavior precisely", async () => {
-  const [home, terms] = await Promise.all([
+  const [home, terms, privacy] = await Promise.all([
     source("app/page.tsx"),
     source("app/terms/page.tsx"),
+    source("app/privacy/page.tsx"),
   ]);
 
   assert.match(home, /one Apple Photos album/i);
@@ -119,6 +120,9 @@ test("describes the paid album boundary and foreground behavior precisely", asyn
   assert.match(home, /Local App Store price may vary/i);
   assert.doesNotMatch(home, /removes the import cap|No import cap/i);
   assert.doesNotMatch(terms, /candidates|recommendations/i);
+  assert.match(privacy, /ask for full Photos access/);
+  assert.match(privacy, /album names, photo counts, and cover photos/);
+  assert.doesNotMatch(privacy, /give FrameWink access to one album|reads photos only from the album/);
 });
 
 test("ships without analytics, advertising, or starter preview code", async () => {

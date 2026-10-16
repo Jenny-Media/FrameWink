@@ -3005,3 +3005,30 @@ permissions, purchases, and private photos are outside this change.
 
 Independent review is tracked in the Jenny Media audit ledger. Active-time
 estimate: about 0.5 hours shared with the ShortcutCycle website checks.
+
+### Website content audit corrections — 2026-10-16
+
+The owner approved the remaining factual and plain-language audit changes in
+existing PR #29, with no merge or production publication. Work remains isolated
+from the primary checkout's unrelated app and website changes.
+
+The homepage FAQ, support answer, terms, website privacy policy and canonical
+PRIVACY.md now distinguish the free photo picker from the full Photos access
+requested for automatic albums. Native code confirms the request is read/write,
+the album chooser reads cover photos as well as names/counts, and automatic
+frame photos come from the chosen album. Wording says the app asks for full
+access; the native authorization model can also accept limited access. Originals
+remain unchanged. Terms lead with the free and paid choices before the license.
+
+Download links now leave the App Store country choice to Apple, including the
+Duo product-page link. Existing U.S. price and local-price notes remain.
+
+Validation: website tests 26/26, ESLint, production build, and source permission
+review pass. Chromium and WebKit checks cover all shared website routes at
+320/390px portrait, 844x390 landscape and 1440px desktop, including 200% mobile
+text adjustment. The content cluster's 144 layout checks pass. The React
+best-practices review adds no client code, dependencies or data requests.
+Independent review and exact push status are recorded in the Jenny Media audit
+ledger. No new translation or press-kit changes are included.
+
+Active-time estimate: about 0.4 hours shared with the other content corrections.
