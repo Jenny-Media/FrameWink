@@ -43,7 +43,7 @@ const faqItems = [
   ],
   [
     "Do I need to give access to my whole library?",
-    "No. For the free reel, Apple’s photo picker shares only the photos you choose. FrameWink asks for access to your photo library only when you turn on automatic updates for an album with Lifetime.",
+    "Not for the free version: Apple’s photo picker shares only the photos you choose. Automatic album updates with Lifetime ask for full Photos access. You then choose the album to use for your frame. FrameWink never changes your originals.",
   ],
   [
     "What does FrameWink Lifetime add?",

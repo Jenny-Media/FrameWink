@@ -2980,3 +2980,137 @@ Active-time estimate: about 1.1 hours total, excluding Cloud/test waits.
 Persistent tests, artwork, workflow rules and App Store screenshots are in
 FrameWink-iPad-CPP-and-161-20261010 under the chat visualization directory.
 Physical acceptance and the automated Duo rotation exclusion remain separate.
+
+### Website mobile layout audit — 2026-10-16
+
+The owner requested layout fixes from the Jenny Media website audit, followed
+by independent agent review before committing and pushing. Work is isolated
+from the primary checkout's existing app and privacy-copy edits.
+
+- Make the shared website header part of normal page flow. Navigation can wrap
+  when text is enlarged, with the page heading moving below the taller header.
+- Give narrow layout tracks a zero minimum and allow long words and plan
+  checklist text to wrap. Keep browser text enlargement enabled.
+- Remove the old body-wide horizontal overflow hiding so layout containment is
+  verified directly. Preserve the existing decorative section clipping.
+- Adjust section top spacing to retain the existing normal-size presentation.
+
+Validation: website tests 26/26, ESLint, and the production build pass. Local
+Chromium and WebKit checks cover the homepage, privacy, support, and terms at
+320, 390, 768, 844-by-390 landscape, and 1440 pixels, including 200% browser
+text adjustment on narrow screens. Page width fits the configured viewport and
+headings remain below the header. Theme switching, navigation, and Back retain
+the saved appearance. This changes website styles only; native app source,
+permissions, purchases, and private photos are outside this change.
+
+Independent review is tracked in the Jenny Media audit ledger. Active-time
+estimate: about 0.5 hours shared with the ShortcutCycle website checks.
+
+### Website content audit corrections — 2026-10-16
+
+The owner approved the remaining factual and plain-language audit changes in
+existing PR #29, with no merge or production publication. Work remains isolated
+from the primary checkout's unrelated app and website changes.
+
+The homepage FAQ, support answer, terms, website privacy policy and canonical
+PRIVACY.md now distinguish the free photo picker from the full Photos access
+requested for automatic albums. Native code confirms the request is read/write,
+the album chooser reads cover photos as well as names/counts, and automatic
+frame photos come from the chosen album. Wording says the app asks for full
+access; the native authorization model can also accept limited access. Originals
+remain unchanged. Terms lead with the free and paid choices before the license.
+
+Download links now leave the App Store country choice to Apple, including the
+Duo product-page link. Existing U.S. price and local-price notes remain.
+
+Validation: website tests 26/26, ESLint, production build, and source permission
+review pass. Chromium and WebKit checks cover all shared website routes at
+320/390px portrait, 844x390 landscape and 1440px desktop, including 200% mobile
+text adjustment. The content cluster's 144 layout checks pass. The React
+best-practices review adds no client code, dependencies or data requests.
+Independent review and exact push status are recorded in the Jenny Media audit
+ledger. No new translation or press-kit changes are included.
+
+Active-time estimate: about 0.4 hours shared with the other content corrections.
+
+## Website header follow-up — 2026-10-16
+
+Scope: website headers only, on the existing audit branch. The appearance action
+now has a dedicated physical right-hand slot at every viewport. Compact layouts
+use a native button disclosure with all four navigation destinations; desktop
+links remain visible. The brand stays readable with an optional word break.
+A small client controller enhances the server-rendered header after hydration;
+without its JavaScript the compact navigation links remain directly available.
+Escape, outside focus/click, responsive focus handoff, history restoration and
+reduced motion are covered by the browser gate. No native app, product, privacy,
+purchase, screenshot, release or deployment behavior changes.
+
+Local website tests, lint and production build are the scoped verification gates.
+Before/after captures and Chromium/WebKit interaction evidence are recorded under
+`/private/tmp/jenny-layout-audit/evidence/other-headers/shortcut-frame/`.
+Status: implementation, local verification and independent cross-review complete;
+the existing PR remains a draft for manual review. Active
+implementation and verification time: approximately 45 minutes. Physical browser
+acceptance and public deployment remain separate.
+
+The read-only dependency audit separately flags existing production/development
+package advisories in the unchanged lockfile. Dependency upgrades and assessment
+of advisory applicability remain a separate follow-up; this header change does
+not claim that security gate is cleared.
+
+## Website security follow-up — 2026-10-16
+
+The owner authorized addressing the website dependency alerts in the same draft
+PR #29, without merging. Scope is website dependencies, focused compatibility
+tests and maintenance documentation; native app and release settings are unchanged.
+
+Next.js and its lint plugin move from 16.3.1 to 16.4.2. Compatible lockfile fixes
+update sharp, source-map-js, js-yaml and both brace-expansion branches. The lint
+plugin's unpatched braces chain is replaced through a scoped, development-only
+glob adapter. It preserves literal-root behavior by disabling tinyglobby's
+directory expansion and retains the framework lint rules. A direct local
+development dependency ensures the scoped override resolves correctly after a
+clean installation. Nested installed dependencies remain ignored.
+
+Verification complete with Node.js 24.22.0: clean `npm ci`, all 41 website tests,
+lint and the default Turbopack production build pass. Full and production-only
+audits both report zero vulnerabilities (previously nine affected packages,
+including three production packages). An independent dependency reviewer approved
+the package resolution and 11 additional glob compatibility fixtures. A separate
+browser reviewer approved all four routes in Chromium and WebKit: 128 combinations
+of viewport, theme and header text size, plus expanded enlarged-text menus, passed
+1,283 checks. Mobile navigation, the top-right theme button, images, metadata,
+App Store links and the existing Photos wording remain correct. No P1/P2 findings
+remain. Evidence is recorded under
+`/private/tmp/jenny-layout-audit/evidence/frame-security/`.
+
+Status: source and local production build validated; keep the same PR #29 as a
+draft for manual review without merging. Approximately 20 minutes of active
+implementation and validation time. GitHub alert closure and public deployment
+are separate from this branch's clean dependency audits.
+
+
+## Website header alignment follow-up — 2026-10-16
+
+The owner requested a shared-header alignment audit of every public page,
+including phone layouts, large text and desktop controls. The existing 900-pixel
+menu threshold allowed enlarged labels to wrap onto a second row. Desktop
+controls also used top alignment, which displaced their centers when the
+Download control grew taller.
+
+The desktop row now centers its brand and controls. A content-fit check reuses
+the existing compact menu when labels need more room. Measurement uses stable
+desktop spacing and preserves focused elements and open menus during same-mode
+resizes. Resize observers and pending animation frames are cleaned up when the
+header unmounts; an unavailable observer leaves resize/font checks usable.
+The theme button retains its physical top-right slot. No page wording,
+dependencies, native app source or release settings change.
+
+Validation completed with Node 24: the production website build, all 41 website
+tests and lint pass. The all-route phone/desktop audit and focused Chromium/WebKit
+interaction review found no remaining P1/P2 header issues. Final independent
+review covered enlarged text, keyboard focus, adaptive fit boundaries, theme
+hit targets, blocked storage and visible no-JavaScript navigation. The same
+draft PR #29 remains unmerged for manual review. Approximately 35 minutes of
+active implementation and validation time. Evidence is recorded under
+`/private/tmp/jenny-layout-audit/evidence/header-alignment/`.

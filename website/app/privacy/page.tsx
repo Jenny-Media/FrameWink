@@ -26,11 +26,15 @@ export default function PrivacyPage() {
         <section>
           <h2>Photos</h2>
           <p>
-            In the free version, Apple’s photo picker shares only the photos you choose. With
-            FrameWink Lifetime, you can give FrameWink access to one album so new photos can
-            appear automatically while the app is open. FrameWink shows album names and photo
-            counts while you choose, then reads photos only from the album you select. It skips
-            hidden photos and screenshots and never changes anything in your Photos library.
+            In the free version, Apple’s photo picker shares only the photos you choose;
+            you do not need to give full access to your Photos library.
+          </p>
+          <p>
+            Automatic album updates with FrameWink Lifetime ask for full Photos access.
+            This is permission to access your library, not permission limited to one album.
+            FrameWink shows album names, photo counts, and cover photos to help you choose.
+            It uses the album you select for your automatic frame, skips hidden photos and
+            screenshots, and never changes anything in your Photos library.
           </p>
           <p>
             If a photo you chose is stored in iCloud, Apple Photos may download it to your device
@@ -72,7 +76,7 @@ export default function PrivacyPage() {
         <section>
           <h2>Contact and support</h2>
           <p>
-            Send Feedback opens an editable draft in Apple’s Mail composer. It includes the app
+            Choose <strong>Send Feedback</strong> to open an email draft you can review in Apple Mail. It includes the app
             version and build, device model, and iOS or iPadOS version. You can edit or remove
             those details before sending. FrameWink does not attach photos or logs automatically
             or send the message itself. If Mail is unavailable, you can copy the email address

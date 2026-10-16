@@ -16,15 +16,6 @@ export default function TermsPage() {
       </header>
       <article className="document-content">
         <section>
-          <h2>App license</h2>
-          <p>
-            When you download FrameWink, Apple gives you a license to use it; you do not own the
-            app itself. Unless FrameWink shows a different agreement, Apple’s
-            {" "}<a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Standard Licensed Application End User License Agreement</a>
-            {" "}applies.
-          </p>
-        </section>
-        <section>
           <h2>Free Smart Reel</h2>
           <p>
             The free version includes sample photos and one Smart Reel made from up to 500 photos
@@ -48,9 +39,19 @@ export default function TermsPage() {
         <section>
           <h2>Availability and device behavior</h2>
           <p>
-            FrameWink works on compatible iPhones and iPads. Some features need access to the photos
-            you choose, and photos stored in iCloud may need to download first. Schedules work only
+            FrameWink works on compatible iPhones and iPads. The free photo picker shares only
+            the photos you choose. Automatic album updates ask for full Photos access, and
+            photos stored in iCloud may need to download first. Schedules work only
             while FrameWink is open, and the app cannot reopen itself after your device restarts.
+          </p>
+        </section>
+        <section>
+          <h2>App license</h2>
+          <p>
+            When you download FrameWink, Apple gives you a license to use it; you do not own the
+            app itself. Unless FrameWink shows a different agreement, Apple’s
+            {" "}<a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Standard Licensed Application End User License Agreement</a>
+            {" "}applies.
           </p>
         </section>
         <section>

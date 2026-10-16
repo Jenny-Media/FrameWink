@@ -20,12 +20,36 @@ npm run build
 npm audit
 ```
 
+Use Node.js 24, matching the deployment configuration. `npm ci` must reproduce
+the checked-in lockfile before running these checks.
+
+### Security dependencies
+
+Next.js and its ESLint plugin are pinned together at 16.4.2. The lockfile also
+updates the affected image-processing, source-map, YAML and brace-expansion
+packages. Full and production-only `npm audit` checks should both report no
+known vulnerabilities.
+
+The pinned Next lint plugin still requires `fast-glob`, whose `braces` dependency
+has an [unpatched recursion advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm).
+The scoped override uses the local, development-only `tools/next-lint-glob`
+adapter. It implements the plugin's sole `globSync` call using pinned
+`tinyglobby`, with directory expansion disabled so literal project roots do not
+unexpectedly include their descendants. All Next lint rules remain enabled.
+The compatibility tests exercise the actual plugin helper and its link/image
+rules with literal, wildcard, array, brace and extglob roots.
+
+Recheck this adapter whenever upgrading the lint plugin: it intentionally
+implements only the API used by 16.4.2. Remove the override, direct development
+dependency and adapter once the upstream plugin no longer needs the vulnerable
+chain, then rerun the clean install, tests, lint, build and audit checks.
+
 The site intentionally has no account, contact form, product analytics,
 advertising, tracking scripts, or marketing cookies. Support is provided by
 email and the repository's public issue tracker.
 
 FrameWink is available on the App Store at
-[apps.apple.com/us/app/framewink/id6800849400](https://apps.apple.com/us/app/framewink/id6800849400).
+[apps.apple.com/app/framewink/id6800849400](https://apps.apple.com/app/framewink/id6800849400).
 The homepage uses Apple's official, unmodified Download on the App Store badge.
 
 ## Appearance
@@ -37,6 +61,16 @@ and synchronizes between tabs. The quiet “Use system appearance” button in t
 footer removes that choice and follows device appearance again. If storage is
 unavailable, both buttons still work for the current visit. No account, cookie,
 or network request is needed.
+
+## Navigation on compact screens
+
+The appearance button keeps its own top-right slot. At widths up to 900 pixels, or whenever enlarged labels need more room,
+Menu opens all header destinations without crowding the brand. Escape and outside
+clicks close it, and keyboard focus moves to an available control when the layout
+changes. The links remain visible if the menu controller cannot load. The header
+and its content remain server-rendered; only disclosure behavior is enhanced on
+the client. The phone Menu label is omitted through 375 pixels, with its accessible
+name preserved.
 
 ## Deployment
 

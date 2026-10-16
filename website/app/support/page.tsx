@@ -7,6 +7,7 @@ export const metadata = pageMetadata(
 );
 
 const helpItems = [
+  ["Why do automatic album updates ask for full Photos access?", "The free version uses Apple’s photo picker and needs only the photos you select. Automatic album updates with FrameWink Lifetime ask for full Photos access. You choose which album supplies the frame; FrameWink never changes your originals. You can change Photos access in your device’s Settings."],
   ["Album covers are missing or slow to appear", "Album covers may take a moment to appear, especially for photos stored in iCloud. Keep FrameWink open. If a cover still does not appear, close and reopen the album list."],
   ["A photo is cropped unexpectedly", "FrameWink fits each photo to the screen while trying to keep faces and important details visible. Turn or resize the screen, then swipe away and back to refresh the view. To keep a photo out of the frame, choose Never Show Again while reviewing."],
   ["Restore FrameWink Lifetime", "Go to FrameWink Lifetime and choose Restore Purchases. Make sure the device uses the Apple Account that bought or shares the purchase."],

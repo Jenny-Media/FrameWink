@@ -12,10 +12,11 @@ tracking, or third-party analytics SDKs.
 ## Photos
 
 The system photo picker gives FrameWink only the free-mode photos the user
-chooses. After a FrameWink Lifetime purchase, a user may explicitly authorize Photos and
-select an album for automatic refresh. FrameWink lists album names and photo
-counts for that chooser, reads photo content only from the selected album,
-filters hidden photos and screenshots, and never edits the Photos library.
+chooses, without full-library access. Automatic album updates with FrameWink
+Lifetime request full Photos access; the system permission is not limited to
+one album. FrameWink reads album names, photo counts, and cover photos for the
+album chooser, then uses the selected album for the automatic frame. It filters
+hidden photos and screenshots and never changes originals in the Photos library.
 
 Apple Photos may download an iCloud item when an automatic album needs it. That
 is Apple Photos behavior, not a FrameWink upload or a connection to Jenny Media
