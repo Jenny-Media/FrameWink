@@ -84,6 +84,15 @@ once connected, Vercel should skip deployments when `website/` is unchanged.
 Xcode Cloud should use a Files and Folders start condition that does not start
 an app build when all changed files are under `website/`.
 
+## Unlisted beta invitation
+
+`/beta` links to the External Testers group's public TestFlight invitation:
+https://testflight.apple.com/join/ZYutXJXW. The page is intentionally absent from
+the main navigation, footer and sitemap, and emits noindex/nofollow metadata.
+Anyone who knows the URL can open it; it has no password or access control.
+Manage tester capacity and build availability in App Store Connect. Apple Beta
+App Review must approve an external build before testers can install it.
+
 ## iPhone Duo showcase
 
 The Duo showcase links to the approved FrameWink on iPhone Duo custom product

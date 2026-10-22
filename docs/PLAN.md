@@ -3164,3 +3164,43 @@ hit targets, blocked storage and visible no-JavaScript navigation. The same
 draft PR #29 remains unmerged for manual review. Approximately 35 minutes of
 active implementation and validation time. Evidence is recorded under
 `/private/tmp/jenny-layout-audit/evidence/header-alignment/`.
+
+## Internal and public beta preparation — 2026-10-22
+
+The owner requested integration of the cleanup onto latest main, a fresh
+TestFlight build for internal and external testers, a public invitation link,
+and an unlisted `/beta` page linking to that invitation. Local main was
+fast-forwarded to d48d8a5 (including merged website PR #29). Cleanup commit
+64b47e3 was cherry-picked as e7b209f; its only conflict was resolved by keeping
+all current-main plan content and inserting the original cleanup records.
+Native application, tests, project, signing and product identity remain those
+of the current 1.6.1 development train.
+
+The existing External Testers group now has an Open to Anyone invitation at
+`https://testflight.apple.com/join/ZYutXJXW`, initially limited to 100 testers.
+No external build is available yet. The new `/beta` route links directly to
+that invitation, uses the existing site presentation, and has noindex/nofollow
+metadata. It is omitted from navigation and the sitemap. It is an unlisted
+public page, not a password-protected page. Tester notes identify the 1.6.1
+beta and retain the native acceptance checklist.
+
+Status: implementation and release preparation in progress. Run the local
+iPhone/iPad release gates, verify the Duo/native archive boundary and website,
+then push the integrated source and start one clean Xcode Cloud archive from
+that exact main commit. Confirm Apple processing, internal tester enrollment,
+external build assignment/Beta App Review, public-link settings and production
+`/beta` delivery independently. Existing physical-device acceptance boundaries
+remain open. Active preparation time so far: approximately 0.4 hours, excluding
+unattended build and test time.
+
+Preparation verification: the website passes all 41 tests, ESLint and its
+Next.js production build with Node 24.19.0. The built `/beta` page returns HTTP
+200, the correct invitation and canonical URL, and noindex/nofollow metadata;
+the homepage links and sitemap omit it. Chrome desktop and 390 × 844 phone
+checks show no horizontal overflow, with the join action visible before
+scrolling and readable light/dark layouts. The native archive guard passes
+under Xcode 27.1 RC and all 17 locked iPad/iPhone/Duo screenshots retain their
+checksums. Full iPhone and iPad suites and focused native Duo tests are running.
+The existing internal group now contains the account owner. The clean archive
+workflow is confirmed to prepare for App Store Connect, enabling external
+testing after Beta App Review, and to distribute to that internal group.

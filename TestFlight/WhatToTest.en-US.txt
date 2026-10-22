@@ -1,4 +1,6 @@
-FrameWink turns an iPhone or iPad into a private local photo frame.
+Thank you for testing FrameWink 1.6.1 for iPhone and iPad.
+
+Please focus on iPhone Duo folding and playback continuity, choosing and reviewing photos, Photo Duration, storage cleanup, and restoring FrameWink Lifetime.
 
 Please test:
 - Version 1.6 adds native iPhone Duo support. On Duo, check the outer display, fully open inner display, Book and Tabletop poses, rotation, and both Split View positions.
