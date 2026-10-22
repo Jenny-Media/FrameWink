@@ -2355,6 +2355,56 @@ Reduce Motion, and finger-following swipe quality remain human device checks.
   excluding unattended test runs. Cloud workflow inspection currently needs
   renewed App Store Connect sign-in; no new review submission.
 
+### Merged local-work cleanup — 2026-10-22
+
+- Status: local housekeeping complete. The 22 modified tracked files were
+  restored to this branch's committed state after their app changes were traced
+  to current or superseded `origin/main` implementations. Five already-merged
+  untracked Swift source/test files were moved into the recovery folder.
+- All 42 original modified/untracked files are retained in a ZIP and extracted
+  recovery copies outside this repository. ZIP CRCs and every file's SHA-256
+  were verified before cleanup. Historical documentation wording that differs
+  from main is also retained separately in `preserved-local-notes.md`.
+- Recovery archive, inventory, original binary patch, per-file hashes, original
+  source copies, and final untracked list are under
+  `/Users/yihong/.codex/visualizations/2026/10/22/01a1648c-0d13-72c1-b750-c5486619ae93/FrameWink-local-cleanup/`.
+- All 15 untracked website/design artwork files remain in place and match their
+  original hashes. No artwork, ignored file, branch, or commit was removed.
+  HEAD remains `f00f379` on `codex/fix-restore-and-duration`; this older branch
+  is not the current release baseline. Use current `main` for release work.
+- Verification: the tracked worktree matched HEAD before this record was added;
+  only this cleanup record is now a tracked change. The staged diff, branch
+  heads, and remote-tracking refs remain unchanged. `git diff --check` and
+  archive/extraction/hash checks pass. No app build, test, device, upload, or
+  release action was performed for this file-only cleanup; normal release
+  validation and the existing physical acceptance checks remain required.
+- Active cleanup/verification estimate: approximately 0.3 hours. The recovery
+  folder and retained artwork still require owner review before any later
+  removal; neither is needed to build the current native app.
+
+### Image 08 preservation and artwork cleanup — 2026-10-22
+
+- Status: owner-approved cleanup complete. Preserved image 08's original
+  1672 x 941 PNG byte-for-byte under `Design/Website/RoomBackground/`, with a
+  README and machine-readable provenance. The record identifies the original
+  generated output/session, observed timestamps, source/derivative hashes, and
+  the unavailable exact prompt. The existing `hero-room-v2.webp` derivative is
+  retained unchanged and included with this cleanup.
+- Removed exactly the other 14 untracked images from the reviewed contact
+  sheet. Each matched both the ZIP recovery copy and extracted snapshot before
+  removal. The external recovery archive, original files, and numbered contact
+  sheet remain available in the recovery folder recorded above; the exact
+  removed-path list is in `owner-approved-image-cleanup.json` there.
+- Verification: PNG signature/dimensions and original/derivative SHA-256 checks
+  pass. All 14 approved removal paths are absent. Only the preserved artwork,
+  provenance/README, and this plan are included in the cleanup commit;
+  `git diff --check` and staged-diff inspection pass. No native app, test,
+  project, signing, or purchase configuration is changed. Simulator/device
+  builds and tests were not rerun for this design-asset housekeeping task.
+- Active preservation/cleanup estimate: approximately 0.15 hours. The existing
+  native release and physical-device acceptance gates remain open. This commit
+  is local on the older cleanup branch; use current main for release work.
+
 ## Timebox rule
 
 At 32 active hours, Milestones 0–5 should be complete. Use the remaining eight

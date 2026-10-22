@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "asset": "FrameWink sunlit room background",
+  "origin": {
+    "type": "ai_generated",
+    "workflow": "Codex image generation for FrameWink",
+    "original_output_filename": "exec-fb488024-4a65-44cd-a260-22abd05b4bcc.png",
+    "original_session_id": "019ff3ae-5550-7c43-a458-3c2e269117f3",
+    "observed_original_png_modified_at_utc": "2026-08-15T02:07:40.630738+00:00",
+    "exact_prompt": null,
+    "exact_prompt_status": "Not recovered from the available records.",
+    "evidence": "Original PNG located in the session generated-image output directory; visually matched to the WebP derivative. Timestamps are observed file metadata."
+  },
+  "original": {
+    "repository_path": "Design/Website/RoomBackground/original-generated-room.png",
+    "format": "PNG",
+    "width": 1672,
+    "height": 941,
+    "bytes": 1905327,
+    "sha256": "14c85efe247e68f35c5083ea60edcfd71381dad8369b61275824fb5a350a76d2",
+    "preservation": "Copied byte-for-byte; no re-encoding."
+  },
+  "derivative": {
+    "repository_path": "website/public/images/hero-room-v2.webp",
+    "format": "WebP",
+    "width": 1672,
+    "height": 941,
+    "bytes": 90080,
+    "sha256": "63b1de980999c459ca00bf0a0614f10f6cd8c1aaea768ed3c9847969d2e56c0e",
+    "observed_file_modified_at_utc": "2026-08-15T02:09:33.022163+00:00",
+    "comparison_to_original": {
+      "metric": "normalized root mean square pixel error",
+      "value": 0.00897476,
+      "tool": "ImageMagick compare -metric RMSE"
+    },
+    "contact_sheet_number": 8
+  }
+}
