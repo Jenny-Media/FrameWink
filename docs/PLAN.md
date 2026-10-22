@@ -3235,3 +3235,55 @@ with automatic notification. Verify the public invitation's resulting status.
 The requested beta distribution milestone remains in progress; no new build
 or public installation availability is claimed. No App Store release was
 requested or submitted.
+
+## Public beta cloud environment recovery — 2026-10-22
+
+The follow-up status check confirms local and remote main at `6198ea3`, a clean
+checkout, and Vercel production Ready from that exact commit. Public `/beta`
+returns 200 with noindex/nofollow and the enabled 100-place invitation. The
+latest processed TestFlight candidate was still 1.6.1 (72), assigned internally.
+Chrome access resumed, so the already authorized release work continued.
+
+Manual archive 74 and Analyze 75 stopped before compilation because Apple no
+longer offers the saved combination of Xcode 27.1 RC (27A9275) and macOS Golden
+Gate 27.2 beta 2 (26B5091g). Both saved workflows now pin released Xcode 27.1
+(27A9275) and macOS Golden Gate 27.0.1 (26A434), selected from Apple's supported
+options. The Xcode build number matches local validation; SDK 27.1 and the
+native Duo guard are unchanged. Clean/archive preparation, internal group,
+native-folder triggers, signing and product identity are preserved.
+
+Clean rebuild 76 is archiving exact source `6198ea3` with the updated workflow.
+Analyze rebuild 77 on the same source has succeeded. External build assignment
+and Beta App Review remain pending archive upload/processing. A draft revision
+of the existing beta review notes to identify 1.6.1 is preserved in the Test
+Information tab; that tab's extension popup blocks its save, and the owner was
+asked to dismiss it. Other cloud/tester tabs remain usable. No App Store
+submission or public release is requested. Additional active preparation time
+so far: approximately 0.25 hours, excluding unattended build time.
+
+Distribution verified: Cloud archive 76 and its internal TestFlight post-action
+both succeeded. Analyze 77 also succeeded. The archive log explicitly reports
+native Duo geometry enabled for SDK 27.1 and a passed release guard. Processed
+app build `70e5e4e6-c96b-492c-a26f-656583d497a7` is version 1.6.1 (76), from
+exact source `6198ea3`. Jenny Media Internal lists it as Testing, with the
+account owner enrolled. External Testers lists the same build as Waiting for
+Review after TestFlight Beta App Review submission. The wizard was explicitly
+set to no sign-in required, and automatic tester notification remained enabled.
+The committed What to Test checklist was entered and its normalized visible
+read-back matched before submission.
+
+The public invitation remains enabled and limited to 100 testers. Apple's
+group UI explicitly says testers cannot join until the group has an approved
+build; public installation is therefore still pending Apple approval. `/beta`
+remains live, unlisted and noindex, linking to that invitation. No App Store
+version was submitted or released. Physical acceptance boundaries remain open.
+The metadata editor's optional 1.6.1 wording draft remains open and is also
+preserved as `beta-review-notes-1.6.1-draft.txt` in the evidence folder; the
+existing saved review instructions describe the same native feature set.
+That popup no longer blocks the completed tester assignment/submission.
+
+Authorized setup is complete through external submission. External beta
+availability remains pending Apple Beta App Review, so the public availability
+milestone is not marked complete. Additional active time for this recovery:
+approximately 0.4 hours, excluding unattended checks. Final documentation
+updates do not change the app or website source captured in build 76.

@@ -32,9 +32,19 @@ The default SDK, or an explicit `DEVELOPER_DIR` pointing to 27.1/27.2, also runs
 the native Duo suite,
 retaining the owner-approved Duo-only automated rotation exclusion.
 
-Version 1.6.1 preparation uses Xcode 27.1 RC (27A9275), SDK 27.1; its archive
-guard requires native Duo support and that accepted SDK line. Cloud workflow
-selection and exact-source archive must be verified before submission.
+Version 1.6.1 cloud preparation uses released Xcode 27.1 (27A9275), SDK 27.1,
+with macOS Golden Gate 27.0.1 (26A434). Both saved workflows were updated on
+October 22 after Apple retired their RC/beta environment combination. Local
+validation used the RC bundle with the same Xcode build number. The archive
+guard still requires native Duo support and that accepted SDK line. Cloud
+workflow selection and exact-source archive must be verified before submission.
+
+Public beta checkpoint on October 22: clean Cloud archive 76 and Analyze 77
+succeeded from `6198ea3`. Version 1.6.1 (76) is Testing in Jenny Media Internal
+and Waiting for Review in External Testers. Automatic notification is enabled.
+The 100-place public invitation at `https://testflight.apple.com/join/ZYutXJXW`
+is linked from the unlisted `https://frame.jenny.media/beta` page. Apple must
+approve an external build before testers can join through that invitation.
 
 Version 1.6 (66) is released. Apple closed the 1.6 train, so new native
 deliveries use 1.6.1 in both app configurations and the archive guard. Build

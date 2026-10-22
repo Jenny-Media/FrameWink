@@ -4925,3 +4925,45 @@ cloud archive or external Beta App Review submission has started: Chrome's
 connector reports another extension popup blocking automation. The owner was
 asked to dismiss it. The website is live, while public TestFlight installation
 still requires a processed new archive, external assignment and approval.
+
+### Cloud environment recovery during status refresh — 2026-10-22
+
+Repository and live website refresh confirms clean main `6198ea3`, matching
+remote main and Ready Vercel production deployment
+`dpl_E5j73Db4YJcDs4idJqiypgkaeS4R`. Public `/beta` returns HTTP 200 with the
+expected public invitation and noindex/nofollow metadata.
+
+Cloud archive 74 and Analyze 75 both failed before compilation: Apple retired
+the selected Xcode 27.1 RC / macOS 27.2 beta 2 environment. Saved workflows
+now pin supported released Xcode 27.1 (27A9275) and macOS Golden Gate 27.0.1
+(26A434). Clean rebuilds capture exact commit
+`6198ea3fea56b3e66f8dc02e7422e50f8ad21178` with the latest workflow settings:
+
+- Archive 76: `326ba8f5-afb5-4d3b-9db3-8cacf3c28ed3`, in progress.
+- Analyze 77: `c0a74155-11c9-4a30-8bd0-b7e74f45d4f0`, succeeded.
+
+No native source, project, signing, StoreKit identifier or test assertion
+changed. The earlier full local family runs, isolated retries, Duo focused
+tests, release guard and locked screenshot checks remain the local evidence.
+Distribution and external installation must be verified separately after
+Apple processes the archive; physical acceptance remains open.
+
+Final distribution read-back:
+
+- Archive 76 and its TestFlight Internal Testing post-action succeeded.
+- Analyze 77 succeeded on the same source and supported environment.
+- Cloud guard log: `FrameWink native Duo geometry enabled for SDK 27.1.` and
+  `FrameWink release guard passed for archive.`
+- Processed version 1.6.1 (76), build ID
+  `70e5e4e6-c96b-492c-a26f-656583d497a7`, is Testing in Jenny Media Internal.
+- The same build is Waiting for Review in External Testers after Beta App
+  Review submission. No reviewer login is required, and automatic notification
+  was checked. Visible What to Test content matched the committed checklist
+  after normalizing whitespace introduced by Apple's editor.
+- Public link `https://testflight.apple.com/join/ZYutXJXW` remains enabled for
+  100 testers. Apple's group UI states testers cannot join until the group has
+  an approved build. This is not public install availability yet.
+
+Receipts, the native guard log, internal/external screenshots and an optional
+preserved review-note draft remain in the evidence folder above. App Store
+submission/release and physical-device acceptance were not performed.
