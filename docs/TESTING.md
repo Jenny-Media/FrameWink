@@ -4812,3 +4812,116 @@ iPad creative validation: Header/Search master source-integrity and alignment
 checks pass, all 18 generated files reproduce, and seven gallery screenshots
 are 2752x2064 opaque JPEGs. Live ASC previews retain complete device/content
 and headlines for owner review. The final page remains unsubmitted.
+## Public TestFlight beta preparation — 2026-10-22
+
+Source: cleanup cherry-pick `e7b209f` and beta page/notes commit `4af9acd` on
+latest main (`d48d8a5`). No native app, test, project or signing files changed.
+The image 08 original PNG still matches SHA-256
+`14c85efe247e68f35c5083ea60edcfd71381dad8369b61275824fb5a350a76d2`.
+
+Website checks pass: 41 tests, ESLint and Next.js production build, using Node
+24.19.0. Commands, from `website/`, with that Node runtime first on PATH:
+
+```sh
+npm ci --no-audit --no-fund
+npm test
+npm run lint
+npm run build
+npm run start -- --hostname 127.0.0.1 --port 43117
+```
+
+Chrome inspection of the production build at desktop 2504 × 933 and phone
+390 × 844 shows readable light/dark layouts, no horizontal overflow and a
+visible join action before scrolling. Local HTTP checks confirm canonical
+`https://frame.jenny.media/beta`, noindex/nofollow metadata, the correct
+TestFlight invitation and omission from the homepage links and sitemap.
+Vercel production deployment `dpl_6fDfVYJbohnYtXgtryncNyziFuY1` is Ready from
+`4af9acd911c0951d0d7e494329ce848297e97fad`. Public HTTP verification confirms
+the same metadata and invitation at `https://frame.jenny.media/beta` (200).
+The page is unlisted and publicly accessible, with no access control.
+
+The native archive guard passes with native Duo geometry enabled for SDK 27.1:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+  CI_XCODEBUILD_ACTION=archive sh ci_scripts/ci_pre_xcodebuild.sh
+sh scripts/verify_locked_app_store_screenshots.sh
+```
+
+All 17 locked screenshot files retain their checksums. Dedicated destinations:
+
+| Family | Simulator ID | Runtime |
+| --- | --- | --- |
+| iPhone 18 Pro | DB4BE434-7E81-4019-9BDB-AAD6F7A1FA26 | iOS 27.0 |
+| iPad Pro 13-inch (M5) | AD6D9220-2E34-4EC4-8083-CB0B1903BBA9 | iPadOS 27.0 |
+| iPhone Duo | A5A7FC9E-DA0A-47A0-A540-7FB5FA1CE73F | iOS 27.1 |
+
+Full iPhone and iPad runs completed. Each uses this command, substituting
+the ID above and `FAMILY=iPhone` or `FAMILY=iPad`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.1-RC.app/Contents/Developer \
+xcodebuild -quiet -project FrameWink.xcodeproj -scheme FrameWink \
+  -configuration Debug -parallel-testing-enabled NO \
+  -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+  -derivedDataPath "/private/tmp/FrameWink-PublicBeta-20261022/$FAMILY-DerivedData" \
+  -resultBundlePath "/private/tmp/FrameWink-PublicBeta-20261022/$FAMILY.xcresult" \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 \
+  -maximum-test-execution-time-allowance 120 CODE_SIGNING_ALLOWED=NO \
+  -skip-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking \
+  -skip-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests test
+```
+
+Duo geometry, session and layout validation passes: 56 tests, zero failures or
+skips. It uses the same toolchain and destination/timeout flags, with
+`Duo-DerivedData` and `Duo-Focused.xcresult` paths, selecting:
+
+```sh
+-only-testing:FrameWinkTests/FrameViewportRegionsTests \
+-only-testing:FrameWinkTests/FrameSessionControllerTests \
+-only-testing:FrameWinkTests/FrameLayoutChooserTests test
+```
+
+Each initial full run exited 65 with 242 passed, one failed and four skipped.
+The only failure on both families was the 120-second timeout in
+`StoreKitConfigurationTests/testStoreKitTestPurchaseAndRefundUpdateCurrentEntitlement`.
+After both full runs finished, that unchanged case was rerun sequentially on
+each destination using the existing build and timeout settings. Both isolated
+retries exit 0: one passed, zero failures and zero skips per family. Thus all
+243 selected executable cases have passed on each family across the original
+run and its retry. This is not a claim that the original full runs exited 0;
+both original failed bundles are retained, and the timeout's cause is not
+proven. No production code, test assertions or additional exclusions changed.
+The retry replaces the two skip flags in the full command with:
+
+```sh
+-only-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestPurchaseAndRefundUpdateCurrentEntitlement \
+test-without-building
+```
+
+Retry result bundles are `iPhone-StoreKit-Retry.xcresult` and
+`iPad-StoreKit-Retry.xcresult`. The four intentional skips are the authorized
+physical-library picker, album-cover, cached-picker and configured-album
+navigation checks in `FirstLaunchPrivacyUITests`.
+
+This focused run supplements the previously recorded full Duo matrix; it does
+not replace manual pose/rotation checks or physical acceptance. The existing
+owner-approved Duo automated rotation exclusion remains unresolved. Physical
+Duo folds, PhotoKit/iCloud, Mail, StoreKit/Family Sharing, brightness, thermal,
+Guided Access and long-running behavior still require real-device checks.
+Xcode 27.1 RC emits the existing invalidDigitCount(94232), debugger noURL and
+test-only StoreKit deprecation/transaction-listener warnings, plus Apple's
+SwiftUI gravity-anchor hierarchy warning. Initial unprivileged Simulator
+discovery failed due to sandbox access; the elevated discovery and runs use
+dedicated destinations without changing other Simulators.
+
+Release evidence, screenshots, exact family commands and JSON result summaries:
+`/Users/yihong/.codex/visualizations/2026/10/22/01a1648c-0d13-72c1-b750-c5486619ae93/FrameWink-public-beta-20261022/`.
+
+The public invitation is enabled for Open to Anyone with an initial 100-tester
+limit. The existing internal group now includes the account owner. No new
+cloud archive or external Beta App Review submission has started: Chrome's
+connector reports another extension popup blocking automation. The owner was
+asked to dismiss it. The website is live, while public TestFlight installation
+still requires a processed new archive, external assignment and approval.

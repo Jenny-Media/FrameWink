@@ -3204,3 +3204,34 @@ checksums. Full iPhone and iPad suites and focused native Duo tests are running.
 The existing internal group now contains the account owner. The clean archive
 workflow is confirmed to prepare for App Store Connect, enabling external
 testing after Beta App Review, and to distribute to that internal group.
+
+Cleanup and beta preparation were pushed to main at
+`4af9acd911c0951d0d7e494329ce848297e97fad`; the remote head was read back.
+Vercel production deployment `dpl_6fDfVYJbohnYtXgtryncNyziFuY1` is Ready and
+serves `/beta` on the public custom domain with the expected invitation,
+canonical URL and noindex metadata. The native Duo focused gate passes all
+56 geometry/session/layout tests. Full iPhone/iPad suites are still running.
+Cloud archive and external assignment remain pending; Chrome reports another
+extension popup blocking App Store Connect automation, and the owner was asked
+to dismiss it. Beta review contact information is already populated, with no
+sign-in required. Active preparation time: approximately 0.7 hours, excluding
+unattended checks.
+
+Local validation checkpoint: iPhone and iPad each completed 242 passed / one
+failed / four physical-library skips. The only failure was the unchanged
+StoreKit purchase/refund case timing out at 120 seconds. Sequential isolated
+retries pass on both families (one passed / zero failures each), so all 243
+selected executable cases per family have now passed across the full run and
+retry. Original failures remain recorded; the timeout cause is unproven.
+Duo focused tests remain 56/0/0. No app or test edits were required. Complete
+result bundles and exact commands are retained in the release evidence root
+listed in `docs/TESTING.md`. Active preparation approximately 0.8 hours.
+
+Remaining release work is blocked on dismissing the Chrome extension popup:
+start a clean Xcode Cloud Internal TestFlight archive from the latest pushed
+main, verify its exact source/build number and processing, confirm internal
+availability, add the new build to External Testers and submit Beta App Review
+with automatic notification. Verify the public invitation's resulting status.
+The requested beta distribution milestone remains in progress; no new build
+or public installation availability is claimed. No App Store release was
+requested or submitted.
