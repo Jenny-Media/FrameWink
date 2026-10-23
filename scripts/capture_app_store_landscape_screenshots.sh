@@ -25,7 +25,9 @@ cleanup() {
     done
     echo "Capture evidence retained: $working_directory"
 }
-trap cleanup EXIT INT TERM
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 require_tool() {
     command -v "$1" >/dev/null 2>&1 || {

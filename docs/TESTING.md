@@ -5130,7 +5130,7 @@ path and an owned internal symlink pointing there. Each must reject compiler,
 report, result/archive and helper-output overrides with deferred-support
 guidance before cache/report directory creation or a fake build starts. No
 external disk is accessed or filesystem/mount/UUID utility invoked. The same
-26 workflow tests pass in focused and full runs; syntax, locked assets and
+28 workflow tests pass in focused and full runs; syntax, locked assets and
 cumulative diff checks pass too. Results and cumulative review disposition are
 retained separately with the exact committed source fingerprint.
 
@@ -5141,3 +5141,11 @@ iPad full suite passed 243 with four physical skips, while iPhone passed 242
 with one large-text privacy UI failure and four skips. Both isolated iPhone
 retries passed. Original failure, UI hierarchy and retry bundles are retained
 in `outputs/pr30-native-4df3a02-20261023/`; the UI gate is not claimed clean.
+
+Two additional regressions exercise the real copied physical/landscape scripts:
+sample and soak reject external/overlapping report paths before discovery, and
+SIGINT/SIGTERM during the first capture exit without retrying. Fake tools own all
+processes and output paths; the fake capture is bounded to five seconds even if
+cancellation regresses. Both statuses and retained cleanup/log evidence are
+checked. Total workflow coverage is 28 tests; follow-up results are recorded
+separately after the complete required check manifest repeats.

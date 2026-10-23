@@ -320,9 +320,17 @@ def main():
     parser.add_argument("--output", help="New evidence directory (must not already exist)")
     parser.add_argument("--script", help=argparse.SUPPRESS)
     parser.add_argument("--simulator-destination", choices=("iPhone", "iPad", "Duo"), help=argparse.SUPPRESS)
+    parser.add_argument("--resolve-output", help=argparse.SUPPRESS)
     parser.add_argument("arguments", nargs=argparse.REMAINDER, help="xcodebuild arguments after --")
     args = parser.parse_args()
     try:
+        if args.resolve_output is not None:
+            report = storage_path(args.resolve_output)
+            root = storage_path(args.cache_root)
+            if contains(root, report) or contains(report, root):
+                raise ValueError("Evidence and compiler storage must be separate directories.")
+            print(report)
+            return 0
         if args.simulator_destination:
             print(simulator_destination(args.simulator_destination, os.environ.copy()))
             return 0

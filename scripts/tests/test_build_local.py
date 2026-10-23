@@ -223,6 +223,72 @@ else: sys.exit(99)
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][-1], "build")
 
+    def test_physical_monitors_validate_reports_before_discovery(self):
+        project, script = self.fixture_workflow("physical_acceptance.sh")
+        external = "/Volumes/FrameWink-Deferred-Unit-Test-Volume/reports"
+        alias = self.root / "external-reports"
+        alias.symlink_to(external)
+        self.tool("jq", "pass\n")
+        self.tool("xcrun", "import os,pathlib\npathlib.Path(os.environ['FAKE_CALLS']).touch()\n")
+        paths = [(external, "External storage is deferred"),
+                 (str(alias), "External storage is deferred"),
+                 (str(self.root / "compiler/reports"), "Evidence and compiler storage must be separate"),
+                 (str(self.root), "Evidence and compiler storage must be separate")]
+        for mode in ("sample", "soak"):
+            for path, error in paths:
+                with self.subTest(mode=mode, path=path):
+                    result = subprocess.run(["/bin/sh", str(script), mode],
+                                            env=dict(self.env, FRAMEWINK_ARTIFACTS=path),
+                                            text=True, capture_output=True, timeout=20)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn(error, result.stderr)
+        self.assertFalse((self.root / "calls.jsonl").exists())
+        self.assertFalse((self.root / "compiler").exists())
+        self.assertFalse((self.root / "evidence").exists())
+        self.assertFalse((project / "TestArtifacts").exists())
+
+    def test_landscape_cancellation_stops_before_retrying_capture(self):
+        project, script = self.fixture_workflow("capture_app_store_landscape_screenshots.sh")
+        self.tool("jq", "pass\n")
+        self.tool("magick", "pass\n")
+        self.tool("xcrun", '''import sys
+if '--show-sdk-build-version' in sys.argv: print('fixture-sdk')
+elif sys.argv[1:4] == ['simctl','list','devices']:
+ print('Fixture Pad (pad) (Booted)\\nFixture Phone (phone) (Booted)')
+''')
+        self.tool("xcodebuild", '''import json,os,pathlib,signal,sys,time
+if '-version' in sys.argv:
+ print('Xcode Fixture')
+else:
+ def cancelled(signum,frame): sys.exit(128+signum)
+ for signum in (signal.SIGINT,signal.SIGTERM): signal.signal(signum,cancelled)
+ with open(os.environ['FAKE_CALLS'],'a') as stream: stream.write(json.dumps(sys.argv[1:])+'\\n')
+ pathlib.Path(os.environ['HOLD_STARTED']).touch()
+ time.sleep(5)
+ sys.exit(70)
+''')
+        started = self.root / "capture-started"
+        env = dict(self.env, HOLD_STARTED=str(started), FRAMEWINK_IPAD_LANDSCAPE_SIMULATOR_ID="pad",
+                   FRAMEWINK_IPHONE_LANDSCAPE_SIMULATOR_ID="phone")
+        for signum in (signal.SIGINT, signal.SIGTERM):
+            with self.subTest(signal=signum):
+                started.unlink(missing_ok=True)
+                calls_path = self.root / "calls.jsonl"
+                calls_path.unlink(missing_ok=True)
+                process = subprocess.Popen(["/bin/bash", str(script)], env=env,
+                                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                self.addCleanup(self.stop, process)
+                self.wait_for(started.exists)
+                process.send_signal(signum)
+                self.assertEqual(process.wait(timeout=10), 128 + signum)
+                calls = [json.loads(line) for line in calls_path.read_text().splitlines()]
+                self.assertEqual(len(calls), 1, "Cancellation must not start another capture attempt")
+                record = self.latest()
+                self.assertEqual((record["state"], record["exit_code"]), ("failed", 128 + signum))
+                log = Path(record["evidence"], "build.log").read_text()
+                self.assertNotIn("retrying once", log)
+                self.assertEqual(log.count("Capture evidence retained:"), 1)
+
     def test_helper_evidence_overrides_reject_compiler_overlap_before_side_effects(self):
         project, launcher = self.fixture_launcher()
         caller = self.root / "caller"

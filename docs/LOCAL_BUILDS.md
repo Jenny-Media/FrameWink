@@ -61,7 +61,8 @@ An exclusive `fcntl.flock` on `.build.lock` covers the complete workflow,
 including installation and result/screenshot export. A second compatible run
 waits. Interrupts are forwarded to the child process group. Failures and
 cancellation retain exit status and logs. Physical `sample` and `soak` commands
-do not hold a compiler lock.
+validate their report path without holding a compiler lock. Landscape capture
+cancellation exits through cleanup without starting another capture attempt.
 Closing the console pipe (for example with `head`) lets the workflow finish and
 retains its full log and final status. A log-write failure cancels and reaps the
 owned workflow before recording failure and releasing its workspace.
@@ -141,7 +142,7 @@ python3 -m unittest discover -s scripts/tests -v
 
 These checks use fake Xcode commands to verify identity, retention, locking,
 cancellation, fresh builds and rejection of deferred external paths. They execute
-the local test gate to verify its device matrix and owner-approved exclusions. Copied physical and
-capture entry points with inert tools check caller-relative outputs, JPEG cleanup
+the local test gate to verify its device matrix and owner-approved exclusions.
+Copied physical and capture entry points with inert tools check caller-relative outputs, JPEG cleanup
 boundaries and rejection of compiler/evidence overlap. Native compiler and
 runtime evidence is recorded in `docs/TESTING.md`.
