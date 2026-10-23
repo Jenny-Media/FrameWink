@@ -702,3 +702,17 @@ date; do not silently rewrite historical decisions during implementation.
 - Prepare Cloud and App Store metadata, retaining manual release after review.
   Do not infer physical Duo acceptance from Simulator or claim public support
   on either website before an accepted native version becomes public.
+
+## D-054 — Reuse local compiler workspaces and retain evidence — 2026-10-23
+
+- Owner authorized extending the FrameWink cache pilot to all local build entry
+  points and publishing a PR. Share the launcher across normal command-line
+  builds, test gates, captures and physical-device build helpers.
+- Keep compiler storage stable across dates and commits with compatible
+  configuration/toolchain/checkout isolation and workflow-wide locking. Retain
+  results, logs, capture evidence and finished archives separately.
+- Supersede D-053's local RC default with selected installed Xcode while
+  preserving explicit toolchain overrides and existing release/signing rules.
+- Keep fresh-build validation available and perform current work internally.
+  External storage remains an optional future setting; no disk migration or
+  automatic deletion occurs. GUI and Cloud retain their independent caches.

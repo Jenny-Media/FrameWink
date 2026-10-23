@@ -2,9 +2,12 @@
 
 set -eu
 
+. "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/build_cache.sh"
+framewink_cached_workflow iphonesimulator unsigned "$@"
+
 FRAMEWINK_REPOSITORY_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-FRAMEWINK_XCODE_DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-/Applications/Xcode-27.1-RC.app/Contents/Developer}
-FRAMEWINK_DERIVED_DATA=${FRAMEWINK_DERIVED_DATA:-/private/tmp/FrameWink-iPhone-Duo-Proof-DerivedData}
+FRAMEWINK_XCODE_DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-${DEVELOPER_DIR:-$(xcode-select -p)}}
+FRAMEWINK_DERIVED_DATA=${FRAMEWINK_DERIVED_DATA:?The build launcher must select DerivedData.}
 FRAMEWINK_SIMULATOR_ID=${FRAMEWINK_SIMULATOR_ID:-}
 FRAMEWINK_DUO_DISPLAY=${FRAMEWINK_DUO_DISPLAY:-outer}
 FRAMEWINK_SCREENSHOT_SETTLE_SECONDS=${FRAMEWINK_SCREENSHOT_SETTLE_SECONDS:-6}

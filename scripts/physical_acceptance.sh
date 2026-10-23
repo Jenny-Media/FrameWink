@@ -3,8 +3,14 @@
 set -eu
 
 FRAMEWINK_REPOSITORY_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-FRAMEWINK_XCODE_DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-/Applications/Xcode-beta.app/Contents/Developer}
-FRAMEWINK_DERIVED_DATA=${FRAMEWINK_DERIVED_DATA:-/private/tmp/FrameWink-Physical-Acceptance}
+FRAMEWINK_XCODE_DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-${DEVELOPER_DIR:-$(xcode-select -p)}}
+# Only build/install commands acquire a compiler workspace; monitoring stays independent.
+case "${1:-}" in
+    prepare|prepare-storekit|verify-albums)
+        . "$FRAMEWINK_REPOSITORY_ROOT/scripts/build_cache.sh"
+        framewink_cached_workflow iphoneos project-default "$@"
+        ;;
+esac
 FRAMEWINK_BUNDLE_ID=media.jenny.FrameWink
 
 usage() {
@@ -129,6 +135,7 @@ prepare() {
         -configuration Debug \
         -destination "platform=iOS,id=$FRAMEWINK_XCODE_UDID" \
         -derivedDataPath "$FRAMEWINK_DERIVED_DATA" \
+        -resultBundlePath "$FRAMEWINK_BUILD_EVIDENCE/physical-result.xcresult" \
         -allowProvisioningUpdates \
         build
 
@@ -199,6 +206,7 @@ verify_albums() {
         -configuration Debug \
         -destination "platform=iOS,id=$FRAMEWINK_XCODE_UDID" \
         -derivedDataPath "$FRAMEWINK_DERIVED_DATA" \
+        -resultBundlePath "$FRAMEWINK_BUILD_EVIDENCE/physical-result.xcresult" \
         -allowProvisioningUpdates \
         -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAuthorizedPhysicalPhotoLibraryLoadsAlbumPicker \
         -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testAuthorizedPhysicalPhotoLibraryLoadsAnAlbumCover \

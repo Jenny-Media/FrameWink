@@ -2,23 +2,24 @@
 
 set -euo pipefail
 
+. "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/build_cache.sh"
+framewink_cached_workflow iphonesimulator unsigned "$@"
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode-27.1-RC.app/Contents/Developer}"
+export DEVELOPER_DIR="${DEVELOPER_DIR:-$(xcode-select -p)}"
 SDK_VERSION="$(xcrun --sdk iphonesimulator --show-sdk-version)"
 
-RUN_ID="$(date +%Y%m%d-%H%M%S)"
-OUTPUT_ROOT="${FRAMEWINK_TEST_OUTPUT_ROOT:-/private/tmp/FrameWink-LocalTests-$RUN_ID}"
-IPHONE_DESTINATION="${FRAMEWINK_IPHONE_DESTINATION:-platform=iOS Simulator,name=iPhone 17 Pro Max,OS=latest}"
-DUO_DESTINATION="${FRAMEWINK_DUO_DESTINATION:-platform=iOS Simulator,name=iPhone Duo,OS=latest}"
-IPAD_DESTINATION="${FRAMEWINK_IPAD_DESTINATION:-platform=iOS Simulator,name=iPad (A16),OS=latest}"
+OUTPUT_ROOT="${FRAMEWINK_TEST_OUTPUT_ROOT:-$FRAMEWINK_BUILD_EVIDENCE/tests}"
+IPHONE_DESTINATION="${FRAMEWINK_IPHONE_DESTINATION:-$(python3 "$REPO_ROOT/scripts/build_local.py" --simulator-destination iPhone)}"
+IPAD_DESTINATION="${FRAMEWINK_IPAD_DESTINATION:-$(python3 "$REPO_ROOT/scripts/build_local.py" --simulator-destination iPad)}"
 
 run_suite() {
     local label="$1"
     local destination="$2"
     shift 2
-    local derived_data="$OUTPUT_ROOT/$label-DerivedData"
+    local derived_data="$FRAMEWINK_DERIVED_DATA"
     local result_bundle="$OUTPUT_ROOT/$label.xcresult"
 
     echo "Running FrameWink tests on $label"
@@ -50,6 +51,7 @@ run_suite iPhone "$IPHONE_DESTINATION"
 run_suite iPad "$IPAD_DESTINATION"
 case "$SDK_VERSION" in
     27.1*|27.2*)
+        DUO_DESTINATION="${FRAMEWINK_DUO_DESTINATION:-$(python3 "$REPO_ROOT/scripts/build_local.py" --simulator-destination Duo)}"
         # Temporary Duo-only exclusion approved by the owner on 2026-10-01.
         # Restore after XCTest reliably drives Duo display rotation.
         run_suite iPhoneDuo "$DUO_DESTINATION" \

@@ -2,13 +2,17 @@
 
 set -euo pipefail
 
+. "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/build_cache.sh"
+framewink_cached_workflow iphonesimulator project-default "$@"
+
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-xcode_developer_dir=${FRAMEWINK_XCODE_DEVELOPER_DIR:-/Applications/Xcode-beta.app/Contents/Developer}
+xcode_developer_dir=${FRAMEWINK_XCODE_DEVELOPER_DIR:-${DEVELOPER_DIR:-$(xcode-select -p)}}
 simulator_id=${FRAMEWINK_IPAD_LANDSCAPE_SIMULATOR_ID:-1BDA7ABF-4236-406E-8ACD-7E3B10569753}
-working_directory=$(mktemp -d "${TMPDIR:-/tmp}/framewink-website-pair.XXXXXX")
+working_directory="$FRAMEWINK_BUILD_EVIDENCE/capture"
+mkdir -p "$working_directory"
 result_bundle="$working_directory/FrameWink-Website-Pair.xcresult"
 attachment_directory="$working_directory/attachments"
-derived_data="$working_directory/DerivedData"
+derived_data="$FRAMEWINK_DERIVED_DATA"
 booted_by_script=""
 
 export DEVELOPER_DIR="$xcode_developer_dir"
@@ -18,7 +22,7 @@ cleanup() {
     if [ -n "$booted_by_script" ]; then
         xcrun simctl shutdown "$simulator_id" >/dev/null 2>&1 || true
     fi
-    rm -rf "$working_directory"
+    echo "Capture evidence retained: $working_directory"
 }
 trap cleanup EXIT INT TERM
 

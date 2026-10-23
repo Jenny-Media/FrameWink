@@ -6,3 +6,5 @@ LocalPhotoFrame-Codex-Starter.zip
 TestArtifacts/
 .vercel
 .env*
+__pycache__/
+*.pyc

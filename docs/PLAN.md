@@ -3287,3 +3287,31 @@ availability remains pending Apple Beta App Review, so the public availability
 milestone is not marked complete. Additional active time for this recovery:
 approximately 0.4 hours, excluding unattended checks. Final documentation
 updates do not change the app or website source captured in build 76.
+
+## Local build-cache adoption — 2026-10-23
+
+Owner authorized extending the contained cache pilot across local build entry
+points and opening a PR. Use internal storage; do not use the external disk.
+
+Implementation adds the shared Python launcher and workflow-wide locking,
+normal Debug/Release/device/archive entry points, stable compiler roots,
+separate retained evidence, deliberate fresh builds, public-Xcode selection and
+test-destination discovery. Existing test exclusions, screenshot geometry,
+signing, native app behavior and hosted release workflows are preserved.
+
+Implementation and scoped validation are complete; PR publication is the next
+step. All 14 workflow checks pass. Normal, warm and changed-source builds,
+both test-bundle builds, Release Simulator compilation, unsigned device archive,
+existing archive guard and locked screenshot checks pass. The final iPhone and
+iPad unit runs each pass all 203 selected tests with no failures/skips. The
+initial iPhone run's automatic-album wait failure is retained; its isolated
+retry, fresh-build comparison and final full run pass without assertion or
+exclusion changes. Its intermittent cause is not proven. Full test history,
+diagnostic-finalization details and evidence-retention checks are recorded in
+`docs/TESTING.md`.
+
+Active time: approximately 1.0 hour. Full screenshot recapture, full UI matrix,
+signed physical-device execution and external storage performance remain
+outside this tooling milestone. No app source, native test assertion, project
+signing/identifier, release workflow or external disk changed. No merge or
+release is authorized by this PR task.
