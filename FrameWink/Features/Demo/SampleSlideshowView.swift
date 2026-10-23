@@ -21,10 +21,12 @@ struct SampleSlideshowView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var playback = FramePlaybackCoordinator()
     @State private var slidePresentation = FrameSlidePresentationState()
     @State private var layoutPreference: FrameLayoutPreference = .automatic
     @State private var controlsVisible = true
+    @State private var controlsAreSeparate = false
     @State private var hintVisible = false
     @State private var hideControlsTask: Task<Void, Never>?
     @State private var hideHintTask: Task<Void, Never>?
@@ -105,11 +107,20 @@ struct SampleSlideshowView: View {
                     }
 
                     if regions.isDivided {
-                        Color.clear
-                            .contentShape(Rectangle())
+                        if wallVisualState == .blackout {
+                            Color.clear
+                                .contentShape(Rectangle())
+                                .frameViewportRegion(regions.controls)
+                                .onTapGesture { revealControls() }
+                                .accessibilityHidden(true)
+                        } else {
+                            companionNavigation(
+                                pages: pages,
+                                signature: layoutSignature,
+                                slidesByID: slidesByID
+                            )
                             .frameViewportRegion(regions.controls)
-                            .onTapGesture { revealControls() }
-                            .accessibilityHidden(true)
+                        }
                     }
 
                     if sharePreparationID != nil {
@@ -128,13 +139,13 @@ struct SampleSlideshowView: View {
                             .frameViewportRegion(regions.controls)
                     }
 
-                    if hintVisible, wallVisualState != .blackout {
+                    if hintVisible, !regions.isDivided, wallVisualState != .blackout {
                         controlsHint
                             .frameViewportRegion(regions.controls)
                             .transition(reduceMotion ? .identity : .opacity)
                     }
 
-                    if controlsVisible {
+                    if controlsVisible || (regions.isDivided && wallVisualState != .blackout) {
                         frameControls(
                             isCompact: regions.controls.width < 600,
                             pages: pages,
@@ -164,6 +175,7 @@ struct SampleSlideshowView: View {
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .onAppear {
+                controlsAreSeparate = regions.isDivided
                 slidePresentation.synchronize(
                     with: slides,
                     isFrameMode: isFrameMode,
@@ -182,6 +194,16 @@ struct SampleSlideshowView: View {
                     }
                 }
 #endif
+            }
+            .onChange(of: regions.isDivided) { isDivided in
+                controlsAreSeparate = isDivided
+                if isDivided {
+                    hideHintTask?.cancel()
+                    setHintVisible(false)
+                    revealControls()
+                } else {
+                    scheduleControlsToRecede()
+                }
             }
             .onChange(of: layoutSignature) { newSignature in
                 synchronizePages(pages, signature: newSignature)
@@ -283,6 +305,14 @@ struct SampleSlideshowView: View {
                 hideControlsTask?.cancel()
             } else if isFrameMode {
                 scheduleControlsToRecede()
+            }
+        }
+        .onChange(of: wallVisualState) { state in
+            if state == .blackout {
+                hideControlsTask?.cancel()
+                setControlsVisible(false)
+            } else if controlsAreSeparate {
+                revealControls()
             }
         }
         .onDisappear {
@@ -415,6 +445,9 @@ struct SampleSlideshowView: View {
                 .foregroundColor(.white.opacity(0.84))
                 .lineLimit(2)
         }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(.black.opacity(0.64), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
         .padding(.horizontal, isCompact ? 24 : 34)
         .padding(
@@ -455,7 +488,7 @@ struct SampleSlideshowView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                if controlsVisible {
+                if controlsVisible && !controlsAreSeparate {
                     setControlsVisible(false)
                     hideControlsTask?.cancel()
                 } else {
@@ -630,6 +663,84 @@ struct SampleSlideshowView: View {
         }
     }
 
+    /// Keep browsing on the stable lower/trailing half, away from the photo.
+    /// These actions use the same coordinator as a swipe on the photo itself.
+    private func companionNavigation(
+        pages: [FramePage],
+        signature: String,
+        slidesByID: [String: DisplaySlide]
+    ) -> some View {
+        VStack(spacing: 0) {
+            Text(playbackPosition(in: pages))
+                .font(.title3.weight(.semibold))
+                .monospacedDigit()
+                .foregroundColor(.white)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.trailing, 70)
+
+            Spacer(minLength: 0)
+
+            if pages.count > 1 {
+                companionGestureHint
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 18)
+        .padding(.bottom, 116)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture { revealControls() }
+        .gesture(
+            DragGesture(minimumDistance: 30)
+                .onEnded { value in
+                    navigate(
+                        with: value,
+                        pages: pages,
+                        signature: signature,
+                        slidesByID: slidesByID
+                    )
+                }
+        )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Photo navigation"))
+        .accessibilityValue(playbackPosition(in: pages))
+        .accessibilityHint(Text("Swipe left or right to change photos"))
+        .accessibilityAction(named: Text("Previous Photo")) {
+            showPreviousPage(in: pages, signature: signature, slidesByID: slidesByID)
+        }
+        .accessibilityAction(named: Text("Next Photo")) {
+            showNextPage(in: pages, signature: signature, slidesByID: slidesByID)
+        }
+        .accessibilityIdentifier("frame-companion-navigation")
+    }
+
+    @ViewBuilder
+    private var companionGestureHint: some View {
+        let hint = Label(
+            dynamicTypeSize.isAccessibilitySize ? "Swipe" : "Swipe to change photos",
+            systemImage: "hand.draw"
+        )
+        .font(.subheadline)
+        .foregroundColor(.white.opacity(0.8))
+        .multilineTextAlignment(.center)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.vertical, 10)
+
+        if #available(iOS 16.0, *) {
+            // Keep the position and buttons clear when the control half is short.
+            // The full browsing hint remains available to accessibility in all sizes.
+            ViewThatFits(in: .vertical) {
+                hint
+                Color.clear.accessibilityHidden(true)
+            }
+        } else {
+            hint
+        }
+    }
+
     private func frameControls(
         isCompact: Bool,
         pages: [FramePage],
@@ -714,6 +825,7 @@ struct SampleSlideshowView: View {
                 }
             }
             .font(.title3.weight(.semibold))
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             .foregroundColor(.white)
             .buttonStyle(.plain)
             .padding(.horizontal, isCompact ? 18 : 24)
@@ -736,6 +848,7 @@ struct SampleSlideshowView: View {
                 } label: {
                     Image(systemName: "xmark")
                         .font(.body.weight(.bold))
+                        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
@@ -928,7 +1041,8 @@ struct SampleSlideshowView: View {
         guard FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
             isFrameMode: isFrameMode,
             isPlaying: playback.isPlaying,
-            voiceOverEnabled: voiceOverEnabled
+            voiceOverEnabled: voiceOverEnabled,
+            controlsAreSeparate: controlsAreSeparate && wallVisualState != .blackout
         ) else { return }
 
         hideControlsTask = Task {

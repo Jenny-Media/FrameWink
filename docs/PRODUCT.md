@@ -25,7 +25,7 @@ playback uses the available window; a partly folded display keeps the photo
 above or to the left of the fold and places controls below or to its right.
 Opening, closing, rotating, and resizing preserve the displayed photo and
 playback state. Setup actions remain reachable with large text and Split View.
-There is no separate Duo setting or additional paid feature.
+There is no separate Duo setting or additional paid feature. Partly folded playback also offers swipe browsing and an accessible frame-position indicator on the lower or trailing half. Playback controls remain visible when separated from the photo. Fully open playback retains receding controls, and scheduled blackout stays dark until a tap briefly reveals controls.
 
 ## Positioning
 

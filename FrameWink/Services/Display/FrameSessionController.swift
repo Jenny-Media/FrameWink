@@ -4,9 +4,10 @@ enum FrameOverlayVisibilityPolicy {
     static func shouldAutomaticallyHideControls(
         isFrameMode: Bool,
         isPlaying: Bool,
-        voiceOverEnabled: Bool
+        voiceOverEnabled: Bool,
+        controlsAreSeparate: Bool = false
     ) -> Bool {
-        isFrameMode && isPlaying && !voiceOverEnabled
+        isFrameMode && isPlaying && !voiceOverEnabled && !controlsAreSeparate
     }
 }
 

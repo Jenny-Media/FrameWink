@@ -1164,12 +1164,97 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Saved frame configurations"].exists)
     }
 
+    // These cases exercise interaction in an explicit division fixture;
+    // native Book/Tabletop detection and transitions require real-device proof.
+    func testSeparatedControlsBrowseWhilePausedWithoutTouchingPhoto() throws {
+        launch(scenario: "smart-frame", usesHorizontalDivisionFixture: true)
+
+        let playback = app.buttons["frame-playback-control"]
+        XCTAssertTrue(playback.waitForExistence(timeout: 3))
+        playback.tap()
+        XCTAssertEqual(playback.label, "Resume slideshow")
+
+        let navigation = app.otherElements["frame-companion-navigation"]
+        XCTAssertTrue(navigation.waitForExistence(timeout: 3))
+        let originalPosition = try XCTUnwrap(navigation.value as? String)
+        navigation.swipeLeft()
+        XCTAssertTrue(waitUntil(timeout: 3) {
+            navigation.value as? String != originalPosition
+        }, "Swiping the lower controls must change the photo.")
+        XCTAssertEqual(playback.label, "Resume slideshow", "Browsing must preserve pause.")
+
+        navigation.swipeRight()
+        XCTAssertTrue(waitUntil(timeout: 3) {
+            navigation.value as? String == originalPosition
+        }, "Swiping back on the controls must return to the original photo.")
+        XCTAssertEqual(playback.label, "Resume slideshow")
+    }
+
+    func testSeparatedControlsAtLargestTextSizeCanBrowseWhilePaused() throws {
+        launch(
+            scenario: "smart-frame",
+            contentSizeCategory: "UICTContentSizeCategoryAccessibilityXXXL",
+            usesHorizontalDivisionFixture: true
+        )
+
+        let playback = app.buttons["frame-playback-control"]
+        let exit = app.buttons["frame-quick-close-control"]
+        let navigation = app.otherElements["frame-companion-navigation"]
+        XCTAssertTrue(playback.waitForExistence(timeout: 3))
+        XCTAssertTrue(exit.isHittable)
+        XCTAssertTrue(app.buttons["More playback options"].isHittable)
+        playback.tap()
+        XCTAssertEqual(playback.label, "Resume slideshow")
+        let originalPosition = try XCTUnwrap(navigation.value as? String)
+        XCTAssertTrue(app.staticTexts[originalPosition].exists)
+        // SwiftUI may include container padding in a merged Text's AX bounds.
+        // Visual layout is checked by captures; this case verifies real input.
+
+        navigation.swipeLeft()
+        XCTAssertTrue(waitUntil(timeout: 3) {
+            navigation.value as? String != originalPosition
+        })
+        XCTAssertEqual(playback.label, "Resume slideshow")
+    }
+
+    func testSeparatedControlsStayReachableWhilePlaying() {
+        launch(scenario: "smart-frame", usesHorizontalDivisionFixture: true)
+
+        let playback = app.buttons["frame-playback-control"]
+        XCTAssertTrue(playback.waitForExistence(timeout: 3))
+        XCTAssertEqual(playback.label, "Pause slideshow")
+        RunLoop.current.run(until: Date().addingTimeInterval(5))
+
+        XCTAssertTrue(playback.isHittable, "Separate controls must remain reachable while playing.")
+        XCTAssertTrue(app.buttons["More playback options"].isHittable)
+        XCTAssertTrue(app.buttons["frame-quick-close-control"].isHittable)
+        XCTAssertTrue(app.otherElements["frame-companion-navigation"].isHittable)
+    }
+
+    func testSeparatedBlackoutStaysDarkUntilControlsAreRequested() {
+        launch(scenario: "blackout-frame", usesHorizontalDivisionFixture: true)
+        let exit = app.buttons["frame-quick-close-control"]
+        let navigation = app.otherElements["frame-companion-navigation"]
+        XCTAssertTrue(app.otherElements["Scheduled frame blackout"].waitForExistence(timeout: 8))
+        XCTAssertFalse(exit.exists)
+        XCTAssertFalse(navigation.exists, "Night blackout must not leave a bright navigation label.")
+
+        activeWindow.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
+        XCTAssertTrue(exit.waitForExistence(timeout: 3), "The lower half must still reveal an escape control.")
+        XCTAssertFalse(navigation.exists)
+        XCTAssertTrue(waitForNonexistence(exit, timeout: 6), "Blackout controls must recede again.")
+    }
+
     private func launch(
         scenario: String,
-        contentSizeCategory: String? = nil
+        contentSizeCategory: String? = nil,
+        usesHorizontalDivisionFixture: Bool = false
     ) {
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_SCREENSHOT_SCENARIO"] = scenario
+        if usesHorizontalDivisionFixture {
+            app.launchEnvironment["FRAMEWINK_UI_TEST_HORIZONTAL_DIVISION"] = "1"
+        }
         if let contentSizeCategory {
             app.launchArguments += [
                 "-UIPreferredContentSizeCategoryName",

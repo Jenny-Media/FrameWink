@@ -3403,3 +3403,22 @@ media destinations; copied-helper tests cover all nine destinations (including
 both Duo displays and landscape families), rejecting equal/nested/parent cache
 roots and external aliases before workspace creation or tool actions. Required
 checks repeat on this repair; no real screenshots are captured or rewritten.
+
+### First-class physical Duo support — 2026-10-23
+
+Status: implementation and validation in progress on `codex/duo-first-class-framewink`, isolated from primary checkout. Base is latest remote main `c3614aab98817a3eb5da24b962609937ab41a667`. This is the first of five sequential app implementations. Per the owner's later workflow amendment, finish Simulator verification and prepare its draft report/PR before the next app; physical acceptance and final screenshots are deferred to a shared five-app session, grouped by posture/orientation. No merge, release or App Store submission is authorized.
+
+The unchanged base built, signed, installed and launched as development 1.6.1 (1) with Xcode 27.1 / SDK 27.1. Physical baseline includes all ten landing positions, seven playback-control sheets and three paused-playback continuity captures. Same paused photo and process survived closed-to-Book-to-Tabletop. Original 80-capture audit remains preserved separately.
+
+Implementation corrects double-added native division margins, adds lower/trailing swipe navigation with an accessible frame position and persistent controls, retains night blackout, and improves sample-caption contrast. Minimum iOS/iPadOS 15, signing, identifiers, sources, purchases and supported platforms are unchanged.
+
+Baseline focused tests: 56 passed. First implementation: 57 logic tests passed; two new UI cases stopped before playback. Corrected direct-playback fixture plus blackout regression: 60 passed, zero failed/skipped. Full ordinary iPhone/iPad/Duo regression is running. Final physical after captures and manual inner-screen input acceptance remain pending for the shared final session. Two early candidate outer-portrait captures are intermediate evidence and do not complete that acceptance. Window-relative public XCTest taps did not dismiss the physical inner-display sample panel; capture works, but that automation probe is not app defect evidence.
+
+The detailed report and native evidence are maintained in the local coordination repository `~/work/iphone-duo-compatibility/reports/framewink/`, with a sanitized review summary to accompany the dedicated PR. Keep required unverified checks open. Active work estimate: about two hours so far, excluding unattended build/test time.
+
+
+Simulator iteration found an AX5 swipe-hint truncation and a short-viewport hint collision in the first candidate. The companion position now sits beside Exit, an optional gesture hint uses content fitting when space allows, accessibility-size copy is concise, and icon-only controls retain bounded glyph sizes while their labels/actions and 44-point touch areas remain available. Default and AX5 rendered captures are retained; blank launch frames are rejected rather than accepted as screenshots.
+
+The initial broad candidate gate passed iPhone 247/0/4 physical-only skips, then was intentionally stopped during iPad testing to correct this confirmed issue. That gate is not a final-revision pass. Focused validation and Release analysis repeat on the corrected source. The final full iPhone/iPad/Duo suites will run on separate compatible compiler-cache variants and distinct existing QA Simulators, keeping the same assertions and approved exclusions as `scripts/test_local.sh`. All three results and source fingerprints must be recorded before the Simulator milestone is accepted. No physical repositioning is requested during iteration.
+
+Corrected source focused gate: 61 passed, zero failed/skipped (57 logic and four interaction checks, including AX5 paused browsing). Corrected Release build and static analysis passed; DEBUG division flag absent from Release. Standard and AX5 rendered comparisons are preserved. Final full-family regression results remain pending; physical acceptance remains deferred.

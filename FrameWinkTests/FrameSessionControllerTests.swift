@@ -319,6 +319,30 @@ final class FrameSessionControllerTests: XCTestCase {
         )
     }
 
+    func testSeparatePhotoControlsNeverAutomaticallyRecede() {
+        for isPlaying in [false, true] {
+            for voiceOverEnabled in [false, true] {
+                XCTAssertFalse(
+                    FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
+                        isFrameMode: true,
+                        isPlaying: isPlaying,
+                        voiceOverEnabled: voiceOverEnabled,
+                        controlsAreSeparate: true
+                    )
+                )
+            }
+        }
+        XCTAssertTrue(
+            FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
+                isFrameMode: true,
+                isPlaying: true,
+                voiceOverEnabled: false,
+                controlsAreSeparate: false
+            ),
+            "Returning to an undivided viewport must restore ordinary auto-hide."
+        )
+    }
+
     func testPausedFrameKeepsVisibleSlidesUntilResume() {
         func slides(_ ids: [String]) -> [DisplaySlide] {
             ids.map { id in
