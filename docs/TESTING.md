@@ -4967,3 +4967,192 @@ Final distribution read-back:
 Receipts, the native guard log, internal/external screenshots and an optional
 preserved review-note draft remain in the evidence folder above. App Store
 submission/release and physical-device acceptance were not performed.
+
+## Local build-cache adoption — 2026-10-23
+
+Tooling-only change on native source `cc1fc3f0a08a716e3a395227b6f8e5ac2e4a295e`.
+Public Xcode 27.1 (27A9275), Simulator/device SDK 27.1 (24A94232), arm64 Mac.
+Dedicated iPhone 18 Pro and iPad Pro 13-inch (M5) destinations use runtime
+27.0. All compiler and evidence storage remained internal. Exact commands,
+input hashes, logs, result bundles and measurement JSON are retained under
+the implementation checkout's ignored `TestArtifacts/CacheValidation/`.
+
+The launcher uses `FRAMEWINK_BUILD_CACHE_ROOT=$PWD/TestArtifacts/Compiler`
+for this validation, with each command selecting a new `--output` directory
+under `TestArtifacts/CacheValidation`. Default production compiler storage is
+the user's internal `~/Library/Caches/FrameWink/Build` directory.
+
+| Check | Result |
+| --- | --- |
+| Workflow tests: `python3 -m unittest discover -s scripts/tests -v` | 14 passed |
+| Normal unsigned Debug iPhone build | passed, 14.07 s |
+| Repeat of the same build | passed, 2.35 s, zero SwiftCompile jobs |
+| Temporary source-comment change | passed, 4.47 s, one SwiftCompile job |
+| Exact source restoration | passed, 4.11 s, one SwiftCompile job |
+| Final build-for-testing on iPhone | passed, 16.47 s, 38 SwiftCompile jobs |
+| iPad reuse of those products | passed, 2.82 s, zero SwiftCompile jobs |
+| Final full selected iPhone unit suite | 203 passed, zero failures/skips |
+| Full selected iPad unit suite | 203 passed, zero failures/skips |
+| Project-default Simulator signing build | passed |
+| Release Simulator build | passed |
+| Unsigned iphoneos Release archive | passed; archive retained outside compiler storage |
+| Existing archive guard and locked screenshot checks | passed |
+| Bash syntax and `git diff --check` | passed |
+
+Representative commands use the dedicated destination as `$DESTINATION` and a
+new evidence path as `$RUN`; their concrete values are saved in each build.json:
+
+```sh
+python3 scripts/build_local.py --unsigned --output "$RUN" -- \
+  -destination "$DESTINATION" -showBuildTimingSummary build
+python3 scripts/build_local.py --unsigned --output "$RUN" -- \
+  -destination "$DESTINATION" -showBuildTimingSummary build-for-testing
+python3 scripts/build_local.py --unsigned --output "$RUN" -- \
+  -destination "$DESTINATION" -parallel-testing-enabled NO \
+  -collect-test-diagnostics never -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 120 \
+  -maximum-test-execution-time-allowance 120 \
+  -only-testing:FrameWinkTests \
+  -skip-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking \
+  test-without-building
+python3 scripts/build_local.py --unsigned --configuration Release --output "$RUN"
+python3 scripts/build_local.py --unsigned --sdk iphoneos \
+  --configuration Release --output "$RUN" -- archive
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
+  CI_XCODEBUILD_ACTION=archive sh ci_scripts/ci_pre_xcodebuild.sh
+sh scripts/verify_locked_app_store_screenshots.sh
+```
+
+The source probe appended a comment to FrameLayoutChooser.swift and restored
+its original bytes in a finally block. Native app/test/project source is
+unchanged in the final diff. Timings are individual observations for compiler
+actions and include xcodebuild startup/result writing, not total suite speedup.
+
+The first full iPhone run exited 65 with 202 passed and one wait failure in
+AutomaticAlbumControllerTests/testLibraryChangesDoNotRestartActiveICloudPreparation.
+That unchanged case passed in an isolated cached retry and a fresh workspace;
+the final full iPhone run passed all 203 cases. The original failed bundle is
+retained as `07-phone-units`, alongside retry, fresh and final bundles. The
+intermittent cause was not proven; no new native exclusion or assertion change
+was introduced. The existing Ask to Buy exclusion remains explicit.
+
+The final iPhone run accidentally omitted the existing local gate's diagnostic
+suppression. After all 203 cases passed, Xcode spent extra time in simctl
+diagnose. Only that run's post-test collector was terminated; xcodebuild then
+finalized its result and exited 0. The generic launcher now defaults test
+actions to `-collect-test-diagnostics never`, matching test_local.sh, while
+honoring an explicit override. Both modes are covered by the workflow tests.
+
+With the completed compiler root temporarily renamed away, retained build/test
+results and the finished archive remained readable. Test summary JSON and all
+retained evidence hashes matched. The compiler root was restored; no cache was
+deleted. Read-back details are in `retention-verification.json`.
+
+Existing warnings include StoreKitTest deprecation, skipped AppIntents metadata
+extraction and invalidDigitCount(94232). The workflow tests execute the real
+test_local.sh with fake Xcode commands to check matrix/exclusion preservation;
+they do not claim full native UI coverage. Both native test bundles compiled,
+but the complete UI matrix and asset-rewriting screenshot helpers were not
+executed. Signed physical-device installation, PhotoKit/iCloud, purchases,
+Duo poses, long-running acceptance and external-drive behavior remain separate
+checks. The Xcode GUI and hosted Cloud cache policies were not modified.
+
+### PR 30 review regression checks — 2026-10-23
+
+The tooling follow-up adds fake-tool regressions for caller-relative result and
+archive destinations, the legacy test-output override, command/environment
+compiler-directory overrides, unchecked xcconfig overrides, old-runtime
+discovery, explicit helper architecture keys, a closed stdout pipe, and a failed
+log write with owned-child cleanup. Fixtures keep deliberate relative-path
+failures inside disposable project copies, never the real source checkout.
+
+Required commands run serially in an isolated source-equivalent copy with
+credentials removed, temporary fixture storage, no real compiler/device action,
+and matching source fingerprints before/after each check:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/tests -p test_build_local.py -v
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/tests -v
+for file in scripts/*.sh ci_scripts/*.sh; do bash -n "$file" || exit; done
+python3 -c 'import ast,pathlib; [ast.parse(p.read_text()) for p in pathlib.Path("scripts").rglob("*.py")]'
+bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check cc1fc3f0a08a716e3a395227b6f8e5ac2e4a295e
+```
+
+Result: both Python test commands pass all 22 cases; shell syntax, Python syntax,
+locked screenshots and cumulative diff checks pass. No input drift was observed.
+
+The previous native iPhone/iPad results remain separate evidence; these repair
+checks validate launcher behavior, not native architecture selection, full UI
+capture, signed installation, physical acceptance, or external-drive behavior.
+
+### PR 30 helper-path regressions and native evidence — 2026-10-23
+
+The remaining helper-path repair adds four workflow tests. Copies of the real
+physical entry point exercise prepare, prepare-storekit, verify-albums, sample
+and soak from a distinct caller directory with one relative report override;
+inert tools stop each at empty-device discovery. A copy of the Duo capture
+entry point deletes an owned JPEG only in the caller's selected directory,
+preserves a checkout-directory sentinel, and stops at a fake build exit 42.
+Other fixtures cover preserved caller working directory, absolute/symlink paths
+with spaces, and rejection of both helper evidence overrides when compiler
+storage overlaps through nested, equal, parent, relative or symlink paths.
+Rejection must occur before helper side effects or compiler-root creation.
+
+The six serial commands above remain the required manifest, run in a
+source-equivalent disposable copy with fingerprints checked before/after each.
+Both focused and full commands pass all 26 tests; shell/Python syntax, locked
+screenshots and cumulative diff checks also pass with no input drift. No real
+device, compiler or capture action is used by these workflow checks, and no
+repository image is deleted or regenerated.
+
+Separately retained native verification at pre-repair head `06a98af2` used
+released Xcode 27.1 (27A9275), SDK 27.1 and arm64 iOS 27.0 Simulators: iPhone 18
+Pro and iPad Pro 13-inch (M5). App and build-for-testing commands passed on both;
+each selected full suite passed 203 unit and 40 UI tests, with zero failures
+and four physical-only skips. Existing Ask to Buy and marketing-screenshot
+exclusions were preserved. Both dedicated Simulators were returned to Shutdown.
+The native closed-pipe/contended-lock probe finalized its log and caller-relative
+result bundle successfully. Debug/Release output-override guards rejected before
+creating redirected products. Concrete commands, build manifests, result bundles
+and summaries remain in sibling `outputs/pr30-native-review-20261023/` evidence.
+
+Observed native warnings include StoreKit SDK deprecation, invalidDigitCount(94232),
+UIKit hosting-view hierarchy and StoreKit transaction-update warnings. These
+native results predate the helper-path repair; they are advisory provenance,
+not a rerun on the repaired launcher. Signed installation, actual capture,
+physical acceptance and external-storage behavior remain untested here.
+
+### PR 30 internal-storage simplification — 2026-10-23
+
+The external-storage test now covers `/Volumes`, a conventional external cache
+path and an owned internal symlink pointing there. Each must reject compiler,
+report, result/archive and helper-output overrides with deferred-support
+guidance before cache/report directory creation or a fake build starts. No
+external disk is accessed or filesystem/mount/UUID utility invoked. The same
+30 workflow tests pass in focused and full runs; syntax, locked assets and
+cumulative diff checks pass too. Results and cumulative review disposition are
+retained separately with the exact committed source fingerprint.
+
+Post-simplification native build/unit evidence is recorded separately in the PR
+validation. Full UI tests are not rerun for this path-policy removal. The prior
+`4df3a02` native run passed all app/test builds and 203 unit tests per family;
+iPad full suite passed 243 with four physical skips, while iPhone passed 242
+with one large-text privacy UI failure and four skips. Both isolated iPhone
+retries passed. Original failure, UI hierarchy and retry bundles are retained
+in `outputs/pr30-native-4df3a02-20261023/`; the UI gate is not claimed clean.
+
+Two additional regressions exercise the real copied physical/landscape scripts:
+sample and soak reject external/overlapping report paths before discovery, and
+SIGINT/SIGTERM during the first capture exit without retrying. Fake tools own all
+processes and output paths; the fake capture is bounded to five seconds even if
+cancellation regresses. Both statuses and retained cleanup/log evidence are
+checked. Total workflow coverage is 30 tests; follow-up results are recorded
+separately after the complete required check manifest repeats.
+
+Default capture destinations now use the same pure path preflight before the
+cached workflow starts. All seven capture entry points preserve their original
+media destinations; copied-helper tests cover all nine destinations (including
+both Duo displays and landscape families), rejecting equal/nested/parent cache
+roots and external aliases before workspace creation or tool actions. Required
+checks repeat on this repair; no real screenshots are captured or rewritten.

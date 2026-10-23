@@ -2,13 +2,17 @@
 
 set -euo pipefail
 
+. "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/build_cache.sh"
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-xcode_developer_dir=${FRAMEWINK_XCODE_DEVELOPER_DIR:-/Applications/Xcode-beta.app/Contents/Developer}
+ipad_output=$(framewink_report_path "$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch")
+iphone_output=$(framewink_report_path "$repo_root/AppStore/Screenshots/Landscape/iPhone-6.9-inch")
+framewink_cached_workflow iphonesimulator project-default "$@"
+
+xcode_developer_dir=${FRAMEWINK_XCODE_DEVELOPER_DIR:-${DEVELOPER_DIR:-$(xcode-select -p)}}
 ipad_simulator_id=${FRAMEWINK_IPAD_LANDSCAPE_SIMULATOR_ID:-1BDA7ABF-4236-406E-8ACD-7E3B10569753}
 iphone_simulator_id=${FRAMEWINK_IPHONE_LANDSCAPE_SIMULATOR_ID:-B41C6094-A3CA-48E6-AA25-1E08D0B98BCE}
-ipad_output="$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"
-iphone_output="$repo_root/AppStore/Screenshots/Landscape/iPhone-6.9-inch"
-working_directory=$(mktemp -d "${TMPDIR:-/tmp}/framewink-landscape-capture.XXXXXX")
+working_directory="$FRAMEWINK_BUILD_EVIDENCE/capture"
+mkdir -p "$working_directory"
 booted_by_script=""
 
 export DEVELOPER_DIR="$xcode_developer_dir"
@@ -19,9 +23,11 @@ cleanup() {
     for simulator_id in $booted_by_script; do
         xcrun simctl shutdown "$simulator_id" >/dev/null 2>&1 || true
     done
-    rm -rf "$working_directory"
+    echo "Capture evidence retained: $working_directory"
 }
-trap cleanup EXIT INT TERM
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 require_tool() {
     command -v "$1" >/dev/null 2>&1 || {
@@ -87,9 +93,8 @@ capture_family() {
     ensure_booted "$simulator_id"
 
     family_directory="$working_directory/$family"
-    result_bundle="$family_directory/FrameWink-Landscape.xcresult"
     attachment_directory="$family_directory/attachments"
-    derived_data="$family_directory/DerivedData"
+    derived_data="$FRAMEWINK_DERIVED_DATA"
     mkdir -p "$family_directory" "$attachment_directory" "$output_directory"
     find "$output_directory" -maxdepth 1 -type f -name '*.jpg' -delete
 
@@ -104,7 +109,7 @@ capture_family() {
 
     test_attempt=1
     while :; do
-        rm -rf "$result_bundle"
+        result_bundle="$family_directory/attempt-$test_attempt.xcresult"
         if xcodebuild -quiet \
             -project "$repo_root/FrameWink.xcodeproj" \
             -scheme FrameWink \

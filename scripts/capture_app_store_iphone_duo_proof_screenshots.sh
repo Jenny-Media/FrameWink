@@ -2,11 +2,34 @@
 
 set -eu
 
+. "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/build_cache.sh"
 FRAMEWINK_REPOSITORY_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-FRAMEWINK_XCODE_DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-/Applications/Xcode-27.1-RC.app/Contents/Developer}
-FRAMEWINK_DERIVED_DATA=${FRAMEWINK_DERIVED_DATA:-/private/tmp/FrameWink-iPhone-Duo-Proof-DerivedData}
-FRAMEWINK_SIMULATOR_ID=${FRAMEWINK_SIMULATOR_ID:-}
 FRAMEWINK_DUO_DISPLAY=${FRAMEWINK_DUO_DISPLAY:-outer}
+case "$FRAMEWINK_DUO_DISPLAY" in
+    outer)
+        FRAMEWINK_DISPLAY_NAME=LCD
+        FRAMEWINK_EXPECTED_WIDTH=1398
+        FRAMEWINK_EXPECTED_HEIGHT=2034
+        FRAMEWINK_DISPLAY_DIRECTORY=Outer
+        ;;
+    inner)
+        FRAMEWINK_DISPLAY_NAME=LCD-1
+        FRAMEWINK_EXPECTED_WIDTH=2007
+        FRAMEWINK_EXPECTED_HEIGHT=2853
+        FRAMEWINK_DISPLAY_DIRECTORY=Inner
+        ;;
+    *)
+        echo "FRAMEWINK_DUO_DISPLAY must be outer or inner." >&2
+        exit 1
+        ;;
+esac
+FRAMEWINK_SCREENSHOT_DIRECTORY=$(framewink_report_path "${FRAMEWINK_SCREENSHOT_DIRECTORY:-$FRAMEWINK_REPOSITORY_ROOT/AppStore/Screenshots/ProductPageOptimization/iPhone-Duo/Sources/$FRAMEWINK_DISPLAY_DIRECTORY}")
+export FRAMEWINK_SCREENSHOT_DIRECTORY
+framewink_cached_workflow iphonesimulator unsigned "$@"
+
+FRAMEWINK_XCODE_DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-${DEVELOPER_DIR:-$(xcode-select -p)}}
+FRAMEWINK_DERIVED_DATA=${FRAMEWINK_DERIVED_DATA:?The build launcher must select DerivedData.}
+FRAMEWINK_SIMULATOR_ID=${FRAMEWINK_SIMULATOR_ID:-}
 FRAMEWINK_SCREENSHOT_SETTLE_SECONDS=${FRAMEWINK_SCREENSHOT_SETTLE_SECONDS:-6}
 
 command -v magick >/dev/null 2>&1 || {
@@ -26,26 +49,6 @@ if [ -z "$FRAMEWINK_SIMULATOR_ID" ]; then
     exit 1
 fi
 
-case "$FRAMEWINK_DUO_DISPLAY" in
-    outer)
-        FRAMEWINK_DISPLAY_NAME=LCD
-        FRAMEWINK_EXPECTED_WIDTH=1398
-        FRAMEWINK_EXPECTED_HEIGHT=2034
-        FRAMEWINK_DISPLAY_DIRECTORY=Outer
-        ;;
-    inner)
-        FRAMEWINK_DISPLAY_NAME=LCD-1
-        FRAMEWINK_EXPECTED_WIDTH=2007
-        FRAMEWINK_EXPECTED_HEIGHT=2853
-        FRAMEWINK_DISPLAY_DIRECTORY=Inner
-        ;;
-    *)
-        echo "FRAMEWINK_DUO_DISPLAY must be outer or inner." >&2
-        exit 1
-        ;;
-esac
-
-FRAMEWINK_SCREENSHOT_DIRECTORY=${FRAMEWINK_SCREENSHOT_DIRECTORY:-$FRAMEWINK_REPOSITORY_ROOT/AppStore/Screenshots/ProductPageOptimization/iPhone-Duo/Sources/$FRAMEWINK_DISPLAY_DIRECTORY}
 mkdir -p "$FRAMEWINK_SCREENSHOT_DIRECTORY"
 find "$FRAMEWINK_SCREENSHOT_DIRECTORY" -maxdepth 1 -type f -name '*.jpg' -delete
 

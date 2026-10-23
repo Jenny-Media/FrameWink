@@ -3287,3 +3287,119 @@ availability remains pending Apple Beta App Review, so the public availability
 milestone is not marked complete. Additional active time for this recovery:
 approximately 0.4 hours, excluding unattended checks. Final documentation
 updates do not change the app or website source captured in build 76.
+
+## Local build-cache adoption — 2026-10-23
+
+Owner authorized extending the contained cache pilot across local build entry
+points and opening a PR. Use internal storage; do not use the external disk.
+
+Implementation adds the shared Python launcher and workflow-wide locking,
+normal Debug/Release/device/archive entry points, stable compiler roots,
+separate retained evidence, deliberate fresh builds, public-Xcode selection and
+test-destination discovery. Existing test exclusions, screenshot geometry,
+signing, native app behavior and hosted release workflows are preserved.
+
+Implementation and scoped validation are complete; PR publication is the next
+step. All 14 workflow checks pass. Normal, warm and changed-source builds,
+both test-bundle builds, Release Simulator compilation, unsigned device archive,
+existing archive guard and locked screenshot checks pass. The final iPhone and
+iPad unit runs each pass all 203 selected tests with no failures/skips. The
+initial iPhone run's automatic-album wait failure is retained; its isolated
+retry, fresh-build comparison and final full run pass without assertion or
+exclusion changes. Its intermittent cause is not proven. Full test history,
+diagnostic-finalization details and evidence-retention checks are recorded in
+`docs/TESTING.md`.
+
+Active time: approximately 1.0 hour. Full screenshot recapture, full UI matrix,
+signed physical-device execution and external storage performance remain
+outside this tooling milestone. No app source, native test assertion, project
+signing/identifier, release workflow or external disk changed. No merge or
+release is authorized by this PR task.
+
+### PR 30 review repairs — 2026-10-23
+
+Independent review accepted repairs for relative evidence paths, output overrides
+that bypass workspace locking, closed console pipes/logging failures, incompatible
+automatic test destinations, and explicit architecture identity in helper runs.
+The proposed native wrong-binary failure was not established; the architecture
+repair enforces the documented workspace policy without claiming that failure.
+
+The launcher normalizes forwarded evidence paths, rejects unmanaged compiler
+directory/configuration overrides, finalizes evidence after a closed console,
+cancels and reaps a workflow after log-write failure, filters discovery to the
+test targets' iOS 17 minimum, and includes explicit helper architectures in keys.
+Regression checks use owned fake tools/processes and temporary directories.
+Required workflow/static/locked-asset checks and fresh independent review are
+tracked in the review-loop evidence; completion requires their final clean state.
+Both focused and full workflow commands pass all 22 checks. Shell/Python syntax,
+locked screenshot verification and the cumulative diff check also pass.
+
+Native source, test assertions/exclusions, project signing, screenshot assets,
+hosted workflows and all external storage remain unchanged. The native build and
+203-test device-family evidence above predates these tooling repairs; this
+follow-up does not claim a new native runtime or physical acceptance run.
+Additional active time: approximately 0.5 hours, excluding review/check waits.
+
+### PR 30 helper-path repair — 2026-10-23
+
+Owner authorized repairing the remaining P2 helper-path finding, adding
+regressions and completing another review-fix loop before updating the PR.
+The launcher now preserves the caller's working directory for helper scripts,
+normalizes physical-artifact and screenshot-directory overrides, and rejects
+their overlap with compiler storage before starting helpers. This keeps physical
+build/monitor reports together and capture cleanup in the intended directory.
+
+Four new workflow regressions exercise all five physical modes, the copied Duo
+capture's JPEG cleanup, absolute/symlink paths and rejection of nested, parent,
+equal or aliased compiler paths before side effects. All deliberate output and
+deletion targets are owned temporary fixtures, with inert device/build tools.
+Focused and full workflow runs each pass all 26 tests. Shell/Python syntax,
+locked screenshot verification and cumulative diff checks also pass with stable
+input fingerprints. Final review disposition is recorded separately in this
+follow-up's review-loop evidence before the PR is updated.
+
+Recent native validation on pre-repair head `06a98af2` built the app and test
+bundles on iPhone and iPad; each full selected suite passed 243 tests with four
+physical-only skips. Those results predate this helper-only repair and are
+retained separately; this follow-up does not claim a new native runtime run.
+App source, native assertions/exclusions, signing, asset geometry and hosted
+workflows are unchanged. No external disk or physical device is used.
+Additional active time: approximately 0.4 hours, excluding check/review waits.
+
+### PR 30 internal-storage simplification — 2026-10-23
+
+Owner narrows the implementation to internal compiler-cache reuse, locking and
+separate reports. Remove APFS/mount/volume-UUID handling and external setup
+instructions; keep a short rejection of `/Volumes` paths and resolved aliases
+before directory creation. Keep existing compatibility keys, workflow locking,
+caller-relative output fixes and all current local build entry points.
+
+Update external-path regression coverage for compiler, report, result/archive
+and helper overrides, including aliases, with no build or output side effects.
+Both workflow runs pass all 30 tests; syntax, locked assets and cumulative diff
+checks also pass. Final cumulative review is recorded separately before the
+existing PR is updated. No native app/test/assertion/exclusion change
+or external-disk action is included. Additional active time: approximately
+0.3 hours, excluding check/review waits.
+
+Native evidence remains labeled by commit. At preceding head `4df3a02`, both
+families' app/test builds and all 203 unit tests passed; iPad full suite passed
+243 tests with four physical-only skips. The iPhone full suite had 242 passes,
+one large-text privacy UI failure and four skips; the failed case passed both
+isolated reruns. Preserve that limitation separately; this scope does not fix
+or exclude the UI test, and does not claim a clean native UI gate.
+
+The cumulative review also identified two integration gaps: sample/soak need the
+same internal-report and compiler-separation validation without a compiler lock, and landscape signal
+traps must exit rather than return to their retry loop. Shared path preflight
+and exit-through-cleanup traps address them. New copied-script tests use inert
+tools to reject external monitor paths before discovery and cancel both INT/TERM
+during a bounded fake capture, requiring exactly one attempt and retained status.
+All required checks and a fresh review repeat on the follow-up commit.
+
+Default capture destinations now use the same pure path preflight before the
+cached workflow starts. All seven capture entry points preserve their original
+media destinations; copied-helper tests cover all nine destinations (including
+both Duo displays and landscape families), rejecting equal/nested/parent cache
+roots and external aliases before workspace creation or tool actions. Required
+checks repeat on this repair; no real screenshots are captured or rewritten.

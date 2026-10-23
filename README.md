@@ -103,6 +103,13 @@ Run the required local iPhone and iPad Simulator gate with:
 scripts/test_local.sh
 ```
 
+Normal command-line builds and the test/capture/device helpers share compatible,
+locked compiler workspaces while keeping results separately. Start with
+`python3 scripts/build_local.py --unsigned`. See
+[`docs/LOCAL_BUILDS.md`](docs/LOCAL_BUILDS.md) for Release/device builds, archives,
+fresh builds and retained evidence. Cache/report routing uses internal paths;
+external-disk support is deferred.
+
 Xcode Cloud performs analysis and release archives. Its Validation workflow
 does not run tests; local test results must be reviewed before a release change
 is merged.
