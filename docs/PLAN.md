@@ -3315,3 +3315,27 @@ signed physical-device execution and external storage performance remain
 outside this tooling milestone. No app source, native test assertion, project
 signing/identifier, release workflow or external disk changed. No merge or
 release is authorized by this PR task.
+
+### PR 30 review repairs — 2026-10-23
+
+Independent review accepted repairs for relative evidence paths, output overrides
+that bypass workspace locking, closed console pipes/logging failures, incompatible
+automatic test destinations, and explicit architecture identity in helper runs.
+The proposed native wrong-binary failure was not established; the architecture
+repair enforces the documented workspace policy without claiming that failure.
+
+The launcher normalizes forwarded evidence paths, rejects unmanaged compiler
+directory/configuration overrides, finalizes evidence after a closed console,
+cancels and reaps a workflow after log-write failure, filters discovery to the
+test targets' iOS 17 minimum, and includes explicit helper architectures in keys.
+Regression checks use owned fake tools/processes and temporary directories.
+Required workflow/static/locked-asset checks and fresh independent review are
+tracked in the review-loop evidence; completion requires their final clean state.
+Both focused and full workflow commands pass all 22 checks. Shell/Python syntax,
+locked screenshot verification and the cumulative diff check also pass.
+
+Native source, test assertions/exclusions, project signing, screenshot assets,
+hosted workflows and all external storage remain unchanged. The native build and
+203-test device-family evidence above predates these tooling repairs; this
+follow-up does not claim a new native runtime or physical acceptance run.
+Additional active time: approximately 0.5 hours, excluding review/check waits.

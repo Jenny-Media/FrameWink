@@ -32,6 +32,12 @@ DerivedData are managed. Other compiler arguments get distinct workspace
 identities. Destination platform must match the SDK; explicit destination
 architecture also affects identity. Every invocation lets Xcode check changed
 inputs. `test-without-building` deliberately requires existing test products.
+Compiler product/intermediate/module-cache paths are managed by the launcher.
+Overrides such as `CONFIGURATION_BUILD_DIR`, `OBJROOT` and `SYMROOT` are rejected
+in arguments and environment variables. Additional xcconfig files and package
+output-path overrides are unsupported because they can redirect writes outside
+the workspace lock; pass supported compiler settings directly instead. Custom
+compiler flags must preserve the managed output paths.
 Test actions default to `-collect-test-diagnostics never`, matching the existing
 local gate. An explicit diagnostic collection option remains available.
 
@@ -48,12 +54,17 @@ Normal builds and test builds can share compatible storage; Xcode may rebuild
 tasks when an action changes effective flags. Device/Simulator, signed/unsigned,
 Debug/Release, checkouts and toolchains remain separate. Fixed helper workflows
 declare platform/signing; runtime-only helper arguments do not create caches.
+Explicit architecture components in test-helper destination overrides also
+affect identity; changing only a device ID preserves reuse.
 
 An exclusive `fcntl.flock` on `.build.lock` covers the complete workflow,
 including installation and result/screenshot export. A second compatible run
 waits. Interrupts are forwarded to the child process group. Failures and
 cancellation retain exit status and logs. Physical `sample` and `soak` commands
 do not hold a compiler lock.
+Closing the console pipe (for example with `head`) lets the workflow finish and
+retains its full log and final status. A log-write failure cancels and reaps the
+owned workflow before recording failure and releasing its workspace.
 
 `--fresh` or `FRAMEWINK_FRESH_BUILD=1` creates an isolated workspace beneath
 `fresh/` without erasing a warm cache. No automatic deletion is implemented.
@@ -71,7 +82,10 @@ exit status. Normal builds also retain `.xcresult`; archives default to
 Use `FRAMEWINK_BUILD_EVIDENCE_ROOT` for another evidence parent or `--output`
 for one new exact run directory. Evidence and compiler storage must not overlap.
 `FRAMEWINK_TEST_OUTPUT_ROOT` remains an explicit test-result override; otherwise
-family-named results live under the current run's `tests/` directory. Landscape
+family-named results live under the current run's `tests/` directory.
+Relative output paths, including explicit result/archive arguments and the test
+output override, are resolved from the caller's directory and forwarded as
+absolute paths before running the workflow from the checkout. Landscape
 capture retries retain `attempt-1.xcresult` and `attempt-2.xcresult`. Capture
 attachments and failed results are retained. Existing screenshot export paths
 and image-validation rules are preserved.
@@ -94,6 +108,8 @@ preferring dedicated FrameWink names and then booted devices. Existing
 `FRAMEWINK_DUO_DESTINATION` overrides remain. Screenshot helpers preserve their
 specific destination and geometry requirements; supply their existing simulator
 override when the original device is unavailable.
+Automatic test destination discovery requires iOS 17 or later, matching both
+test targets; older available devices cannot win the name/boot preference.
 
 The Xcode GUI already reuses its independently managed DerivedData. Keep that
 directory separate from launcher workspaces because the GUI does not acquire

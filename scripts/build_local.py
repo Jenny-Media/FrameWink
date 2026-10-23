@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import platform
 import plistlib
+import re
 import signal
 import subprocess
 import sys
@@ -22,13 +23,38 @@ BUILD_ENV = ("ARCHS", "ONLY_ACTIVE_ARCH", "TOOLCHAINS", "SDKROOT", "OTHER_SWIFT_
              "SWIFT_OPTIMIZATION_LEVEL", "SWIFT_ACTIVE_COMPILATION_CONDITIONS",
              "GCC_PREPROCESSOR_DEFINITIONS", "CODE_SIGN_IDENTITY", "DEVELOPMENT_TEAM",
              "PROVISIONING_PROFILE_SPECIFIER", "CODE_SIGNING_ALLOWED")
+# These settings redirect products/intermediates outside the workspace lock.
+MANAGED_OUTPUT_SETTINGS = {
+    "BUILD_DIR", "BUILD_ROOT", "BUILT_PRODUCTS_DIR", "CONFIGURATION_BUILD_DIR",
+    "CONFIGURATION_TEMP_DIR", "DERIVED_FILE_DIR", "DERIVED_FILES_DIR",
+    "DERIVED_SOURCES_DIR", "DSTROOT", "OBJROOT", "PROJECT_TEMP_DIR",
+    "PROJECT_DERIVED_FILE_DIR", "SHARED_PRECOMPS_DIR", "SYMROOT", "TARGET_BUILD_DIR",
+    "TARGET_TEMP_DIR", "TEMP_DIR", "TEMP_FILES_DIR", "CLANG_MODULE_CACHE_PATH",
+    "SWIFT_MODULE_CACHE_PATH", "MODULE_CACHE_DIR", "SDK_STAT_CACHE_DIR",
+    "SDK_STAT_CACHE_PATH", "COMPILATION_CACHE_CAS_PATH", "XCODE_XCCONFIG_FILE",
+}
+DESTINATION_OVERRIDES = ("FRAMEWINK_IPHONE_DESTINATION", "FRAMEWINK_IPAD_DESTINATION",
+                         "FRAMEWINK_DUO_DESTINATION")
+MINIMUM_TEST_RUNTIME = (17, 0)  # Both native test targets require iOS 17.
+
+
+def console(data):
+    """A closed console must not interrupt logging, child ownership or results."""
+    try:
+        sys.stdout.buffer.write(data)
+        sys.stdout.buffer.flush()
+    except BrokenPipeError:
+        # Redirect the descriptor too, so Python's shutdown flush cannot fail.
+        with open(os.devnull, "wb") as sink:
+            os.dup2(sink.fileno(), sys.stdout.fileno())
 
 
 def simulator_destination(family, env):
     devices = json.loads(output(["xcrun", "simctl", "list", "devices", "available", "--json"], env))
     candidates = []
     for runtime, group in devices["devices"].items():
-        if ".iOS-" not in runtime:
+        version = re.search(r"\.iOS-(\d+)-(\d+)(?:-|$)", runtime)
+        if not version or tuple(map(int, version.groups())) < MINIMUM_TEST_RUNTIME:
             continue
         for device in group:
             kind = device.get("deviceTypeIdentifier", "")
@@ -37,7 +63,7 @@ def simulator_destination(family, env):
             if matches and device.get("isAvailable", True):
                 candidates.append(device)
     if not candidates:
-        raise ValueError("No available " + family + " Simulator; set the corresponding FRAMEWINK destination override.")
+        raise ValueError("No available " + family + " Simulator with iOS 17 or later; set a compatible FRAMEWINK destination override.")
     candidates.sort(key=lambda device: (not device["name"].startswith("FrameWink"), device["state"] != "Booted", device["name"]))
     return "platform=iOS Simulator,id=" + candidates[0]["udid"]
 
@@ -118,6 +144,12 @@ def cache_arguments(arguments):
     return result
 
 
+def helper_architectures(env):
+    # IDs and runtime selections do not partition builds; explicit architectures do.
+    return sorted({item.strip() for name in DESTINATION_OVERRIDES
+                   for item in env.get(name, "").split(",") if item.strip().startswith("arch=")})
+
+
 def run(args):
     env = os.environ.copy()
     developer = env.get("FRAMEWINK_XCODE_DEVELOPER_DIR") or env.get("DEVELOPER_DIR") or output(["xcode-select", "-p"])
@@ -133,6 +165,11 @@ def run(args):
     reserved = {"-project", "-workspace", "-scheme", "-target", "-configuration", "-sdk", "-derivedDataPath"}
     if any(item in reserved for item in extra):
         raise ValueError("Use the launcher's --sdk/--configuration options; project, scheme and DerivedData are managed.")
+    if any(item.split("=", 1)[0].split("[", 1)[0] in MANAGED_OUTPUT_SETTINGS for item in extra) or any(
+            env.get(name) for name in MANAGED_OUTPUT_SETTINGS):
+        raise ValueError("Compiler output directories are managed; remove output-path build settings and XCODE_XCCONFIG_FILE overrides.")
+    if any(item.split("=", 1)[0] in {"-xcconfig", "-clonedSourcePackagesDirPath", "-packageCachePath"} for item in extra):
+        raise ValueError("Configuration files and package output paths cannot override managed compiler storage; pass compiler settings directly.")
     if "clean" in extra:
         raise ValueError("Use --fresh for cold validation; this launcher does not delete shared compiler workspaces.")
     if any(item.startswith(("CODE_SIGNING_ALLOWED=", "SDKROOT=", "ARCHS=")) for item in extra):
@@ -146,18 +183,13 @@ def run(args):
             simulator = "platform=iOS Simulator" in destination
             if simulator != (args.sdk == "iphonesimulator"):
                 raise ValueError("Destination platform must match --sdk.")
-    config_file = env.get("XCODE_XCCONFIG_FILE")
-    if config_file:
-        env["XCODE_XCCONFIG_FILE"] = str(Path(config_file).expanduser().resolve())
     build_environment = {key: env.get(key) for key in BUILD_ENV}
-    if config_file:
-        build_environment["xcconfig_sha256"] = hashlib.sha256(Path(env["XCODE_XCCONFIG_FILE"]).read_bytes()).hexdigest()
     identity = {"version": 1, "checkout": str(REPO), "developer_dir": developer,
                 "xcode": output(["xcodebuild", "-version"], env), "sdk": args.sdk,
                 "sdk_build": output(["xcrun", "--sdk", args.sdk, "--show-sdk-build-version"], env),
                 "host_architecture": platform.machine(), "configuration": args.configuration,
                 "signing": "unsigned" if args.unsigned else "project-default",
-                "environment": build_environment, "arguments": [] if args.script else cache_arguments(extra),
+                "environment": build_environment, "arguments": helper_architectures(env) if args.script else cache_arguments(extra),
                 "variant": env.get("FRAMEWINK_BUILD_CACHE_VARIANT", "")}
     key = digest(identity)[:24]
     root = storage_path(args.cache_root)
@@ -166,10 +198,14 @@ def run(args):
     # Also check legacy test output overrides, which remain supported as evidence destinations.
     artifact_paths = [evidence]
     if env.get("FRAMEWINK_TEST_OUTPUT_ROOT"):
-        artifact_paths.append(storage_path(env["FRAMEWINK_TEST_OUTPUT_ROOT"], compiler=False))
+        test_output = storage_path(env["FRAMEWINK_TEST_OUTPUT_ROOT"], compiler=False)
+        env["FRAMEWINK_TEST_OUTPUT_ROOT"] = str(test_output)
+        artifact_paths.append(test_output)
     for index, item in enumerate(extra[:-1]):
         if item in {"-resultBundlePath", "-archivePath"}:
-            artifact_paths.append(storage_path(extra[index + 1], compiler=False))
+            artifact = storage_path(extra[index + 1], compiler=False)
+            extra[index + 1] = str(artifact)
+            artifact_paths.append(artifact)
     if any(contains(root, path) or contains(path, root) for path in artifact_paths):
         raise ValueError("Evidence and compiler storage must be separate directories.")
     root.mkdir(parents=True, exist_ok=True)
@@ -210,8 +246,8 @@ def run(args):
         temporary_manifest.write_text(json.dumps(manifest, indent=2) + "\n")
         temporary_manifest.replace(manifest_path)
     save()
-    print("Compiler workspace: " + str(workspace), flush=True)
-    print("Retained evidence: " + str(evidence), flush=True)
+    console(("Compiler workspace: " + str(workspace) + "\n").encode())
+    console(("Retained evidence: " + str(evidence) + "\n").encode())
     with (workspace / ".build.lock").open("a+") as lock:
         def cancel_wait(signum, frame):
             manifest.update(state="failed", exit_code=128 + signum,
@@ -223,7 +259,7 @@ def run(args):
             try:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
-                print("Waiting for the compatible build workspace…", flush=True)
+                console("Waiting for the compatible build workspace…\n".encode())
                 manifest["lock_contended"] = True
                 save()
                 fcntl.flock(lock, fcntl.LOCK_EX)
@@ -235,28 +271,45 @@ def run(args):
         manifest.update(state="running", started_at=datetime.now(timezone.utc).isoformat())
         save()
         started = time.monotonic()
-        with (evidence / "build.log").open("wb") as log:
-            child = subprocess.Popen(command, cwd=REPO, env=env, stdout=subprocess.PIPE,
-                                     stderr=subprocess.STDOUT, start_new_session=True,
-                                     pass_fds=(lock.fileno(),))
-            received = []
-            def forward(signum, frame):
-                received.append(signum)
+        received = []
+        try:
+            with (evidence / "build.log").open("wb") as log:
+                child = subprocess.Popen(command, cwd=REPO, env=env, stdout=subprocess.PIPE,
+                                         stderr=subprocess.STDOUT, start_new_session=True,
+                                         pass_fds=(lock.fileno(),))
+                def forward(signum, frame):
+                    received.append(signum)
+                    try:
+                        os.killpg(child.pid, signum)
+                    except ProcessLookupError:
+                        pass
+                previous = {sig: signal.signal(sig, forward) for sig in (signal.SIGINT, signal.SIGTERM)}
                 try:
-                    os.killpg(child.pid, signum)
-                except ProcessLookupError:
-                    pass
-            previous = {sig: signal.signal(sig, forward) for sig in (signal.SIGINT, signal.SIGTERM)}
-            try:
-                for chunk in iter(lambda: child.stdout.read1(65536), b""):
-                    log.write(chunk)
-                    log.flush()
-                    sys.stdout.buffer.write(chunk)
-                    sys.stdout.buffer.flush()
-                code = child.wait()
-            finally:
-                for sig, handler in previous.items():
-                    signal.signal(sig, handler)
+                    for chunk in iter(lambda: child.stdout.read1(65536), b""):
+                        log.write(chunk)
+                        log.flush()
+                        console(chunk)
+                    code = child.wait()
+                except BaseException:
+                    # A logging/streaming failure must not leave a writer behind.
+                    for sig, timeout in ((signal.SIGTERM, 5), (signal.SIGKILL, 5)):
+                        try:
+                            os.killpg(child.pid, sig)
+                        except ProcessLookupError:
+                            pass
+                        try:
+                            child.communicate(timeout=timeout)
+                            break
+                        except subprocess.TimeoutExpired:
+                            continue
+                    raise
+                finally:
+                    child.stdout.close()
+                    for sig, handler in previous.items():
+                        signal.signal(sig, handler)
+        except OSError as error:
+            code = 2
+            manifest["launcher_error"] = str(error)
         code = 128 + received[-1] if received else (128 - code if code < 0 else code)
         manifest.update(state="passed" if code == 0 else "failed", exit_code=code,
                         elapsed_seconds=round(time.monotonic() - started, 3),

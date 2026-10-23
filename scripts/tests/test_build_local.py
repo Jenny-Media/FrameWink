@@ -1,13 +1,17 @@
 """Behavior checks for cache isolation, retention, locking and existing test gates."""
+import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 REPO = Path(__file__).resolve().parents[2]
 LAUNCHER = REPO / "scripts/build_local.py"
@@ -34,16 +38,16 @@ if '-version' in sys.argv:
  print(os.environ.get('FAKE_XCODE_VERSION','Xcode Test 1'))
 else:
  with open(os.environ['FAKE_CALLS'],'a') as f: f.write(json.dumps(sys.argv[1:])+'\\n')
- if '-resultBundlePath' in sys.argv:
-  os.makedirs(sys.argv[sys.argv.index('-resultBundlePath')+1],exist_ok=False)
+ for option in ['-resultBundlePath','-archivePath']:
+  if option in sys.argv: os.makedirs(sys.argv[sys.argv.index(option)+1],exist_ok=False)
  print('Recorded build output')
  sys.exit(int(os.environ.get('FAKE_EXIT','0')))
 ''')
-        self.tool("xcrun", '''import json,sys
+        self.tool("xcrun", '''import json,os,sys
 if '--show-sdk-build-version' in sys.argv: print('test-sdk-'+sys.argv[2])
 elif '--show-sdk-version' in sys.argv: print('27.1')
 elif 'simctl' in sys.argv:
- print(json.dumps({'devices':{'com.apple.CoreSimulator.SimRuntime.iOS-27-1':[
+ print(os.environ.get('FAKE_DEVICES') or json.dumps({'devices':{'com.apple.CoreSimulator.SimRuntime.iOS-27-1':[
   {'name':'FrameWink Renamed Phone','udid':'phone','state':'Shutdown','deviceTypeIdentifier':'iPhone-18-Pro'},
   {'name':'FrameWink Renamed Pad','udid':'pad','state':'Shutdown','deviceTypeIdentifier':'iPad-Pro'},
   {'name':'FrameWink Renamed Duo','udid':'duo','state':'Shutdown','deviceTypeIdentifier':'iPhone-Duo'}]}}))
@@ -126,6 +130,84 @@ else: print('{}')
         self.assertEqual(result.returncode, 2)
         self.assertFalse((self.root / "compiler").exists())
 
+    def fixture_launcher(self):
+        # Keep deliberately bad relative-path regressions inside owned fixtures.
+        project = self.root / "source"
+        launcher = project / "scripts/build_local.py"
+        launcher.parent.mkdir(parents=True)
+        shutil.copy2(LAUNCHER, launcher)
+        self.tool("git", "import sys\nif 'rev-parse' in sys.argv: print('fixture-head')\n")
+        return project, launcher
+
+    def test_relative_artifact_paths_use_the_callers_directory(self):
+        project, launcher = self.fixture_launcher()
+        caller = self.root / "caller"
+        caller.mkdir()
+        for option, extra in [("-resultBundlePath", []),
+                              ("-archivePath", ["--sdk", "iphoneos", "--configuration", "Release"])]:
+            result = subprocess.run([sys.executable, str(launcher), *extra, "--", option,
+                                     "retained/" + option[1:], "archive" if extra else "build"],
+                                    cwd=caller, env=self.env, capture_output=True, text=True, timeout=20)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue((caller / "retained" / option[1:]).is_dir())
+            self.assertFalse((project / "retained").exists())
+        result = subprocess.run([sys.executable, str(launcher), "--", "-resultBundlePath",
+                                 "../compiler/result.xcresult", "build"], cwd=caller,
+                                env=self.env, capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 2)
+        self.assertFalse((self.root / "compiler/result.xcresult").exists())
+
+    def test_relative_helper_test_output_is_normalized_and_guarded(self):
+        project, launcher = self.fixture_launcher()
+        caller = self.root / "caller"
+        caller.mkdir()
+        script = self.root / "output.sh"
+        script.write_text('mkdir -p "$FRAMEWINK_TEST_OUTPUT_ROOT/result.xcresult"\n')
+        for value, expected in [("retained", 0), ("../compiler/report", 2)]:
+            result = subprocess.run([sys.executable, str(launcher), "--script", str(script)],
+                                    cwd=caller, env=dict(self.env, FRAMEWINK_TEST_OUTPUT_ROOT=value),
+                                    capture_output=True, text=True, timeout=20)
+            self.assertEqual(result.returncode, expected, result.stderr)
+        self.assertTrue((caller / "retained/result.xcresult").is_dir())
+        self.assertFalse((project / "retained").exists())
+        self.assertFalse((self.root / "compiler/report").exists())
+
+    def test_rejects_compiler_output_overrides_before_starting_builds(self):
+        shared = str(self.root / "shared-products")
+        for setting in ["CONFIGURATION_BUILD_DIR", "OBJROOT", "SYMROOT", "CLANG_MODULE_CACHE_PATH"]:
+            for configuration in ["Debug", "Release"]:
+                result = self.invoke("--configuration", configuration, "--", setting + "=" + shared, "build")
+                self.assertEqual(result.returncode, 2, result.stderr)
+            result = self.invoke(env=dict(self.env, **{setting: shared}))
+            self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertFalse((self.root / "calls.jsonl").exists())
+        self.assertFalse((self.root / "compiler").exists())
+
+    def test_rejects_unchecked_configuration_file_output_overrides(self):
+        config = self.root / "custom.xcconfig"
+        config.write_text("CONFIGURATION_BUILD_DIR = " + str(self.root / "shared") + "\n")
+        self.assertEqual(self.invoke("--", "-xcconfig", str(config), "build").returncode, 2)
+        self.assertEqual(self.invoke(env=dict(self.env, XCODE_XCCONFIG_FILE=str(config))).returncode, 2)
+        self.assertFalse((self.root / "calls.jsonl").exists())
+        self.assertFalse((self.root / "compiler").exists())
+
+    def test_discovery_filters_old_runtimes_before_device_preferences(self):
+        devices = {"devices": {}}
+        for version, name, state in [("16-4", "FrameWink Preferred", "Booted"),
+                                     ("17-0", "Compatible", "Shutdown")]:
+            devices["devices"]["com.apple.CoreSimulator.SimRuntime.iOS-" + version] = [
+                dict(name=name, state=state, udid=family + version, deviceTypeIdentifier=family)
+                for family in ["iPhone-14", "iPad-Pro"]]
+        env = dict(self.env, FAKE_DEVICES=json.dumps(devices))
+        for family, kind in [("iPhone", "iPhone-14"), ("iPad", "iPad-Pro")]:
+            result = self.invoke("--simulator-destination", family, env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn(kind + "17-0", result.stdout)
+        del devices["devices"]["com.apple.CoreSimulator.SimRuntime.iOS-17-0"]
+        result = self.invoke("--simulator-destination", "iPhone", env=dict(self.env, FAKE_DEVICES=json.dumps(devices)))
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("iOS 17", result.stderr)
+
     def test_missing_external_mount_and_symlink_fail_without_fallback(self):
         missing = "/Volumes/FrameWink-Missing-Unit-Test-Volume/cache"
         link = self.root / "external-link"
@@ -191,6 +273,66 @@ else: print('{}')
         self.assertEqual(self.latest()["exit_code"], 143)
         self.assertEqual(self.invoke().returncode, 0)
 
+    def test_closed_console_still_waits_for_workflow_and_finalizes_evidence(self):
+        script = self.root / "output.sh"
+        script.write_text('touch "$HOLD_STARTED"\nsleep 0.2\nprintf "Retained output\\n"\nsleep 0.2\ntouch "$HOLD_FINISHED"\n')
+        env = dict(self.env, HOLD_STARTED=str(self.root / "started"), HOLD_FINISHED=str(self.root / "finished"))
+        process = subprocess.Popen([sys.executable, str(LAUNCHER), "--script", str(script)], env=env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.addCleanup(self.stop, process)
+        self.addCleanup(process.stderr.close)
+        process.stdout.readline()
+        process.stdout.readline()
+        self.wait_for(lambda: (self.root / "started").exists())
+        process.stdout.close()
+        self.assertEqual(process.wait(timeout=10), 0, process.stderr.read().decode())
+        self.assertTrue((self.root / "finished").exists())
+        record = self.latest()
+        self.assertEqual((record["state"], record["exit_code"]), ("passed", 0))
+        self.assertIn("Retained output", Path(record["evidence"], "build.log").read_text())
+        self.assertEqual(self.invoke().returncode, 0)
+
+    def test_log_write_failure_reaps_workflow_and_records_failure(self):
+        spec = importlib.util.spec_from_file_location("framewink_build_local", LAUNCHER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        script = self.root / "log-failure.sh"
+        script.write_text('printf "Output\\n"\nsleep 20\n')
+        args = argparse.Namespace(sdk="iphonesimulator", configuration="Debug", unsigned=False,
+                                  fresh=False, cache_root=str(self.root / "compiler"),
+                                  output=None, script=str(script), arguments=[])
+        children = []
+        real_popen, real_open = subprocess.Popen, Path.open
+
+        def spawn(*arguments, **kwargs):
+            child = real_popen(*arguments, **kwargs)
+            children.append(child)
+            self.addCleanup(self.stop, child)
+            return child
+
+        class FailingLog:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *unused):
+                pass
+
+            def write(self, unused):
+                raise OSError("fixture log write failure")
+
+        def open_path(path, *arguments, **kwargs):
+            return FailingLog() if path.name == "build.log" else real_open(path, *arguments, **kwargs)
+
+        with mock.patch.dict(os.environ, self.env, clear=True), mock.patch.object(Path, "open", open_path), \
+                mock.patch.object(module.subprocess, "Popen", spawn):
+            self.assertEqual(module.run(args), 2)
+        workflow = [child for child in children if child.args[0] == "/bin/bash"][-1]
+        self.assertIsNotNone(workflow.poll())
+        record = self.latest()
+        self.assertEqual((record["state"], record["exit_code"]), ("failed", 2))
+        self.assertIn("fixture log write failure", record["launcher_error"])
+        self.assertEqual(self.invoke().returncode, 0)
+
     def test_waiting_run_can_be_cancelled_without_interrupting_lock_owner(self):
         first = self.start_held_workflow()
         second = subprocess.Popen([sys.executable, str(LAUNCHER)], env=self.env,
@@ -214,6 +356,18 @@ else: print('{}')
             self.assertEqual(result.returncode, 0, result.stderr)
             keys.append(self.latest()["cache_key"])
         self.assertEqual(keys[0], keys[1])
+
+    def test_explicit_helper_architectures_get_distinct_workspaces(self):
+        script = self.root / "helper.sh"
+        script.write_text("true\n")
+        keys = []
+        for device, architecture in [("phone", "arm64"), ("pad", "arm64"), ("phone", "x86_64")]:
+            destination = "platform=iOS Simulator,id=" + device + ",arch=" + architecture
+            result = self.invoke("--script", str(script), env=dict(self.env, FRAMEWINK_IPHONE_DESTINATION=destination))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            keys.append(self.latest()["cache_key"])
+        self.assertEqual(keys[0], keys[1])
+        self.assertNotEqual(keys[0], keys[2])
 
     def test_full_local_gate_preserves_matrix_and_approved_exclusions(self):
         result = self.invoke("--unsigned", "--script", str(REPO / "scripts/test_local.sh"))

@@ -5056,3 +5056,32 @@ but the complete UI matrix and asset-rewriting screenshot helpers were not
 executed. Signed physical-device installation, PhotoKit/iCloud, purchases,
 Duo poses, long-running acceptance and external-drive behavior remain separate
 checks. The Xcode GUI and hosted Cloud cache policies were not modified.
+
+### PR 30 review regression checks — 2026-10-23
+
+The tooling follow-up adds fake-tool regressions for caller-relative result and
+archive destinations, the legacy test-output override, command/environment
+compiler-directory overrides, unchecked xcconfig overrides, old-runtime
+discovery, explicit helper architecture keys, a closed stdout pipe, and a failed
+log write with owned-child cleanup. Fixtures keep deliberate relative-path
+failures inside disposable project copies, never the real source checkout.
+
+Required commands run serially in an isolated source-equivalent copy with
+credentials removed, temporary fixture storage, no real compiler/device action,
+and matching source fingerprints before/after each check:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/tests -p test_build_local.py -v
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/tests -v
+for file in scripts/*.sh ci_scripts/*.sh; do bash -n "$file" || exit; done
+python3 -c 'import ast,pathlib; [ast.parse(p.read_text()) for p in pathlib.Path("scripts").rglob("*.py")]'
+bash scripts/verify_locked_app_store_screenshots.sh
+git diff --check cc1fc3f0a08a716e3a395227b6f8e5ac2e4a295e
+```
+
+Result: both Python test commands pass all 22 cases; shell syntax, Python syntax,
+locked screenshots and cumulative diff checks pass. No input drift was observed.
+
+The previous native iPhone/iPad results remain separate evidence; these repair
+checks validate launcher behavior, not native architecture selection, full UI
+capture, signed installation, physical acceptance, or external-drive behavior.
