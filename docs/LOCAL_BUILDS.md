@@ -120,15 +120,14 @@ The Xcode GUI already reuses its independently managed DerivedData. Keep that
 directory separate from launcher workspaces because the GUI does not acquire
 this lock. IDE preferences and Xcode Cloud cache/release policies are unchanged.
 
-## Optional future storage routing
+## Internal storage
 
-The default and current validation use internal storage. No external disk is
-used or modified. For a future approved setup, `FRAMEWINK_BUILD_CACHE_ROOT`
-accepts a mounted APFS volume or disk image. Paths under `/Volumes` require a
-mounted APFS filesystem; an absent/incompatible mount fails without internal
-fallback. Optional `FRAMEWINK_BUILD_CACHE_VOLUME_UUID` pins the expected volume.
-Changing the compiler root does not move old caches or evidence. External
-throughput and disconnection recovery require validation on the selected disk.
+Compiler caches and retained reports use internal storage. Use
+`FRAMEWINK_BUILD_CACHE_ROOT` or `--cache-root` for another internal compiler path.
+External-disk routing is deferred: `/Volumes` paths and symlink aliases resolving
+there fail before output directories are created. There is no filesystem-type,
+mount-state or volume-UUID management. Changing the compiler root does not move
+old caches or evidence; no automatic cleanup or migration is implemented.
 
 `FRAMEWINK_DERIVED_DATA` is now an internal launcher output. Old direct path
 overrides fail with guidance to use `FRAMEWINK_BUILD_CACHE_ROOT`, so incompatible
@@ -141,8 +140,8 @@ python3 -m unittest discover -s scripts/tests -v
 ```
 
 These checks use fake Xcode commands to verify identity, retention, locking,
-cancellation, fresh builds and missing mounts. They execute the local test gate
-to verify its device matrix and owner-approved exclusions. Copied physical and
+cancellation, fresh builds and rejection of deferred external paths. They execute
+the local test gate to verify its device matrix and owner-approved exclusions. Copied physical and
 capture entry points with inert tools check caller-relative outputs, JPEG cleanup
 boundaries and rejection of compiler/evidence overlap. Native compiler and
 runtime evidence is recorded in `docs/TESTING.md`.

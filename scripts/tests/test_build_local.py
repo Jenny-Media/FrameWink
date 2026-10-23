@@ -306,15 +306,27 @@ else: sys.exit(99)
         self.assertEqual(result.returncode, 2)
         self.assertIn("iOS 17", result.stderr)
 
-    def test_missing_external_mount_and_symlink_fail_without_fallback(self):
-        missing = "/Volumes/FrameWink-Missing-Unit-Test-Volume/cache"
+    def test_external_cache_and_report_paths_are_deferred_before_writes(self):
+        external = "/Volumes/FrameWink-Deferred-Unit-Test-Volume/cache"
         link = self.root / "external-link"
-        link.symlink_to(missing)
-        for root in [missing, str(link)]:
-            result = self.invoke("--cache-root", root)
-            self.assertEqual(result.returncode, 2)
-            self.assertIn("not mounted", result.stderr)
+        link.symlink_to(external)
+        for path in ("/Volumes", external, str(link)):
+            cases = [("cache", ["--cache-root", path], self.env),
+                     ("report", ["--output", path], self.env),
+                     ("result", ["--", "-resultBundlePath", path, "build"], self.env),
+                     ("archive", ["--sdk", "iphoneos", "--configuration", "Release",
+                                  "--", "-archivePath", path, "archive"], self.env)]
+            cases += [(name, [], dict(self.env, **{name: path})) for name in
+                      ("FRAMEWINK_BUILD_EVIDENCE_ROOT", "FRAMEWINK_TEST_OUTPUT_ROOT",
+                       "FRAMEWINK_ARTIFACTS", "FRAMEWINK_SCREENSHOT_DIRECTORY")]
+            for label, arguments, env in cases:
+                with self.subTest(path=path, output=label):
+                    result = self.invoke(*arguments, env=env)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("External storage is deferred", result.stderr)
         self.assertFalse((self.root / "compiler").exists())
+        self.assertFalse((self.root / "evidence").exists())
+        self.assertFalse((self.root / "calls.jsonl").exists())
 
     def test_rejects_legacy_path_and_mismatched_destination(self):
         result = self.invoke(env=dict(self.env, FRAMEWINK_DERIVED_DATA=str(self.root / "legacy")))

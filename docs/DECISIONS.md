@@ -716,3 +716,11 @@ date; do not silently rewrite historical decisions during implementation.
 - Keep fresh-build validation available and perform current work internally.
   External storage remains an optional future setting; no disk migration or
   automatic deletion occurs. GUI and Cloud retain their independent caches.
+
+## D-055 — Limit the compiler-cache pilot to internal storage — 2026-10-23
+
+- Owner narrows D-054 to internal cache reuse, workflow locking and separate
+  retained reports. Defer external-disk routing and remove APFS, mount-state and
+  volume-UUID management. Reject conventional external-volume paths and aliases.
+- Keep compatible workspace keys, caller-relative output handling, existing
+  build entry points and explicit fresh builds. No disk migration or deletion.

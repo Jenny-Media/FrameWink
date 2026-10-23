@@ -8,7 +8,6 @@ import json
 import os
 from pathlib import Path
 import platform
-import plistlib
 import re
 import signal
 import subprocess
@@ -84,28 +83,14 @@ def contains(parent, child):
         return False
 
 
-def storage_path(value, compiler=True):
+def storage_path(value):
     path = Path(value).expanduser().absolute()
+    # External cache/report routing is deferred, regardless of filesystem or mount state.
+    if path.parts[:2] == ("/", "Volumes"):
+        raise ValueError("External storage is deferred; choose an internal path.")
     resolved = path.resolve()
-    # Never mkdir an absent mount point or fall back to the internal disk.
-    for candidate in {path, resolved}:
-        if candidate.parts[:2] != ("/", "Volumes"):
-            continue
-        if len(candidate.parts) < 3:
-            raise ValueError("Choose a directory inside a mounted APFS volume.")
-        mount = Path(*candidate.parts[:3])
-        if not mount.is_mount():
-            raise ValueError("External volume is not mounted: " + str(mount))
-        if not contains(mount.resolve(), resolved):
-            raise ValueError("The configured storage path leaves its mounted volume through a symlink.")
-        if not compiler:
-            continue
-        info = plistlib.loads(subprocess.check_output(["diskutil", "info", "-plist", str(mount)]))
-        if info.get("FilesystemType") != "apfs":
-            raise ValueError("Compiler storage requires APFS; choose an APFS volume or mounted disk image.")
-        expected = os.environ.get("FRAMEWINK_BUILD_CACHE_VOLUME_UUID")
-        if expected and info.get("VolumeUUID", "").lower() != expected.lower():
-            raise ValueError("External compiler volume UUID does not match the configured volume.")
+    if resolved.parts[:2] == ("/", "Volumes"):
+        raise ValueError("External storage is deferred; choose an internal path.")
     return resolved
 
 
@@ -193,18 +178,18 @@ def run(args):
                 "variant": env.get("FRAMEWINK_BUILD_CACHE_VARIANT", "")}
     key = digest(identity)[:24]
     root = storage_path(args.cache_root)
-    evidence_parent = storage_path(env.get("FRAMEWINK_BUILD_EVIDENCE_ROOT", REPO / "TestArtifacts/LocalBuilds"), compiler=False)
-    evidence = storage_path(args.output, compiler=False) if args.output else evidence_parent / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8])
+    evidence_parent = storage_path(env.get("FRAMEWINK_BUILD_EVIDENCE_ROOT", REPO / "TestArtifacts/LocalBuilds"))
+    evidence = storage_path(args.output) if args.output else evidence_parent / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8])
     # Retained helper output overrides are caller-relative and cannot share compiler storage.
     artifact_paths = [evidence]
     for name in ("FRAMEWINK_TEST_OUTPUT_ROOT", "FRAMEWINK_ARTIFACTS", "FRAMEWINK_SCREENSHOT_DIRECTORY"):
         if env.get(name):
-            artifact = storage_path(env[name], compiler=False)
+            artifact = storage_path(env[name])
             env[name] = str(artifact)
             artifact_paths.append(artifact)
     for index, item in enumerate(extra[:-1]):
         if item in {"-resultBundlePath", "-archivePath"}:
-            artifact = storage_path(extra[index + 1], compiler=False)
+            artifact = storage_path(extra[index + 1])
             extra[index + 1] = str(artifact)
             artifact_paths.append(artifact)
     if any(contains(root, path) or contains(path, root) for path in artifact_paths):
@@ -331,7 +316,7 @@ def main():
     parser.add_argument("--configuration", choices=("Debug", "Release"), default="Debug")
     parser.add_argument("--unsigned", action="store_true", help="Disable signing for this workspace")
     parser.add_argument("--fresh", action="store_true", default=os.environ.get("FRAMEWINK_FRESH_BUILD") == "1")
-    parser.add_argument("--cache-root", default=os.environ.get("FRAMEWINK_BUILD_CACHE_ROOT", str(Path.home() / "Library/Caches/FrameWink/Build")))
+    parser.add_argument("--cache-root", default=os.environ.get("FRAMEWINK_BUILD_CACHE_ROOT", str(Path.home() / "Library/Caches/FrameWink/Build")), help="Internal compiler cache root")
     parser.add_argument("--output", help="New evidence directory (must not already exist)")
     parser.add_argument("--script", help=argparse.SUPPRESS)
     parser.add_argument("--simulator-destination", choices=("iPhone", "iPad", "Duo"), help=argparse.SUPPRESS)

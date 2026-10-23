@@ -3365,3 +3365,26 @@ retained separately; this follow-up does not claim a new native runtime run.
 App source, native assertions/exclusions, signing, asset geometry and hosted
 workflows are unchanged. No external disk or physical device is used.
 Additional active time: approximately 0.4 hours, excluding check/review waits.
+
+### PR 30 internal-storage simplification — 2026-10-23
+
+Owner narrows the implementation to internal compiler-cache reuse, locking and
+separate reports. Remove APFS/mount/volume-UUID handling and external setup
+instructions; keep a short rejection of `/Volumes` paths and resolved aliases
+before directory creation. Keep existing compatibility keys, workflow locking,
+caller-relative output fixes and all current local build entry points.
+
+Update external-path regression coverage for compiler, report, result/archive
+and helper overrides, including aliases, with no build or output side effects.
+Both workflow runs pass all 26 tests; syntax, locked assets and cumulative diff
+checks also pass. Final cumulative review is recorded separately before the
+existing PR is updated. No native app/test/assertion/exclusion change
+or external-disk action is included. Additional active time: approximately
+0.3 hours, excluding check/review waits.
+
+Native evidence remains labeled by commit. At preceding head `4df3a02`, both
+families' app/test builds and all 203 unit tests passed; iPad full suite passed
+243 tests with four physical-only skips. The iPhone full suite had 242 passes,
+one large-text privacy UI failure and four skips; the failed case passed both
+isolated reruns. Preserve that limitation separately; this scope does not fix
+or exclude the UI test, and does not claim a clean native UI gate.
