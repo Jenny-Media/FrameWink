@@ -145,6 +145,68 @@ else: print('{}')
             shutil.copy2(REPO / "scripts" / filename, project / "scripts" / filename)
         return project, project / "scripts" / name
 
+    def fixture_capture_defaults(self):
+        project, unused = self.fixture_launcher()
+        destinations = {
+            "capture_app_store_screenshots.sh": "AppStore/Screenshots/iPad",
+            "capture_app_store_submission_screenshots.sh": "AppStore/Screenshots/Submission/iPad-13-inch",
+            "capture_app_store_iphone_submission_screenshots.sh": "AppStore/Screenshots/Submission/iPhone-6.9-inch",
+            "capture_app_store_iphone_duo_proof_screenshots.sh": "AppStore/Screenshots/ProductPageOptimization/iPhone-Duo/Sources/Outer",
+            "capture_app_store_landscape_screenshots.sh": "AppStore/Screenshots/Landscape/iPad-13-inch",
+            "capture_website_duo_screenshots.sh": "Design/Website/iPhone-Duo/Sources",
+            "capture_website_pair_screenshot.sh": "website/public/images",
+        }
+        for filename in ("build_cache.sh", *destinations):
+            shutil.copy2(REPO / "scripts" / filename, project / "scripts" / filename)
+        # A regression must stop at inert tools; never use a real capture/device tool.
+        self.tool("magick", "pass\n")
+        self.tool("jq", "pass\n")
+        self.tool("xcrun", "import sys\nif '--show-sdk-build-version' in sys.argv: print('fixture-sdk')\nelse: sys.exit(99)\n")
+        cases = [(name, path, {}) for name, path in destinations.items()]
+        cases += [
+            ("capture_app_store_iphone_duo_proof_screenshots.sh",
+             "AppStore/Screenshots/ProductPageOptimization/iPhone-Duo/Sources/Inner",
+             {"FRAMEWINK_DUO_DISPLAY": "inner"}),
+            ("capture_app_store_landscape_screenshots.sh",
+             "AppStore/Screenshots/Landscape/iPhone-6.9-inch", {}),
+        ]
+        return project, cases
+
+    def test_capture_defaults_reject_overlapping_compiler_roots_before_workflow(self):
+        project, destinations = self.fixture_capture_defaults()
+        for name, relative, overrides in destinations:
+            destination = project / relative
+            for cache in (destination, destination.parent, destination / "compiler"):
+                with self.subTest(script=name, cache=cache):
+                    result = subprocess.run(["/bin/bash", str(project / "scripts" / name)],
+                                            env=dict(self.env, FRAMEWINK_BUILD_CACHE_ROOT=str(cache),
+                                                     FRAMEWINK_SIMULATOR_ID="fixture", **overrides),
+                                            text=True, capture_output=True, timeout=20)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("Evidence and compiler storage must be separate", result.stderr)
+                    self.assertFalse(cache.exists())
+                    self.assertFalse((self.root / "evidence").exists())
+                    self.assertFalse((self.root / "calls.jsonl").exists())
+
+    def test_capture_defaults_reject_external_aliases_before_workflow(self):
+        project, destinations = self.fixture_capture_defaults()
+        for name, relative, overrides in destinations:
+            destination = project / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.symlink_to("/Volumes/FrameWink-Deferred-Unit-Test-Volume/screenshots")
+            try:
+                with self.subTest(script=name):
+                    result = subprocess.run(["/bin/bash", str(project / "scripts" / name)],
+                                            env=dict(self.env, FRAMEWINK_SIMULATOR_ID="fixture", **overrides),
+                                            text=True, capture_output=True, timeout=20)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("External storage is deferred", result.stderr)
+                    self.assertFalse((self.root / "compiler").exists())
+                    self.assertFalse((self.root / "evidence").exists())
+                    self.assertFalse((self.root / "calls.jsonl").exists())
+            finally:
+                destination.unlink()
+
     def test_relative_artifact_paths_use_the_callers_directory(self):
         project, launcher = self.fixture_launcher()
         caller = self.root / "caller"

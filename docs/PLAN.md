@@ -3376,7 +3376,7 @@ caller-relative output fixes and all current local build entry points.
 
 Update external-path regression coverage for compiler, report, result/archive
 and helper overrides, including aliases, with no build or output side effects.
-Both workflow runs pass all 28 tests; syntax, locked assets and cumulative diff
+Both workflow runs pass all 30 tests; syntax, locked assets and cumulative diff
 checks also pass. Final cumulative review is recorded separately before the
 existing PR is updated. No native app/test/assertion/exclusion change
 or external-disk action is included. Additional active time: approximately
@@ -3396,3 +3396,10 @@ and exit-through-cleanup traps address them. New copied-script tests use inert
 tools to reject external monitor paths before discovery and cancel both INT/TERM
 during a bounded fake capture, requiring exactly one attempt and retained status.
 All required checks and a fresh review repeat on the follow-up commit.
+
+Default capture destinations now use the same pure path preflight before the
+cached workflow starts. All seven capture entry points preserve their original
+media destinations; copied-helper tests cover all nine destinations (including
+both Duo displays and landscape families), rejecting equal/nested/parent cache
+roots and external aliases before workspace creation or tool actions. Required
+checks repeat on this repair; no real screenshots are captured or rewritten.

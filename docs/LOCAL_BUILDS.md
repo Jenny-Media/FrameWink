@@ -146,3 +146,7 @@ the local test gate to verify its device matrix and owner-approved exclusions.
 Copied physical and capture entry points with inert tools check caller-relative outputs, JPEG cleanup
 boundaries and rejection of compiler/evidence overlap. Native compiler and
 runtime evidence is recorded in `docs/TESTING.md`.
+
+Capture helpers validate their effective screenshot destinations, including
+defaults, before starting a cached workflow. Custom internal compiler roots
+cannot contain retained screenshots or be nested inside their directories.

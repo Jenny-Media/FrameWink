@@ -203,7 +203,7 @@ def run(args):
     derived = workspace / "DerivedData"
     temp = workspace / "Temp"
     temp.mkdir(exist_ok=True)
-    env.update(FRAMEWINK_DERIVED_DATA=str(derived), TMPDIR=str(temp) + "/",
+    env.update(FRAMEWINK_BUILD_CACHE_ROOT=str(root), FRAMEWINK_DERIVED_DATA=str(derived), TMPDIR=str(temp) + "/",
                FRAMEWINK_BUILD_EVIDENCE=str(evidence), FRAMEWINK_CACHE_CHECKOUT=str(REPO),
                FRAMEWINK_CACHE_PROFILE=args.sdk + ":" + args.configuration + ":" + identity["signing"])
     if args.script:

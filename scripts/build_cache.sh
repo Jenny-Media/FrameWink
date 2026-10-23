@@ -1,5 +1,9 @@
 #!/bin/sh
 # Source this before a build workflow. The launcher holds its lock through export/install.
+framewink_report_path() {
+    python3 "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/build_local.py" --resolve-output "$1"
+}
+
 framewink_cached_workflow() {
     framewink_sdk=$1
     framewink_signing=$2

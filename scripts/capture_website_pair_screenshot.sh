@@ -3,9 +3,10 @@
 set -euo pipefail
 
 . "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/build_cache.sh"
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+image_directory=$(framewink_report_path "$repo_root/website/public/images")
 framewink_cached_workflow iphonesimulator project-default "$@"
 
-repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 xcode_developer_dir=${FRAMEWINK_XCODE_DEVELOPER_DIR:-${DEVELOPER_DIR:-$(xcode-select -p)}}
 simulator_id=${FRAMEWINK_IPAD_LANDSCAPE_SIMULATOR_ID:-1BDA7ABF-4236-406E-8ACD-7E3B10569753}
 working_directory="$FRAMEWINK_BUILD_EVIDENCE/capture"
@@ -55,7 +56,7 @@ xcrun simctl status_bar "$simulator_id" override \
     --batteryState discharging \
     --batteryLevel 100
 
-mkdir -p "$attachment_directory" "$repo_root/website/public/images"
+mkdir -p "$attachment_directory" "$image_directory"
 xcodebuild -quiet \
     -project "$repo_root/FrameWink.xcodeproj" \
     -scheme FrameWink \
@@ -72,9 +73,9 @@ xcrun xcresulttool export attachments \
 
 for capture_name in frame mosaic pair; do
     case "$capture_name" in
-        frame) output="$repo_root/website/public/images/ipad-landscape-frame-clean-v2.webp" ;;
-        mosaic) output="$repo_root/website/public/images/ipad-landscape-mosaic-clean-v2.webp" ;;
-        pair) output="$repo_root/website/public/images/ipad-landscape-pair-clean-v1.webp" ;;
+        frame) output="$image_directory/ipad-landscape-frame-clean-v2.webp" ;;
+        mosaic) output="$image_directory/ipad-landscape-mosaic-clean-v2.webp" ;;
+        pair) output="$image_directory/ipad-landscape-pair-clean-v1.webp" ;;
     esac
     exported_filename=$(jq -r --arg prefix "website-landscape-${capture_name}_" '
         .[].attachments[]

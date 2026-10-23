@@ -2,12 +2,12 @@
 set -euo pipefail
 
 . "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/build_cache.sh"
-framewink_cached_workflow iphonesimulator project-default "$@"
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+output=$(framewink_report_path "$repo_root/Design/Website/iPhone-Duo/Sources")
+framewink_cached_workflow iphonesimulator project-default "$@"
 : "${FRAMEWINK_SIMULATOR_ID:?Set a dedicated iPhone Duo Simulator ID and select Open landscape in Device Hub.}"
 export DEVELOPER_DIR=${FRAMEWINK_XCODE_DEVELOPER_DIR:-${DEVELOPER_DIR:-$(xcode-select -p)}}
 derived_data=$FRAMEWINK_DERIVED_DATA
-output="$repo_root/Design/Website/iPhone-Duo/Sources"
 mkdir -p "$output"
 xcodebuild -quiet -project "$repo_root/FrameWink.xcodeproj" -scheme FrameWink \
     -configuration Debug -destination "platform=iOS Simulator,id=$FRAMEWINK_SIMULATOR_ID" \

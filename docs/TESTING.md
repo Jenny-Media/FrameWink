@@ -5130,7 +5130,7 @@ path and an owned internal symlink pointing there. Each must reject compiler,
 report, result/archive and helper-output overrides with deferred-support
 guidance before cache/report directory creation or a fake build starts. No
 external disk is accessed or filesystem/mount/UUID utility invoked. The same
-28 workflow tests pass in focused and full runs; syntax, locked assets and
+30 workflow tests pass in focused and full runs; syntax, locked assets and
 cumulative diff checks pass too. Results and cumulative review disposition are
 retained separately with the exact committed source fingerprint.
 
@@ -5147,5 +5147,12 @@ sample and soak reject external/overlapping report paths before discovery, and
 SIGINT/SIGTERM during the first capture exit without retrying. Fake tools own all
 processes and output paths; the fake capture is bounded to five seconds even if
 cancellation regresses. Both statuses and retained cleanup/log evidence are
-checked. Total workflow coverage is 28 tests; follow-up results are recorded
+checked. Total workflow coverage is 30 tests; follow-up results are recorded
 separately after the complete required check manifest repeats.
+
+Default capture destinations now use the same pure path preflight before the
+cached workflow starts. All seven capture entry points preserve their original
+media destinations; copied-helper tests cover all nine destinations (including
+both Duo displays and landscape families), rejecting equal/nested/parent cache
+roots and external aliases before workspace creation or tool actions. Required
+checks repeat on this repair; no real screenshots are captured or rewritten.

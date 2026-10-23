@@ -3,14 +3,14 @@
 set -euo pipefail
 
 . "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/build_cache.sh"
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ipad_output=$(framewink_report_path "$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch")
+iphone_output=$(framewink_report_path "$repo_root/AppStore/Screenshots/Landscape/iPhone-6.9-inch")
 framewink_cached_workflow iphonesimulator project-default "$@"
 
-repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 xcode_developer_dir=${FRAMEWINK_XCODE_DEVELOPER_DIR:-${DEVELOPER_DIR:-$(xcode-select -p)}}
 ipad_simulator_id=${FRAMEWINK_IPAD_LANDSCAPE_SIMULATOR_ID:-1BDA7ABF-4236-406E-8ACD-7E3B10569753}
 iphone_simulator_id=${FRAMEWINK_IPHONE_LANDSCAPE_SIMULATOR_ID:-B41C6094-A3CA-48E6-AA25-1E08D0B98BCE}
-ipad_output="$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"
-iphone_output="$repo_root/AppStore/Screenshots/Landscape/iPhone-6.9-inch"
 working_directory="$FRAMEWINK_BUILD_EVIDENCE/capture"
 mkdir -p "$working_directory"
 booted_by_script=""
