@@ -3339,3 +3339,29 @@ hosted workflows and all external storage remain unchanged. The native build and
 203-test device-family evidence above predates these tooling repairs; this
 follow-up does not claim a new native runtime or physical acceptance run.
 Additional active time: approximately 0.5 hours, excluding review/check waits.
+
+### PR 30 helper-path repair — 2026-10-23
+
+Owner authorized repairing the remaining P2 helper-path finding, adding
+regressions and completing another review-fix loop before updating the PR.
+The launcher now preserves the caller's working directory for helper scripts,
+normalizes physical-artifact and screenshot-directory overrides, and rejects
+their overlap with compiler storage before starting helpers. This keeps physical
+build/monitor reports together and capture cleanup in the intended directory.
+
+Four new workflow regressions exercise all five physical modes, the copied Duo
+capture's JPEG cleanup, absolute/symlink paths and rejection of nested, parent,
+equal or aliased compiler paths before side effects. All deliberate output and
+deletion targets are owned temporary fixtures, with inert device/build tools.
+Focused and full workflow runs each pass all 26 tests. Shell/Python syntax,
+locked screenshot verification and cumulative diff checks also pass with stable
+input fingerprints. Final review disposition is recorded separately in this
+follow-up's review-loop evidence before the PR is updated.
+
+Recent native validation on pre-repair head `06a98af2` built the app and test
+bundles on iPhone and iPad; each full selected suite passed 243 tests with four
+physical-only skips. Those results predate this helper-only repair and are
+retained separately; this follow-up does not claim a new native runtime run.
+App source, native assertions/exclusions, signing, asset geometry and hosted
+workflows are unchanged. No external disk or physical device is used.
+Additional active time: approximately 0.4 hours, excluding check/review waits.

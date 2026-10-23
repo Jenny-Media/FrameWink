@@ -83,9 +83,14 @@ Use `FRAMEWINK_BUILD_EVIDENCE_ROOT` for another evidence parent or `--output`
 for one new exact run directory. Evidence and compiler storage must not overlap.
 `FRAMEWINK_TEST_OUTPUT_ROOT` remains an explicit test-result override; otherwise
 family-named results live under the current run's `tests/` directory.
-Relative output paths, including explicit result/archive arguments and the test
-output override, are resolved from the caller's directory and forwarded as
-absolute paths before running the workflow from the checkout. Landscape
+Relative output paths, including explicit result/archive arguments,
+`FRAMEWINK_TEST_OUTPUT_ROOT`, `FRAMEWINK_ARTIFACTS` and
+`FRAMEWINK_SCREENSHOT_DIRECTORY`, are resolved from the caller's directory and
+forwarded as absolute paths. These destinations must be separate from compiler
+storage, including through symlinks or parent directories. Helper scripts keep
+the caller's working directory; normal xcodebuild commands run from the checkout.
+Physical build and monitoring modes therefore keep the same report location.
+Absolute output destinations remain supported. Landscape
 capture retries retain `attempt-1.xcresult` and `attempt-2.xcresult`. Capture
 attachments and failed results are retained. Existing screenshot export paths
 and image-validation rules are preserved.
@@ -137,5 +142,7 @@ python3 -m unittest discover -s scripts/tests -v
 
 These checks use fake Xcode commands to verify identity, retention, locking,
 cancellation, fresh builds and missing mounts. They execute the local test gate
-to verify its device matrix and owner-approved exclusions. Native compiler and
+to verify its device matrix and owner-approved exclusions. Copied physical and
+capture entry points with inert tools check caller-relative outputs, JPEG cleanup
+boundaries and rejection of compiler/evidence overlap. Native compiler and
 runtime evidence is recorded in `docs/TESTING.md`.

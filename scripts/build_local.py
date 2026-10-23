@@ -195,12 +195,13 @@ def run(args):
     root = storage_path(args.cache_root)
     evidence_parent = storage_path(env.get("FRAMEWINK_BUILD_EVIDENCE_ROOT", REPO / "TestArtifacts/LocalBuilds"), compiler=False)
     evidence = storage_path(args.output, compiler=False) if args.output else evidence_parent / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8])
-    # Also check legacy test output overrides, which remain supported as evidence destinations.
+    # Retained helper output overrides are caller-relative and cannot share compiler storage.
     artifact_paths = [evidence]
-    if env.get("FRAMEWINK_TEST_OUTPUT_ROOT"):
-        test_output = storage_path(env["FRAMEWINK_TEST_OUTPUT_ROOT"], compiler=False)
-        env["FRAMEWINK_TEST_OUTPUT_ROOT"] = str(test_output)
-        artifact_paths.append(test_output)
+    for name in ("FRAMEWINK_TEST_OUTPUT_ROOT", "FRAMEWINK_ARTIFACTS", "FRAMEWINK_SCREENSHOT_DIRECTORY"):
+        if env.get(name):
+            artifact = storage_path(env[name], compiler=False)
+            env[name] = str(artifact)
+            artifact_paths.append(artifact)
     for index, item in enumerate(extra[:-1]):
         if item in {"-resultBundlePath", "-archivePath"}:
             artifact = storage_path(extra[index + 1], compiler=False)
@@ -221,8 +222,10 @@ def run(args):
                FRAMEWINK_BUILD_EVIDENCE=str(evidence), FRAMEWINK_CACHE_CHECKOUT=str(REPO),
                FRAMEWINK_CACHE_PROFILE=args.sdk + ":" + args.configuration + ":" + identity["signing"])
     if args.script:
+        workflow_cwd = Path.cwd()
         command = ["/bin/bash", str(Path(args.script).resolve()), *extra]
     else:
+        workflow_cwd = REPO
         command = ["xcodebuild", "-project", str(REPO / "FrameWink.xcodeproj"), "-scheme", "FrameWink",
                    "-configuration", args.configuration, "-sdk", args.sdk, "-derivedDataPath", str(derived)]
         if "-destination" not in extra:
@@ -239,6 +242,7 @@ def run(args):
         command += extra or ["build"]
     manifest = {"identity": identity, "cache_key": key, "workspace": str(workspace),
                 "derived_data": str(derived), "evidence": str(evidence), "command": command,
+                "working_directory": str(workflow_cwd),
                 "state": "waiting-for-lock", "fresh": args.fresh}
     manifest_path = evidence / "build.json"
     def save():
@@ -274,7 +278,7 @@ def run(args):
         received = []
         try:
             with (evidence / "build.log").open("wb") as log:
-                child = subprocess.Popen(command, cwd=REPO, env=env, stdout=subprocess.PIPE,
+                child = subprocess.Popen(command, cwd=workflow_cwd, env=env, stdout=subprocess.PIPE,
                                          stderr=subprocess.STDOUT, start_new_session=True,
                                          pass_fds=(lock.fileno(),))
                 def forward(signum, frame):

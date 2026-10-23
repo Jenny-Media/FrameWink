@@ -5085,3 +5085,40 @@ locked screenshots and cumulative diff checks pass. No input drift was observed.
 The previous native iPhone/iPad results remain separate evidence; these repair
 checks validate launcher behavior, not native architecture selection, full UI
 capture, signed installation, physical acceptance, or external-drive behavior.
+
+### PR 30 helper-path regressions and native evidence — 2026-10-23
+
+The remaining helper-path repair adds four workflow tests. Copies of the real
+physical entry point exercise prepare, prepare-storekit, verify-albums, sample
+and soak from a distinct caller directory with one relative report override;
+inert tools stop each at empty-device discovery. A copy of the Duo capture
+entry point deletes an owned JPEG only in the caller's selected directory,
+preserves a checkout-directory sentinel, and stops at a fake build exit 42.
+Other fixtures cover preserved caller working directory, absolute/symlink paths
+with spaces, and rejection of both helper evidence overrides when compiler
+storage overlaps through nested, equal, parent, relative or symlink paths.
+Rejection must occur before helper side effects or compiler-root creation.
+
+The six serial commands above remain the required manifest, run in a
+source-equivalent disposable copy with fingerprints checked before/after each.
+Both focused and full commands pass all 26 tests; shell/Python syntax, locked
+screenshots and cumulative diff checks also pass with no input drift. No real
+device, compiler or capture action is used by these workflow checks, and no
+repository image is deleted or regenerated.
+
+Separately retained native verification at pre-repair head `06a98af2` used
+released Xcode 27.1 (27A9275), SDK 27.1 and arm64 iOS 27.0 Simulators: iPhone 18
+Pro and iPad Pro 13-inch (M5). App and build-for-testing commands passed on both;
+each selected full suite passed 203 unit and 40 UI tests, with zero failures
+and four physical-only skips. Existing Ask to Buy and marketing-screenshot
+exclusions were preserved. Both dedicated Simulators were returned to Shutdown.
+The native closed-pipe/contended-lock probe finalized its log and caller-relative
+result bundle successfully. Debug/Release output-override guards rejected before
+creating redirected products. Concrete commands, build manifests, result bundles
+and summaries remain in sibling `outputs/pr30-native-review-20261023/` evidence.
+
+Observed native warnings include StoreKit SDK deprecation, invalidDigitCount(94232),
+UIKit hosting-view hierarchy and StoreKit transaction-update warnings. These
+native results predate the helper-path repair; they are advisory provenance,
+not a rerun on the repaired launcher. Signed installation, actual capture,
+physical acceptance and external-storage behavior remain untested here.

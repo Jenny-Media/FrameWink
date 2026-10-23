@@ -139,6 +139,12 @@ else: print('{}')
         self.tool("git", "import sys\nif 'rev-parse' in sys.argv: print('fixture-head')\n")
         return project, launcher
 
+    def fixture_workflow(self, name):
+        project, unused = self.fixture_launcher()
+        for filename in ("build_cache.sh", name):
+            shutil.copy2(REPO / "scripts" / filename, project / "scripts" / filename)
+        return project, project / "scripts" / name
+
     def test_relative_artifact_paths_use_the_callers_directory(self):
         project, launcher = self.fixture_launcher()
         caller = self.root / "caller"
@@ -171,6 +177,98 @@ else: print('{}')
         self.assertTrue((caller / "retained/result.xcresult").is_dir())
         self.assertFalse((project / "retained").exists())
         self.assertFalse((self.root / "compiler/report").exists())
+
+    def test_physical_build_and_monitor_modes_keep_caller_relative_reports(self):
+        project, script = self.fixture_workflow("physical_acceptance.sh")
+        caller = self.root / "caller"
+        caller.mkdir()
+        # Stop every mode at empty device discovery, before any build/install/monitor action.
+        self.tool("jq", "pass\n")
+        self.tool("xcrun", '''import json,pathlib,sys
+if '--show-sdk-build-version' in sys.argv: print('fixture-sdk')
+elif sys.argv[1:4] == ['devicectl','list','devices']:
+ pathlib.Path(sys.argv[sys.argv.index('--json-output')+1]).write_text(json.dumps({'result':{'devices':[]}}))
+else: sys.exit(99)
+''')
+        env = dict(self.env, FRAMEWINK_ARTIFACTS="reports")
+        for mode in ("prepare", "prepare-storekit", "verify-albums", "sample", "soak"):
+            with self.subTest(mode=mode):
+                device_list = caller / "reports/.devices.json"
+                device_list.unlink(missing_ok=True)
+                result = subprocess.run(["/bin/sh", str(script), mode], cwd=caller, env=env,
+                                        text=True, capture_output=True, timeout=20)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("found 0", result.stdout + result.stderr)
+                self.assertTrue(device_list.is_file())
+                self.assertFalse((project / "reports").exists())
+        self.assertFalse((self.root / "calls.jsonl").exists())
+
+    def test_duo_capture_cleans_only_the_caller_relative_directory(self):
+        project, script = self.fixture_workflow("capture_app_store_iphone_duo_proof_screenshots.sh")
+        caller = self.root / "caller"
+        for directory in (caller / "shots", project / "shots"):
+            directory.mkdir(parents=True)
+            (directory / "sentinel.jpg").write_bytes(b"owned fixture")
+        self.tool("magick", "pass\n")
+        self.tool("xcrun", "import sys\nif '--show-sdk-build-version' in sys.argv: print('fixture-sdk')\nelse: sys.exit(99)\n")
+        env = dict(self.env, FRAMEWINK_SCREENSHOT_DIRECTORY="shots",
+                   FRAMEWINK_SIMULATOR_ID="fixture", FAKE_EXIT="42")
+        # The fake build stops the real copied script after its owned JPEG cleanup.
+        result = subprocess.run(["/bin/sh", str(script)], cwd=caller, env=env,
+                                text=True, capture_output=True, timeout=20)
+        self.assertEqual(result.returncode, 42, result.stdout + result.stderr)
+        self.assertFalse((caller / "shots/sentinel.jpg").exists())
+        self.assertEqual((project / "shots/sentinel.jpg").read_bytes(), b"owned fixture")
+        calls = [json.loads(line) for line in (self.root / "calls.jsonl").read_text().splitlines()]
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0][-1], "build")
+
+    def test_helper_evidence_overrides_reject_compiler_overlap_before_side_effects(self):
+        project, launcher = self.fixture_launcher()
+        caller = self.root / "caller"
+        caller.mkdir()
+        script = self.root / "output.sh"
+        marker = self.root / "helper-started"
+        script.write_text('touch "$HELPER_STARTED"\n')
+        alias = self.root / "compiler-alias"
+        alias.symlink_to(self.root / "compiler", target_is_directory=True)
+        values = [str(self.root / "compiler/report"), "../compiler/report",
+                  str(self.root / "compiler"), str(self.root), str(alias / "report")]
+        for name in ("FRAMEWINK_ARTIFACTS", "FRAMEWINK_SCREENSHOT_DIRECTORY"):
+            for value in values:
+                with self.subTest(name=name, value=value):
+                    env = dict(self.env, HELPER_STARTED=str(marker), **{name: value})
+                    result = subprocess.run([sys.executable, str(launcher), "--script", str(script)],
+                                            cwd=caller, env=env, text=True, capture_output=True, timeout=20)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn("Evidence and compiler storage must be separate", result.stderr)
+                    self.assertFalse(marker.exists())
+                    self.assertFalse((self.root / "compiler").exists())
+
+    def test_helper_keeps_caller_cwd_and_absolute_or_symlink_output_paths(self):
+        project, launcher = self.fixture_launcher()
+        caller = self.root / "caller with spaces"
+        caller.mkdir()
+        retained = self.root / "retained shots"
+        retained.mkdir()
+        alias = self.root / "shots alias"
+        alias.symlink_to(retained, target_is_directory=True)
+        artifacts = self.root / "absolute reports"
+        script = self.root / "output.sh"
+        script.write_text('pwd -P > "$HELPER_RECORD"\nprintf "%s\\n" "$FRAMEWINK_ARTIFACTS" "$FRAMEWINK_SCREENSHOT_DIRECTORY" >> "$HELPER_RECORD"\n'
+                          'mkdir -p "$FRAMEWINK_ARTIFACTS" "$FRAMEWINK_SCREENSHOT_DIRECTORY"\n')
+        record = self.root / "helper-paths"
+        result = subprocess.run([sys.executable, str(launcher), "--script", str(script)], cwd=caller,
+                                env=dict(self.env, HELPER_RECORD=str(record), FRAMEWINK_ARTIFACTS=str(artifacts),
+                                         FRAMEWINK_SCREENSHOT_DIRECTORY=str(alias)),
+                                text=True, capture_output=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(record.read_text().splitlines(),
+                         [str(caller.resolve()), str(artifacts.resolve()), str(retained.resolve())])
+        self.assertEqual(self.latest()["working_directory"], str(caller.resolve()))
+        self.assertTrue(artifacts.is_dir())
+        self.assertTrue(alias.is_symlink())
+        self.assertFalse((project / "absolute reports").exists())
 
     def test_rejects_compiler_output_overrides_before_starting_builds(self):
         shared = str(self.root / "shared-products")
