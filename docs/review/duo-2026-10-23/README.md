@@ -12,6 +12,22 @@ Same initial sample page, iPhone 18 Pro, iOS 27.0, light appearance, standard La
 | --- | --- |
 | ![Caption before](caption-before.png) | ![Caption after](caption-after.png) |
 
+## Matched Book and Tabletop control comparison
+
+Same bundled Yellowstone waterfall frame, paused, English, light appearance, Large text and hidden keyboard. Each build receives the same reveal → pause → photo-tap actions. The base hides its controls after the photo tap; the candidate keeps its separate position, browsing guidance, Resume, Share, More and Exit controls visible. The photo-pane pixels are identical before and after.
+
+| Book before | Book after |
+| --- | --- |
+| ![Book before](book-before.png) | ![Book after](book-after.png) |
+
+| Tabletop before | Tabletop after |
+| --- | --- |
+| ![Tabletop before](tabletop-before.png) | ![Tabletop after](tabletop-after.png) |
+
+These use identical neutral DEBUG geometry inputs on detached base/candidate copies: Book 951 × 669 points and Tabletop 669 × 951 points with a 40-point reserved band, inside an ordinary iPad Pro 13-inch (M5), iOS 27.0 Simulator. The base is the current base plus the recorded neutral input patch, not an untouched production binary. Both common capture cases passed on each build. These fixtures demonstrate the changed control surface; native hinge detection, native margin handling and physical acceptance remain separate checks. Only four settled native images are accepted; immediate symbol-transition images are retained and excluded. The neutral canvas and harness are absent from the implementation branch and physical build.
+
+[Capture hashes and conditions](matched-division-provenance.json), [before neutral patch](before-comparison-only.patch), [after neutral patch](after-comparison-only.patch). Full native images are retained beside the unchanged pixel crops.
+
 ## Companion controls during iteration
 
 ![Companion controls test fixture](companion-controls-fixture.png)
@@ -31,7 +47,7 @@ Position text keeps the full requested Dynamic Type size. The shortened visible 
 - Earlier candidate full ordinary iPhone: 247 passed, zero failures, four existing physical-only skips. That broad run was intentionally stopped during iPad testing after a confirmed AX5 layout finding; it is not a final-revision gate.
 - Full current iPhone and iPad suites each passed 248 tests, with zero failures and four existing physical-only skips, on clean implementation commit `67692ca`.
 - The first native Duo full run failed AX3/AX5 caption and sharing assertions, then aborted during larger-text Privacy actions without a complete readable result bundle. Both caption expectation failures reproduce on the unchanged base at the same landscape window; isolated sharing checks pass on both builds.
-- A fresh portrait Duo run completed with 244 passed, three failed and four skipped. All four new companion UI cases passed, as did AX3/AX5 setup, sharing and larger-text Privacy actions. The remaining failures are a StoreKit purchase/refund timeout and two landscape hidden-photo review assertions. These three are unresolved and are not established as inherited. No full native Duo pass is claimed.
+- A fresh portrait Duo run completed with 244 passed, three failed and four skipped. All four new companion UI cases passed, as did AX3/AX5 setup, sharing and larger-text Privacy actions. The remaining failures are a StoreKit purchase/refund timeout and two landscape hidden-photo review methods that fail their `waitForLandscape()` precondition at `FirstLaunchPrivacyUITests.swift:790`, before reaching Undo or product-layout assertions. These three are unresolved and are not established as inherited. No full native Duo pass is claimed.
 - Device Hub remains unresponsive for owner and automation after a graceful frontend restart. The owner permits essential physical fallback, while final screenshot/interaction acceptance remains grouped across all five apps. No assertions were weakened or exclusions added.
 - Release build and static analysis: passed. The test-division flag is absent from the Release binary.
 - Physical baseline: ten landing positions plus control sheets and paused foreground transitions preserved. Existing continuity already worked; this patch does not claim to fix a fold-reset defect.

@@ -1,0 +1,96 @@
+{
+  "base": "c3614aab98817a3eb5da24b962609937ab41a667",
+  "native_candidate": "67692ca55bc5155d506adbe3e9dfeacfb3fb0108",
+  "device": "iPad Pro 13-inch (M5) Simulator, iOS 27.0, Xcode 27.1",
+  "conditions": {
+    "fixture": {
+      "book": [
+        951,
+        669
+      ],
+      "tabletop": [
+        669,
+        951
+      ],
+      "division_points": 40
+    },
+    "locale": "en",
+    "appearance": "light",
+    "content_size": "Large",
+    "keyboard": "hidden",
+    "initial_common_action": "tap blank companion surface to reveal toolbar, then pause same initial bundled sample page"
+  },
+  "geometry_scope": "Identical comparison-only inputs on detached trees. These captures do not verify native reserved-region discovery or margins.",
+  "common_hook_sha256": "b15a96cb0ccbd1d004a5552720c08b457afd73bd7c039075f4c258718f131837",
+  "common_harness_sha256": "b8656838dbf7f8ca3792b8ac9c03eece3a485a852b60202951aa9acb9bc3af07",
+  "capture_cases_each_build": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "feature_native_inputs_verified": 133,
+  "accepted": [
+    {
+      "mode": "book",
+      "phase": "before",
+      "native": "book-before-native.png",
+      "native_sha256": "5b0e45573798ef6a7f6241fa9d98cd11d33fb2df9f147388bf2f6f2340bf714a",
+      "canvas": "book-before.png",
+      "canvas_sha256": "6807e63893e181350945d18395e7d1e7bd611a4f326175deb865e18795896891",
+      "unaltered_pixel_crop": [
+        81,
+        707,
+        1983,
+        2045
+      ],
+      "photo_pixels_identical_before_after": true
+    },
+    {
+      "mode": "tabletop",
+      "phase": "before",
+      "native": "tabletop-before-native.png",
+      "native_sha256": "11bfda3834d938e42337380365014006ed0ba73b749b7b510ce9c4be2d9e9503",
+      "canvas": "tabletop-before.png",
+      "canvas_sha256": "3f0e61d04e0db0cacf5f2240fbca78dfef6ced2508e8d65406e354cc3aa3334d",
+      "unaltered_pixel_crop": [
+        363,
+        425,
+        1701,
+        2327
+      ],
+      "photo_pixels_identical_before_after": true
+    },
+    {
+      "mode": "book",
+      "phase": "after",
+      "native": "book-after-native.png",
+      "native_sha256": "72f4e44d18f30f681d1af2a640fc027aed2c1d543fc9e2700db2c66bdd8be3d6",
+      "canvas": "book-after.png",
+      "canvas_sha256": "1b582cd2b9045078c1da74bd14080932b3355744bdb80eb354b24a1e76d61257",
+      "unaltered_pixel_crop": [
+        81,
+        707,
+        1983,
+        2045
+      ],
+      "photo_pixels_identical_before_after": true
+    },
+    {
+      "mode": "tabletop",
+      "phase": "after",
+      "native": "tabletop-after-native.png",
+      "native_sha256": "c3f8a2a81d8193f5dcbc03c0d183c972efca19bc61f105d42ad8499932e64479",
+      "canvas": "tabletop-after.png",
+      "canvas_sha256": "4e9c99c4e497129c9bfc42e76c16d885bc5c468eb4c42beb34dde410eb354337",
+      "unaltered_pixel_crop": [
+        363,
+        425,
+        1701,
+        2327
+      ],
+      "photo_pixels_identical_before_after": true
+    }
+  ],
+  "excluded": "Initial base toolbar-readiness failure and four immediate Pause/Play symbol-transition captures are retained locally, excluded from accepted comparisons.",
+  "physical_acceptance": "Pending shared five-app session; native source and physical build contain no comparison-only canvas."
+}
