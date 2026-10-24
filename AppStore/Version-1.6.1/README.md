@@ -7,7 +7,7 @@ Baseline: latest fetched origin/main `73b85f6d7d008303d5c534c9eff0d04a433c75a9`,
 Live read-only audit on October 24 through the owner's signed-in App Store Connect session:
 - Distribution: iOS 1.6, Ready for Distribution, attached build 66; no newer App Store version is listed.
 - TestFlight: 1.6.1 (78), Complete / Ready to Submit, assigned to Jenny Media Internal; 1.6.1 (76), Testing, also assigned to External Testers; (72), Ready to Submit.
-- Xcode Cloud: latest Validation 79 and Internal TestFlight 78 both list PR #31's merge as their source. Build 80 exceeds observed Cloud and upload numbers. Status details and exact source must be rechecked before future distribution.
+- Xcode Cloud: latest Validation 79 and Internal TestFlight 78 both list PR #31's merge as their source. Build 80 exceeds observed Cloud and upload numbers. Both saved build summaries were read back: Archive 78 and its internal TestFlight post-action succeeded; Analyze 79 succeeded, each from `73b85f6`. Recheck before future distribution.
 
 Release inputs: `WhatsNew.en-US.txt`, `AppReviewNotes.en-US.txt`, `What-to-Test.txt` (identical to the canonical TestFlight file), and `Hardware-Test-Checklist.md`. Keep existing approved galleries; this task does not publish metadata or change availability.
 
@@ -22,3 +22,20 @@ Apple closed the public 1.6 train; rejected build 70 used 1.6. Version 1.6.1 (72
 ## Stop boundary
 
 Prepare PR, run local Simulator checks, and retain a signed local archive only. No upload, Xcode Cloud start, tester assignment, App Review submission, merge, website deployment or publication. Xcode Cloud remains the authoritative distribution builder under D-013/D-049; a later merge to main can automatically upload/distribute and requires separate authorization. Physical follow-up is TestFlight-only. Simulator failures remain blockers; hardware acceptance is not inferred.
+
+## Verification outcome
+
+See [the complete verification record](Verification-2026-10-24.md) for exact
+commands, source, artifacts, counts, warnings and failed checks. Build/test/archive
+source is `8bfb9bd2c525ec0fcacb733e805144b9dca69813`; final follow-up edits only
+documentation and tester notes. The signed local archive and distribution-signed
+IPA are retained under ignored `TestArtifacts/ReleasePrep-20261024/`.
+
+Complete ordinary iPhone rerun and iPad each pass 254 tests, zero failures and
+four physical-only skips. The initial iPhone run (252/2/4) and all retries remain
+retained. Dedicated native Duo full run is 248/5/4; the isolated StoreKit retry
+passes, but four UI methods remain stopped at `waitForLandscape()`. Keep release
+validation incomplete and PR #32 draft. Do not add exclusions. The supplemental
+legacy artwork validator also fails its unchanged 11-versus-10 landscape count;
+approved screenshot hashes pass. Hardware acceptance remains the separate
+TestFlight-only checklist, unrun for candidate 80. Nothing was uploaded or submitted.

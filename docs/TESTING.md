@@ -5209,3 +5209,68 @@ The [review report](review/duo-2026-10-24/README.md) and sanitized provenance co
 Additional user-approved fix at `80fddd95103e4140db8f233eabe8580c3f697ec3` preserves an already-open More panel when the schedule enters blackout, while retaining hidden ordinary controls. Closing More immediately leaves darkness; explicit tap/escape/recede behavior still works. Reviewed head `d97cd48` plus a neutral DEBUG schedule-clock fixture reproduced the exact missing-presenter assertion (0 passed / 1 failed). The corrected source passes 33 focused iPad checks (28 logic + 5 UI), zero failures/skips. Only `SampleSlideshowView.swift` differs between the baseline and candidate native inputs. All 133 final native inputs match the validated source.
 
 [New matched captures, fixture contract and exact limits](review/duo-2026-10-24/blackout-transition/README.md) preserve the prior repair report and failed runs. Ordinary and divided fixture cases both verify real duration selection during blackout, dark dismissal, and deliberate-tap escape/recede. Earlier fold/unfold regressions pass. This additional pass does not claim a new full-family suite or native Duo fold acceptance; physical follow-up remains TestFlight-only. The owned iPad is Shutdown; no upload, physical device action, merge or release occurred.
+
+
+## Release preparation 1.6.1 (80) — 2026-10-24
+
+Latest fetched and pre-push-verified origin/main is PR #31 merge
+`73b85f6d7d008303d5c534c9eff0d04a433c75a9`. A fresh managed worktree on
+`codex/release-prep-2026-10-24` preserves existing checkouts. All native build,
+test and archive runs use clean source `8bfb9bd2c525ec0fcacb733e805144b9dca69813`,
+with unchanged input fingerprints throughout. Final follow-up is documentation
+and tester-note changes only.
+
+| Run | Pass | Fail | Skip |
+| --- | ---: | ---: | ---: |
+| Initial iPhone full gate | 252 | 2 | 4 |
+| Three isolated iPhone retries, two cases each | 6 | 0 | 0 |
+| Complete unchanged iPhone rerun | 254 | 0 | 4 |
+| Complete iPad gate | 254 | 0 | 4 |
+| Dedicated native Duo full gate | 248 | 5 | 4 |
+| Isolated Duo StoreKit retry | 1 | 0 | 0 |
+
+The original iPhone controller-wait and Share-hit-testing failures remain
+retained despite all retries and the clean full rerun. Cause is unproven. Native
+Duo's StoreKit timeout passes unchanged in isolation; four UI methods still stop
+at `waitForLandscape()` (lines 790, 1262 and 1280), before their product
+assertions. No assertion, timeout or exclusion changed. This is not a clean Duo
+gate, so release validation remains incomplete and PR #32 remains draft.
+
+Requested viewport, paused browsing, control visibility, Largest Text, More/unfold
+and scheduled-blackout cases pass on ordinary iPhone/iPad. Scoped native Duo
+manual captures verify Book/Tabletop placement, paused companion browsing,
+paused rotation, playing More across Closed/Open and actual duration input.
+Geometry/clock fixtures and native poses are labeled separately. A shared
+Simulator's later switch to another app invalidates a dismissal attempt; remaining
+Duo tests use a newly created release-only Simulator. No hardware was controlled.
+
+Release Analyze, archive guard, 30 workflow tests, plist/StoreKit JSON/shell
+checks, three locked screenshot families and six approved native 1.6 Duo hashes
+pass. The supplemental legacy asset validator fails an existing 11-versus-10
+landscape source-count mismatch. Assets were preserved. Runtime UIKit and
+StoreKit fixture warnings, SDK/debugger diagnostics and the Release App Intents
+metadata-skip warning remain recorded; do not describe these runs as warning-free.
+
+A signed archive and Apple Distribution-signed local IPA were prepared with
+existing signing. Metadata is 1.6.1 (80), iOS 15 minimum, families 1/2, SDK 27.1,
+production Lifetime ID, no non-exempt encryption and no DEBUG harness flags.
+Binary/dSYM UUIDs match. Evidence root: ignored
+`TestArtifacts/ReleasePrep-20261024/` in the release worktree. Exact commands,
+archive/IPA paths and hash, failures and warnings are in
+[the release verification record](../AppStore/Version-1.6.1/Verification-2026-10-24.md).
+Physical acceptance follows only the
+[TestFlight hardware checklist](../AppStore/Version-1.6.1/Hardware-Test-Checklist.md).
+No upload, Cloud start, tester assignment, App Review submission, merge or release
+was performed.
+
+### Historical 1.1 delivery reconciliation from PR #14
+
+PR #14 remains open/conflicting at `ee684e27897dba7191830cfc828e27a1eafa47da`.
+Its unique historical record identifies PR #13 merge `6a137d8`, release Xcode
+27.0 (27A266a) local signed 1.1 (30), the rejected beta-Xcode 29 attempt, Apple
+validation/internal assignment, September 18 at 4:16 PM Eastern submission
+`65db5975-4582-4cca-b723-263428ef3768`, and September 21 Ready for Distribution.
+It records owner-reported public iPhone/iPad smoke checks including storage,
+without exact device/OS details. This is reconciled as dated PR evidence, not a
+new physical run or a replacement for current acceptance. Old current-status and
+whole-project-complete substitutions were not merged.

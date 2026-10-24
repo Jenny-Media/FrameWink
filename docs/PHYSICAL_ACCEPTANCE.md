@@ -3,6 +3,15 @@
 This guide closes the remaining physical-device acceptance gaps without
 confusing local test doubles with TestFlight or App Store evidence.
 
+## Version 1.6.1 hardware follow-up — 2026-10-24
+
+Use the exact owner-authorized TestFlight build and the
+[release hardware checklist](../AppStore/Version-1.6.1/Hardware-Test-Checklist.md).
+Current release preparation uses Simulator locally; hardware acceptance remains
+TestFlight-only and unrun for candidate 80. The general Debug helper procedures
+below remain development references and do not close this release's hardware
+acceptance. No physical install, control or provisioning was performed.
+
 ## What is automated
 
 `scripts/physical_acceptance.sh` safely discovers exactly one connected

@@ -13,7 +13,7 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 27.7 h | 1.6.1 release preparation in progress; current gates recorded below |
+| 6. Hardening and release | 8 h | 27.7 h | 1.6.1 artifacts prepared; native Duo release gate incomplete |
 | **Total** | **40 h** | **50.7 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
@@ -3487,3 +3487,40 @@ Do not mark completion on failed acceptance. No new production feature or UI
 redesign is included. Hardware work remains a later TestFlight-only checklist.
 No upload, Cloud start, merge, App Review submission or publication is authorized.
 Initial active-work estimate: 0.8 hours; final results/time will be appended.
+
+
+### 1.6.1 release-preparation outcome — 2026-10-24
+
+Preparation artifacts and draft PR #32 are ready for review; release validation
+remains incomplete. Candidate 1.6.1 (80) was selected from a read-only live audit
+of public 1.6 (66), latest TestFlight 1.6.1 (78) and successful Cloud runs through
+79. No remote number was reserved. PR #31 merge is included in baseline
+`73b85f6`; native test/archive source is clean commit `8bfb9bd`. All 133 native
+input fingerprints remained unchanged through each recorded run.
+
+Completed: app build-number sources, public/reviewer/tester notes, concise synced
+TestFlight metadata, a TestFlight-only hardware checklist, reconciliation of
+PR #14's unique 1.1 release record, Release Analyze, archive guard, 30 tooling
+checks, plist/JSON/shell checks, locked approved galleries, signed local archive
+and distribution-signed local IPA. Existing checkouts and artwork are preserved.
+
+Ordinary iPhone full rerun and iPad each pass 254/0/4. Initial iPhone 252/2/4,
+three successful two-case retries and the original failed bundles are retained.
+Dedicated native Duo full run is 248/5/4. Its StoreKit retry passes 1/0/0; four
+UI cases remain failed at the landscape-window precondition (two hidden-photo
+reviews, More/unfold and blackout/division activation). Required native acceptance
+is not marked complete and no new exclusions were introduced. Native manual
+Book/Tabletop/control captures and ordinary blackout fixtures remain scoped
+evidence. An interrupted shared-Simulator dismissal is excluded.
+
+Known risks: unresolved native Duo rotation/setup and unexecuted downstream
+assertions; unexplained initial ordinary iPhone intermittency; baseline legacy
+landscape artwork validator expects 10 JPEGs but finds 11 (approved galleries
+independently pass); runtime/toolchain warnings; unrun TestFlight hardware, real
+PhotoKit, purchase/restore, iOS 15/2 GB, thermal, Guided Access and soak checks.
+Exact commands/results/artifacts are linked from docs/TESTING.md. Keep PR #32
+draft until the required failed gate is resolved. Recheck version/build numbers
+before future upload. Main's automatic Cloud distribution makes merge a separate
+owner-authorization boundary. No upload, Cloud start, review submission or
+App Store publication was performed. Active-work estimate: approximately 1.5 hours for
+this preparation, excluding unattended test runtime.
