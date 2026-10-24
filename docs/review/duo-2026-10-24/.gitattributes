@@ -1,0 +1,2 @@
+# Preserve the exact recorded patch, including blank context lines.
+baseline-neutral-fixture.patch -whitespace

@@ -3442,3 +3442,14 @@ These use identical neutral DEBUG geometry inputs on detached base/candidate cop
 The original failed base capture is retained: its toolbar had already auto-hidden before XCTest became ready. The common harness now performs the same ordinary companion tap on both builds before its unchanged pause assertions. Final capture runs passed 2/2 each, with no failures/skips. Native feature source remains at `67692ca`; all 133 recorded inputs match that accepted revision. This update adds only review evidence and documentation. No merge, distribution, physical action or new time estimate is recorded.
 
 The two unresolved native Duo hidden-photo methods stop at their landscape precondition before product-layout assertions; StoreKit timeout remains unresolved. Required shared hardware acceptance and PR readiness remain open.
+
+
+### Control visibility review fixes — 2026-10-24
+
+Source `9f0cc83c619058a252d690187823f34d86c65abd` fixes the two independent-review findings on PR #31: More survives unfold during playing playback, and a division change preserves scheduled blackout darkness. Both defects reproduced on reviewed head `534e380` plus an explicit DEBUG portrait-division fixture before the fix. Main `c3614aa` was already integrated; no base merge was necessary.
+
+Focused iPad: 58 logic + 10 UI pass, one AX5 diagnostic fails at an XCTest element gesture. A collection-view gesture follow-up fails the same empty-visible-frame condition. The final observed-coordinate AX5 diagnostic passes text scaling, actual 10s selection and dismissal. Ordinary iPhone: 62 pass, 0 fail/skip, reusing test products. Original failed runs and historical captures remain retained. The suspected Dynamic Type cap is not reproduced (heading accessibility height 44 at Large, 151 at AX5, confirmed visually); no production text change was made.
+
+The [review report](review/duo-2026-10-24/README.md) and sanitized provenance contain fixture labels, source/capture hashes and exact result boundaries. New native Duo fold detection/acceptance and a new full native suite are not claimed. Historical native failures remain open; physical follow-up is TestFlight-only. No hardware discovery/control/install/provisioning, upload, merge or release occurred.
+
+Status: source fixes and focused Simulator checks complete; fresh independent review remains required; PR stays draft and unmerged. Active work estimate: about 20 minutes, excluding unattended runtime and resource-lease waits.
