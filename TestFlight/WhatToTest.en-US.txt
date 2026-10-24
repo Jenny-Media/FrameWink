@@ -1,5 +1,14 @@
 Thank you for testing FrameWink 1.6.1 for iPhone and iPad.
 
+Priority checks for the PR #31 companion-control update:
+- On Duo, test Closed, Fully Open, Book in both directions and Tabletop in both directions. Photos should remain above/left, controls below/right, with no hinge overlap.
+- In Book and Tabletop, pause on a recognizable photo. Swipe only the companion controls left and right; photo position updates and pause remains. Check Share, Resume, More and Close, including the largest text sizes.
+- While playing, open More and unfold. Wait longer than five seconds; the panel and selected duration remain. Select another duration, close More and confirm ordinary controls recede again.
+- Enable a night schedule through the normal Lifetime UI, set blackout a few minutes ahead and keep the app foregrounded. Keep More open across onset, change duration, then close it: the frame must stay dark. Fold/unfold while dark without touching; controls must remain hidden. A deliberate tap reveals exit briefly and it recedes again.
+- Repeat closed/open/Book/Tabletop transitions both paused and playing; record photo identity, pause state, selected duration and any unexpected reset. Check rotation, both iPad Split View positions, VoiceOver and Reduce Motion.
+
+Hardware testing must use an owner-authorized TestFlight build. Do not install a local Debug build, acceptance harness, fixture entitlement or geometry override. Simulator fixtures are not evidence of native hardware behavior. Record the installed version/build, device/OS, posture, steps and actual outcome. See the release hardware checklist.
+
 Please focus on iPhone Duo folding and playback continuity, choosing and reviewing photos, Photo Duration, storage cleanup, and restoring FrameWink Lifetime.
 
 Please test:

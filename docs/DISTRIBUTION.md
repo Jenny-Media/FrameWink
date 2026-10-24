@@ -9,6 +9,17 @@
 - Apple Developer team: Jenny Media LLC (`5736QK4NZX`)
 - Signing style: automatic
 
+## Current release preparation — 2026-10-24
+
+Read-only ASC audit: App Store 1.6 (66) Ready for Distribution; TestFlight
+1.6.1 (78) Complete / Ready to Submit internally, (76) Testing internally and
+externally. Latest Cloud runs are Validation 79 and Internal TestFlight 78,
+both labeled with PR #31 merge. Prepare local 1.6.1 (80) from `73b85f6` in an
+isolated worktree; no remote number is reserved. Details and release gates:
+`AppStore/Version-1.6.1/README.md`. A signed local archive is preparation
+only. Do not merge to main, start Cloud, upload, submit or publish in this task;
+main's automatic archive/distribution is a later authorization boundary.
+
 ## Intended delivery path
 
 Xcode Cloud is the authoritative release builder. Simulator tests are a local
@@ -677,7 +688,7 @@ blocker affects only a later boundary.
 
 ### B-028 — Version 1.1 release candidate
 
-- Status: In progress; App Store Connect metadata saved, no 1.1 build attached
+- Status: Released; historical record reconciled from PR #14 on 2026-10-24
 - First recorded: 2026-09-18
 - Scope: carry the unshipped 1.0.1 sample and framing improvements into 1.1,
   then add clear storage controls, safe cleanup, a bounded recent-album cache,
@@ -686,7 +697,13 @@ blocker affects only a later boundary.
 - App Store Connect: the editable iOS version was changed from 1.0.1 to 1.1.
   Its What's New is a four-item bullet list, reviewer notes describe the new
   storage actions, the old 1.0.1 Build 19 was detached, and manual release
-  remains selected. No 1.1 build is available yet.
+  remained selected at preparation. Subsequently, release Xcode 27.0 built
+  signed 1.1 (30) from PR #13 merge `6a137d8`; Apple validated the local upload.
+  PR #14 records submission `65db5975-4582-4cca-b723-263428ef3768` on
+  September 18 at 4:16 PM Eastern, Ready for Distribution on September 21, and
+  owner-reported public iPhone/iPad storage smoke checks (device/OS unrecorded).
+  Beta-toolchain build 29 was rejected and superseded. These are dated historical
+  facts from that PR, not current build acceptance evidence.
 - Local release input: the app marketing version and cloud archive guard are
   1.1, and TestFlight instructions, public privacy, and support copy describe
   the shipping cleanup controls. A local Release build, Analyze action, and

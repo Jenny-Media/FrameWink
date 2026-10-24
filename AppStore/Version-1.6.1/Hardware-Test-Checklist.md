@@ -1,0 +1,19 @@
+# TestFlight-only hardware acceptance for 1.6.1
+
+Status: not run for the local build 80 candidate. Obtain explicit upload/distribution authorization first; then install the exact approved TestFlight build. No local development install, physical-acceptance helper, test entitlement, injected division or test clock is part of this checklist.
+
+Record date, tester, app version/build, device model, OS, photo source, posture/orientation, foreground state, pass/fail, and evidence kept outside Git. Use bundled samples or consented licensed photos. Cover a standard iPhone, a supported iPad, and an iPhone Duo; retain iOS/iPadOS 15 and 2 GB hardware performance gaps if those devices are unavailable.
+
+- [ ] Fresh launch: labelled samples, no Photos prompt. PHPicker works only after Choose Photos; cancellation leaves samples usable. Review personal selections before playback; Never Show Again, Undo and hidden-photo restoration work.
+- [ ] Duo landing layouts: Closed portrait/both landscapes; Fully Open portrait/both landscapes; Book both directions; Tabletop both directions. Photos lead/above, companion controls trail/below, hinge and asymmetric safe areas clear. Check setup, sheets, Share, More, Close at Large and largest accessibility text.
+- [ ] Paused continuity: note an identifiable photo and position; move Closed → Open → Book → Tabletop → Closed and rotate. Same photo anchor and pause survive. Swipe companion region in both directions while paused; position changes and pause remains. Share the current scene, cancel, return and exit normally.
+- [ ] Playing continuity: choose 10s, observe several advances, fold/unfold/rotate/resize, then pause/resume. No skipped/reset timer, new session, lost anchor or stuck playback. Repeat both iPad Split View positions. Page totals can legitimately change with pairing; judge identity and timing.
+- [ ] More continuity: open while playing, unfold, wait at least five seconds, change every duration once, close. Selection acknowledges each tap and persists after reopening; undivided controls resume auto-hide. Repeat Book/Tabletop.
+- [ ] Scheduled blackout: use real Lifetime entitlement and normal schedule UI, set onset a few minutes ahead, remain foregrounded. With More already open, cross onset and wait five seconds: panel remains, duration still changes. Close into complete darkness. Repeat ordinary and divided layouts. Folding alone never lights hidden chrome; deliberate tap reveals exit, then controls recede. Check visual dimming and scheduled foreground return separately; no exact suspended wake claim.
+- [ ] Accessibility: VoiceOver names/actions for photo browsing and companion controls, logical focus across fold transitions, Reachable Close/Done, Larger Text, Reduce Motion off/on and contrast.
+- [ ] Real Photos: Limited/denied/full authorization, selected-album changes, local/iCloud item and offline cached replay; hidden photos/screenshots excluded automatically. Check preparation progress, paused refresh and relaunch without changing originals.
+- [ ] StoreKit: TestFlight sandbox product/price, purchase/cancel, restore, offline verified entitlement, revocation/refund and Family Sharing with appropriate sandbox accounts. Simulator StoreKit tests do not close this gate.
+- [ ] Storage: safe cleanup keeps selections/current frame; disposable data only for confirmed Delete All FrameWink Photos. Originals remain untouched and progress stays visible.
+- [ ] Mounted iPad: safe charger/mount, foreground Auto-Lock ownership and exit restoration, manually start/end Guided Access, overnight blackout, thermal/charging/memory observations and seven-day soak. A restart requires the user to reopen the app.
+
+Do not mark physical acceptance complete from Simulator results or prior version/build evidence. Report any failure as a release blocker with exact reproduction; public release and App Review submission remain separately authorized actions.

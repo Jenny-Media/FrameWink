@@ -1,0 +1,3 @@
+• Browse photos from the companion controls in iPhone Duo Book and Tabletop layouts, with a clear current-photo position.
+• Keep playback options open when unfolding or when a scheduled blackout begins. Closing options returns the frame to darkness.
+• Improved sample-caption readability and controls at larger text sizes.

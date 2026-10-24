@@ -13,7 +13,7 @@ time rather than unattended calendar time.
 | 3. Smart Reel curator | 10 h | 6 h | Implementation complete — physical validation pending |
 | 4. Wall Mode | 5 h | 3.5 h | Implementation complete — physical soak pending |
 | 5. Purchases | 4 h | 3.75 h | Complete — physical purchase check remains a release gate |
-| 6. Hardening and release | 8 h | 27.7 h | Version 1.3 preparation in progress — TestFlight archive pending |
+| 6. Hardening and release | 8 h | 27.7 h | 1.6.1 release preparation in progress; current gates recorded below |
 | **Total** | **40 h** | **50.7 h** | **In progress** |
 
 ## Milestone 0 — Contract and scaffold
@@ -3462,3 +3462,28 @@ Additional user-approved fix at `80fddd95103e4140db8f233eabe8580c3f697ec3` prese
 [New matched captures, fixture contract and exact limits](review/duo-2026-10-24/blackout-transition/README.md) preserve the prior repair report and failed runs. Ordinary and divided fixture cases both verify real duration selection during blackout, dark dismissal, and deliberate-tap escape/recede. Earlier fold/unfold regressions pass. This additional pass does not claim a new full-family suite or native Duo fold acceptance; physical follow-up remains TestFlight-only. The owned iPad is Shutdown; no upload, physical device action, merge or release occurred.
 
 Status: focused repair checks complete; fresh independent review still required. Active work estimate: about 10 minutes, excluding runtime and shared-lease waits.
+
+
+## Next release preparation — 2026-10-24
+
+Status: in progress, not ready for upload or public release. Fresh managed
+worktree and branch `codex/release-prep-2026-10-24` start at latest fetched
+origin/main `73b85f6d7d008303d5c534c9eff0d04a433c75a9`, PR #31's merge.
+Existing checkouts are preserved. Read-only ASC audit confirms public 1.6 (66),
+TestFlight 1.6.1 (78), and Cloud numbers through 79. Keep the unreleased 1.6.1
+train, set application build 80, and recheck for collisions before future upload.
+
+Release notes, review notes, canonical/mirrored TestFlight notes and a
+TestFlight-only hardware checklist are prepared under AppStore/Version-1.6.1.
+Only open PR is #14 (conflicting historical docs); reconcile its unique 1.1 (30)
+release record into current docs without merging its stale current-status text.
+Its dated September 21 Ready for Distribution and owner iPhone/iPad smoke report
+do not close current hardware gates.
+
+Required local work: full iPhone/iPad/native Duo scheme with unchanged approved
+exclusions, focused Book/Tabletop/control/blackout checks, Release analysis,
+archive guard, locked screenshots, tooling checks and signed local archive.
+Do not mark completion on failed acceptance. No new production feature or UI
+redesign is included. Hardware work remains a later TestFlight-only checklist.
+No upload, Cloud start, merge, App Review submission or publication is authorized.
+Initial active-work estimate: 0.8 hours; final results/time will be appended.

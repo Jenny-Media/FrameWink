@@ -5,11 +5,21 @@ it aligned with the shipping build and update it before every submitted version.
 
 ## Current availability
 
-FrameWink 1.5 is Ready for Distribution in App Store Connect, verified
-October 6, 2026.
+FrameWink 1.6 (66) is Ready for Distribution in App Store Connect, verified
+October 24, 2026. The next local candidate is 1.6.1 (80), unuploaded.
+See `AppStore/Version-1.6.1/README.md` for the live build audit, release inputs
+and remaining gates. Historical snapshots below retain their original dates.
 The App Store listing is at
 `https://apps.apple.com/us/app/framewink/id6800849400`. The public website uses
 Apple's official unmodified Download on the App Store badge for this listing.
+
+## Release preparation 1.6.1 — 2026-10-24
+
+PR #31 is merged in baseline `73b85f6`. Prepare companion-control, caption,
+unfold and scheduled-blackout improvements with the release notes under
+`AppStore/Version-1.6.1/`. TestFlight already lists 1.6.1 (78); Cloud's latest
+number is 79. Local build 80 is not uploaded or reserved remotely. No App Store
+metadata, submission, tester assignment or release is changed in this task.
 
 ## Native version 1.6 preparation — 2026-10-06
 
@@ -149,7 +159,15 @@ remains in progress.
 ## Released version 1.1
 
 The owner confirmed that FrameWink 1.1 was released before version 1.2
-preparation began. The saved release copy was:
+preparation began. Reconciled from open documentation PR #14 on 2026-10-24:
+PR #13 merged as `6a137d81fc0c1deb176883d4e1004213df74ddc3`; that exact tree
+produced local signed 1.1 (30) with release Xcode 27.0 (27A266a), after beta
+build 29 was rejected for an unsupported toolchain. Apple accepted build 30,
+and submission `65db5975-4582-4cca-b723-263428ef3768` was sent September 18
+at 4:16 PM Eastern. PR #14 records a September 21 ASC read-back of Ready for
+Distribution and owner-reported public iPhone/iPad smoke checks including
+storage flows; exact device/OS details were not recorded. This is historical
+PR evidence, not a new physical acceptance claim. The saved release copy was:
 
 Saved English (U.S.) What's New, as a bullet list:
 
@@ -218,8 +236,9 @@ PhotoKit are the only relevant transport surfaces.
 - Support email: `framewink@jenny.media`
 
 The root-level `PRIVACY.md` is the canonical policy source. The website copy
-and the release-review input below must remain aligned with it. The 1.1 website
-copy changes are on draft PR #13 and require publication before review submission.
+and the release-review input below must remain aligned with it. PR #13 merged
+the 1.1 website changes; PR #14 records public privacy/support verification
+on 2026-09-18. Later release checkpoints supersede those historical inputs.
 
 Effective: September 18, 2026
 
