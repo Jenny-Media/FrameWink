@@ -21,7 +21,7 @@ Apple closed the public 1.6 train; rejected build 70 used 1.6. Version 1.6.1 (72
 
 ## Stop boundary
 
-Prepare PR, run local Simulator checks, and retain a signed local archive only. No upload, Xcode Cloud start, tester assignment, App Review submission, merge, website deployment or publication. Xcode Cloud remains the authoritative distribution builder under D-013/D-049; a later merge to main can automatically upload/distribute and requires separate authorization. Physical follow-up is TestFlight-only. Simulator failures remain blockers; hardware acceptance is not inferred.
+Prepare PR, run local Simulator checks, and retain a signed local archive only. No upload, Xcode Cloud start, tester assignment, App Review submission, merge, production website deployment or publication. Xcode Cloud remains the authoritative distribution builder under D-013/D-049; a later merge to main can automatically upload/distribute and requires separate authorization. Physical follow-up is TestFlight-only. Simulator failures remain blockers; hardware acceptance is not inferred.
 
 ## Verification outcome
 

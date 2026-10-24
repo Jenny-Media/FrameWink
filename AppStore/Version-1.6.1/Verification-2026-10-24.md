@@ -239,7 +239,7 @@ foreground brightness/Auto-Lock, manual Guided Access, thermals and seven-day
 soak, plus iOS/iPadOS 15 and 2 GB coverage. No physical device was controlled or
 installed in this task. Simulator results do not close those checks.
 
-No upload, Cloud start, tester assignment, App Review submission, merge, website
+No upload, Cloud start, tester assignment, App Review submission, merge, production website
 deployment or App Store release occurred. A later merge can automatically upload
 and distribute, so it requires separate owner authorization and an exact-source
 Cloud/build audit. Build 80 has no ASC processing or hardware acceptance evidence.

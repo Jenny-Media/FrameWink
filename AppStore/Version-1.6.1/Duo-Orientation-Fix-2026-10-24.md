@@ -175,7 +175,7 @@ The updated local workflow tests pass 30/0. `bash -n scripts/test_local.sh` and
 no Ask-to-Buy or marketing-utility selection change was made.
 
 No physical device was controlled. No upload, Cloud start, tester assignment,
-App Review submission, merge, website deployment or publication occurred.
+App Review submission, merge, production website deployment or publication occurred.
 
 ## Release boundary
 
@@ -190,5 +190,11 @@ this repair does not establish its cause. All failed bundles are preserved.
 No production source or archive rebuild was needed. The existing signed archive
 and distribution IPA retain the original paths, UUID and SHA-256 in the initial
 release report. No upload, Cloud start, tester assignment, App Review submission,
-merge, website deployment or publication occurred. Follow-up active-work estimate:
+merge, production website deployment or publication occurred. Follow-up active-work estimate:
 approximately 0.6 hours, excluding unattended Simulator runtime.
+
+GitHub's existing Vercel integration automatically built a PR preview for
+`242acbe087eec546307e3d4736adb21189d0a53b`. The API reports READY, Git source on
+`codex/release-prep-2026-10-24`, target null (preview), and only its branch-preview
+alias. This is automatic PR CI, not a production promotion. Subsequent documentation
+pushes may refresh that preview. No production deployment was started manually.
