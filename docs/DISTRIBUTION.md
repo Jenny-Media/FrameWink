@@ -37,11 +37,13 @@ The cloud workflows should:
 4. Use its TestFlight post-action to distribute successful builds to Jenny Media
    LLC internal testers.
 
-Before release changes merge, `scripts/test_local.sh` defaults to Xcode 27.1 RC
-and runs the shared scheme on iPhone and iPad, then verifies locked screenshots.
-The default SDK, or an explicit `DEVELOPER_DIR` pointing to 27.1/27.2, also runs
-the native Duo suite,
-retaining the owner-approved Duo-only automated rotation exclusion.
+Before release changes merge, `scripts/test_local.sh` uses the selected installed
+Xcode (or explicit `DEVELOPER_DIR`) and runs the shared scheme on iPhone and iPad,
+then verifies locked screenshots. SDK 27.1/27.2 also runs the native Duo suite.
+The October 24 UI-runner repair drives actual Simulator rotation and restores
+the formerly excluded round-trip case. The unchanged geometry predicates still
+gate success; native Book/Tabletop and TestFlight hardware acceptance remain
+separate. See `AppStore/Version-1.6.1/Duo-Orientation-Fix-2026-10-24.md`.
 
 Version 1.6.1 cloud preparation uses released Xcode 27.1 (27A9275), SDK 27.1,
 with macOS Golden Gate 27.0.1 (26A434). Both saved workflows were updated on

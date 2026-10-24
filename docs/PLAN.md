@@ -3524,3 +3524,51 @@ before future upload. Main's automatic Cloud distribution makes merge a separate
 owner-authorization boundary. No upload, Cloud start, review submission or
 App Store publication was performed. Active-work estimate: approximately 1.5 hours for
 this preparation, excluding unattended test runtime.
+
+
+### Duo orientation retry and harness repair — 2026-10-24
+
+Status: in progress after owner requested a retry and fix. The unchanged four-case
+retry reproduces all four landscape-precondition failures (0/4/0). Retained
+geometry shows the actual main window at 466 × 678 after the XCTest landscape
+request. Evaluate a UI-test-target-only Simulator control-event transport; keep
+the existing eight-second geometry predicates and every product assertion.
+Normalize this fixture suite to the Duo cover display, with native Book/Tabletop
+checks and TestFlight hardware acceptance still separate. No production, signing,
+version or archive input change is intended. Verify the four cases, existing
+round-trip rotation case, affected ordinary-family UI suites and full Duo gate.
+Initial active-work estimate: 0.5 hours, excluding unattended Simulator runtime.
+No upload, physical-device action, merge or publication is authorized.
+
+
+### Duo release-gate repair outcome — 2026-10-24
+
+Completed the owner-requested retry and fix at native/test/tooling commit
+`4ec5f61034749ab59a205c68e54c287968057d76`. Unchanged baseline reproduces all
+four landscape failures; the UI-test-only Simulator control transport makes all
+four retained cases pass. The older playback landscape/swipe/portrait case also
+passes and is restored to the default Duo matrix. No original product assertion
+or timeout was weakened, and no new exclusion was added.
+
+The first repaired full runs expose a separate Larger Text menu-driver issue on
+iPhone and Duo: existence did not imply visibility. A first hittability correction
+passes those families but exposes the iPad's inflated collection bounds. The
+final driver intersects clipping ancestors and scrolls only inside the visible
+menu; its stronger visibility checks and all downstream privacy actions pass on
+all three families. Failed iterations remain retained.
+
+Final complete iPhone, iPad and native Duo suites each pass 254/0/4, including
+restored Duo rotation. All 134 native input hashes match committed source and
+remain unchanged during every final run. The four skips remain physical PhotoKit
+checks. Thirty tooling tests, shell syntax, locked artwork hashes, tester-note
+sync and diff checks pass. Existing runtime/SDK warnings remain recorded.
+
+All 85 application/project inputs still match the existing signed archive from
+`8bfb9bd`; no application, version, signing or archive change was needed.
+[Exact commands, source, counts, warnings and retained failures](../AppStore/Version-1.6.1/Duo-Orientation-Fix-2026-10-24.md).
+The automated landscape blocker is closed; release acceptance remains incomplete
+for unrun TestFlight hardware, future exact-source Cloud validation and the
+existing legacy artwork-validator limitation. Keep PR #32 draft and stop before
+upload/Cloud start/merge/submission/publication. Native fixture, native pose and
+physical acceptance remain separate. Active-work estimate: about 0.6 hours,
+excluding unattended runtime. Original checkout remains preserved.

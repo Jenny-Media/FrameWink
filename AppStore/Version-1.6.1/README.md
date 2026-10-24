@@ -25,17 +25,24 @@ Prepare PR, run local Simulator checks, and retain a signed local archive only. 
 
 ## Verification outcome
 
-See [the complete verification record](Verification-2026-10-24.md) for exact
-commands, source, artifacts, counts, warnings and failed checks. Build/test/archive
-source is `8bfb9bd2c525ec0fcacb733e805144b9dca69813`; final follow-up edits only
-documentation and tester notes. The signed local archive and distribution-signed
-IPA are retained under ignored `TestArtifacts/ReleasePrep-20261024/`.
+See the [initial verification record](Verification-2026-10-24.md) and
+[orientation/menu-driver follow-up](Duo-Orientation-Fix-2026-10-24.md) for exact
+commands, source identities, counts, warnings and retained failures. The signed
+application archive source remains `8bfb9bd2c525ec0fcacb733e805144b9dca69813`.
+All 85 application/project inputs match it after test/tooling commit
+`4ec5f61034749ab59a205c68e54c287968057d76`. The signed archive and local
+Apple Distribution-signed IPA remain under ignored `TestArtifacts/ReleasePrep-20261024/`.
 
-Complete ordinary iPhone rerun and iPad each pass 254 tests, zero failures and
-four physical-only skips. The initial iPhone run (252/2/4) and all retries remain
-retained. Dedicated native Duo full run is 248/5/4; the isolated StoreKit retry
-passes, but four UI methods remain stopped at `waitForLandscape()`. Keep release
-validation incomplete and PR #32 draft. Do not add exclusions. The supplemental
-legacy artwork validator also fails its unchanged 11-versus-10 landscape count;
-approved screenshot hashes pass. Hardware acceptance remains the separate
-TestFlight-only checklist, unrun for candidate 80. Nothing was uploaded or submitted.
+All four original landscape-precondition cases pass after the Simulator-only
+input repair, with original predicates and product assertions retained. The
+formerly excluded Duo rotation round trip is restored. The additional Larger
+Text privacy driver now scrolls within the menu's clipped viewport and passes
+on iPhone/iPad/Duo. Final complete iPhone, iPad and native Duo suites each pass
+**254 passed / 0 failed / 4 physical-only skips**, at committed native source
+`4ec5f61` with 134 unchanged input hashes. The original failures and
+intermediate diagnostics are preserved; no new skip or timeout increase is used.
+
+Keep PR #32 draft and stop before upload. The supplemental legacy artwork
+validator retains its unchanged 11-versus-10 landscape source count; approved
+screenshot hashes pass. Hardware acceptance remains the separate TestFlight-only
+checklist, unrun for candidate 80. Nothing was uploaded or submitted.

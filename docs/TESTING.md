@@ -5274,3 +5274,46 @@ It records owner-reported public iPhone/iPad smoke checks including storage,
 without exact device/OS details. This is reconciled as dated PR evidence, not a
 new physical run or a replacement for current acceptance. Old current-status and
 whole-project-complete substitutions were not merged.
+
+
+## Duo orientation and menu-driver repair — 2026-10-24
+
+Native/test/tooling source: `4ec5f61034749ab59a205c68e54c287968057d76`.
+[Complete reproduction, commands and evidence](../AppStore/Version-1.6.1/Duo-Orientation-Fix-2026-10-24.md).
+The unchanged four-case retry fails 0/4/0 at the original landscape predicates.
+The actual main window stays 466 × 678. A Simulator-only UI-test runner transport
+sends native orientation control events after selecting a deterministic cover
+baseline. It does not inject app geometry or playback state; existing eight-second
+real-window predicates and downstream product assertions gate success.
+
+The repaired four cases pass 4/0/0, and the formerly excluded landscape/swipe/
+portrait playback case passes 1/0/0. The first full pass is iPhone 253/1/4,
+iPad 254/0/4 and Duo 253/1/4. Both failures concern the existing Larger Text
+privacy driver tapping an offscreen menu item. An unchanged iPhone retry passes.
+The first hittability correction passes iPhone and Duo but fails iPad because
+its collection's reported content bounds extend beyond the popover; the final
+driver intersects clipping ancestors and scrolls inside the visible rectangle.
+Focused final privacy checks pass 1/0/0 on each family. All failures are retained.
+
+| Final complete suite | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| iPhone, iOS 27.0 | 254 | 0 | 4 |
+| iPad, iPadOS 27.0 | 254 | 0 | 4 |
+| Native Duo, iOS 27.1, rotation restored | 254 | 0 | 4 |
+
+Each final run exits 0, with 134 committed native input hashes unchanged during
+execution. Outputs are `OrientationFix-iPhoneFinal`, `OrientationFix-iPadFinal`
+and `OrientationFix-DuoFinal` beneath ignored `TestArtifacts/ReleasePrep-20261024/`.
+Default `test_local.sh` restores rotation; its updated workflow test rejects that
+exclusion on every family. Only the two unchanged shared Ask-to-Buy/marketing
+exclusions and four physical-only PhotoKit skips remain. Thirty tooling tests,
+shell syntax, approved locked-gallery hashes, note sync and diff checks pass.
+
+Every final summary retains three existing runtime warnings (UIKit hosting and
+two StoreKit fixture listeners); SDK/debugger diagnostics also remain. No
+assertion or timeout was weakened. All 85 app/project inputs match the unchanged
+signed archive and distribution IPA. Simulator transport markers are absent
+from that app binary and compile out of physical test targets. The explicit
+portrait-division fixture is still synthetic; real Book/Tabletop pose evidence
+and TestFlight-only hardware acceptance remain separate. No physical device
+operation, upload, Cloud start, merge, submission or publication occurred.

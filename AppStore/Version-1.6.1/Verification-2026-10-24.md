@@ -1,20 +1,24 @@
 # FrameWink 1.6.1 (80) release verification — 2026-10-24
 
 Release artifacts and draft [PR #32](https://github.com/Jenny-Media/FrameWink/pull/32)
-are prepared. **Release validation is incomplete: keep the PR draft and stop before
-upload.** Four native Duo UI cases remain unpassed at their landscape precondition.
-No assertions or exclusions were changed. Physical acceptance remains TestFlight-only.
+are prepared. **Keep the PR draft and stop before upload.** The four original Duo
+landscape-precondition failures are resolved by a Simulator-only UI-runner input
+repair, and the previously excluded rotation case passes. A subsequent Larger
+Text menu-driver repair also passes. Final complete iPhone, iPad and native Duo
+suites each pass **254/0/4**, including restored Duo rotation; see the
+[follow-up record](Duo-Orientation-Fix-2026-10-24.md). Original
+failed runs remain retained below. Physical acceptance remains TestFlight-only.
 
 ## Source and release selection
 
 - Release branch: `codex/release-prep-2026-10-24`, fresh managed worktree. Existing checkouts were preserved.
 - Fetched origin/main and confirmed it remained `73b85f6d7d008303d5c534c9eff0d04a433c75a9` immediately before push. This is PR #31's merge and includes `9f0cc83` and `80fddd9` control/blackout fixes.
-- Build/test/archive source: `8bfb9bd2c525ec0fcacb733e805144b9dca69813`. Final follow-up changes only release documentation/tester notes. Application, native tests, scripts and signing inputs remain identical to the recorded source; the only native difference from main is the application build number.
+- Initial build/test/archive source: `8bfb9bd2c525ec0fcacb733e805144b9dca69813`. Initial documentation head: `004d26e`. The later test-harness/tooling repair is committed as `4ec5f61034749ab59a205c68e54c287968057d76`; it changes no application or project/signing input. All 85 application/project fingerprints still match the signed archive. The application difference from main remains the build number.
 - Read-only live ASC: public 1.6 (66), Ready for Distribution; latest TestFlight 1.6.1 (78), Complete / Ready to Submit, assigned to Jenny Media Internal; (76) Testing internally and externally. Cloud Archive 78 and Analyze 79 succeeded from `73b85f6`, with Xcode 27.1 (27A9275), macOS Golden Gate 27.0.1 (26A434). Internal post-action succeeded.
 - Keep unreleased marketing version 1.6.1. Local build 80 exceeds all observed upload/Cloud numbers. No remote reservation was made; recheck before any later upload. Cloud controls its exported build number.
 - Live Internal TestFlight workflow: automatic branch main, five native-folder rules, PR starts Not Enabled, manual starts Any Branches. The release branch push does not trigger distribution. No Cloud build was started in this task.
 
-## Local checks
+## Initial local checks (before UI-runner repair)
 
 | Check | Passed | Failed | Skipped / result |
 | --- | ---: | ---: | --- |
@@ -32,9 +36,11 @@ No assertions or exclusions were changed. Physical acceptance remains TestFlight
 | Supplemental legacy asset validator | — | 1 | existing 11-versus-10 landscape source-count mismatch |
 
 The four intentional Simulator skips are the physical PhotoKit catalog, cover,
-reopen-cache and distinct-photo navigation tests. Existing selection exclusions
-are Ask to Buy and the marketing capture utility, plus only the pre-existing
-approved Duo rotation exclusion. No assertion, timeout or exclusion was changed.
+reopen-cache and distinct-photo navigation tests. The initial table uses Ask to
+Buy and marketing-utility exclusions plus the pre-existing approved Duo rotation
+exclusion. The later UI-runner repair restores rotation to the default Duo gate;
+only the two shared exclusions remain. No original product assertion or timeout
+was weakened. The menu-driver repair adds explicit visibility assertions.
 
 The original iPhone failures were the automatic-album controller state wait in
 `testLibraryChangesDoNotRestartActiveICloudPreparation` and Share hit testing in
@@ -209,8 +215,8 @@ as dated PR evidence, with unrecorded device/OS detail explicit. Its obsolete
 current-availability, old pending-state and whole-project-complete replacements
 were not merged. Current release history and old snapshots remain distinct.
 
-The native Duo full gate remains failed. The StoreKit case passes its isolated
-retry, while these four UI cases stop before their intended product assertions:
+The initial native Duo full gate failed. Its StoreKit case passed in isolation;
+these four UI cases stopped before their product assertions at initial source:
 
 - `testAutomaticReviewHiddenPhotosRemainAboveUndoInLandscape`: shared helper at
   `FirstLaunchPrivacyUITests.swift:790`, `XCTAssertTrue(waitForLandscape())`.
@@ -218,12 +224,13 @@ retry, while these four UI cases stop before their intended product assertions:
 - `testBlackoutRemainsDarkWhenDivisionActivates`: line 1280, same precondition.
 - `testOpenFrameControlsSurviveUnfoldDuringPlayback`: line 1262, same precondition.
 
-Resolve native runtime rotation/setup and establish the retained assertions, then
-rerun the native Duo gate. Their early failure does not prove a production defect
-or establish successful product behavior. No new skip or weakened check was
-introduced. The successful ordinary-family and native manual checks do not turn
-the failed full Duo run into a pass. The initial ordinary iPhone intermittency
-also remains a documented risk despite the clean full rerun.
+The [later Simulator input repair](Duo-Orientation-Fix-2026-10-24.md) resolves all
+four preconditions and establishes their retained downstream assertions. It also
+restores the older round-trip rotation case. The initial full Duo bundle remains
+failed; do not relabel it as a pass. The first repaired-harness full runs then
+expose the separate Larger Text menu-driver issue, whose failed iterations and
+correction are retained in the follow-up record. Initial ordinary iPhone
+intermittency remains a documented risk; its original causes were not established.
 
 Hardware follow-up is exclusively the owner-authorized TestFlight binary and
 `Hardware-Test-Checklist.md`: Duo pose/rotation/playing continuity, VoiceOver,
