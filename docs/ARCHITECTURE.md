@@ -82,8 +82,8 @@ Never perform all-pairs similarity comparison across an unbounded library.
 ### Adaptive display regions
 
 `FrameViewportRegions` splits local view bounds around an active division.
-`FrameAdaptiveGeometry` reads SwiftUI reserved division frames and their
-individual margins on iOS 27.1 or later when `FRAMEWINK_NATIVE_DUO` is enabled;
+`FrameAdaptiveGeometry` reads SwiftUI reserved division frames, which already
+include their interaction margins, on iOS 27.1 or later when `FRAMEWINK_NATIVE_DUO` is enabled;
 stable-SDK builds and older systems retain the full viewport.
 Photos may bleed to the display edge, while foreground controls intersect the
 safe area independently on every side. Do not infer geometry from device names,
@@ -211,3 +211,9 @@ checks Mail availability before presenting it. A failed compose result is
 reported after the sheet dismisses; unavailable Mail and failure both offer an
 explicit Copy Email action. No photo source, file store, or networking service
 is passed into feedback, and no attachments are added automatically.
+
+## Separated playback controls
+
+An active division keeps the photo above/left and provides swipe navigation, a frame-position indicator and persistent playback controls below/right. Both photo swipes and companion-region swipes use the same playback coordinator; geometry changes never create a new session. Returning to an undivided viewport restores the existing receding controls. Blackout suppresses the companion label and persistent chrome; a tap still briefly reveals controls and the direct exit.
+
+Debug UI tests can set `FRAMEWINK_UI_TEST_HORIZONTAL_DIVISION=1` together with an existing screenshot scenario to exercise interaction with a deterministic horizontal division. Normal Debug and Release runs do not use that override. These fixture tests do not prove native region detection or physical fold acceptance.

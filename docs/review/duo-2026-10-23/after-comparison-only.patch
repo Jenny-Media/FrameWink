@@ -1,0 +1,155 @@
+diff --git a/FrameWink/Features/Demo/SampleSlideshowView.swift b/FrameWink/Features/Demo/SampleSlideshowView.swift
+index bb99402..0e2ea64 100644
+--- a/FrameWink/Features/Demo/SampleSlideshowView.swift
++++ b/FrameWink/Features/Demo/SampleSlideshowView.swift
+@@ -263,6 +263,7 @@ struct SampleSlideshowView: View {
+                 await preloadNextPage(in: pages, slidesByID: slidesByID)
+             }
+         }
++        .modifier(FrameComparisonCanvas())
+         .background(Color.black)
+         .clipped()
+         .onFrameInteractiveResizeChange { isResizing in
+diff --git a/FrameWink/Features/Shared/FrameAdaptiveGeometry.swift b/FrameWink/Features/Shared/FrameAdaptiveGeometry.swift
+index fc7065a..5f93695 100644
+--- a/FrameWink/Features/Shared/FrameAdaptiveGeometry.swift
++++ b/FrameWink/Features/Shared/FrameAdaptiveGeometry.swift
+@@ -27,6 +27,19 @@ extension GeometryProxy {
+                                 width: size.width, height: 40)]
+         }
+         #endif
++        #if DEBUG
++        // Identical neutral input on both detached comparison worktrees.
++        if DebugScreenshotScenario.current != nil,
++           let mode = ProcessInfo.processInfo.environment["FRAMEWINK_DUO_COMPARISON"] {
++            if mode == "book" {
++                divisions = [CGRect(x: size.width / 2 - 20, y: 0,
++                                    width: 40, height: size.height)]
++            } else if mode == "tabletop" {
++                divisions = [CGRect(x: 0, y: size.height / 2 - 20,
++                                    width: size.width, height: 40)]
++            }
++        }
++        #endif
+         return FrameViewportRegions(size: size, safeArea: safeArea, divisions: divisions)
+     }
+ }
+diff --git a/FrameWink/Features/Shared/FrameComparisonCanvas.swift b/FrameWink/Features/Shared/FrameComparisonCanvas.swift
+new file mode 100644
+index 0000000..83c2765
+--- /dev/null
++++ b/FrameWink/Features/Shared/FrameComparisonCanvas.swift
+@@ -0,0 +1,35 @@
++import SwiftUI
++
++// Neutral comparison-only geometry input, identical on the base and candidate.
++// These detached worktrees are not the implementation branch or physical build.
++struct FrameComparisonCanvas: ViewModifier {
++    @ViewBuilder
++    func body(content: Content) -> some View {
++        #if DEBUG
++        if DebugScreenshotScenario.current != nil,
++           let mode = ProcessInfo.processInfo.environment["FRAMEWINK_DUO_COMPARISON"],
++           mode == "book" || mode == "tabletop" {
++            let size = mode == "book" ? CGSize(width: 951, height: 669)
++                                      : CGSize(width: 669, height: 951)
++            content
++                .frame(width: size.width, height: size.height)
++                .clipped()
++                .overlay(alignment: .top) {
++                    Button("Comparison fixture") { }
++                        .buttonStyle(.plain)
++                        .foregroundColor(.white)
++                        .frame(width: 160, height: 44)
++                        .background(Color.gray)
++                        .accessibilityIdentifier("frame-comparison-marker")
++                        .accessibilityValue(mode)
++                        .offset(y: -60)
++                }
++                .frame(maxWidth: .infinity, maxHeight: .infinity)
++        } else {
++            content
++        }
++        #else
++        content
++        #endif
++    }
++}
+diff --git a/FrameWinkUITests/DuoComparisonCaptureUITests.swift b/FrameWinkUITests/DuoComparisonCaptureUITests.swift
+new file mode 100644
+index 0000000..7069555
+--- /dev/null
++++ b/FrameWinkUITests/DuoComparisonCaptureUITests.swift
+@@ -0,0 +1,72 @@
++import XCTest
++
++/// Common before/after capture actions. No native hinge-posture claim.
++final class DuoComparisonCaptureUITests: XCTestCase {
++    func testBookComparison() throws { try capture("book") }
++    func testTabletopComparison() throws { try capture("tabletop") }
++
++    private func capture(_ mode: String) throws {
++        continueAfterFailure = false
++        XCUIDevice.shared.orientation = .portrait
++        let app = XCUIApplication()
++        defer { app.terminate() }
++        app.launchEnvironment["FRAMEWINK_SCREENSHOT_SCENARIO"] = "smart-frame"
++        app.launchEnvironment["FRAMEWINK_DUO_COMPARISON"] = mode
++        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en"]
++        app.launch()
++        try XCTSkipIf(app.windows.firstMatch.frame.width < 1000,
++                      "Matched native-shaped canvas requires the owned iPad.")
++        let marker = app.buttons["frame-comparison-marker"]
++        XCTAssertTrue(marker.waitForExistence(timeout: 10))
++        XCTAssertEqual(marker.value as? String, mode)
++        let size = mode == "book" ? CGSize(width: 951, height: 669)
++                                  : CGSize(width: 669, height: 951)
++        let canvas = CGRect(x: marker.frame.midX - size.width / 2,
++                            y: marker.frame.maxY + 16,
++                            width: size.width, height: size.height)
++        // Reveal via the same blank companion-surface tap in both builds.
++        // The base may auto-hide its toolbar before XCTest becomes ready.
++        let revealPoint = CGPoint(x: canvas.minX + canvas.width * (mode == "book" ? 0.75 : 0.5),
++                                  y: canvas.minY + canvas.height * (mode == "book" ? 0.35 : 0.75))
++        app.coordinate(withNormalizedOffset: .zero)
++            .withOffset(CGVector(dx: revealPoint.x, dy: revealPoint.y)).tap()
++        let playback = app.buttons["frame-playback-control"]
++        XCTAssertTrue(playback.waitForExistence(timeout: 5))
++        XCTAssertEqual(playback.label, "Pause slideshow")
++        playback.tap()
++        XCTAssertEqual(playback.label, "Resume slideshow")
++        captureEvidence(app, canvas: canvas, name: "\(mode)-paused-controls")
++
++        // Same photo tap on both builds: the base hides its controls; the
++        // candidate keeps the independent companion surface reachable.
++        let photoPoint = CGPoint(x: canvas.minX + canvas.width * (mode == "book" ? 0.2 : 0.5),
++                                 y: canvas.minY + canvas.height * (mode == "book" ? 0.5 : 0.2))
++        app.coordinate(withNormalizedOffset: .zero)
++            .withOffset(CGVector(dx: photoPoint.x, dy: photoPoint.y)).tap()
++        // Let the existing control-opacity transition settle equally.
++        RunLoop.current.run(until: Date().addingTimeInterval(1))
++        captureEvidence(app, canvas: canvas, name: "\(mode)-paused-after-photo-tap")
++    }
++
++    private func captureEvidence(_ app: XCUIApplication, canvas: CGRect, name: String) {
++        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
++        screenshot.name = name
++        screenshot.lifetime = .keepAlways
++        add(screenshot)
++        let metadata: [String: Any] = [
++            "canvas": ["x": canvas.minX, "y": canvas.minY,
++                       "width": canvas.width, "height": canvas.height],
++            "window": ["width": app.windows.firstMatch.frame.width,
++                       "height": app.windows.firstMatch.frame.height],
++            "playback_label": app.buttons["frame-playback-control"].exists
++                ? app.buttons["frame-playback-control"].label : "absent",
++            "companion_navigation": app.otherElements["frame-companion-navigation"].exists,
++            "fixture_only": true
++        ]
++        let data = try! JSONSerialization.data(withJSONObject: metadata, options: [.sortedKeys, .prettyPrinted])
++        let info = XCTAttachment(data: data, uniformTypeIdentifier: "public.json")
++        info.name = name + "-geometry"
++        info.lifetime = .keepAlways
++        add(info)
++    }
++}

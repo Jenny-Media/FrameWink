@@ -319,6 +319,55 @@ final class FrameSessionControllerTests: XCTestCase {
         )
     }
 
+    func testSeparatePhotoControlsNeverAutomaticallyRecede() {
+        for isPlaying in [false, true] {
+            for voiceOverEnabled in [false, true] {
+                XCTAssertFalse(
+                    FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
+                        isFrameMode: true,
+                        isPlaying: isPlaying,
+                        voiceOverEnabled: voiceOverEnabled,
+                        controlsAreSeparate: true
+                    )
+                )
+            }
+        }
+        XCTAssertTrue(
+            FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
+                isFrameMode: true,
+                isPlaying: true,
+                voiceOverEnabled: false,
+                controlsAreSeparate: false
+            ),
+            "Returning to an undivided viewport must restore ordinary auto-hide."
+        )
+    }
+
+    func testOpenFrameControlsPreventAutoHideAfterUnfold() {
+        for controlsAreSeparate in [true, false] {
+            XCTAssertFalse(
+                FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
+                    isFrameMode: true,
+                    isPlaying: true,
+                    voiceOverEnabled: false,
+                    controlsAreSeparate: controlsAreSeparate,
+                    isShowingFrameControls: true
+                ),
+                "An open More panel must retain its presenter across a division change."
+            )
+        }
+        XCTAssertTrue(
+            FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
+                isFrameMode: true,
+                isPlaying: true,
+                voiceOverEnabled: false,
+                controlsAreSeparate: false,
+                isShowingFrameControls: false
+            ),
+            "Dismissing More restores undivided playback auto-hide."
+        )
+    }
+
     func testPausedFrameKeepsVisibleSlidesUntilResume() {
         func slides(_ ids: [String]) -> [DisplaySlide] {
             ids.map { id in

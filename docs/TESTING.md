@@ -5156,3 +5156,56 @@ media destinations; copied-helper tests cover all nine destinations (including
 both Duo displays and landscape families), rejecting equal/nested/parent cache
 roots and external aliases before workspace creation or tool actions. Required
 checks repeat on this repair; no real screenshots are captured or rewritten.
+
+### Physical Duo improvement baseline and focused checks — 2026-10-23
+
+Source base: `c3614aab98817a3eb5da24b962609937ab41a667`; isolated branch `codex/duo-first-class-framewink`. Xcode 27.1 (27A9275), SDK 27.1. The unchanged development-signed 1.6.1 (1) build installed and launched on the physical iPhone Duo, iOS 27.1. It is distinct from TestFlight 1.6.1 (76). Existing screenshot scenarios isolate temporary data and use only bundled publisher-approved photos.
+
+Fresh native baseline: all ten landing positions (closed portrait/both landscapes; fully open portrait/both landscapes; Book both directions; Tabletop portrait/reverse), seven playback-control sheets, and three unchanged-process paused captures. Native PNG hashes and build source fingerprints are retained in the local coordination report; signed app and raw device identifiers remain local. Closed-to-Book-to-Tabletop preserved the paused skyline photo and process. This does not establish every real-Photos or playback workflow.
+
+Use the documented launcher for the device build and Simulator tests:
+
+```sh
+python3 scripts/build_local.py --sdk iphoneos --output "$goal_device_evidence" -- \
+  -destination "platform=iOS,id=$goal_duo_device" -allowProvisioningUpdates build
+python3 scripts/build_local.py --unsigned --output "$goal_sim_evidence" -- \
+  -destination "$goal_duo_simulator" -parallel-testing-enabled NO \
+  -test-timeouts-enabled YES -default-test-execution-time-allowance 90 \
+  -maximum-test-execution-time-allowance 90 \
+  -only-testing:FrameWinkTests/FrameViewportRegionsTests \
+  -only-testing:FrameWinkTests/FrameSessionControllerTests \
+  -only-testing:FrameWinkTests/FrameLayoutChooserTests \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSeparatedControlsBrowseWhilePausedWithoutTouchingPhoto \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSeparatedControlsStayReachableWhilePlaying \
+  -only-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testSeparatedBlackoutStaysDarkUntilControlsAreRequested test
+```
+
+Evidence labels are `framewink-baseline/build-device`, `framewink-baseline/tests-duo-focused`, `framewink-implementation/initial-focused` and `framewink-implementation/focused-02`. The unchanged base focused run passed 56, zero failures/skips. The first implementation compiled and passed 57 logic cases, but both new UI cases stopped before entering playback from the fixture's scrollable setup. Those failed bundles are preserved. The corrected direct-playback fixture and additional blackout regression passed all 60 selected cases, zero failures/skips, with source fingerprints unchanged during the run.
+
+The three new interaction cases use `FRAMEWINK_UI_TEST_HORIZONTAL_DIVISION=1` with existing sample scenarios. They prove lower-surface swipes preserve pause and can return to the original frame, separated controls remain reachable while playing, and blackout stays quiet while retaining a temporary escape path. They do not prove native fold detection, actual Book geometry or physical interaction. Physical captures never set this override.
+
+The outer physical start/pause harness passed one case. A separately retained guarded public window-relative tap on the physical inner display failed to dismiss the sample controls panel. Record that as an automation limitation; never count it as successful physical interaction or infer an app bug. Full family regressions, final after matrix and physical interaction/transition acceptance are still required.
+
+
+Owner workflow amendment: finish all five apps' changes with Simulator verification before the final physical Duo session. At that session, hold each posture/orientation once while capturing and checking all five apps. Keep matched current-base Simulator comparisons for iteration; accurately label older physical references and the two early FrameWink candidate captures. Final report acceptance and PR readiness still require the shared physical interaction, continuity and screenshot checks.
+
+
+Accessibility iteration: retained native Simulator images show the initial AX5 hint clipping, a wrap-only iteration that crowded the heading, and the corrected adaptive position/hint layout. A new largest-text test exercises actual pause and lower-surface browsing. Initial exploratory spatial assertions are retained as failures: SwiftUI's merged static-text accessibility bounds include parent padding and do not reliably describe drawn glyph bounds. The final test checks visible position semantics, reachable controls and delivered input; rendered captures verify visual clearance. No existing assertion or exclusion is removed.
+
+For the final full family gate, use the same command and skips as `scripts/test_local.sh`, with one `FRAMEWINK_BUILD_CACHE_VARIANT` per family so independent Simulators can run concurrently without sharing compiler outputs. Include the complete unit and UI test targets. The existing StoreKit Ask-to-Buy and marketing utility exclusions remain unchanged; only the existing approved rotation exclusion applies on Duo. Preserve the earlier stopped run and all failed focused iterations. Final physical touch, fold continuity and screenshots remain deferred to the shared five-app session.
+
+
+### Control visibility review fixes — 2026-10-24
+
+Source `9f0cc83c619058a252d690187823f34d86c65abd` fixes the two independent-review findings on PR #31: More survives unfold during playing playback, and a division change preserves scheduled blackout darkness. Both defects reproduced on reviewed head `534e380` plus an explicit DEBUG portrait-division fixture before the fix. Main `c3614aa` was already integrated; no base merge was necessary.
+
+Focused iPad: 58 logic + 10 UI pass, one AX5 diagnostic fails at an XCTest element gesture. A collection-view gesture follow-up fails the same empty-visible-frame condition. The final observed-coordinate AX5 diagnostic passes text scaling, actual 10s selection and dismissal. Ordinary iPhone: 62 pass, 0 fail/skip, reusing test products. Original failed runs and historical captures remain retained. The suspected Dynamic Type cap is not reproduced (heading accessibility height 44 at Large, 151 at AX5, confirmed visually); no production text change was made.
+
+The [review report](review/duo-2026-10-24/README.md) and sanitized provenance contain fixture labels, source/capture hashes and exact result boundaries. New native Duo fold detection/acceptance and a new full native suite are not claimed. Historical native failures remain open; physical follow-up is TestFlight-only. No hardware discovery/control/install/provisioning, upload, merge or release occurred.
+
+
+### More presentation during scheduled blackout — 2026-10-24
+
+Additional user-approved fix at `80fddd95103e4140db8f233eabe8580c3f697ec3` preserves an already-open More panel when the schedule enters blackout, while retaining hidden ordinary controls. Closing More immediately leaves darkness; explicit tap/escape/recede behavior still works. Reviewed head `d97cd48` plus a neutral DEBUG schedule-clock fixture reproduced the exact missing-presenter assertion (0 passed / 1 failed). The corrected source passes 33 focused iPad checks (28 logic + 5 UI), zero failures/skips. Only `SampleSlideshowView.swift` differs between the baseline and candidate native inputs. All 133 final native inputs match the validated source.
+
+[New matched captures, fixture contract and exact limits](review/duo-2026-10-24/blackout-transition/README.md) preserve the prior repair report and failed runs. Ordinary and divided fixture cases both verify real duration selection during blackout, dark dismissal, and deliberate-tap escape/recede. Earlier fold/unfold regressions pass. This additional pass does not claim a new full-family suite or native Duo fold acceptance; physical follow-up remains TestFlight-only. The owned iPad is Shutdown; no upload, physical device action, merge or release occurred.

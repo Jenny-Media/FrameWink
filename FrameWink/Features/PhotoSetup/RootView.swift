@@ -130,7 +130,18 @@ struct RootView: View {
                         presentationDidChange: saveCurrentPresentation,
                         isFrameMode: $isFrameMode,
                         wallVisualState: wallMode.visualState,
-                        refreshWallSchedule: wallMode.refresh,
+                        refreshWallSchedule: { date in
+#if DEBUG
+                            // A duration selection advances only the explicit
+                            // UI-test schedule clock, never the playback clock.
+                            if DebugScreenshotScenario.usesBlackoutTransitionFixture,
+                               activeInterval != FramePlaybackTiming.defaultInterval {
+                                wallMode.refresh(at: date.addingTimeInterval(3_600))
+                                return
+                            }
+#endif
+                            wallMode.refresh(at: date)
+                        },
                         previewCaptionBottomInset: setupCardHeight
                             + (usesCompactSetup ? 24 : 36),
                         showsPreviewCaption: !usesNarrowAccessibilityLayout && !regions.isDivided,

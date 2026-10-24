@@ -724,3 +724,14 @@ date; do not silently rewrite historical decisions during implementation.
   volume-UUID management. Reject conventional external-volume paths and aliases.
 - Keep compatible workspace keys, caller-relative output handling, existing
   build entry points and explicit fresh builds. No disk migration or deletion.
+
+## D-056 — Make the separated half useful for browsing — 2026-10-23
+
+- The owner activated a sequential five-app goal for first-class physical Duo support, including matching before/after evidence and one unmerged PR per app. FrameWink is first. Work starts from latest remote main in an isolated feature worktree.
+- Use the system reserved-region frame directly. Apple's current [ReservedRegion documentation](https://developer.apple.com/documentation/swiftui/reservedregion) states that its frame includes its margins; expanding it again discards usable photo and control space. This corrects D-051's implementation without removing hinge clearance.
+- Let the lower/trailing half browse the current frame through the same swipe and accessibility actions as the photo. Show the frame position and keep existing controls visible when separated from the photo; there is no extra mode or configuration. Preserve photo anchors, pause, timing, ordinary full-screen auto-hide and night blackout.
+- Give sample captions a small dark backing so bright sample content does not obscure the existing text. Preserve setup-card clearance, Dynamic Type and the free/paid/privacy boundary.
+- Deterministic division-fixture UI tests cover navigation and control visibility; native before/after capture and physical interaction/transition acceptance remain separate mandatory evidence.
+
+
+D056 accessibility follow-up: keep the current-position heading clear of Exit and the playback toolbar. A visible browsing hint is supplemental and appears only when its content fits; accessibility retains the full browsing hint and custom previous/next actions. Only decorative icon scaling is bounded to standard text sizes; position text keeps the user's full Dynamic Type size. Verify standard and AX5 rendering and actual pause/browsing input in Simulator, then include real Book/Tabletop interaction in the shared final hardware pass.

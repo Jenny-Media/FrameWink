@@ -3403,3 +3403,62 @@ media destinations; copied-helper tests cover all nine destinations (including
 both Duo displays and landscape families), rejecting equal/nested/parent cache
 roots and external aliases before workspace creation or tool actions. Required
 checks repeat on this repair; no real screenshots are captured or rewritten.
+
+### First-class physical Duo support — 2026-10-23
+
+Status: implementation and validation in progress on `codex/duo-first-class-framewink`, isolated from primary checkout. Base is latest remote main `c3614aab98817a3eb5da24b962609937ab41a667`. This is the first of five sequential app implementations. Per the owner's later workflow amendment, finish Simulator verification and prepare its draft report/PR before the next app; physical acceptance and final screenshots are deferred to a shared five-app session, grouped by posture/orientation. No merge, release or App Store submission is authorized.
+
+The unchanged base built, signed, installed and launched as development 1.6.1 (1) with Xcode 27.1 / SDK 27.1. Physical baseline includes all ten landing positions, seven playback-control sheets and three paused-playback continuity captures. Same paused photo and process survived closed-to-Book-to-Tabletop. Original 80-capture audit remains preserved separately.
+
+Implementation corrects double-added native division margins, adds lower/trailing swipe navigation with an accessible frame position and persistent controls, retains night blackout, and improves sample-caption contrast. Minimum iOS/iPadOS 15, signing, identifiers, sources, purchases and supported platforms are unchanged.
+
+Baseline focused tests: 56 passed. First implementation: 57 logic tests passed; two new UI cases stopped before playback. Corrected direct-playback fixture plus blackout regression: 60 passed, zero failed/skipped. Full ordinary iPhone/iPad/Duo regression is running. Final physical after captures and manual inner-screen input acceptance remain pending for the shared final session. Two early candidate outer-portrait captures are intermediate evidence and do not complete that acceptance. Window-relative public XCTest taps did not dismiss the physical inner-display sample panel; capture works, but that automation probe is not app defect evidence.
+
+The detailed report and native evidence are maintained in the local coordination repository `~/work/iphone-duo-compatibility/reports/framewink/`, with a sanitized review summary to accompany the dedicated PR. Keep required unverified checks open. Active work estimate: about two hours so far, excluding unattended build/test time.
+
+
+Simulator iteration found an AX5 swipe-hint truncation and a short-viewport hint collision in the first candidate. The companion position now sits beside Exit, an optional gesture hint uses content fitting when space allows, accessibility-size copy is concise, and icon-only controls retain bounded glyph sizes while their labels/actions and 44-point touch areas remain available. Default and AX5 rendered captures are retained; blank launch frames are rejected rather than accepted as screenshots.
+
+The initial broad candidate gate passed iPhone 247/0/4 physical-only skips, then was intentionally stopped during iPad testing to correct this confirmed issue. That gate is not a final-revision pass. Focused validation and Release analysis repeat on the corrected source. The final full iPhone/iPad/Duo suites will run on separate compatible compiler-cache variants and distinct existing QA Simulators, keeping the same assertions and approved exclusions as `scripts/test_local.sh`. All three results and source fingerprints must be recorded before the Simulator milestone is accepted. No physical repositioning is requested during iteration.
+
+Corrected source focused gate: 61 passed, zero failed/skipped (57 logic and four interaction checks, including AX5 paused browsing). Corrected Release build and static analysis passed; DEBUG division flag absent from Release. Standard and AX5 rendered comparisons are preserved. Final full-family regression results remain pending; physical acceptance remains deferred.
+
+
+Current implementation `67692ca` completed full ordinary iPhone and iPad suites: 248 passed, zero failures, four existing physical-only skips each. The first native Duo full run failed three assertions and aborted during larger-text Privacy actions; it remains retained as failed/incomplete. Both caption expectation failures reproduce on the unchanged base in the same 678 × 466 window. Original sharing/sample-deletion cases pass in a focused current-build rerun.
+
+A fresh portrait Duo run completed with 244 passed, three failed and four skipped. All four new companion UI tests passed, as did caption, sharing and larger-text Privacy cases. The remaining StoreKit purchase/refund timeout and two landscape hidden-photo review failures are unresolved; they have not been established as inherited and are not counted as successful acceptance. Assertions and approved exclusions are unchanged. Device Hub remains unresponsive after a graceful frontend restart. The owner permits essential physical fallback, with the shared final five-app acceptance matrix still required. The native Duo milestone and PR readiness remain incomplete. The implementation/comparison report and draft PR #31 are prepared while subsequent app implementation proceeds; no merge or release is authorized.
+
+Additional active-work estimate for report completion, baseline diagnosis and tooling recovery: about 35 minutes, excluding unattended suite runtime. Detailed logs, result summaries, capture hashes, source equivalence and limitations are persisted in the local coordination repository.
+
+
+### Duo matched control evidence and parallel workflow amendment — 2026-10-23
+
+The owner authorizes parallel implementation for the other apps while root handles FrameWink and Puzzle Box. Final physical screenshots and acceptance remain deferred until all five implementations are ready, grouped by phone posture. This supersedes the earlier sequential workflow wording; it does not mark native or physical gates complete.
+
+Same bundled Yellowstone waterfall frame, paused, English, light appearance, Large text and hidden keyboard. Each build receives the same reveal → pause → photo-tap actions. The base hides its controls after the photo tap; the candidate keeps its separate position, browsing guidance, Resume, Share, More and Exit controls visible. The photo-pane pixels are identical before and after.
+
+These use identical neutral DEBUG geometry inputs on detached base/candidate copies: Book 951 × 669 points and Tabletop 669 × 951 points with a 40-point reserved band, inside an ordinary iPad Pro 13-inch (M5), iOS 27.0 Simulator. The base is the current base plus the recorded neutral input patch, not an untouched production binary. Both common capture cases passed on each build. These fixtures demonstrate the changed control surface; native hinge detection, native margin handling and physical acceptance remain separate checks. Only four settled native images are accepted; immediate symbol-transition images are retained and excluded. The neutral canvas and harness are absent from the implementation branch and physical build.
+
+The original failed base capture is retained: its toolbar had already auto-hidden before XCTest became ready. The common harness now performs the same ordinary companion tap on both builds before its unchanged pause assertions. Final capture runs passed 2/2 each, with no failures/skips. Native feature source remains at `67692ca`; all 133 recorded inputs match that accepted revision. This update adds only review evidence and documentation. No merge, distribution, physical action or new time estimate is recorded.
+
+The two unresolved native Duo hidden-photo methods stop at their landscape precondition before product-layout assertions; StoreKit timeout remains unresolved. Required shared hardware acceptance and PR readiness remain open.
+
+
+### Control visibility review fixes — 2026-10-24
+
+Source `9f0cc83c619058a252d690187823f34d86c65abd` fixes the two independent-review findings on PR #31: More survives unfold during playing playback, and a division change preserves scheduled blackout darkness. Both defects reproduced on reviewed head `534e380` plus an explicit DEBUG portrait-division fixture before the fix. Main `c3614aa` was already integrated; no base merge was necessary.
+
+Focused iPad: 58 logic + 10 UI pass, one AX5 diagnostic fails at an XCTest element gesture. A collection-view gesture follow-up fails the same empty-visible-frame condition. The final observed-coordinate AX5 diagnostic passes text scaling, actual 10s selection and dismissal. Ordinary iPhone: 62 pass, 0 fail/skip, reusing test products. Original failed runs and historical captures remain retained. The suspected Dynamic Type cap is not reproduced (heading accessibility height 44 at Large, 151 at AX5, confirmed visually); no production text change was made.
+
+The [review report](review/duo-2026-10-24/README.md) and sanitized provenance contain fixture labels, source/capture hashes and exact result boundaries. New native Duo fold detection/acceptance and a new full native suite are not claimed. Historical native failures remain open; physical follow-up is TestFlight-only. No hardware discovery/control/install/provisioning, upload, merge or release occurred.
+
+Status: source fixes and focused Simulator checks complete; fresh independent review remains required; PR stays draft and unmerged. Active work estimate: about 20 minutes, excluding unattended runtime and resource-lease waits.
+
+
+### More presentation during scheduled blackout — 2026-10-24
+
+Additional user-approved fix at `80fddd95103e4140db8f233eabe8580c3f697ec3` preserves an already-open More panel when the schedule enters blackout, while retaining hidden ordinary controls. Closing More immediately leaves darkness; explicit tap/escape/recede behavior still works. Reviewed head `d97cd48` plus a neutral DEBUG schedule-clock fixture reproduced the exact missing-presenter assertion (0 passed / 1 failed). The corrected source passes 33 focused iPad checks (28 logic + 5 UI), zero failures/skips. Only `SampleSlideshowView.swift` differs between the baseline and candidate native inputs. All 133 final native inputs match the validated source.
+
+[New matched captures, fixture contract and exact limits](review/duo-2026-10-24/blackout-transition/README.md) preserve the prior repair report and failed runs. Ordinary and divided fixture cases both verify real duration selection during blackout, dark dismissal, and deliberate-tap escape/recede. Earlier fold/unfold regressions pass. This additional pass does not claim a new full-family suite or native Duo fold acceptance; physical follow-up remains TestFlight-only. The owned iPad is Shutdown; no upload, physical device action, merge or release occurred.
+
+Status: focused repair checks complete; fresh independent review still required. Active work estimate: about 10 minutes, excluding runtime and shared-lease waits.
