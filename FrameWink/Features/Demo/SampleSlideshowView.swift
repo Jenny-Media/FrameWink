@@ -200,7 +200,10 @@ struct SampleSlideshowView: View {
                 if isDivided {
                     hideHintTask?.cancel()
                     setHintVisible(false)
-                    revealControls()
+                    // A layout change is not a request to illuminate blackout.
+                    if wallVisualState != .blackout {
+                        revealControls()
+                    }
                 } else {
                     scheduleControlsToRecede()
                 }
@@ -1036,19 +1039,25 @@ struct SampleSlideshowView: View {
         }
     }
 
-    private func scheduleControlsToRecede() {
-        hideControlsTask?.cancel()
-        guard FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
+    private var controlsShouldAutomaticallyRecede: Bool {
+        FrameOverlayVisibilityPolicy.shouldAutomaticallyHideControls(
             isFrameMode: isFrameMode,
             isPlaying: playback.isPlaying,
             voiceOverEnabled: voiceOverEnabled,
-            controlsAreSeparate: controlsAreSeparate && wallVisualState != .blackout
-        ) else { return }
+            controlsAreSeparate: controlsAreSeparate && wallVisualState != .blackout,
+            isShowingFrameControls: isShowingFrameControls
+        )
+    }
+
+    private func scheduleControlsToRecede() {
+        hideControlsTask?.cancel()
+        guard controlsShouldAutomaticallyRecede else { return }
 
         hideControlsTask = Task {
             try? await Task.sleep(nanoseconds: 4_000_000_000)
             guard !Task.isCancelled else { return }
             await MainActor.run {
+                guard !Task.isCancelled, controlsShouldAutomaticallyRecede else { return }
                 setControlsVisible(false)
             }
         }

@@ -1245,15 +1245,133 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(waitForNonexistence(exit, timeout: 6), "Blackout controls must recede again.")
     }
 
+    // Rotation changes an explicit DEBUG division fixture. These cases exercise
+    // the real division-change callback without claiming native fold detection.
+    func testOpenFrameControlsSurviveUnfoldDuringPlayback() {
+        XCUIDevice.shared.orientation = .portrait
+        launch(scenario: "smart-frame", usesPortraitDivisionFixture: true)
+        let navigation = app.otherElements["frame-companion-navigation"]
+        XCTAssertTrue(navigation.waitForExistence(timeout: 8))
+        XCTAssertEqual(app.buttons["frame-playback-control"].label, "Pause slideshow")
+        app.buttons["More playback options"].tap()
+        let panel = app.navigationBars["Frame Controls"]
+        XCTAssertTrue(panel.waitForExistence(timeout: 3))
+        attachControlsScreenshot("More before fixture unfold")
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        XCTAssertTrue(waitForLandscape())
+        XCTAssertTrue(waitForNonexistence(navigation, timeout: 3))
+        RunLoop.current.run(until: Date().addingTimeInterval(5))
+        attachControlsScreenshot("More five seconds after fixture unfold")
+        XCTAssertTrue(panel.exists, "Unfolding must not remove an open More presenter.")
+        let picker = app.segmentedControls["frame-duration-picker"]
+        XCTAssertTrue(picker.buttons["30s"].isSelected)
+        picker.buttons["10s"].tap()
+        XCTAssertTrue(picker.buttons["10s"].isSelected)
+        app.buttons["close-frame-controls"].tap()
+        XCTAssertEqual(app.buttons["frame-playback-control"].label, "Pause slideshow")
+        XCTAssertTrue(waitForNonexistence(app.buttons["More playback options"], timeout: 6),
+                      "Dismissing More must restore normal undivided auto-hide.")
+    }
+
+    func testBlackoutRemainsDarkWhenDivisionActivates() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        launch(scenario: "blackout-frame", usesPortraitDivisionFixture: true)
+        XCTAssertTrue(waitForLandscape())
+        let blackout = app.otherElements["Scheduled frame blackout"]
+        let exit = app.buttons["frame-quick-close-control"]
+        XCTAssertTrue(blackout.waitForExistence(timeout: 8))
+        XCTAssertFalse(exit.exists)
+        attachControlsScreenshot("Blackout before fixture fold")
+
+        XCUIDevice.shared.orientation = .portrait
+        XCTAssertTrue(waitForPortrait())
+        // Wait for reflow, but capture inside the erroneous four-second reveal.
+        RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        attachControlsScreenshot("Blackout after fixture fold without tap")
+        XCTAssertFalse(exit.exists, "Geometry changes must not reveal blackout controls.")
+        XCTAssertFalse(app.buttons["More playback options"].exists)
+        XCTAssertFalse(app.otherElements["frame-companion-navigation"].exists)
+        RunLoop.current.run(until: Date().addingTimeInterval(5))
+        XCTAssertTrue(blackout.exists)
+        XCTAssertFalse(exit.exists)
+
+        activeWindow.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
+        XCTAssertTrue(exit.waitForExistence(timeout: 3), "A deliberate tap must still reveal Exit.")
+        XCTAssertTrue(waitForNonexistence(exit, timeout: 6), "Requested controls must recede again.")
+    }
+
+    func testFrameControlsPanelRespectsLargestTextSize() {
+        launch(scenario: "frame-controls", contentSizeCategory: "UICTContentSizeCategoryL")
+        let heading = app.staticTexts["frame-controls-panel"]
+        XCTAssertTrue(heading.waitForExistence(timeout: 8))
+        let ordinaryHeight = heading.frame.height
+        attachControlsScreenshot("More at Large text")
+        app.terminate()
+
+        launch(scenario: "frame-controls",
+               contentSizeCategory: "UICTContentSizeCategoryAccessibilityXXXL")
+        let enlargedHeading = app.staticTexts["frame-controls-panel"]
+        XCTAssertTrue(enlargedHeading.waitForExistence(timeout: 8))
+        attachControlsScreenshot("More at accessibility XXXL text")
+        let sizes = XCTAttachment(string: "Large heading height: \(ordinaryHeight); AX5 heading height: \(enlargedHeading.frame.height)")
+        sizes.name = "Frame Controls requested text size comparison"
+        sizes.lifetime = .keepAlways
+        add(sizes)
+        XCTAssertGreaterThan(enlargedHeading.frame.height, ordinaryHeight * 1.5,
+                             "Popover text must inherit the requested accessibility size.")
+        let tenSeconds = app.segmentedControls["frame-duration-picker"].buttons["10s"]
+        // A compact popover scrolls at accessibility sizes; text must remain
+        // enlarged and its duration control must still accept actual input.
+        let form = app.collectionViews.firstMatch
+        XCTAssertTrue(form.waitForExistence(timeout: 3))
+        let panel = app.navigationBars["Frame Controls"]
+        let origin = activeWindow.coordinate(withNormalizedOffset: .zero)
+        // SwiftUI exposes a zero-sized ancestor above this visible popover on
+        // this runtime. Derive real input from the observed window geometry.
+        for _ in 0..<3 {
+            guard tenSeconds.frame.maxY > form.frame.maxY
+                || tenSeconds.frame.minY < panel.frame.maxY else { break }
+            let start = origin.withOffset(CGVector(
+                dx: form.frame.midX, dy: form.frame.maxY - 18
+            ))
+            let end = origin.withOffset(CGVector(
+                dx: form.frame.midX, dy: panel.frame.maxY + 18
+            ))
+            start.press(forDuration: 0.1, thenDragTo: end)
+        }
+        XCTAssertGreaterThanOrEqual(tenSeconds.frame.minY, panel.frame.maxY)
+        XCTAssertLessThanOrEqual(tenSeconds.frame.maxY, form.frame.maxY)
+        origin.withOffset(CGVector(
+            dx: tenSeconds.frame.midX, dy: tenSeconds.frame.midY
+        )).tap()
+        XCTAssertTrue(waitUntil(timeout: 3) { tenSeconds.isSelected })
+        attachControlsScreenshot("More accessibility XXXL duration after scroll")
+        let close = app.buttons["close-frame-controls"]
+        origin.withOffset(CGVector(dx: close.frame.midX, dy: close.frame.midY)).tap()
+        XCTAssertTrue(waitForNonexistence(panel, timeout: 3))
+    }
+
+    private func attachControlsScreenshot(_ name: String) {
+        let capture = XCTAttachment(screenshot: app.screenshot())
+        capture.name = name
+        capture.lifetime = .keepAlways
+        add(capture)
+    }
+
     private func launch(
         scenario: String,
         contentSizeCategory: String? = nil,
-        usesHorizontalDivisionFixture: Bool = false
+        usesHorizontalDivisionFixture: Bool = false,
+        usesPortraitDivisionFixture: Bool = false
     ) {
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_SCREENSHOT_SCENARIO"] = scenario
         if usesHorizontalDivisionFixture {
             app.launchEnvironment["FRAMEWINK_UI_TEST_HORIZONTAL_DIVISION"] = "1"
+        }
+        if usesPortraitDivisionFixture {
+            app.launchEnvironment["FRAMEWINK_UI_TEST_PORTRAIT_DIVISION"] = "1"
         }
         if let contentSizeCategory {
             app.launchArguments += [

@@ -19,10 +19,13 @@ extension GeometryProxy {
         }
         #endif
         #if DEBUG
-        // An explicit UI-test fixture exercises the lower control surface on
-        // ordinary Simulators. Physical acceptance never sets this override.
-        if DebugScreenshotScenario.current != nil,
-           ProcessInfo.processInfo.environment["FRAMEWINK_UI_TEST_HORIZONTAL_DIVISION"] == "1" {
+        // Explicit UI-test fixtures exercise the companion control surface and
+        // division transitions on ordinary Simulators, not native hinge detection.
+        let environment = ProcessInfo.processInfo.environment
+        let alwaysDivided = environment["FRAMEWINK_UI_TEST_HORIZONTAL_DIVISION"] == "1"
+        let dividedInPortrait = environment["FRAMEWINK_UI_TEST_PORTRAIT_DIVISION"] == "1"
+            && size.height > size.width
+        if DebugScreenshotScenario.current != nil, alwaysDivided || dividedInPortrait {
             divisions = [CGRect(x: 0, y: size.height / 2 - 20,
                                 width: size.width, height: 40)]
         }

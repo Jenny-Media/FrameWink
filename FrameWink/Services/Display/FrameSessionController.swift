@@ -5,9 +5,11 @@ enum FrameOverlayVisibilityPolicy {
         isFrameMode: Bool,
         isPlaying: Bool,
         voiceOverEnabled: Bool,
-        controlsAreSeparate: Bool = false
+        controlsAreSeparate: Bool = false,
+        isShowingFrameControls: Bool = false
     ) -> Bool {
         isFrameMode && isPlaying && !voiceOverEnabled && !controlsAreSeparate
+            && !isShowingFrameControls
     }
 }
 
