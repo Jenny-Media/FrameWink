@@ -1,0 +1,147 @@
+diff --git a/FrameWink/App/DebugScreenshotScenario.swift b/FrameWink/App/DebugScreenshotScenario.swift
+index f9e2afd..94340ba 100644
+--- a/FrameWink/App/DebugScreenshotScenario.swift
++++ b/FrameWink/App/DebugScreenshotScenario.swift
+@@ -58,6 +58,13 @@ enum DebugScreenshotScenario: String {
+         return Self(rawValue: value)
+     }
+ 
++    // Explicit UI-test clock input. The ordinary schedule evaluator still
++    // decides whether playback is blacked out.
++    static var usesBlackoutTransitionFixture: Bool {
++        current == .frameControls
++            && ProcessInfo.processInfo.environment["FRAMEWINK_UI_TEST_BLACKOUT_TRANSITION"] == "1"
++    }
++
+     var initialPresentation: RootInitialPresentation? {
+         switch self {
+         case .sample, .personalReel, .sourceIntegrity, .personalImport, .albumPicker:
+@@ -156,20 +163,21 @@ extension DebugScreenshotScenario {
+ 
+         let nowComponents = Calendar.current.dateComponents([.hour, .minute], from: Date())
+         let currentMinute = (nowComponents.hour ?? 0) * 60 + (nowComponents.minute ?? 0)
+-        let scheduleEnabled = self == .wallModeSetup
++        let blackoutTransition = Self.usesBlackoutTransitionFixture
++        let scheduleEnabled = blackoutTransition || self == .wallModeSetup
+             || self == .wallSchedule
+             || self == .wallChecklist
+             || self == .blackoutFrame
+         try? wallModeStore.saveConfiguration(
+             WallModeConfiguration(
+                 scheduleEnabled: scheduleEnabled,
+-                dimStartMinute: self == .blackoutFrame
++                dimStartMinute: blackoutTransition ? (currentMinute + 60) % 1_440 : self == .blackoutFrame
+                     ? (currentMinute + 1_438) % 1_440
+                     : 20 * 60,
+-                blackoutStartMinute: self == .blackoutFrame
++                blackoutStartMinute: blackoutTransition ? (currentMinute + 60) % 1_440 : self == .blackoutFrame
+                     ? (currentMinute + 1_439) % 1_440
+                     : 23 * 60,
+-                blackoutEndMinute: self == .blackoutFrame
++                blackoutEndMinute: blackoutTransition ? (currentMinute + 120) % 1_440 : self == .blackoutFrame
+                     ? (currentMinute + 2) % 1_440
+                     : 7 * 60,
+                 dimOpacity: 0.58,
+diff --git a/FrameWink/Features/PhotoSetup/RootView.swift b/FrameWink/Features/PhotoSetup/RootView.swift
+index 0158e87..6f5b1de 100644
+--- a/FrameWink/Features/PhotoSetup/RootView.swift
++++ b/FrameWink/Features/PhotoSetup/RootView.swift
+@@ -130,7 +130,18 @@ struct RootView: View {
+                         presentationDidChange: saveCurrentPresentation,
+                         isFrameMode: $isFrameMode,
+                         wallVisualState: wallMode.visualState,
+-                        refreshWallSchedule: wallMode.refresh,
++                        refreshWallSchedule: { date in
++#if DEBUG
++                            // A duration selection advances only the explicit
++                            // UI-test schedule clock, never the playback clock.
++                            if DebugScreenshotScenario.usesBlackoutTransitionFixture,
++                               activeInterval != FramePlaybackTiming.defaultInterval {
++                                wallMode.refresh(at: date.addingTimeInterval(3_600))
++                                return
++                            }
++#endif
++                            wallMode.refresh(at: date)
++                        },
+                         previewCaptionBottomInset: setupCardHeight
+                             + (usesCompactSetup ? 24 : 36),
+                         showsPreviewCaption: !usesNarrowAccessibilityLayout && !regions.isDivided,
+diff --git a/FrameWinkUITests/FirstLaunchPrivacyUITests.swift b/FrameWinkUITests/FirstLaunchPrivacyUITests.swift
+index e5fb5ae..7ff801f 100644
+--- a/FrameWinkUITests/FirstLaunchPrivacyUITests.swift
++++ b/FrameWinkUITests/FirstLaunchPrivacyUITests.swift
+@@ -1352,6 +1352,54 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
+         XCTAssertTrue(waitForNonexistence(panel, timeout: 3))
+     }
+ 
++    func testOpenFrameControlsSurviveScheduledBlackout() {
++        assertOpenFrameControlsSurviveScheduledBlackout(isDivided: false)
++    }
++
++    func testSeparatedOpenFrameControlsSurviveScheduledBlackout() {
++        assertOpenFrameControlsSurviveScheduledBlackout(isDivided: true)
++    }
++
++    private func assertOpenFrameControlsSurviveScheduledBlackout(isDivided: Bool) {
++        launch(scenario: "frame-controls",
++               usesHorizontalDivisionFixture: isDivided,
++               usesBlackoutTransitionFixture: true)
++        let shape = isDivided ? "divided fixture" : "ordinary viewport"
++        let panel = app.navigationBars["Frame Controls"]
++        let picker = app.segmentedControls["frame-duration-picker"]
++        let blackout = app.otherElements["Scheduled frame blackout"]
++        XCTAssertTrue(panel.waitForExistence(timeout: 8))
++        XCTAssertTrue(picker.buttons["30s"].isSelected)
++        XCTAssertEqual(app.buttons["frame-playback-control"].label, "Pause slideshow")
++        XCTAssertFalse(blackout.exists)
++        attachControlsScreenshot("More before scheduled blackout - " + shape)
++
++        // The explicit DEBUG clock fixture advances the real schedule input
++        // by one hour after this actual duration selection. Playback keeps its
++        // real clock and the production blackout observer receives the change.
++        picker.buttons["10s"].tap()
++        XCTAssertTrue(blackout.waitForExistence(timeout: 3))
++        RunLoop.current.run(until: Date().addingTimeInterval(5))
++        attachControlsScreenshot("More during scheduled blackout - " + shape)
++        XCTAssertTrue(panel.exists, "Scheduled blackout must retain an already-open More presenter.")
++        XCTAssertTrue(picker.buttons["10s"].isSelected)
++        picker.buttons["1m"].tap()
++        XCTAssertTrue(picker.buttons["1m"].isSelected,
++                      "The retained panel must still accept a duration change during blackout.")
++        app.buttons["close-frame-controls"].tap()
++        XCTAssertTrue(waitForNonexistence(panel, timeout: 3))
++        XCTAssertTrue(blackout.exists)
++        let exit = app.buttons["frame-quick-close-control"]
++        XCTAssertFalse(app.buttons["More playback options"].exists)
++        XCTAssertFalse(exit.exists, "Dismissing the retained panel must leave blackout dark.")
++        XCTAssertFalse(app.otherElements["frame-companion-navigation"].exists)
++        attachControlsScreenshot("Blackout after More dismissal - " + shape)
++
++        activeWindow.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
++        XCTAssertTrue(exit.waitForExistence(timeout: 3), "A deliberate blackout tap must still reveal Exit.")
++        XCTAssertTrue(waitForNonexistence(exit, timeout: 6), "Requested blackout controls must recede again.")
++    }
++
+     private func attachControlsScreenshot(_ name: String) {
+         let capture = XCTAttachment(screenshot: app.screenshot())
+         capture.name = name
+@@ -1363,7 +1411,8 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
+         scenario: String,
+         contentSizeCategory: String? = nil,
+         usesHorizontalDivisionFixture: Bool = false,
+-        usesPortraitDivisionFixture: Bool = false
++        usesPortraitDivisionFixture: Bool = false,
++        usesBlackoutTransitionFixture: Bool = false
+     ) {
+         app = XCUIApplication()
+         app.launchEnvironment["FRAMEWINK_SCREENSHOT_SCENARIO"] = scenario
+@@ -1373,6 +1422,9 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
+         if usesPortraitDivisionFixture {
+             app.launchEnvironment["FRAMEWINK_UI_TEST_PORTRAIT_DIVISION"] = "1"
+         }
++        if usesBlackoutTransitionFixture {
++            app.launchEnvironment["FRAMEWINK_UI_TEST_BLACKOUT_TRANSITION"] = "1"
++        }
+         if let contentSizeCategory {
+             app.launchArguments += [
+                 "-UIPreferredContentSizeCategoryName",

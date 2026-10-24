@@ -3453,3 +3453,12 @@ Focused iPad: 58 logic + 10 UI pass, one AX5 diagnostic fails at an XCTest eleme
 The [review report](review/duo-2026-10-24/README.md) and sanitized provenance contain fixture labels, source/capture hashes and exact result boundaries. New native Duo fold detection/acceptance and a new full native suite are not claimed. Historical native failures remain open; physical follow-up is TestFlight-only. No hardware discovery/control/install/provisioning, upload, merge or release occurred.
 
 Status: source fixes and focused Simulator checks complete; fresh independent review remains required; PR stays draft and unmerged. Active work estimate: about 20 minutes, excluding unattended runtime and resource-lease waits.
+
+
+### More presentation during scheduled blackout — 2026-10-24
+
+Additional user-approved fix at `80fddd95103e4140db8f233eabe8580c3f697ec3` preserves an already-open More panel when the schedule enters blackout, while retaining hidden ordinary controls. Closing More immediately leaves darkness; explicit tap/escape/recede behavior still works. Reviewed head `d97cd48` plus a neutral DEBUG schedule-clock fixture reproduced the exact missing-presenter assertion (0 passed / 1 failed). The corrected source passes 33 focused iPad checks (28 logic + 5 UI), zero failures/skips. Only `SampleSlideshowView.swift` differs between the baseline and candidate native inputs. All 133 final native inputs match the validated source.
+
+[New matched captures, fixture contract and exact limits](review/duo-2026-10-24/blackout-transition/README.md) preserve the prior repair report and failed runs. Ordinary and divided fixture cases both verify real duration selection during blackout, dark dismissal, and deliberate-tap escape/recede. Earlier fold/unfold regressions pass. This additional pass does not claim a new full-family suite or native Duo fold acceptance; physical follow-up remains TestFlight-only. The owned iPad is Shutdown; no upload, physical device action, merge or release occurred.
+
+Status: focused repair checks complete; fresh independent review still required. Active work estimate: about 10 minutes, excluding runtime and shared-lease waits.

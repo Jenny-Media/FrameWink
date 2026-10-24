@@ -1,3 +1,5 @@
+Latest approved follow-up: [preserve More at scheduled blackout onset](blackout-transition/README.md), validated source `80fddd95103e4140db8f233eabe8580c3f697ec3`. The earlier report below retains its original revision and results.
+
 # FrameWink control visibility review fixes — October 24, 2026
 
 Validated source: `9f0cc83c619058a252d690187823f34d86c65abd`. Reviewed baseline: `534e380541ab31a0fddef0900038865768129f0f`; latest main remains `c3614aab98817a3eb5da24b962609937ab41a667`, already integrated. The baseline reproduction adds only the [neutral DEBUG fixture and UI harness](baseline-neutral-fixture.patch); all other recorded native inputs match the retained implementation. Prior captures and provenance remain unchanged.
