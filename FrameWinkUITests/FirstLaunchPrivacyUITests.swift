@@ -1352,6 +1352,54 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(waitForNonexistence(panel, timeout: 3))
     }
 
+    func testOpenFrameControlsSurviveScheduledBlackout() {
+        assertOpenFrameControlsSurviveScheduledBlackout(isDivided: false)
+    }
+
+    func testSeparatedOpenFrameControlsSurviveScheduledBlackout() {
+        assertOpenFrameControlsSurviveScheduledBlackout(isDivided: true)
+    }
+
+    private func assertOpenFrameControlsSurviveScheduledBlackout(isDivided: Bool) {
+        launch(scenario: "frame-controls",
+               usesHorizontalDivisionFixture: isDivided,
+               usesBlackoutTransitionFixture: true)
+        let shape = isDivided ? "divided fixture" : "ordinary viewport"
+        let panel = app.navigationBars["Frame Controls"]
+        let picker = app.segmentedControls["frame-duration-picker"]
+        let blackout = app.otherElements["Scheduled frame blackout"]
+        XCTAssertTrue(panel.waitForExistence(timeout: 8))
+        XCTAssertTrue(picker.buttons["30s"].isSelected)
+        XCTAssertEqual(app.buttons["frame-playback-control"].label, "Pause slideshow")
+        XCTAssertFalse(blackout.exists)
+        attachControlsScreenshot("More before scheduled blackout - " + shape)
+
+        // The explicit DEBUG clock fixture advances the real schedule input
+        // by one hour after this actual duration selection. Playback keeps its
+        // real clock and the production blackout observer receives the change.
+        picker.buttons["10s"].tap()
+        XCTAssertTrue(blackout.waitForExistence(timeout: 3))
+        RunLoop.current.run(until: Date().addingTimeInterval(5))
+        attachControlsScreenshot("More during scheduled blackout - " + shape)
+        XCTAssertTrue(panel.exists, "Scheduled blackout must retain an already-open More presenter.")
+        XCTAssertTrue(picker.buttons["10s"].isSelected)
+        picker.buttons["1m"].tap()
+        XCTAssertTrue(picker.buttons["1m"].isSelected,
+                      "The retained panel must still accept a duration change during blackout.")
+        app.buttons["close-frame-controls"].tap()
+        XCTAssertTrue(waitForNonexistence(panel, timeout: 3))
+        XCTAssertTrue(blackout.exists)
+        let exit = app.buttons["frame-quick-close-control"]
+        XCTAssertFalse(app.buttons["More playback options"].exists)
+        XCTAssertFalse(exit.exists, "Dismissing the retained panel must leave blackout dark.")
+        XCTAssertFalse(app.otherElements["frame-companion-navigation"].exists)
+        attachControlsScreenshot("Blackout after More dismissal - " + shape)
+
+        activeWindow.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
+        XCTAssertTrue(exit.waitForExistence(timeout: 3), "A deliberate blackout tap must still reveal Exit.")
+        XCTAssertTrue(waitForNonexistence(exit, timeout: 6), "Requested blackout controls must recede again.")
+    }
+
     private func attachControlsScreenshot(_ name: String) {
         let capture = XCTAttachment(screenshot: app.screenshot())
         capture.name = name
@@ -1363,7 +1411,8 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         scenario: String,
         contentSizeCategory: String? = nil,
         usesHorizontalDivisionFixture: Bool = false,
-        usesPortraitDivisionFixture: Bool = false
+        usesPortraitDivisionFixture: Bool = false,
+        usesBlackoutTransitionFixture: Bool = false
     ) {
         app = XCUIApplication()
         app.launchEnvironment["FRAMEWINK_SCREENSHOT_SCENARIO"] = scenario
@@ -1372,6 +1421,9 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         }
         if usesPortraitDivisionFixture {
             app.launchEnvironment["FRAMEWINK_UI_TEST_PORTRAIT_DIVISION"] = "1"
+        }
+        if usesBlackoutTransitionFixture {
+            app.launchEnvironment["FRAMEWINK_UI_TEST_BLACKOUT_TRANSITION"] = "1"
         }
         if let contentSizeCategory {
             app.launchArguments += [

@@ -145,7 +145,9 @@ struct SampleSlideshowView: View {
                             .transition(reduceMotion ? .identity : .opacity)
                     }
 
-                    if controlsVisible || (regions.isDivided && wallVisualState != .blackout) {
+                    // Keep More's presenter alive through scheduled chrome hiding.
+                    if controlsVisible || isShowingFrameControls
+                        || (regions.isDivided && wallVisualState != .blackout) {
                         frameControls(
                             isCompact: regions.controls.width < 600,
                             pages: pages,

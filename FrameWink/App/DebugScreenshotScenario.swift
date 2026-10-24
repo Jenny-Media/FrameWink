@@ -58,6 +58,13 @@ enum DebugScreenshotScenario: String {
         return Self(rawValue: value)
     }
 
+    // Explicit UI-test clock input. The ordinary schedule evaluator still
+    // decides whether playback is blacked out.
+    static var usesBlackoutTransitionFixture: Bool {
+        current == .frameControls
+            && ProcessInfo.processInfo.environment["FRAMEWINK_UI_TEST_BLACKOUT_TRANSITION"] == "1"
+    }
+
     var initialPresentation: RootInitialPresentation? {
         switch self {
         case .sample, .personalReel, .sourceIntegrity, .personalImport, .albumPicker:
@@ -156,20 +163,21 @@ extension DebugScreenshotScenario {
 
         let nowComponents = Calendar.current.dateComponents([.hour, .minute], from: Date())
         let currentMinute = (nowComponents.hour ?? 0) * 60 + (nowComponents.minute ?? 0)
-        let scheduleEnabled = self == .wallModeSetup
+        let blackoutTransition = Self.usesBlackoutTransitionFixture
+        let scheduleEnabled = blackoutTransition || self == .wallModeSetup
             || self == .wallSchedule
             || self == .wallChecklist
             || self == .blackoutFrame
         try? wallModeStore.saveConfiguration(
             WallModeConfiguration(
                 scheduleEnabled: scheduleEnabled,
-                dimStartMinute: self == .blackoutFrame
+                dimStartMinute: blackoutTransition ? (currentMinute + 60) % 1_440 : self == .blackoutFrame
                     ? (currentMinute + 1_438) % 1_440
                     : 20 * 60,
-                blackoutStartMinute: self == .blackoutFrame
+                blackoutStartMinute: blackoutTransition ? (currentMinute + 60) % 1_440 : self == .blackoutFrame
                     ? (currentMinute + 1_439) % 1_440
                     : 23 * 60,
-                blackoutEndMinute: self == .blackoutFrame
+                blackoutEndMinute: blackoutTransition ? (currentMinute + 120) % 1_440 : self == .blackoutFrame
                     ? (currentMinute + 2) % 1_440
                     : 7 * 60,
                 dimOpacity: 0.58,
