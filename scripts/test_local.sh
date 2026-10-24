@@ -52,10 +52,8 @@ run_suite iPad "$IPAD_DESTINATION"
 case "$SDK_VERSION" in
     27.1*|27.2*)
         DUO_DESTINATION="${FRAMEWINK_DUO_DESTINATION:-$(python3 "$REPO_ROOT/scripts/build_local.py" --simulator-destination Duo)}"
-        # Temporary Duo-only exclusion approved by the owner on 2026-10-01.
-        # Restore after XCTest reliably drives Duo display rotation.
-        run_suite iPhoneDuo "$DUO_DESTINATION" \
-            -skip-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto
+        # The UI runner now drives native Simulator rotation; keep the round trip in the gate.
+        run_suite iPhoneDuo "$DUO_DESTINATION"
         ;;
     *) echo "SDK $SDK_VERSION: standard iPhone/iPad gate; native Duo gate deferred." ;;
 esac
