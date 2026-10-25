@@ -618,7 +618,8 @@ else:
         for call in calls:
             self.assertIn("-skip-testing:FrameWinkTests/StoreKitConfigurationTests/testStoreKitTestAskToBuyReturnsPendingWithoutUnlocking", call)
             self.assertIn("-skip-testing:FrameWinkUITests/MarketingLandscapeScreenshotTests", call)
-        self.assertIn("-skip-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto", calls[2])
+        for call in calls:
+            self.assertNotIn("-skip-testing:FrameWinkUITests/FirstLaunchPrivacyUITests/testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto", call)
 
 
 if __name__ == "__main__":

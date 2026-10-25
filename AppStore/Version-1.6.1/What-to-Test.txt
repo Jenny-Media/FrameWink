@@ -1,9 +1,13 @@
-Version 1.6.1 corrects the release version after 1.6 was approved. App behavior is unchanged from the released version.
+Thank you for testing FrameWink 1.6.1 for iPhone and iPad.
 
-- Verify the installed version is 1.6.1 and launch the bundled sample reel without a Photos permission prompt.
-- Choose photos with the system picker, review suggestions, and start, pause, resume, and close the frame.
-- Rotate or resize on iPhone and iPad; confirm the current photo and paused state are preserved.
-- On iPhone Duo, check outer and open displays, Book and Tabletop poses, and rotation manually. Native Duo support remains enabled.
-- Check Send Feedback, Privacy & Data, Photo Duration, and Restore Purchases.
+Focus on the new iPhone Duo companion controls and playback continuity:
+- Check Closed, Fully Open, Book and Tabletop in both directions, rotation, and Larger Text. Photos stay above/left of the fold; position, Share, Pause/Resume, More and Close stay below/right without hinge overlap.
+- Pause on a recognizable photo. Swipe only the companion region in both directions; position changes while pause remains. Fold, unfold and rotate; the photo anchor and pause must survive. Repeat while playing and confirm the selected duration continues without a reset or stuck timer.
+- While playing, open More, unfold and wait over five seconds. The panel and selected Photo Duration must remain. Select 10s, 30s, 1m and 5m once each, then close and reopen More. Full-screen controls should recede again after dismissal.
+- With Lifetime unlocked through TestFlight sandbox, use the normal night-schedule UI to set blackout a few minutes ahead. Remain foregrounded with More open across onset: duration still changes, and closing More leaves the frame dark. Folding alone must not reveal hidden controls; a deliberate tap reveals exit briefly, then it recedes. Repeat ordinary and divided layouts.
 
-Report the device model, OS version, exact steps, and whether the app was foregrounded. Physical Duo folds, PhotoKit/iCloud, purchases, brightness, thermal behavior, Guided Access, and long-running playback still require hardware checks.
+Also check standard iPhone/iPad playback and both iPad Split View positions, VoiceOver and Reduce Motion; sample launch without a Photos prompt; PHPicker selection/cancellation and the 500-candidate total; review, Never Show Again and Undo; automatic-album authorization, local/iCloud photos, refresh while paused and offline cached replay. Originals in Apple Photos must remain unchanged.
+
+Verify the one-time FrameWink Lifetime product, sandbox purchase/cancellation, Restore Purchases, offline entitlement and Family Sharing. In Privacy & Data, Free Up Unused Space must preserve selections/current frame; test the confirmed Delete All FrameWink Photos only with disposable app data. Check storage progress, feedback Mail/Copy Email and mounted-display guidance.
+
+Hardware checks must use the exact owner-authorized TestFlight build. Do not install a local Debug/acceptance build or use fixture entitlements, geometry or clocks. Report version/build, device/OS, posture, photo identity, exact steps and foreground state. The detailed hardware checklist remains separate. Guided Access is manual; schedules work while foregrounded, and automatic relaunch after restart is not promised.

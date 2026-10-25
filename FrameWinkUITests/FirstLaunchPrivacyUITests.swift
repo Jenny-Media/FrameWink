@@ -5,11 +5,18 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        #if targetEnvironment(simulator)
+        if DuoSimulatorOrientation.isAvailable {
+            XCTAssertTrue(DuoSimulatorOrientation.selectCoverDisplay(),
+                          "Cannot select the Duo cover display for the UI fixture suite.")
+            setDeviceOrientation(.portrait)
+        }
+        #endif
     }
 
     override func tearDownWithError() throws {
         app?.terminate()
-        XCUIDevice.shared.orientation = .portrait
+        setDeviceOrientation(.portrait)
         app = nil
     }
 
@@ -201,23 +208,34 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         launch(scenario: "personal-reel", contentSizeCategory: "UICTContentSizeCategoryAccessibilityXXXL")
         app.buttons["More"].tap()
         let privacy = app.buttons["Privacy & Data"]
-        if !privacy.waitForExistence(timeout: 1) {
+        if !privacy.waitForExistence(timeout: 1) || !privacy.isHittable {
             let menu = app.collectionViews.firstMatch
             for _ in 0..<5 {
-                if privacy.exists, privacy.frame.midY < activeWindowFrame.midY + 80 {
+                if privacy.isHittable, privacy.frame.midY < activeWindowFrame.midY + 80 {
                     break
                 }
-                // Keep the gesture inside the menu's visible portion on a small phone.
-                menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55))
-                    .press(
-                        forDuration: 0.05,
-                        thenDragTo: menu.coordinate(
-                            withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)
-                        )
-                    )
+                // UIKit can expose the collection's full content height beyond
+                // its popover. Intersect clipping ancestors before sending input.
+                let clips = app.otherElements.containing(.collectionView, identifier: nil)
+                    .allElementsBoundByIndex.map(\.frame).filter { !$0.isEmpty }
+                let visible = clips.reduce(menu.frame.intersection(activeWindowFrame)) {
+                    $0.intersection($1)
+                }
+                XCTAssertFalse(visible.isEmpty, "The menu needs a visible scroll surface.")
+                let origin = activeWindow.coordinate(withNormalizedOffset: .zero)
+                let start = origin.withOffset(CGVector(
+                    dx: visible.midX - activeWindowFrame.minX,
+                    dy: visible.minY + visible.height * 0.75 - activeWindowFrame.minY
+                ))
+                let end = origin.withOffset(CGVector(
+                    dx: visible.midX - activeWindowFrame.minX,
+                    dy: visible.minY + visible.height * 0.25 - activeWindowFrame.minY
+                ))
+                start.press(forDuration: 0.05, thenDragTo: end)
             }
         }
         XCTAssertTrue(privacy.waitForExistence(timeout: 4))
+        XCTAssertTrue(privacy.isHittable, "Scroll Privacy & Data into the visible menu before tapping.")
         privacy.tap()
         XCTAssertTrue(app.navigationBars["Privacy & Data"].waitForExistence(timeout: 4))
 
@@ -420,7 +438,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
     func testPersonalFrameRotatesAndSwipeAdvancesToTheNextPhoto() {
         launch(scenario: "personal-reel")
 
-        XCUIDevice.shared.orientation = .landscapeLeft
+        setDeviceOrientation(.landscapeLeft)
         XCTAssertTrue(waitForLandscape())
 
         let startFrame = app.buttons["Start Frame"]
@@ -463,7 +481,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(playbackOptions.waitForExistence(timeout: 2))
         XCTAssertTrue(playbackControl.waitForExistence(timeout: 2))
 
-        XCUIDevice.shared.orientation = .portrait
+        setDeviceOrientation(.portrait)
         XCTAssertTrue(waitForPortrait())
         XCTAssertTrue(
             secondPhoto.waitForExistence(timeout: 4),
@@ -786,7 +804,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         launch(scenario: scenario)
         XCTAssertTrue(app.navigationBars["Photos in This Frame"].waitForExistence(timeout: 8))
         if landscape {
-            XCUIDevice.shared.orientation = .landscapeLeft
+            setDeviceOrientation(.landscapeLeft)
             XCTAssertTrue(waitForLandscape())
         }
         let actions = app.buttons.matching(
@@ -1248,7 +1266,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
     // Rotation changes an explicit DEBUG division fixture. These cases exercise
     // the real division-change callback without claiming native fold detection.
     func testOpenFrameControlsSurviveUnfoldDuringPlayback() {
-        XCUIDevice.shared.orientation = .portrait
+        setDeviceOrientation(.portrait)
         launch(scenario: "smart-frame", usesPortraitDivisionFixture: true)
         let navigation = app.otherElements["frame-companion-navigation"]
         XCTAssertTrue(navigation.waitForExistence(timeout: 8))
@@ -1258,7 +1276,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertTrue(panel.waitForExistence(timeout: 3))
         attachControlsScreenshot("More before fixture unfold")
 
-        XCUIDevice.shared.orientation = .landscapeLeft
+        setDeviceOrientation(.landscapeLeft)
         XCTAssertTrue(waitForLandscape())
         XCTAssertTrue(waitForNonexistence(navigation, timeout: 3))
         RunLoop.current.run(until: Date().addingTimeInterval(5))
@@ -1275,7 +1293,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
     }
 
     func testBlackoutRemainsDarkWhenDivisionActivates() {
-        XCUIDevice.shared.orientation = .landscapeLeft
+        setDeviceOrientation(.landscapeLeft)
         launch(scenario: "blackout-frame", usesPortraitDivisionFixture: true)
         XCTAssertTrue(waitForLandscape())
         let blackout = app.otherElements["Scheduled frame blackout"]
@@ -1284,7 +1302,7 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         XCTAssertFalse(exit.exists)
         attachControlsScreenshot("Blackout before fixture fold")
 
-        XCUIDevice.shared.orientation = .portrait
+        setDeviceOrientation(.portrait)
         XCTAssertTrue(waitForPortrait())
         // Wait for reflow, but capture inside the erroneous four-second reveal.
         RunLoop.current.run(until: Date().addingTimeInterval(0.5))
@@ -1497,6 +1515,21 @@ final class FirstLaunchPrivacyUITests: XCTestCase {
         } else {
             XCTAssertTrue(startSampleFrame.isHittable)
         }
+    }
+
+    private func setDeviceOrientation(
+        _ orientation: UIDeviceOrientation,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCUIDevice.shared.orientation = orientation
+        #if targetEnvironment(simulator)
+        if DuoSimulatorOrientation.isAvailable {
+            XCTAssertTrue(DuoSimulatorOrientation.rotateCover(to: orientation),
+                          "Cannot dispatch the native Duo Simulator orientation event.",
+                          file: file, line: line)
+        }
+        #endif
     }
 
     private var activeWindow: XCUIElement { app.windows.firstMatch }

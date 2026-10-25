@@ -1,0 +1,173 @@
+[
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final/01-beautifully-framed.jpg",
+    "previousSHA256": "6850a833f76436836e03461bd5b57c33b0787a30fa2e409add12eda1119c1092",
+    "refreshed": false,
+    "family": "iphone",
+    "order": 1,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-6.9-inch/01-beautifully-framed.jpg",
+    "sha256": "6850a833f76436836e03461bd5b57c33b0787a30fa2e409add12eda1119c1092"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final/02-made-for-every-screen.jpg",
+    "previousSHA256": "b831f0c54a98caa97a6b43365a164e24823bc6f559e19e13c5c50a83d65d71b0",
+    "refreshed": false,
+    "family": "iphone",
+    "order": 2,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-6.9-inch/02-made-for-every-screen.jpg",
+    "sha256": "b831f0c54a98caa97a6b43365a164e24823bc6f559e19e13c5c50a83d65d71b0"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final/03-choose-an-album.jpg",
+    "previousSHA256": "c003649ed4ce895657031e66379b40b7baba5819bb66ccced5a4c4fa885ff606",
+    "refreshed": true,
+    "family": "iphone",
+    "order": 3,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-6.9-inch/03-choose-an-album.jpg",
+    "sha256": "3ee8abe5add2089b27199574e821aaf0f10d9c0572ef3fe63acb9996421a4189"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final/04-portrait-or-landscape.jpg",
+    "previousSHA256": "081429110df66a5b44001c6e1a7cc093614cda492540f50020e5b8cb75e5bab0",
+    "refreshed": false,
+    "family": "iphone",
+    "order": 4,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-6.9-inch/04-portrait-or-landscape.jpg",
+    "sha256": "081429110df66a5b44001c6e1a7cc093614cda492540f50020e5b8cb75e5bab0"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final/05-simple-controls.jpg",
+    "previousSHA256": "8a0166d29170926049d613eaba3f3693c6baecd4244338d64756ed86f04b2d23",
+    "refreshed": true,
+    "family": "iphone",
+    "order": 5,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-6.9-inch/05-simple-controls.jpg",
+    "sha256": "ceda9ebcfdd43c5456b89845fe419b79ec7ac3892f625f17187326da91f981f1"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final/06-see-it-first.jpg",
+    "previousSHA256": "201fc7c79252f915dee3c812e3c57bf9b972ff123e3b693756c7dd898417d5e4",
+    "refreshed": true,
+    "family": "iphone",
+    "order": 6,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-6.9-inch/06-see-it-first.jpg",
+    "sha256": "c2f1aa55de6f6ac5d472b73f56c4ee2dafa1d88e82be8ef9909f1d574bac2ab3"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final/01-beautifully-framed.jpg",
+    "previousSHA256": "e3c7e373b213866eb342a6d53518eb37357ceacd61845d091129d1a7344768d8",
+    "refreshed": false,
+    "family": "ipad",
+    "order": 1,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPad-13-inch/01-beautifully-framed.jpg",
+    "sha256": "e3c7e373b213866eb342a6d53518eb37357ceacd61845d091129d1a7344768d8"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final/02-wall-or-table.jpg",
+    "previousSHA256": "7e63addbe9975191f60ebab2e4042cf702479d78cb2fe6f7afac6f80ea463221",
+    "refreshed": false,
+    "family": "ipad",
+    "order": 2,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPad-13-inch/02-wall-or-table.jpg",
+    "sha256": "7e63addbe9975191f60ebab2e4042cf702479d78cb2fe6f7afac6f80ea463221"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final/03-beautifully-framed.jpg",
+    "previousSHA256": "8b34fd04e3cbc1318ffbab5c5cda887084533e7d3c44327038e685e57c42e55d",
+    "refreshed": false,
+    "family": "ipad",
+    "order": 3,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPad-13-inch/03-beautifully-framed.jpg",
+    "sha256": "8b34fd04e3cbc1318ffbab5c5cda887084533e7d3c44327038e685e57c42e55d"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final/04-beautifully-arranged.jpg",
+    "previousSHA256": "2bb2ba4f99ee9c8dbd0638297f5e3f013109d346ce49a7eab3187ac7cd3e8685",
+    "refreshed": false,
+    "family": "ipad",
+    "order": 4,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPad-13-inch/04-beautifully-arranged.jpg",
+    "sha256": "2bb2ba4f99ee9c8dbd0638297f5e3f013109d346ce49a7eab3187ac7cd3e8685"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final/05-choose-an-album.jpg",
+    "previousSHA256": "c3d607f9b32cab35d00127200ed0ff7ef1c15d8c5b1bd2a9c08cc2ad9df2268f",
+    "refreshed": true,
+    "family": "ipad",
+    "order": 5,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPad-13-inch/05-choose-an-album.jpg",
+    "sha256": "24fe0858a1df4b3155544f19512b3f8ba735b139e4e36db424b8c688394a4d30"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final/06-simple-controls.jpg",
+    "previousSHA256": "961ec5b71cf9182f336e5eb8f90a80bb95e56c79375200093dc1791b25ddf114",
+    "refreshed": true,
+    "family": "ipad",
+    "order": 6,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPad-13-inch/06-simple-controls.jpg",
+    "sha256": "c99619d1b3c2740cb1a663c9174a899b2b5c1c645c516393134f899cc406ed6b"
+  },
+  {
+    "previousPath": "AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final/07-see-it-first.jpg",
+    "previousSHA256": "b075dd1fa9cb015812a4414f4d46e84a468a0e6261bf2d0d119a9305e69e90f9",
+    "refreshed": true,
+    "family": "ipad",
+    "order": 7,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPad-13-inch/07-see-it-first.jpg",
+    "sha256": "4da10ba5bafa53d6de8aa2ac12b58ccbf321499a6af80a428b856ef8888b6f91"
+  },
+  {
+    "previousPath": "AppStore/Version-1.6/Screenshots/iPhone-Duo/01-your-photos-beautifully-framed.jpg",
+    "previousSHA256": "fd0c030777873ab8bade80880096f4b5b3a738a5cffc0ff5e3f4153aa5a83a46",
+    "refreshed": false,
+    "family": "duo",
+    "order": 1,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-Duo/01-your-photos-beautifully-framed.jpg",
+    "sha256": "fd0c030777873ab8bade80880096f4b5b3a738a5cffc0ff5e3f4153aa5a83a46"
+  },
+  {
+    "previousPath": "AppStore/Version-1.6/Screenshots/iPhone-Duo/02-open-to-a-bigger-frame.jpg",
+    "previousSHA256": "510d61551588f7f00a1c0f9a8efb720edc82b807cc8878b79aa0d1dea91334b6",
+    "refreshed": false,
+    "family": "duo",
+    "order": 2,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-Duo/02-open-to-a-bigger-frame.jpg",
+    "sha256": "510d61551588f7f00a1c0f9a8efb720edc82b807cc8878b79aa0d1dea91334b6"
+  },
+  {
+    "previousPath": "AppStore/Version-1.6/Screenshots/iPhone-Duo/03-choose-an-album.jpg",
+    "previousSHA256": "0e736c5350984f5f4fa67b76a735b72e61f1e4822889b79743caf0b8d9b7cc6e",
+    "refreshed": false,
+    "family": "duo",
+    "order": 3,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-Duo/03-choose-an-album.jpg",
+    "sha256": "0e736c5350984f5f4fa67b76a735b72e61f1e4822889b79743caf0b8d9b7cc6e"
+  },
+  {
+    "previousPath": "AppStore/Version-1.6/Screenshots/iPhone-Duo/04-open-or-closed.jpg",
+    "previousSHA256": "214a2663fc94d8e3c24100119e52c277f22cd7b2133c9a71077ae167d1fb291a",
+    "refreshed": false,
+    "family": "duo",
+    "order": 4,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-Duo/04-open-or-closed.jpg",
+    "sha256": "214a2663fc94d8e3c24100119e52c277f22cd7b2133c9a71077ae167d1fb291a"
+  },
+  {
+    "previousPath": "AppStore/Version-1.6/Screenshots/iPhone-Duo/05-simple-timing.jpg",
+    "previousSHA256": "8a61f959d73b9d749f0f49502e2e4502b634aa56e7c308837598427f9665718c",
+    "refreshed": false,
+    "family": "duo",
+    "order": 5,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-Duo/05-simple-timing.jpg",
+    "sha256": "8a61f959d73b9d749f0f49502e2e4502b634aa56e7c308837598427f9665718c"
+  },
+  {
+    "previousPath": "AppStore/Version-1.6/Screenshots/iPhone-Duo/06-see-it-first.jpg",
+    "previousSHA256": "8702c5e6eaef947aa81d36354ad79a0681c6b4f419d620687b0e73abc2379eeb",
+    "refreshed": true,
+    "family": "duo",
+    "order": 6,
+    "path": "AppStore/Version-1.6.1/Screenshots/iPhone-Duo/06-see-it-first.jpg",
+    "sha256": "cb4c73273288cfea4883e3bc4a8c14969251490498d81e090c4c28d276b7876c"
+  }
+]

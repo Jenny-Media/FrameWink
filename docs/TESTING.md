@@ -5209,3 +5209,175 @@ The [review report](review/duo-2026-10-24/README.md) and sanitized provenance co
 Additional user-approved fix at `80fddd95103e4140db8f233eabe8580c3f697ec3` preserves an already-open More panel when the schedule enters blackout, while retaining hidden ordinary controls. Closing More immediately leaves darkness; explicit tap/escape/recede behavior still works. Reviewed head `d97cd48` plus a neutral DEBUG schedule-clock fixture reproduced the exact missing-presenter assertion (0 passed / 1 failed). The corrected source passes 33 focused iPad checks (28 logic + 5 UI), zero failures/skips. Only `SampleSlideshowView.swift` differs between the baseline and candidate native inputs. All 133 final native inputs match the validated source.
 
 [New matched captures, fixture contract and exact limits](review/duo-2026-10-24/blackout-transition/README.md) preserve the prior repair report and failed runs. Ordinary and divided fixture cases both verify real duration selection during blackout, dark dismissal, and deliberate-tap escape/recede. Earlier fold/unfold regressions pass. This additional pass does not claim a new full-family suite or native Duo fold acceptance; physical follow-up remains TestFlight-only. The owned iPad is Shutdown; no upload, physical device action, merge or release occurred.
+
+
+## Release preparation 1.6.1 (80) — 2026-10-24
+
+Latest fetched and pre-push-verified origin/main is PR #31 merge
+`73b85f6d7d008303d5c534c9eff0d04a433c75a9`. A fresh managed worktree on
+`codex/release-prep-2026-10-24` preserves existing checkouts. All native build,
+test and archive runs use clean source `8bfb9bd2c525ec0fcacb733e805144b9dca69813`,
+with unchanged input fingerprints throughout. Final follow-up is documentation
+and tester-note changes only.
+
+| Run | Pass | Fail | Skip |
+| --- | ---: | ---: | ---: |
+| Initial iPhone full gate | 252 | 2 | 4 |
+| Three isolated iPhone retries, two cases each | 6 | 0 | 0 |
+| Complete unchanged iPhone rerun | 254 | 0 | 4 |
+| Complete iPad gate | 254 | 0 | 4 |
+| Dedicated native Duo full gate | 248 | 5 | 4 |
+| Isolated Duo StoreKit retry | 1 | 0 | 0 |
+
+The original iPhone controller-wait and Share-hit-testing failures remain
+retained despite all retries and the clean full rerun. Cause is unproven. Native
+Duo's StoreKit timeout passes unchanged in isolation; four UI methods still stop
+at `waitForLandscape()` (lines 790, 1262 and 1280), before their product
+assertions. No assertion, timeout or exclusion changed. This is not a clean Duo
+gate, so release validation remains incomplete and PR #32 remains draft.
+
+Requested viewport, paused browsing, control visibility, Largest Text, More/unfold
+and scheduled-blackout cases pass on ordinary iPhone/iPad. Scoped native Duo
+manual captures verify Book/Tabletop placement, paused companion browsing,
+paused rotation, playing More across Closed/Open and actual duration input.
+Geometry/clock fixtures and native poses are labeled separately. A shared
+Simulator's later switch to another app invalidates a dismissal attempt; remaining
+Duo tests use a newly created release-only Simulator. No hardware was controlled.
+
+Release Analyze, archive guard, 30 workflow tests, plist/StoreKit JSON/shell
+checks, three locked screenshot families and six approved native 1.6 Duo hashes
+pass. The supplemental legacy asset validator fails an existing 11-versus-10
+landscape source-count mismatch. Assets were preserved. Runtime UIKit and
+StoreKit fixture warnings, SDK/debugger diagnostics and the Release App Intents
+metadata-skip warning remain recorded; do not describe these runs as warning-free.
+
+A signed archive and Apple Distribution-signed local IPA were prepared with
+existing signing. Metadata is 1.6.1 (80), iOS 15 minimum, families 1/2, SDK 27.1,
+production Lifetime ID, no non-exempt encryption and no DEBUG harness flags.
+Binary/dSYM UUIDs match. Evidence root: ignored
+`TestArtifacts/ReleasePrep-20261024/` in the release worktree. Exact commands,
+archive/IPA paths and hash, failures and warnings are in
+[the release verification record](../AppStore/Version-1.6.1/Verification-2026-10-24.md).
+Physical acceptance follows only the
+[TestFlight hardware checklist](../AppStore/Version-1.6.1/Hardware-Test-Checklist.md).
+No upload, Cloud start, tester assignment, App Review submission, merge or release
+was performed.
+
+### Historical 1.1 delivery reconciliation from PR #14
+
+PR #14 remains open/conflicting at `ee684e27897dba7191830cfc828e27a1eafa47da`.
+Its unique historical record identifies PR #13 merge `6a137d8`, release Xcode
+27.0 (27A266a) local signed 1.1 (30), the rejected beta-Xcode 29 attempt, Apple
+validation/internal assignment, September 18 at 4:16 PM Eastern submission
+`65db5975-4582-4cca-b723-263428ef3768`, and September 21 Ready for Distribution.
+It records owner-reported public iPhone/iPad smoke checks including storage,
+without exact device/OS details. This is reconciled as dated PR evidence, not a
+new physical run or a replacement for current acceptance. Old current-status and
+whole-project-complete substitutions were not merged.
+
+
+## Duo orientation and menu-driver repair — 2026-10-24
+
+Native/test/tooling source: `4ec5f61034749ab59a205c68e54c287968057d76`.
+[Complete reproduction, commands and evidence](../AppStore/Version-1.6.1/Duo-Orientation-Fix-2026-10-24.md).
+The unchanged four-case retry fails 0/4/0 at the original landscape predicates.
+The actual main window stays 466 × 678. A Simulator-only UI-test runner transport
+sends native orientation control events after selecting a deterministic cover
+baseline. It does not inject app geometry or playback state; existing eight-second
+real-window predicates and downstream product assertions gate success.
+
+The repaired four cases pass 4/0/0, and the formerly excluded landscape/swipe/
+portrait playback case passes 1/0/0. The first full pass is iPhone 253/1/4,
+iPad 254/0/4 and Duo 253/1/4. Both failures concern the existing Larger Text
+privacy driver tapping an offscreen menu item. An unchanged iPhone retry passes.
+The first hittability correction passes iPhone and Duo but fails iPad because
+its collection's reported content bounds extend beyond the popover; the final
+driver intersects clipping ancestors and scrolls inside the visible rectangle.
+Focused final privacy checks pass 1/0/0 on each family. All failures are retained.
+
+| Final complete suite | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| iPhone, iOS 27.0 | 254 | 0 | 4 |
+| iPad, iPadOS 27.0 | 254 | 0 | 4 |
+| Native Duo, iOS 27.1, rotation restored | 254 | 0 | 4 |
+
+Each final run exits 0, with 134 committed native input hashes unchanged during
+execution. Outputs are `OrientationFix-iPhoneFinal`, `OrientationFix-iPadFinal`
+and `OrientationFix-DuoFinal` beneath ignored `TestArtifacts/ReleasePrep-20261024/`.
+Default `test_local.sh` restores rotation; its updated workflow test rejects that
+exclusion on every family. Only the two unchanged shared Ask-to-Buy/marketing
+exclusions and four physical-only PhotoKit skips remain. Thirty tooling tests,
+shell syntax, approved locked-gallery hashes, note sync and diff checks pass.
+
+Every final summary retains three existing runtime warnings (UIKit hosting and
+two StoreKit fixture listeners); SDK/debugger diagnostics also remain. No
+assertion or timeout was weakened. All 85 app/project inputs match the unchanged
+signed archive and distribution IPA. Simulator transport markers are absent
+from that app binary and compile out of physical test targets. The explicit
+portrait-division fixture is still synthetic; real Book/Tabletop pose evidence
+and TestFlight-only hardware acceptance remain separate. No physical device
+operation, upload, Cloud start, merge, submission or publication occurred.
+
+
+## Artwork-validator reconciliation — 2026-10-24
+
+[Complete commands and evidence](../AppStore/Version-1.6.1/Artwork-Verification-2026-10-24.md).
+The initial eleven-versus-ten iPad landscape failure is retained. Correcting it
+also revealed the stale ten-card iPad final-gallery expectation; the current
+approved gallery has seven. The validator now enforces the exact eleven-source
+inventory and the 6/7/6 current release galleries, including Duo's mixed closed/
+open dimensions. The standard approval verifier also checks the six current
+Duo cards while retaining the four older proof locks.
+
+The full validator passes 86 screenshot rasters, IAP review, icon and 23 approval
+hashes. One valid disposable fixture passes and seven invalid fixtures reject
+extra/missing/misnamed/duplicate images, incorrect size, alpha and a modified
+sixth current Duo card. All 30 existing tooling tests, shell syntax, note sync
+and diff checks pass. All 162 tracked artwork files remain byte-identical, and
+the local gallery embeds all 19 approved JPEGs unchanged. Browser verification
+checks 6/7/6 decoded originals, ordered enlargement, keyboard traversal, download
+links, Escape and a 390px viewport without overflow or JavaScript errors.
+
+All 85 app/project inputs match the signed archive; native app/test inputs match
+the final 254/0/4 suites on all three Simulator families. Only the two artwork
+scripts differ among the earlier 134 gate fingerprints. No native rebuild or
+suite rerun was performed for this tooling/docs follow-up. Existing runtime/SDK
+warnings and hardware limitations remain. No physical device, upload, Cloud
+start, merge, App Review submission or production publication was performed.
+
+## Build 80 screenshot parity and refresh — 2026-10-24
+
+[Per-card evidence and exact commands](../AppStore/Version-1.6.1/Screenshot-Parity-2026-10-24.md).
+Seven of 19 cards are refreshed from native build-80 captures: iPhone 3/5/6,
+iPad 5/6/7, Duo 6. Twelve original cards, all 23 approval locks and all 162 earlier
+artwork files retain their bytes. Nine full-resolution sources and a 19-image
+review candidate set are saved separately. No generated UI or hardware is used.
+
+The initial iPad marketing capture failed because the storage driver's loop
+stopped when cleanup entered the viewport before the deletion choice. It now
+scrolls while either is not hittable; the three-gesture limit and both assertions
+are unchanged. Corrected complete capture cases pass 1/0/0 on iPhone and iPad,
+exit 0, stable gate fingerprints. Final 9:41 iPad captures also pass 1/0/0 but
+record global fingerprint drift from concurrent artwork-script edits. All native
+app/test inputs match the clean passing captures; the global flag is preserved.
+
+A first export retained LeftBottom orientation after physically rotating PNG
+pixels, causing the legacy renderer to rotate again. The corrected export uses
+`-auto-orient -orient TopLeft -strip` and is visually verified on all three final
+iPad cards. A new preflight accepts nine correct native sources and rejects the
+retained invalid PNG fixture. The first incorrect render remains local evidence.
+
+The asset validator passes 105 screenshot JPEGs, IAP review, icon, 23 prior
+approval hashes and 19/nine candidate/source hashes. Existing tooling tests pass
+30/0; shell syntax, note sync and diff hygiene pass. Browser checks decode all 19
+cards and verify seven original/current toggles, ordered navigation, download
+links and mobile layout. Every app/project fingerprint (85) matches the signed
+archive. No app/signing/version/archive input changed; the marketing capture
+class is the only changed native test file and was excluded from the prior full
+254/0/4 family suites. No new complete native regression matrix was run.
+
+Capture result summaries have no runtime-warning entries; SDK invalidDigitCount
+and debugger/noURL diagnostics remain in build logs. Prior UIKit/StoreKit fixture
+warnings remain historical. Physical checks remain TestFlight-only and unrun.
+No upload, Cloud start, physical installation, merge, submission or production
+publication occurred. All owned capture destinations are shut down, data kept.

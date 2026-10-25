@@ -6,8 +6,11 @@ repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 magick_bin=${FRAMEWINK_MAGICK_BIN:-$(command -v magick || true)}
 font_file=${FRAMEWINK_SCREENSHOT_FONT:-/System/Library/Fonts/SFNSRounded.ttf}
 source_root="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Sources"
-output_root="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final"
-contact_sheet="$repo_root/AppStore/Screenshots/Review/ContactSheets/iPhone-PPO-Bezel-Proposed.jpg"
+output_root=${FRAMEWINK_IPHONE_PPO_OUTPUT_ROOT:-"$repo_root/AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final"}
+contact_sheet=${FRAMEWINK_IPHONE_PPO_CONTACT_SHEET:-"$repo_root/AppStore/Screenshots/Review/ContactSheets/iPhone-PPO-Bezel-Proposed.jpg"}
+album_capture=${FRAMEWINK_IPHONE_PPO_ALBUM_CAPTURE:-"$source_root/native-album-picker-v1.jpg"}
+controls_capture=${FRAMEWINK_IPHONE_PPO_CONTROLS_CAPTURE:-"$source_root/native-controls-v1.jpg"}
+sample_capture=${FRAMEWINK_IPHONE_PPO_SAMPLE_CAPTURE:-"$source_root/native-sample-setup-v1.jpg"}
 sample_photo="$repo_root/FrameWink/Resources/SamplePhotos/sample-autumn-cyclist.jpg"
 product_background="$source_root/wall-closeup-portrait-v1.png"
 official_iphone=${FRAMEWINK_IPHONE_BEZEL:-'/Volumes/Bezel-iPhone-18/PNG/iPhone 18 Pro Max/iPhone 18 Pro Max - Black - Portrait.png'}
@@ -109,13 +112,13 @@ render_lifestyle "$source_root/lifestyle-portrait-integrated-v2.png" \
     "$output_root/01-beautifully-framed.jpg" $'Your photos.\nBeautifully framed.'
 render_product "$sample_photo" \
     "$output_root/02-made-for-every-screen.jpg" $'Made for\nevery screen.'
-render_product "$source_root/native-album-picker-v1.jpg" \
+render_product "$album_capture" \
     "$output_root/03-choose-an-album.jpg" $'Choose an album.\nKeep it fresh.'
 render_lifestyle "$source_root/lifestyle-landscape-integrated-v4.png" \
     "$output_root/04-portrait-or-landscape.jpg" $'Portrait or landscape.\nRight at home.' 125
-render_product "$source_root/native-controls-v1.jpg" \
+render_product "$controls_capture" \
     "$output_root/05-simple-controls.jpg" $'Simple timing.\nEasy control.'
-render_product "$source_root/native-sample-setup-v1.jpg" \
+render_product "$sample_capture" \
     "$output_root/06-see-it-first.jpg" $'See it first.\nChoose photos later.'
 
 count=$(find "$output_root" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' ')

@@ -3,6 +3,7 @@ set -euo pipefail
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 source_root="$repo_root/AppStore/Version-1.6/CaptureSources/iPhone-Duo"
 background_root="$source_root/MarketingBackgrounds"
+sample_capture=${FRAMEWINK_DUO_SAMPLE_CAPTURE:-"$source_root/Inner/04-sample-setup.jpg"}
 output_root=${FRAMEWINK_DUO_OUTPUT_ROOT:-"$repo_root/AppStore/Version-1.6/Screenshots/iPhone-Duo"}
 bezel_root=${FRAMEWINK_DUO_BEZEL_ROOT:-/Volumes/Bezel-iPhone-Duo/PNG}
 wall_background="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Sources/wall-closeup-portrait-v1.png"
@@ -107,7 +108,7 @@ inner="$bezel_root/iPhone Duo - Night Sky - Inner Open Portrait.png"
 make_device "$inner" "$source_root/open-single-portrait.png" 2007 2853 120 120 "$work/Devices/02-open-single-portrait.png"
 make_device "$inner" "$source_root/Inner/02-album-picker.jpg" 2007 2853 120 120 "$work/Devices/03-open-album-picker.png"
 make_device "$inner" "$source_root/Inner/03-frame-controls.jpg" 2007 2853 120 120 "$work/Devices/05-open-controls.png"
-make_device "$inner" "$source_root/Inner/04-sample-setup.jpg" 2007 2853 120 120 "$work/Devices/06-open-sample-setup.png"
+make_device "$inner" "$sample_capture" 2007 2853 120 120 "$work/Devices/06-open-sample-setup.png"
 make_wall() {
     local width=$1 height=$2 output=$3
     magick "$wall_background" \
@@ -134,4 +135,4 @@ inner_closeup "$work/Devices/03-open-album-picker.png" $'Choose an album.\nKeep 
 inner_closeup "$work/Devices/05-open-controls.png" $'Simple timing.\nEasy control.' "$output_root/05-simple-timing.jpg" controls
 inner_closeup "$work/Devices/06-open-sample-setup.png" $'See it first.\nChoose photos later.' "$output_root/06-see-it-first.jpg" sample
 magick identify -format '%f: %wx%h, %[channels]\n' "$output_root/"*.jpg
-echo 'Generated six approved native Duo screenshots with original Apple hardware.'
+echo 'Generated six native Duo screenshot candidates with original Apple hardware.'
