@@ -148,7 +148,10 @@ final class MarketingLandscapeScreenshotTests: XCTestCase {
 
         if scenario == "privacy-data" {
             let cleanupButton = app.buttons["free-unused-photo-space"]
-            for _ in 0..<3 where !cleanupButton.isHittable {
+            let deleteButton = app.buttons["delete-all-framewink-photos"]
+            // Both controls must be visible; the first can enter the viewport
+            // while the warned deletion choice is still below the fold.
+            for _ in 0..<3 where !cleanupButton.isHittable || !deleteButton.isHittable {
                 app.swipeUp()
                 RunLoop.current.run(until: Date().addingTimeInterval(0.4))
             }

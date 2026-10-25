@@ -209,8 +209,10 @@ mismatch and a second stale ten-versus-seven iPad gallery inventory. It also
 validates the current iPhone/Duo cards and their existing approval hashes. All
 86 screenshots, IAP review image, icon and 23 locks now pass; all 162 tracked
 artwork files are preserved byte-for-byte. The failed initial log remains retained.
-The [complete ordered gallery](Screenshot-Gallery.md) contains the 19 current
-release cards, retained from prior approvals rather than recaptured from build 80.
+The [later parity audit](Screenshot-Parity-2026-10-24.md) compares every visible
+interface with build 80 and replaces seven outdated captures in a separate new
+review gallery; twelve cards retain approved bytes. Original galleries and all
+approval files remain intact. [View the complete revised gallery](Screenshot-Gallery.md).
 
 PR #14 remains open/conflicting. Its unique 1.1 (30) signed local delivery,
 September 18 submission and September 21 release/smoke history were reconciled

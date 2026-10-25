@@ -3602,3 +3602,53 @@ device action, merge, App Review submission or production publication occurred.
 [Commands, results and review links](../AppStore/Version-1.6.1/Artwork-Verification-2026-10-24.md).
 Active-work estimate: approximately 0.3 hours. Release acceptance remains pending
 hardware and the future exact-source distribution audit.
+
+
+### Build 80 screenshot parity and selective refresh — 2026-10-24
+
+Status: in progress after the owner requested a comparison of every visible
+interface with build 80 and refresh of outdated captures. Use the three dedicated
+FrameWink QA Simulators and verified existing 1.6.1 (80) Debug products; retain
+all approved original galleries and locks. Capture actual current UI, compare
+every card, and compose only necessary replacements into a version-specific
+review set. Preserve app/project/signing inputs and the signed archive. No
+upload, Cloud start, physical-device action, merge, App Review submission or
+production publication is authorized. Initial active-work estimate: 0.5 hours.
+
+### Build 80 screenshot parity outcome — 2026-10-24
+
+Completed the requested comparison of all 19 visible interfaces. Seven cards
+were outdated: iPhone 3/5/6 (× close controls and caption background), iPad 5/6/7
+(× controls and sample caption), and Duo 6 (caption background). The two Duo
+picker/timing cards already match current UI. Twelve cards retain approved
+bytes. Version-specific review outputs and nine native render sources are in
+`AppStore/Version-1.6.1/`; all 162 prior artwork files and all approval locks stay
+unchanged. No Book/Tabletop marketing redesign or extra card was added.
+
+Captured verified existing 1.6.1 (80) products on an isolated fresh Pro Max and
+the dedicated iPad/Duo QA Simulators. The original smaller-Pro resolution probe
+and initial inner-landscape probe are retained. The capture driver's storage
+scroll stopped too early; it now waits for both buttons using the same three
+scrolls and original assertions. Complete marketing capture tests pass 1/0/0
+on iPhone and iPad with stable gate fingerprints. The final iPad 9:41 capture
+also passes but records a global artwork-script drift flag; all native app/test
+inputs match the clean passing captures. That flag remains recorded explicitly.
+
+Visual review caught a PNG LeftBottom tag causing double rotation in the first
+iPad composition. Auto-orient once, tag TopLeft, and regenerate all three iPad
+replacements; the release generator now rejects the original invalid state.
+Final validation passes 105 screenshots, IAP review, icon, 23 prior approval
+hashes, 19 candidate hashes and nine source hashes. Thirty tooling tests, shell
+syntax, tester-note sync and diff checks pass. The complete local gallery has
+19 decoded images and seven working original/current comparisons, with keyboard,
+download and mobile checks. All 85 app/project fingerprints match the unchanged
+signed archive. Only the previously excluded marketing class changed in native
+test source; no full native matrix was repeated for this follow-up.
+
+[Per-card decisions, commands, failures, checks and limitations](../AppStore/Version-1.6.1/Screenshot-Parity-2026-10-24.md).
+Keep PR #32 draft for artwork review and pending TestFlight-only hardware
+acceptance. Existing checkouts remain preserved. No upload, Cloud start,
+physical-device action, merge, App Review submission or production publication
+occurred. Owned capture Simulators were shut down with data retained.
+Active-work estimate: approximately 0.6 hours, excluding unattended capture and
+render time. Existing runtime/SDK warnings and future distribution checks remain.

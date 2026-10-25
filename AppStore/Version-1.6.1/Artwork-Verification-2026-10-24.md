@@ -1,5 +1,7 @@
 # Artwork verification and gallery — 2026-10-24
 
+Historical initial reconciliation. The later [build-80 parity audit](Screenshot-Parity-2026-10-24.md) selectively refreshes seven cards in a separate version gallery while preserving all original files and locks described below.
+
 The artwork-validator blocker is resolved. The approved release set remains
 **six iPhone + seven iPad + six Duo cards**, unchanged from prior approvals.
 [View every card in order](Screenshot-Gallery.md). These marketing images were

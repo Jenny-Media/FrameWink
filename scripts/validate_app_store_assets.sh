@@ -14,6 +14,8 @@ ipad_landscape_marketing_dir="$repo_root/AppStore/Screenshots/Marketing-Landscap
 iphone_ppo_dir="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final"
 duo_dir="$repo_root/AppStore/Version-1.6/Screenshots/iPhone-Duo"
 ipad_ppo_dir="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final"
+release_artwork_dir="$repo_root/AppStore/Version-1.6.1/Screenshots"
+release_capture_dir="$repo_root/AppStore/Version-1.6.1/CaptureSources"
 iap_review="$repo_root/AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg"
 icon="$repo_root/FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png"
 icon_contents="$repo_root/FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json"
@@ -163,37 +165,43 @@ validate_screenshot_set "$ipad_landscape_marketing_dir" 2752 2064 \
     09-lifetime-upgrade.jpg \
     10-free-stays-useful.jpg
 
-# Current approved release galleries, retained unchanged for 1.6.1.
-validate_screenshot_set "$iphone_ppo_dir" 1320 2868 \
-    01-beautifully-framed.jpg \
-    02-made-for-every-screen.jpg \
-    03-choose-an-album.jpg \
-    04-portrait-or-landscape.jpg \
-    05-simple-controls.jpg \
-    06-see-it-first.jpg
+# Validate both approved baselines and the version-specific build-80 review set.
+for gallery_root in "$iphone_ppo_dir" "$release_artwork_dir/iPhone-6.9-inch"; do
+    validate_screenshot_set "$gallery_root" 1320 2868 \
+        01-beautifully-framed.jpg \
+        02-made-for-every-screen.jpg \
+        03-choose-an-album.jpg \
+        04-portrait-or-landscape.jpg \
+        05-simple-controls.jpg \
+        06-see-it-first.jpg
+done
 
-validate_screenshot_set "$ipad_ppo_dir" 2752 2064 \
-    01-beautifully-framed.jpg \
-    02-wall-or-table.jpg \
-    03-beautifully-framed.jpg \
-    04-beautifully-arranged.jpg \
-    05-choose-an-album.jpg \
-    06-simple-controls.jpg \
-    07-see-it-first.jpg
+for gallery_root in "$ipad_ppo_dir" "$release_artwork_dir/iPad-13-inch"; do
+    validate_screenshot_set "$gallery_root" 2752 2064 \
+        01-beautifully-framed.jpg \
+        02-wall-or-table.jpg \
+        03-beautifully-framed.jpg \
+        04-beautifully-arranged.jpg \
+        05-choose-an-album.jpg \
+        06-simple-controls.jpg \
+        07-see-it-first.jpg
+done
 
-# Duo card 4 uses the approved closed-display size; the other five use open.
-validate_inventory "$duo_dir" \
-    01-your-photos-beautifully-framed.jpg \
-    02-open-to-a-bigger-frame.jpg \
-    03-choose-an-album.jpg \
-    04-open-or-closed.jpg \
-    05-simple-timing.jpg \
-    06-see-it-first.jpg
-for screenshot in "$duo_dir"/*.jpg; do
-    case "$(basename "$screenshot")" in
-        04-open-or-closed.jpg) validate_raster "$screenshot" 1398 2034 ;;
-        *) validate_raster "$screenshot" 2007 2853 ;;
-    esac
+for gallery_root in "$duo_dir" "$release_artwork_dir/iPhone-Duo"; do
+    # Duo card 4 uses the approved closed-display size; the other five use open.
+    validate_inventory "$gallery_root" \
+        01-your-photos-beautifully-framed.jpg \
+        02-open-to-a-bigger-frame.jpg \
+        03-choose-an-album.jpg \
+        04-open-or-closed.jpg \
+        05-simple-timing.jpg \
+        06-see-it-first.jpg
+    for screenshot in "$gallery_root"/*.jpg; do
+            case "$(basename "$screenshot")" in
+                04-open-or-closed.jpg) validate_raster "$screenshot" 1398 2034 ;;
+                *) validate_raster "$screenshot" 2007 2853 ;;
+            esac
+    done
 done
 
 validate_raster "$iap_review" 1242 2688
@@ -206,4 +214,8 @@ jq -e '.images | any(.filename == "AppIcon-1024.png" and .idiom == "universal" a
 # Also enforce the existing approvals, including the six current Duo cards.
 bash "$repo_root/scripts/verify_locked_app_store_screenshots.sh"
 
-echo "FrameWink App Store assets are valid (86 screenshots, IAP review and icon; 19 current release cards)."
+# Candidate checksums record reproducibility, not a new artwork approval.
+(cd "$release_artwork_dir" && shasum -a 256 -c SHA256SUMS)
+(cd "$release_capture_dir" && shasum -a 256 -c SHA256SUMS)
+
+echo "FrameWink App Store assets are valid (105 screenshots, IAP review and icon; 19 build-80 review cards)."

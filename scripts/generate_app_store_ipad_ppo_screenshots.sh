@@ -6,12 +6,13 @@ repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 magick_bin=${FRAMEWINK_MAGICK_BIN:-$(command -v magick || true)}
 font_file=${FRAMEWINK_SCREENSHOT_FONT:-/System/Library/Fonts/SFNSRounded.ttf}
 source_root="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Sources"
-output_root="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final"
-capture_root="$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"
+output_root=${FRAMEWINK_IPAD_PPO_OUTPUT_ROOT:-"$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final"}
+capture_root=${FRAMEWINK_IPAD_PPO_CAPTURE_ROOT:-"$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"}
+capture_extension=${FRAMEWINK_IPAD_PPO_CAPTURE_EXTENSION:-jpg}
 sample_photo="$repo_root/FrameWink/Resources/SamplePhotos/sample-yellowstone-falls.jpg"
 product_background="$source_root/wall-closeup-v3.png"
 official_ipad=${FRAMEWINK_IPAD_BEZEL:-'/Volumes/Bezel-iPad-Pro-(M5)/PNG/iPad Pro (M5) 13" - Space Black - Landscape.png'}
-contact_sheet="$repo_root/AppStore/Screenshots/Review/ContactSheets/iPad-PPO-Bezel-Proposed.jpg"
+contact_sheet=${FRAMEWINK_IPAD_PPO_CONTACT_SHEET:-"$repo_root/AppStore/Screenshots/Review/ContactSheets/iPad-PPO-Bezel-Proposed.jpg"}
 working_directory=$(mktemp -d "${TMPDIR:-/tmp}/framewink-ipad-ppo.XXXXXX")
 
 trap 'rm -rf "$working_directory"' EXIT
@@ -139,15 +140,15 @@ render_product() {
 
 render_wall_scene "$output_root/01-beautifully-framed.jpg"
 render_table_scene "$output_root/02-wall-or-table.jpg"
-render_product "$capture_root/01-landscape-frame.jpg" \
+render_product "$capture_root/01-landscape-frame.$capture_extension" \
     "$output_root/03-beautifully-framed.jpg" $'Your photos.\nBeautifully framed.'
-render_product "$capture_root/02-landscape-mosaic.jpg" \
+render_product "$capture_root/02-landscape-mosaic.$capture_extension" \
     "$output_root/04-beautifully-arranged.jpg" $'More photos,\nbeautifully arranged.'
-render_product "$capture_root/04-landscape-album-picker.jpg" \
+render_product "$capture_root/04-landscape-album-picker.$capture_extension" \
     "$output_root/05-choose-an-album.jpg" $'Choose an album.\nKeep it fresh.'
-render_product "$capture_root/05-landscape-controls.jpg" \
+render_product "$capture_root/05-landscape-controls.$capture_extension" \
     "$output_root/06-simple-controls.jpg" $'Simple timing.\nDirect sharing.'
-render_product "$capture_root/11-landscape-sample-setup.jpg" \
+render_product "$capture_root/11-landscape-sample-setup.$capture_extension" \
     "$output_root/07-see-it-first.jpg" $'See it first.\nChoose photos later.'
 
 count=$(find "$output_root" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' ')

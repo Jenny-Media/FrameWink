@@ -5344,3 +5344,40 @@ scripts differ among the earlier 134 gate fingerprints. No native rebuild or
 suite rerun was performed for this tooling/docs follow-up. Existing runtime/SDK
 warnings and hardware limitations remain. No physical device, upload, Cloud
 start, merge, App Review submission or production publication was performed.
+
+## Build 80 screenshot parity and refresh — 2026-10-24
+
+[Per-card evidence and exact commands](../AppStore/Version-1.6.1/Screenshot-Parity-2026-10-24.md).
+Seven of 19 cards are refreshed from native build-80 captures: iPhone 3/5/6,
+iPad 5/6/7, Duo 6. Twelve original cards, all 23 approval locks and all 162 earlier
+artwork files retain their bytes. Nine full-resolution sources and a 19-image
+review candidate set are saved separately. No generated UI or hardware is used.
+
+The initial iPad marketing capture failed because the storage driver's loop
+stopped when cleanup entered the viewport before the deletion choice. It now
+scrolls while either is not hittable; the three-gesture limit and both assertions
+are unchanged. Corrected complete capture cases pass 1/0/0 on iPhone and iPad,
+exit 0, stable gate fingerprints. Final 9:41 iPad captures also pass 1/0/0 but
+record global fingerprint drift from concurrent artwork-script edits. All native
+app/test inputs match the clean passing captures; the global flag is preserved.
+
+A first export retained LeftBottom orientation after physically rotating PNG
+pixels, causing the legacy renderer to rotate again. The corrected export uses
+`-auto-orient -orient TopLeft -strip` and is visually verified on all three final
+iPad cards. A new preflight accepts nine correct native sources and rejects the
+retained invalid PNG fixture. The first incorrect render remains local evidence.
+
+The asset validator passes 105 screenshot JPEGs, IAP review, icon, 23 prior
+approval hashes and 19/nine candidate/source hashes. Existing tooling tests pass
+30/0; shell syntax, note sync and diff hygiene pass. Browser checks decode all 19
+cards and verify seven original/current toggles, ordered navigation, download
+links and mobile layout. Every app/project fingerprint (85) matches the signed
+archive. No app/signing/version/archive input changed; the marketing capture
+class is the only changed native test file and was excluded from the prior full
+254/0/4 family suites. No new complete native regression matrix was run.
+
+Capture result summaries have no runtime-warning entries; SDK invalidDigitCount
+and debugger/noURL diagnostics remain in build logs. Prior UIKit/StoreKit fixture
+warnings remain historical. Physical checks remain TestFlight-only and unrun.
+No upload, Cloud start, physical installation, merge, submission or production
+publication occurred. All owned capture destinations are shut down, data kept.

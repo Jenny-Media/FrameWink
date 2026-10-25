@@ -9,7 +9,7 @@ Live read-only audit on October 24 through the owner's signed-in App Store Conne
 - TestFlight: 1.6.1 (78), Complete / Ready to Submit, assigned to Jenny Media Internal; 1.6.1 (76), Testing, also assigned to External Testers; (72), Ready to Submit.
 - Xcode Cloud: latest Validation 79 and Internal TestFlight 78 both list PR #31's merge as their source. Build 80 exceeds observed Cloud and upload numbers. Both saved build summaries were read back: Archive 78 and its internal TestFlight post-action succeeded; Analyze 79 succeeded, each from `73b85f6`. Recheck before future distribution.
 
-Release inputs: `WhatsNew.en-US.txt`, `AppReviewNotes.en-US.txt`, `What-to-Test.txt` (identical to the canonical TestFlight file), and `Hardware-Test-Checklist.md`. Keep existing approved galleries; this task does not publish metadata or change availability.
+Release inputs: `WhatsNew.en-US.txt`, `AppReviewNotes.en-US.txt`, `What-to-Test.txt` (identical to the canonical TestFlight file), and `Hardware-Test-Checklist.md`. Preserve prior approved galleries; the version-specific build-80 review gallery selectively refreshes outdated UI. This task does not publish metadata or change availability.
 
 ## Release-history reconciliation
 
@@ -42,13 +42,20 @@ on iPhone/iPad/Duo. Final complete iPhone, iPad and native Duo suites each pass
 `4ec5f61` with 134 unchanged input hashes. The original failures and
 intermediate diagnostics are preserved; no new skip or timeout increase is used.
 
-The [artwork-validator follow-up](Artwork-Verification-2026-10-24.md) corrects
-both stale inventories: eleven iPad landscape source captures and seven approved
-iPad cards. It adds the six iPhone and six current Duo cards to raster validation
-and includes the six current Duo approval hashes in the standard lock check.
-All 86 screenshots, IAP review image, icon and 23 approval hashes pass. All 162
-tracked artwork files are unchanged. The [complete screenshot gallery](Screenshot-Gallery.md)
-shows all 19 retained release cards in order; none was recaptured from build 80.
+The [initial artwork-validator follow-up](Artwork-Verification-2026-10-24.md)
+corrected both stale inventories while retaining every original image. The later
+[build-80 parity audit](Screenshot-Parity-2026-10-24.md) compares every card with
+current native Simulator UI and refreshes seven outdated interfaces: iPhone
+3/5/6, iPad 5/6/7 and Duo 6. Twelve cards keep their approved bytes. The complete
+19-card review set is in `Screenshots/`, with new capture sources in
+`CaptureSources/`; previous approved galleries and locks remain unchanged.
+[View every revised card](Screenshot-Gallery.md). New candidate checksums record
+file integrity, not owner or Apple approval.
+
+The capture-driver repair keeps all assertions and the three-scroll limit, and
+its complete marketing capture case passes on iPhone and iPad. Full asset,
+source-checksum and workflow verification are recorded in the parity audit.
+Application/project inputs, signing and the signed archive remain unchanged.
 
 Keep PR #32 draft and stop before upload. Hardware acceptance remains the separate
 TestFlight-only checklist, unrun for candidate 80. Nothing was uploaded or submitted.

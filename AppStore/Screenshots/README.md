@@ -2,20 +2,23 @@
 
 ## Current release galleries
 
-The approved gallery retained for 1.6.1 contains **19 cards**: six iPhone
-6.9-inch cards in `ProductPageOptimization/iPhone-6.9-inch/Final/`, seven iPad
-13-inch cards in `ProductPageOptimization/iPad-13-inch/Final/`, and six Duo cards
-in `../Version-1.6/Screenshots/iPhone-Duo/`. See the
-[complete ordered gallery](../Version-1.6.1/Screenshot-Gallery.md).
-These existing approved images were not recaptured from build 80.
+The 1.6.1 build-80 review gallery contains **19 cards** under
+`../Version-1.6.1/Screenshots/`: six iPhone 6.9-inch, seven iPad 13-inch and six
+Duo. [View the complete ordered gallery](../Version-1.6.1/Screenshot-Gallery.md).
+The [parity audit](../Version-1.6.1/Screenshot-Parity-2026-10-24.md) records every
+card's comparison: seven UI captures refreshed, twelve approved cards retained.
+
+The previous approved baselines remain in the two `ProductPageOptimization/`
+final galleries and `../Version-1.6/Screenshots/iPhone-Duo/`, with unchanged
+approval locks. New review-set checksums do not imply a new approval.
 
 Run `sh scripts/validate_app_store_assets.sh` from the repository root. It checks
-strict inventories, dimensions, opacity and uniqueness for the source libraries
-and current galleries, the IAP review image and icon, and all 23 existing approval
-hashes (19 release cards plus four earlier Duo proofs). The iPad landscape source
-library has eleven captures, including sample setup; it is separate from the
-seven-card current gallery. No source image is discarded to meet an upload count.
-Duo card 4 is 1398 x 2034; the other five are 2007 x 2853.
+strict inventories, dimensions, opacity and uniqueness for the source libraries,
+approved baselines and new review gallery, the IAP review image and icon, all 23
+prior approval hashes and the new candidate/source checksums. The iPad landscape
+source library has eleven captures, including sample setup; it is distinct from
+the seven-card current gallery. Duo card 4 is 1398 x 2034; the other five are
+2007 x 2853. No source image is discarded to meet an upload count.
 
 ## Original native submission captures
 
@@ -61,9 +64,9 @@ Apple references:
 - [Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)
 - [Upload app previews and screenshots](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots/)
 
-## iPad Product Page Optimization candidate
+## Approved iPad Product Page Optimization baseline
 
-The current screenshot-only treatment is in
+The approved baseline screenshot treatment is in
 `ProductPageOptimization/iPad-13-inch/Final/`. It contains exactly seven
 landscape JPEGs at 2752 x 2064 with no alpha. Run
 `scripts/generate_app_store_ipad_ppo_screenshots.sh` to rebuild it and the
@@ -94,7 +97,7 @@ capture at Apple's original +124,+118 screen opening in the 3000 x 2300
 perspective transform to the app UI. The standalone Apple Design Resources
 file is not stored in this repository.
 
-## iPhone 6.9-inch Product Page Optimization candidate
+## Approved iPhone 6.9-inch Product Page Optimization baseline
 
 The six-image iPhone treatment is in
 `ProductPageOptimization/iPhone-6.9-inch/Final/`. Run
@@ -128,7 +131,7 @@ Selected integration prompts were intentionally short:
 - Table: `Place the provided iPad naturally on the table in this room using a
   simple stand. Make it look like a real interior photograph.`
 
-## iPhone Duo proof sources
+## Earlier iPhone Duo proof sources
 
 The non-submission proof source captures are under
 `ProductPageOptimization/iPhone-Duo/Sources/`. Run
@@ -138,9 +141,9 @@ a booted iPhone Duo Simulator. Set `FRAMEWINK_DUO_DISPLAY=outer` for the
 inner display after opening the device in Device Hub. The script captures four
 exact app states and rejects a powered-off or blank display.
 
-These files are design proofs while App Store Connect upload support remains
-unavailable. Final device compositions require Apple's official iPhone Duo
-bezel package. Keep that standalone licensed resource outside the repository.
+These four earlier files remain design proofs. The approved six-card 1.6
+Duo gallery and the version-specific 1.6.1 candidates are described above.
+Device compositions require Apple's official iPhone Duo bezel package. Keep that standalone licensed resource outside the repository.
 Run `scripts/generate_app_store_iphone_duo_proof_screenshots.sh` after capturing
 both display families. It creates one outer-display card and three inner-display
 cards with exact app pixels inside Apple's Night Sky closed and open portrait
