@@ -202,12 +202,15 @@ warning. The signed Release archive has the App Intents metadata-extraction
 skipped warning because the target has no AppIntents dependency. Release static
 analysis passed. All original warnings and failed result bundles are retained.
 
-The supplemental legacy artwork validator fails because the unchanged
-`AppStore/Screenshots/Landscape/iPad-13-inch` has 11 JPEGs while its script expects
-10. `11-landscape-sample-setup.jpg` already exists on origin/main. This task does
-not remove or regenerate artwork. Approved locked galleries and the six native
-1.6 Duo files independently pass. Reconcile that legacy validator before relying
-on it for a new gallery upload; existing approved galleries are retained here.
+The initial supplemental artwork validator failed because the unchanged
+`AppStore/Screenshots/Landscape/iPad-13-inch` has 11 JPEGs while its script expected
+10. The later [artwork follow-up](Artwork-Verification-2026-10-24.md) resolves that
+mismatch and a second stale ten-versus-seven iPad gallery inventory. It also
+validates the current iPhone/Duo cards and their existing approval hashes. All
+86 screenshots, IAP review image, icon and 23 locks now pass; all 162 tracked
+artwork files are preserved byte-for-byte. The failed initial log remains retained.
+The [complete ordered gallery](Screenshot-Gallery.md) contains the 19 current
+release cards, retained from prior approvals rather than recaptured from build 80.
 
 PR #14 remains open/conflicting. Its unique 1.1 (30) signed local delivery,
 September 18 submission and September 21 release/smoke history were reconciled

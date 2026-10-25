@@ -5317,3 +5317,30 @@ from that app binary and compile out of physical test targets. The explicit
 portrait-division fixture is still synthetic; real Book/Tabletop pose evidence
 and TestFlight-only hardware acceptance remain separate. No physical device
 operation, upload, Cloud start, merge, submission or publication occurred.
+
+
+## Artwork-validator reconciliation — 2026-10-24
+
+[Complete commands and evidence](../AppStore/Version-1.6.1/Artwork-Verification-2026-10-24.md).
+The initial eleven-versus-ten iPad landscape failure is retained. Correcting it
+also revealed the stale ten-card iPad final-gallery expectation; the current
+approved gallery has seven. The validator now enforces the exact eleven-source
+inventory and the 6/7/6 current release galleries, including Duo's mixed closed/
+open dimensions. The standard approval verifier also checks the six current
+Duo cards while retaining the four older proof locks.
+
+The full validator passes 86 screenshot rasters, IAP review, icon and 23 approval
+hashes. One valid disposable fixture passes and seven invalid fixtures reject
+extra/missing/misnamed/duplicate images, incorrect size, alpha and a modified
+sixth current Duo card. All 30 existing tooling tests, shell syntax, note sync
+and diff checks pass. All 162 tracked artwork files remain byte-identical, and
+the local gallery embeds all 19 approved JPEGs unchanged. Browser verification
+checks 6/7/6 decoded originals, ordered enlargement, keyboard traversal, download
+links, Escape and a 390px viewport without overflow or JavaScript errors.
+
+All 85 app/project inputs match the signed archive; native app/test inputs match
+the final 254/0/4 suites on all three Simulator families. Only the two artwork
+scripts differ among the earlier 134 gate fingerprints. No native rebuild or
+suite rerun was performed for this tooling/docs follow-up. Existing runtime/SDK
+warnings and hardware limitations remain. No physical device, upload, Cloud
+start, merge, App Review submission or production publication was performed.

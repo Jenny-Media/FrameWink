@@ -3572,3 +3572,33 @@ existing legacy artwork-validator limitation. Keep PR #32 draft and stop before
 upload/Cloud start/merge/submission/publication. Native fixture, native pose and
 physical acceptance remain separate. Active-work estimate: about 0.6 hours,
 excluding unattended runtime. Original checkout remains preserved.
+
+
+### Artwork-validator reconciliation and complete gallery — 2026-10-24
+
+Completed the owner's requested artwork fix. The validator's iPad landscape
+source count was stale at ten instead of eleven, and its iPad final-gallery
+inventory still named an older ten-card treatment instead of the approved seven.
+Corrected both explicit inventories, added the six approved iPhone and six
+current Duo cards (with card 4's closed-display dimensions), and included the
+current Duo approval file in the standard locked-artwork check. Strict count,
+filename, dimensions, opacity, uniqueness and hash checks remain enforced.
+
+Validation passes for 86 screenshots, the IAP review image, app icon and all 23
+existing approval hashes. A valid disposable fixture passes; seven invalid
+fixtures are rejected for extra/missing/misnamed/duplicate images, dimensions,
+alpha and the sixth current Duo card's approval hash. Thirty existing tooling
+tests, shell syntax, tester-note sync and diff checks pass. All 162 tracked
+artwork files are unchanged. The complete 19-card gallery is linked from the
+release README; the local interactive copy embeds the exact approved JPEG bytes.
+All 19 images decode, navigation/download links and mobile layout pass browser
+checks. These are retained approved cards, not new build-80 captures.
+
+All 85 app/project inputs still match the signed archive; app and test sources
+match the prior three passing full Simulator suites. No new native build or test
+run is necessary for these asset-tooling/docs changes. Hardware acceptance stays
+unrun and TestFlight-only; PR #32 remains draft. No upload, Cloud start, physical
+device action, merge, App Review submission or production publication occurred.
+[Commands, results and review links](../AppStore/Version-1.6.1/Artwork-Verification-2026-10-24.md).
+Active-work estimate: approximately 0.3 hours. Release acceptance remains pending
+hardware and the future exact-source distribution audit.

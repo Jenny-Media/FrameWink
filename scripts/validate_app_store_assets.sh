@@ -11,6 +11,8 @@ iphone_landscape_dir="$repo_root/AppStore/Screenshots/Landscape/iPhone-6.9-inch"
 ipad_landscape_dir="$repo_root/AppStore/Screenshots/Landscape/iPad-13-inch"
 iphone_landscape_marketing_dir="$repo_root/AppStore/Screenshots/Marketing-Landscape/iPhone-6.9-inch"
 ipad_landscape_marketing_dir="$repo_root/AppStore/Screenshots/Marketing-Landscape/iPad-13-inch"
+iphone_ppo_dir="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPhone-6.9-inch/Final"
+duo_dir="$repo_root/AppStore/Version-1.6/Screenshots/iPhone-Duo"
 ipad_ppo_dir="$repo_root/AppStore/Screenshots/ProductPageOptimization/iPad-13-inch/Final"
 iap_review="$repo_root/AppStore/Screenshots/Review/IAP/FrameWink-Lifetime-review-1242x2688.jpg"
 icon="$repo_root/FrameWink/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png"
@@ -45,18 +47,19 @@ validate_raster() {
         || fail "$(basename "$file") contains an alpha channel"
 }
 
-validate_submission_set() {
+# Source libraries and final galleries have separate explicit inventories. The
+# eleven-image iPad landscape library is not an eleven-image upload gallery.
+validate_inventory() {
     directory=$1
-    expected_width=$2
-    expected_height=$3
-    shift 3
+    shift
 
+    [ -d "$directory" ] || fail "missing $directory"
     actual_count=$(find "$directory" -maxdepth 1 -type f -name '*.jpg' | wc -l | tr -d ' ')
     [ "$actual_count" = "$#" ] \
         || fail "$directory contains $actual_count JPEGs; expected $#"
 
     for filename in "$@"; do
-        validate_raster "$directory/$filename" "$expected_width" "$expected_height"
+        [ -f "$directory/$filename" ] || fail "missing $directory/$filename"
     done
 
     unique_count=$(find "$directory" -maxdepth 1 -type f -name '*.jpg' -exec shasum -a 256 {} \; \
@@ -65,7 +68,19 @@ validate_submission_set() {
         || fail "$directory contains duplicate screenshot files"
 }
 
-validate_submission_set "$iphone_dir" 1320 2868 \
+validate_screenshot_set() {
+    directory=$1
+    expected_width=$2
+    expected_height=$3
+    shift 3
+
+    validate_inventory "$directory" "$@"
+    for filename in "$@"; do
+        validate_raster "$directory/$filename" "$expected_width" "$expected_height"
+    done
+}
+
+validate_screenshot_set "$iphone_dir" 1320 2868 \
     01-free-sample.jpg \
     02-free-review-grid.jpg \
     03-free-frame-mode.jpg \
@@ -77,7 +92,7 @@ validate_submission_set "$iphone_dir" 1320 2868 \
     09-paid-display-guidance.jpg \
     10-paid-lifetime-features.jpg
 
-validate_submission_set "$ipad_dir" 2064 2752 \
+validate_screenshot_set "$ipad_dir" 2064 2752 \
     01-free-sample.jpg \
     02-free-review-grid.jpg \
     03-free-frame-mode.jpg \
@@ -89,7 +104,7 @@ validate_submission_set "$ipad_dir" 2064 2752 \
     09-paid-commissioning-checklist.jpg \
     10-paid-wall-mode-features.jpg
 
-validate_submission_set "$iphone_marketing_dir" 1320 2868 \
+validate_screenshot_set "$iphone_marketing_dir" 1320 2868 \
     01-private-frame.jpg \
     02-automatic-layouts.jpg \
     03-smart-reel.jpg \
@@ -101,7 +116,7 @@ validate_submission_set "$iphone_marketing_dir" 1320 2868 \
     09-lifetime-upgrade.jpg \
     10-free-stays-useful.jpg
 
-validate_submission_set "$ipad_marketing_dir" 2064 2752 \
+validate_screenshot_set "$ipad_marketing_dir" 2064 2752 \
     01-private-frame.jpg \
     02-automatic-layouts.jpg \
     03-smart-reel.jpg \
@@ -113,12 +128,12 @@ validate_submission_set "$ipad_marketing_dir" 2064 2752 \
     09-lifetime-upgrade.jpg \
     10-free-stays-useful.jpg
 
-validate_submission_set "$iphone_landscape_dir" 2868 1320 \
+validate_screenshot_set "$iphone_landscape_dir" 2868 1320 \
     01-landscape-frame.jpg \
     02-landscape-controls.jpg \
     03-landscape-review.jpg
 
-validate_submission_set "$ipad_landscape_dir" 2752 2064 \
+validate_screenshot_set "$ipad_landscape_dir" 2752 2064 \
     01-landscape-frame.jpg \
     02-landscape-mosaic.jpg \
     03-landscape-review.jpg \
@@ -128,14 +143,15 @@ validate_submission_set "$ipad_landscape_dir" 2752 2064 \
     07-landscape-night-schedule.jpg \
     08-landscape-mounted-tips.jpg \
     09-landscape-lifetime-purchase.jpg \
-    10-landscape-lifetime-features.jpg
+    10-landscape-lifetime-features.jpg \
+    11-landscape-sample-setup.jpg
 
-validate_submission_set "$iphone_landscape_marketing_dir" 2868 1320 \
+validate_screenshot_set "$iphone_landscape_marketing_dir" 2868 1320 \
     01-private-iphone-frame.jpg \
     02-landscape-controls.jpg \
     03-review-before-display.jpg
 
-validate_submission_set "$ipad_landscape_marketing_dir" 2752 2064 \
+validate_screenshot_set "$ipad_landscape_marketing_dir" 2752 2064 \
     01-private-ipad-frame.jpg \
     02-automatic-landscape-layouts.jpg \
     03-review-before-display.jpg \
@@ -147,17 +163,38 @@ validate_submission_set "$ipad_landscape_marketing_dir" 2752 2064 \
     09-lifetime-upgrade.jpg \
     10-free-stays-useful.jpg
 
-validate_submission_set "$ipad_ppo_dir" 2752 2064 \
-    01-wall-mounted-frame.jpg \
-    02-tabletop-frame.jpg \
-    03-review-before-display.jpg \
-    04-automatic-album.jpg \
-    05-storage-controls.jpg \
+# Current approved release galleries, retained unchanged for 1.6.1.
+validate_screenshot_set "$iphone_ppo_dir" 1320 2868 \
+    01-beautifully-framed.jpg \
+    02-made-for-every-screen.jpg \
+    03-choose-an-album.jpg \
+    04-portrait-or-landscape.jpg \
+    05-simple-controls.jpg \
+    06-see-it-first.jpg
+
+validate_screenshot_set "$ipad_ppo_dir" 2752 2064 \
+    01-beautifully-framed.jpg \
+    02-wall-or-table.jpg \
+    03-beautifully-framed.jpg \
+    04-beautifully-arranged.jpg \
+    05-choose-an-album.jpg \
     06-simple-controls.jpg \
-    07-night-schedule.jpg \
-    08-mounted-guidance.jpg \
-    09-lifetime-upgrade.jpg \
-    10-free-stays-useful.jpg
+    07-see-it-first.jpg
+
+# Duo card 4 uses the approved closed-display size; the other five use open.
+validate_inventory "$duo_dir" \
+    01-your-photos-beautifully-framed.jpg \
+    02-open-to-a-bigger-frame.jpg \
+    03-choose-an-album.jpg \
+    04-open-or-closed.jpg \
+    05-simple-timing.jpg \
+    06-see-it-first.jpg
+for screenshot in "$duo_dir"/*.jpg; do
+    case "$(basename "$screenshot")" in
+        04-open-or-closed.jpg) validate_raster "$screenshot" 1398 2034 ;;
+        *) validate_raster "$screenshot" 2007 2853 ;;
+    esac
+done
 
 validate_raster "$iap_review" 1242 2688
 validate_raster "$icon" 1024 1024
@@ -166,4 +203,7 @@ jq -e '.images | any(.filename == "AppIcon-1024.png" and .idiom == "universal" a
     "$icon_contents" >/dev/null \
     || fail "AppIcon Contents.json does not reference the universal 1024px iOS master"
 
-echo "FrameWink App Store assets are valid."
+# Also enforce the existing approvals, including the six current Duo cards.
+bash "$repo_root/scripts/verify_locked_app_store_screenshots.sh"
+
+echo "FrameWink App Store assets are valid (86 screenshots, IAP review and icon; 19 current release cards)."

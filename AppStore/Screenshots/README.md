@@ -1,6 +1,25 @@
 # App Store screenshots
 
-The upload-ready set is in `Submission/iPad-13-inch/`. It contains exactly ten
+## Current release galleries
+
+The approved gallery retained for 1.6.1 contains **19 cards**: six iPhone
+6.9-inch cards in `ProductPageOptimization/iPhone-6.9-inch/Final/`, seven iPad
+13-inch cards in `ProductPageOptimization/iPad-13-inch/Final/`, and six Duo cards
+in `../Version-1.6/Screenshots/iPhone-Duo/`. See the
+[complete ordered gallery](../Version-1.6.1/Screenshot-Gallery.md).
+These existing approved images were not recaptured from build 80.
+
+Run `sh scripts/validate_app_store_assets.sh` from the repository root. It checks
+strict inventories, dimensions, opacity and uniqueness for the source libraries
+and current galleries, the IAP review image and icon, and all 23 existing approval
+hashes (19 release cards plus four earlier Duo proofs). The iPad landscape source
+library has eleven captures, including sample setup; it is separate from the
+seven-card current gallery. No source image is discarded to meet an upload count.
+Duo card 4 is 1398 x 2034; the other five are 2007 x 2853.
+
+## Original native submission captures
+
+The original native set is in `Submission/iPad-13-inch/`. It contains exactly ten
 portrait JPEGs at 2064 x 2752 with no alpha channel, matching Apple's 13-inch
 iPad screenshot specification and the App Store Connect maximum of ten images.
 

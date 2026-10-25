@@ -42,7 +42,13 @@ on iPhone/iPad/Duo. Final complete iPhone, iPad and native Duo suites each pass
 `4ec5f61` with 134 unchanged input hashes. The original failures and
 intermediate diagnostics are preserved; no new skip or timeout increase is used.
 
-Keep PR #32 draft and stop before upload. The supplemental legacy artwork
-validator retains its unchanged 11-versus-10 landscape source count; approved
-screenshot hashes pass. Hardware acceptance remains the separate TestFlight-only
-checklist, unrun for candidate 80. Nothing was uploaded or submitted.
+The [artwork-validator follow-up](Artwork-Verification-2026-10-24.md) corrects
+both stale inventories: eleven iPad landscape source captures and seven approved
+iPad cards. It adds the six iPhone and six current Duo cards to raster validation
+and includes the six current Duo approval hashes in the standard lock check.
+All 86 screenshots, IAP review image, icon and 23 approval hashes pass. All 162
+tracked artwork files are unchanged. The [complete screenshot gallery](Screenshot-Gallery.md)
+shows all 19 retained release cards in order; none was recaptured from build 80.
+
+Keep PR #32 draft and stop before upload. Hardware acceptance remains the separate
+TestFlight-only checklist, unrun for candidate 80. Nothing was uploaded or submitted.
